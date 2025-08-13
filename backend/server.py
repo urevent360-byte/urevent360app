@@ -65,6 +65,7 @@ class User(BaseModel):
     name: str
     email: EmailStr
     mobile: str
+    role: str = "user"  # user, admin, vendor
     created_at: datetime = Field(default_factory=datetime.utcnow)
     profile_completed: bool = False
 
