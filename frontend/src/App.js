@@ -24,6 +24,9 @@ import Messages from './components/Messages';
 // Admin Components
 import AdminLayout from './components/admin/AdminLayout';
 
+// Vendor Components
+import VendorLayout from './components/vendor/VendorLayout';
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
