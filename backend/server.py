@@ -13,6 +13,10 @@ import uuid
 import logging
 from pathlib import Path
 
+# Import vendor subscription routes
+from admin_routes import admin_router
+from vendor_subscription_routes import vendor_router
+
 # Load environment variables
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
