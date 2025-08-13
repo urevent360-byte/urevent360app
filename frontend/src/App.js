@@ -84,52 +84,61 @@ function App() {
       <BrowserRouter>
         <div className="min-h-screen bg-gray-50">
           {user ? (
-            // Authenticated Layout
-            <div className="flex h-screen">
-              {/* Sidebar */}
-              <Sidebar 
-                open={sidebarOpen} 
-                setOpen={setSidebarOpen} 
-                className="hidden lg:block"
-              />
-              
-              {/* Mobile Sidebar Overlay */}
-              {sidebarOpen && (
-                <div 
-                  className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <Sidebar 
-                    open={sidebarOpen} 
-                    setOpen={setSidebarOpen} 
-                    className="absolute left-0 top-0 h-full"
-                  />
-                </div>
-              )}
-
-              {/* Main Content */}
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <Navbar setSidebarOpen={setSidebarOpen} />
+            // Check if user is admin and show appropriate layout
+            user.role === 'admin' ? (
+              // Admin Layout
+              <Routes>
+                <Route path="/admin/*" element={<AdminLayout />} />
+                <Route path="*" element={<Navigate to="/admin" />} />
+              </Routes>
+            ) : (
+              // Regular User Layout
+              <div className="flex h-screen">
+                {/* Sidebar */}
+                <Sidebar 
+                  open={sidebarOpen} 
+                  setOpen={setSidebarOpen} 
+                  className="hidden lg:block"
+                />
                 
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 lg:p-6">
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/events/create" element={<EventCreation />} />
-                    <Route path="/events/:eventId/planning" element={<EventPlanning />} />
-                    <Route path="/venues" element={<VenueBrowser />} />
-                    <Route path="/vendors" element={<VendorMarketplace />} />
-                    <Route path="/payments" element={<PaymentCenter />} />
-                    <Route path="/loans" element={<LoanCenter />} />
-                    <Route path="/guests/:eventId" element={<GuestManagement />} />
-                    <Route path="/live/:eventId" element={<LiveEvent />} />
-                    <Route path="/post-event/:eventId" element={<PostEvent />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/messages" element={<Messages />} />
-                    <Route path="*" element={<Navigate to="/" />} />
-                  </Routes>
-                </main>
+                {/* Mobile Sidebar Overlay */}
+                {sidebarOpen && (
+                  <div 
+                    className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Sidebar 
+                      open={sidebarOpen} 
+                      setOpen={setSidebarOpen} 
+                      className="absolute left-0 top-0 h-full"
+                    />
+                  </div>
+                )}
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  <Navbar setSidebarOpen={setSidebarOpen} />
+                  
+                  <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 lg:p-6">
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/events/create" element={<EventCreation />} />
+                      <Route path="/events/:eventId/planning" element={<EventPlanning />} />
+                      <Route path="/venues" element={<VenueBrowser />} />
+                      <Route path="/vendors" element={<VendorMarketplace />} />
+                      <Route path="/payments" element={<PaymentCenter />} />
+                      <Route path="/loans" element={<LoanCenter />} />
+                      <Route path="/guests/:eventId" element={<GuestManagement />} />
+                      <Route path="/live/:eventId" element={<LiveEvent />} />
+                      <Route path="/post-event/:eventId" element={<PostEvent />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/messages" element={<Messages />} />
+                      <Route path="*" element={<Navigate to="/" />} />
+                    </Routes>
+                  </main>
+                </div>
               </div>
-            </div>
+            )
           ) : (
             // Unauthenticated Layout
             <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600">
