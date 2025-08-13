@@ -27,6 +27,24 @@ async def seed_database():
     await db.venues.delete_many({})
     await db.vendors.delete_many({})
     
+    # Create admin user if not exists
+    admin_user = await db.users.find_one({"email": "admin@urevent360.com"})
+    if not admin_user:
+        admin_data = {
+            "id": str(uuid.uuid4()),
+            "name": "Admin User",
+            "email": "admin@urevent360.com",
+            "mobile": "+1234567890",
+            "role": "admin",
+            "hashed_password": get_password_hash("admin123"),
+            "created_at": datetime.utcnow(),
+            "profile_completed": True
+        }
+        await db.users.insert_one(admin_data)
+        print("✅ Admin user created: admin@urevent360.com / admin123")
+    else:
+        print("ℹ️ Admin user already exists")
+    
     # Sample Venues
     venues = [
         {
