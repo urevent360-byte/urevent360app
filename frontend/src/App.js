@@ -87,12 +87,18 @@ function App() {
       <BrowserRouter>
         <div className="min-h-screen bg-gray-50">
           {user ? (
-            // Check if user is admin and show appropriate layout
+            // Check user role and show appropriate layout
             user.role === 'admin' ? (
               // Admin Layout
               <Routes>
                 <Route path="/admin/*" element={<AdminLayout />} />
                 <Route path="*" element={<Navigate to="/admin" />} />
+              </Routes>
+            ) : user.role === 'vendor' ? (
+              // Vendor Layout
+              <Routes>
+                <Route path="/vendor/*" element={<VendorLayout />} />
+                <Route path="*" element={<Navigate to="/vendor" />} />
               </Routes>
             ) : (
               // Regular User Layout
