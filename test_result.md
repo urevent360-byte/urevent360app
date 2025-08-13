@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Complete the Urevent 360 admin system by creating remaining admin components and updating main App.js to include admin routes. ADDITIONALLY: Create enhanced vendor marketplace module (3rd module) with category-based filtering and budget-aware vendor display - vendors should only be shown if they match the user's event budget, with no sense showing vendors outside budget range."
+user_problem_statement: "Complete the Urevent 360 admin system by creating remaining admin components and updating main App.js to include admin routes. ADDITIONALLY: Create enhanced vendor marketplace module (3rd module) with category-based filtering and budget-aware vendor display - vendors should only be shown if they match the user's event budget, with no sense showing vendors outside budget range. FINALLY: Add multi-role login system where users can select whether they are administrator, vendor company, or client before logging in, directing them to the correct module."
 
 backend:
   - task: "Admin User Authentication"
