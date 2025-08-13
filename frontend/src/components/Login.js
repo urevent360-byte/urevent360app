@@ -140,7 +140,11 @@ const Login = () => {
         <div className="max-w-5xl w-full space-y-8 relative z-10">
           {/* Header */}
           <div className="text-center">
-            <div className="mx-auto h-24 w-24 bg-white/95 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-sm border border-white/20">
+            <div 
+              className="mx-auto h-24 w-24 bg-white/95 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-sm border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-200"
+              onClick={() => handleRoleSelect('admin')}
+              title="Click for Administrator Access"
+            >
               <img 
                 src="https://customer-assets.emergentagent.com/job_urevent-admin/artifacts/efthwf05_ureventlogos-02%20%281%29.png" 
                 alt="Urevent 360 Logo" 
@@ -158,9 +162,9 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Role Selection Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            {roleOptions.map((role) => {
+          {/* Role Selection Cards - Only Client and Vendor */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 max-w-4xl mx-auto">
+            {roleOptions.filter(role => role.id !== 'admin').map((role) => {
               const Icon = role.icon;
               return (
                 <div
