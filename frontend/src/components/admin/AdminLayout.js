@@ -47,10 +47,15 @@ const AdminLayout = () => {
       }`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">U</span>
+            <img 
+              src="https://customer-assets.emergentagent.com/job_urevent-admin/artifacts/efthwf05_ureventlogos-02%20%281%29.png" 
+              alt="Urevent 360 Logo" 
+              className="h-8 w-8 object-contain"
+            />
+            <div>
+              <h1 className="text-lg font-semibold text-gray-900">Urevent 360</h1>
+              <p className="text-xs text-gray-500">Admin Console</p>
             </div>
-            <span className="text-xl font-bold text-gray-800">Admin Panel</span>
           </div>
           <button
             onClick={() => setSidebarOpen(false)}
