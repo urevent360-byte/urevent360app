@@ -134,23 +134,28 @@ async def seed_database():
         }
     ]
     
-    # Sample Vendors
+    # Sample Vendors with enhanced data
     vendors = [
         {
             "id": str(uuid.uuid4()),
             "name": "Elite Catering Services",
             "service_type": "Catering",
-            "description": "Premium catering for all types of events with customizable menus and professional service",
+            "description": "Premium catering services with farm-to-table ingredients and personalized menus for all occasions",
             "location": "New York, NY",
-            "price_range": {"min": 50.0, "max": 150.0},
+            "price_range": {"min": 50.0, "max": 200.0},
             "rating": 4.8,
+            "reviews_count": 127,
             "portfolio": ["https://images.unsplash.com/photo-1555244162-803834f70033?w=400&h=300&fit=crop"],
             "contact_info": {
                 "phone": "(555) 123-4567",
                 "email": "info@elitecatering.com",
                 "website": "www.elitecatering.com"
             },
-            "availability": ["weekdays", "weekends"]
+            "availability": ["weekdays", "weekends"],
+            "specialties": ["Wedding Catering", "Corporate Events", "Fine Dining", "Dietary Accommodations"],
+            "experience_years": 8,
+            "verified": True,
+            "created_at": datetime.utcnow()
         },
         {
             "id": str(uuid.uuid4()),
@@ -160,13 +165,18 @@ async def seed_database():
             "location": "Los Angeles, CA",
             "price_range": {"min": 800.0, "max": 5000.0},
             "rating": 4.9,
+            "reviews_count": 89,
             "portfolio": ["https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop"],
             "contact_info": {
                 "phone": "(555) 987-6543",
                 "email": "hello@elegantdecorations.com",
                 "website": "www.elegantdecorations.com"
             },
-            "availability": ["weekends", "holidays"]
+            "availability": ["weekends", "holidays"],
+            "specialties": ["Wedding Decor", "Theme Parties", "Corporate Styling", "Floral Arrangements"],
+            "experience_years": 6,
+            "verified": True,
+            "created_at": datetime.utcnow()
         },
         {
             "id": str(uuid.uuid4()),
@@ -176,13 +186,18 @@ async def seed_database():
             "location": "Chicago, IL",
             "price_range": {"min": 1200.0, "max": 3500.0},
             "rating": 4.7,
+            "reviews_count": 156,
             "portfolio": ["https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop"],
             "contact_info": {
                 "phone": "(555) 456-7890",
                 "email": "book@capturemoments.com",
                 "website": "www.capturemomentsphoto.com"
             },
-            "availability": ["weekends", "weekdays"]
+            "availability": ["weekends", "weekdays"],
+            "specialties": ["Wedding Photography", "Portrait Sessions", "Event Coverage", "Photo Editing"],
+            "experience_years": 10,
+            "verified": True,
+            "created_at": datetime.utcnow()
         },
         {
             "id": str(uuid.uuid4()),
@@ -192,77 +207,102 @@ async def seed_database():
             "location": "Miami, FL",
             "price_range": {"min": 600.0, "max": 2000.0},
             "rating": 4.6,
+            "reviews_count": 93,
             "portfolio": ["https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"],
             "contact_info": {
                 "phone": "(555) 321-0987",
                 "email": "dj@soundrhythm.com",
                 "website": "www.soundrhythmdj.com"
             },
-            "availability": ["weekends", "weekdays", "holidays"]
+            "availability": ["weekends", "holidays"],
+            "specialties": ["Wedding DJ", "Corporate Events", "Party Entertainment", "Sound System"],
+            "experience_years": 7,
+            "verified": True,
+            "created_at": datetime.utcnow()
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "Bloom & Petals Florist",
-            "service_type": "Flowers",
-            "description": "Fresh flowers and beautiful arrangements for every occasion with creative designs",
-            "location": "Seattle, WA",
-            "price_range": {"min": 300.0, "max": 2500.0},
-            "rating": 4.8,
-            "portfolio": ["https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"],
-            "contact_info": {
-                "phone": "(555) 654-3210",
-                "email": "orders@bloompetals.com",
-                "website": "www.bloompetals.com"
-            },
-            "availability": ["weekdays", "weekends"]
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Luxury Transportation Co.",
+            "name": "Luxe Transportation",
             "service_type": "Transportation",
-            "description": "Premium transportation services with luxury vehicles and professional chauffeurs",
-            "location": "San Francisco, CA",
+            "description": "Premium transportation services with luxury vehicles for special occasions",
+            "location": "Las Vegas, NV",
             "price_range": {"min": 200.0, "max": 800.0},
             "rating": 4.5,
+            "reviews_count": 67,
             "portfolio": ["https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop"],
             "contact_info": {
-                "phone": "(555) 111-2233",
-                "email": "book@luxurytrans.com",
-                "website": "www.luxurytransportation.com"
+                "phone": "(555) 654-3210",
+                "email": "info@luxetransport.com",
+                "website": "www.luxetransportation.com"
             },
-            "availability": ["weekdays", "weekends", "holidays"]
+            "availability": ["weekdays", "weekends"],
+            "specialties": ["Wedding Transport", "Corporate Transfer", "Airport Service", "Luxury Vehicles"],
+            "experience_years": 5,
+            "verified": True,
+            "created_at": datetime.utcnow()
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "Creative Videography Studio",
+            "name": "Brilliant Lighting Solutions",
+            "service_type": "Lighting",
+            "description": "Professional lighting design and setup for events of all sizes",
+            "location": "Atlanta, GA",
+            "price_range": {"min": 400.0, "max": 1500.0},
+            "rating": 4.4,
+            "reviews_count": 78,
+            "portfolio": ["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=300&fit=crop"],
+            "contact_info": {
+                "phone": "(555) 789-0123",
+                "email": "info@brilliantlighting.com",
+                "website": "www.brilliantlightingsolutions.com"
+            },
+            "availability": ["weekends", "weekdays"],
+            "specialties": ["Stage Lighting", "Ambient Lighting", "LED Systems", "Light Show"],
+            "experience_years": 4,
+            "verified": False,
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "SecureGuard Event Security",
+            "service_type": "Security",
+            "description": "Professional security services for events with trained and licensed personnel",
+            "location": "Houston, TX",
+            "price_range": {"min": 300.0, "max": 1000.0},
+            "rating": 4.3,
+            "reviews_count": 45,
+            "portfolio": ["https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop"],
+            "contact_info": {
+                "phone": "(555) 012-3456",
+                "email": "security@secureguard.com",
+                "website": "www.secureguardevents.com"
+            },
+            "availability": ["weekdays", "weekends"],
+            "specialties": ["Event Security", "Crowd Control", "VIP Protection", "Access Control"],
+            "experience_years": 12,
+            "verified": True,
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "CinemaVision Videography",
             "service_type": "Videography",
-            "description": "Cinematic event videography capturing every special moment with artistic storytelling",
-            "location": "Austin, TX",
+            "description": "Cinematic videography services capturing your special moments in stunning quality",
+            "location": "Seattle, WA",
             "price_range": {"min": 1500.0, "max": 4000.0},
-            "rating": 4.7,
-            "portfolio": ["https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=300&fit=crop"],
+            "rating": 4.8,
+            "reviews_count": 82,
+            "portfolio": ["https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&h=300&fit=crop"],
             "contact_info": {
-                "phone": "(555) 777-8888",
-                "email": "info@creativevideo.com",
-                "website": "www.creativevideostudio.com"
+                "phone": "(555) 345-6789",
+                "email": "film@cinemavision.com",
+                "website": "www.cinemavisionvideo.com"
             },
-            "availability": ["weekends", "weekdays"]
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Perfect Makeup Artists",
-            "service_type": "Makeup Artist",
-            "description": "Professional makeup and hair styling for special events with premium products",
-            "location": "Las Vegas, NV",
-            "price_range": {"min": 250.0, "max": 800.0},
-            "rating": 4.9,
-            "portfolio": ["https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=400&h=300&fit=crop"],
-            "contact_info": {
-                "phone": "(555) 999-0000",
-                "email": "beauty@perfectmakeup.com",
-                "website": "www.perfectmakeupartists.com"
-            },
-            "availability": ["weekends", "weekdays"]
+            "availability": ["weekends", "holidays"],
+            "specialties": ["Wedding Videography", "Corporate Videos", "Event Highlights", "Drone Footage"],
+            "experience_years": 9,
+            "verified": True,
+            "created_at": datetime.utcnow()
         }
     ]
     
