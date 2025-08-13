@@ -247,12 +247,23 @@ const Login = () => {
 
   // Login Form Step
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div 
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Elegant overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-transparent to-blue-900/30"></div>
+      
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Back Button */}
         <button
           onClick={goBack}
-          className="flex items-center text-purple-200 hover:text-white transition-colors mb-4"
+          className="flex items-center text-white/80 hover:text-white transition-colors mb-4 backdrop-blur-sm bg-white/10 px-3 py-2 rounded-lg"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to role selection
@@ -260,25 +271,27 @@ const Login = () => {
 
         {/* Header */}
         <div className="text-center">
-          <div className={`mx-auto h-16 w-16 bg-gradient-to-r ${selectedRoleData?.color} rounded-full flex items-center justify-center shadow-lg`}>
-            {selectedRoleData && React.createElement(selectedRoleData.icon, { 
-              className: "w-8 h-8 text-white" 
-            })}
+          <div className={`mx-auto h-20 w-20 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl border border-white/20`}>
+            <img 
+              src="https://customer-assets.emergentagent.com/job_urevent-admin/artifacts/efthwf05_ureventlogos-02%20%281%29.png" 
+              alt="Urevent 360 Logo" 
+              className="h-12 w-12 object-contain"
+            />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-white">
-            {selectedRoleData?.title} Login
+          <h2 className="mt-6 text-3xl font-extrabold text-white drop-shadow-lg">
+            {selectedRoleData?.title} Portal
           </h2>
-          <p className="mt-2 text-sm text-purple-100">
+          <p className="mt-2 text-sm text-white/90 drop-shadow">
             {selectedRoleData?.description}
           </p>
         </div>
 
         {/* Login Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6 bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20" onSubmit={handleSubmit}>
           <div className="space-y-4">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-purple-100 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
               </label>
               <div className="relative">
@@ -293,7 +306,7 @@ const Login = () => {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="appearance-none relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="appearance-none relative block w-full pl-10 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   placeholder="Enter your email"
                 />
               </div>
@@ -301,7 +314,7 @@ const Login = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-purple-100 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -316,7 +329,7 @@ const Login = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none relative block w-full pl-10 pr-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="appearance-none relative block w-full pl-10 pr-10 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                   placeholder="Enter your password"
                 />
                 <button
@@ -336,21 +349,21 @@ const Login = () => {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
               {error}
             </div>
           )}
 
           {/* Demo Credentials Note */}
           {selectedRole === 'admin' && (
-            <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg text-sm">
-              <strong>Demo Admin:</strong> Credentials are pre-filled for testing
+            <div className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-xl text-sm">
+              <strong>Demo Admin Access:</strong> Credentials are pre-filled for testing
             </div>
           )}
 
           {selectedRole === 'vendor' && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg text-sm">
-              <strong>Demo Vendor:</strong> Credentials are pre-filled for testing
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm">
+              <strong>Demo Vendor Access:</strong> Credentials are pre-filled for testing
             </div>
           )}
 
@@ -359,7 +372,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r ${selectedRoleData?.color} hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 ${
+              className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r ${selectedRoleData?.color} hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 shadow-lg hover:shadow-xl ${
                 loading ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
@@ -369,19 +382,19 @@ const Login = () => {
                   Signing in...
                 </div>
               ) : (
-                `Sign in as ${selectedRoleData?.title}`
+                `Access ${selectedRoleData?.title} Portal`
               )}
             </button>
           </div>
 
           {/* Register Link */}
           <div className="text-center">
-            <span className="text-purple-100">Don't have an account? </span>
+            <span className="text-gray-600">Don't have an account? </span>
             <Link
               to="/register"
-              className="font-medium text-white hover:text-purple-200 underline"
+              className="font-medium text-purple-600 hover:text-purple-500 underline"
             >
-              Register here
+              Create Account
             </Link>
           </div>
         </form>
