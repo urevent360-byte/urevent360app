@@ -1,212 +1,445 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { Users, DollarSign, Star, Filter, Search, Heart, MapPin, Phone, Mail } from 'lucide-react';
+import { AuthContext } from '../App';
+import { 
+  Users, 
+  DollarSign, 
+  Star, 
+  Filter, 
+  Search, 
+  Heart, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Calendar,
+  ShoppingBag,
+  Camera,
+  Music,
+  Utensils,
+  Sparkles,
+  Car,
+  Shield,
+  Lightbulb,
+  ChevronRight,
+  X,
+  Check,
+  AlertCircle
+} from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const VendorMarketplace = () => {
+  const { user } = useContext(AuthContext);
   const [vendors, setVendors] = useState([]);
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [currentEvent, setCurrentEvent] = useState(null);
+  const [showBudgetAlert, setShowBudgetAlert] = useState(false);
   const [filters, setFilters] = useState({
     service_type: '',
     location: '',
     min_budget: '',
     max_budget: '',
-    search: ''
+    search: '',
+    rating: '',
+    availability: ''
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [showEventSelector, setShowEventSelector] = useState(false);
+  const [userEvents, setUserEvents] = useState([]);
 
-  const serviceTypes = [
-    'All Services',
-    'Catering',
-    'Decoration',
-    'Photography',
-    'Videography',
-    'Music/DJ',
-    'Entertainment',
-    'Transportation',
-    'Security',
-    'Cleaning',
-    'Lighting',
-    'Flowers',
-    'Makeup Artist',
-    'Wedding Planner'
+  const serviceCategories = [
+    {
+      id: 'all',
+      name: 'All Services',
+      icon: ShoppingBag,
+      color: 'bg-purple-500',
+      description: 'Browse all available services'
+    },
+    {
+      id: 'Catering',
+      name: 'Catering',
+      icon: Utensils,
+      color: 'bg-orange-500',
+      description: 'Food & beverage services'
+    },
+    {
+      id: 'Decoration',
+      name: 'Decoration',
+      icon: Sparkles,
+      color: 'bg-pink-500',
+      description: 'Event styling & decor'
+    },
+    {
+      id: 'Photography',
+      name: 'Photography',
+      icon: Camera,
+      color: 'bg-blue-500',
+      description: 'Professional photo services'
+    },
+    {
+      id: 'Videography',
+      name: 'Videography',
+      icon: Camera,
+      color: 'bg-indigo-500',
+      description: 'Video recording & editing'
+    },
+    {
+      id: 'Music/DJ',
+      name: 'Music & DJ',
+      icon: Music,
+      color: 'bg-green-500',
+      description: 'Music & entertainment'
+    },
+    {
+      id: 'Transportation',
+      name: 'Transportation',
+      icon: Car,
+      color: 'bg-yellow-500',
+      description: 'Vehicle & transport services'
+    },
+    {
+      id: 'Security',
+      name: 'Security',
+      icon: Shield,
+      color: 'bg-red-500',
+      description: 'Event security services'
+    },
+    {
+      id: 'Lighting',
+      name: 'Lighting',
+      icon: Lightbulb,
+      color: 'bg-amber-500',
+      description: 'Professional lighting setup'
+    }
   ];
 
   useEffect(() => {
     fetchVendors();
+    fetchUserEvents();
+    loadFavorites();
   }, []);
 
   useEffect(() => {
     applyFilters();
-  }, [vendors, filters]);
+  }, [vendors, filters, selectedCategory, currentEvent]);
+
+  const fetchUserEvents = async () => {
+    try {
+      const response = await axios.get(`${API}/events`);
+      setUserEvents(response.data || []);
+    } catch (error) {
+      console.error('Failed to fetch user events:', error);
+    }
+  };
 
   const fetchVendors = async () => {
     try {
       const response = await axios.get(`${API}/vendors`);
-      // Add sample vendors if none exist
-      const sampleVendors = response.data.length === 0 ? generateSampleVendors() : response.data;
-      setVendors(sampleVendors);
+      setVendors(response.data || []);
     } catch (error) {
       console.error('Failed to fetch vendors:', error);
-      // Use sample data on error
-      setVendors(generateSampleVendors());
+      // Mock data fallback
+      setVendors([
+        {
+          id: '1',
+          name: 'Elite Catering Services',
+          service_type: 'Catering',
+          description: 'Premium catering with farm-to-table ingredients and personalized menus',
+          location: 'New York, NY',
+          price_range: { min: 50, max: 200 },
+          rating: 4.8,
+          reviews_count: 127,
+          portfolio: ['https://images.unsplash.com/photo-1555244162-803834f70033?w=400&h=300&fit=crop'],
+          contact_info: {
+            phone: '(555) 123-4567',
+            email: 'info@elitecatering.com',
+            website: 'www.elitecatering.com'
+          },
+          availability: ['weekdays', 'weekends'],
+          specialties: ['Wedding Catering', 'Corporate Events', 'Fine Dining'],
+          experience_years: 8,
+          verified: true
+        },
+        {
+          id: '2',
+          name: 'Elegant Decorations',
+          service_type: 'Decoration',
+          description: 'Beautiful event decorations that transform any space into magic',
+          location: 'Los Angeles, CA',
+          price_range: { min: 800, max: 5000 },
+          rating: 4.9,
+          reviews_count: 89,
+          portfolio: ['https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop'],
+          contact_info: {
+            phone: '(555) 987-6543',
+            email: 'hello@elegantdecorations.com',
+            website: 'www.elegantdecorations.com'
+          },
+          availability: ['weekends', 'holidays'],
+          specialties: ['Wedding Decor', 'Theme Parties', 'Corporate Styling'],
+          experience_years: 6,
+          verified: true
+        },
+        {
+          id: '3',
+          name: 'Capture Moments Photography',
+          service_type: 'Photography',
+          description: 'Professional wedding and event photography with artistic vision',
+          location: 'Chicago, IL',
+          price_range: { min: 1200, max: 3500 },
+          rating: 4.7,
+          reviews_count: 156,
+          portfolio: ['https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop'],
+          contact_info: {
+            phone: '(555) 456-7890',
+            email: 'book@capturemoments.com',
+            website: 'www.capturemomentsphoto.com'
+          },
+          availability: ['weekends', 'weekdays'],
+          specialties: ['Wedding Photography', 'Portrait Sessions', 'Event Coverage'],
+          experience_years: 10,
+          verified: true
+        }
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const generateSampleVendors = () => [
-    {
-      id: '1',
-      name: 'Elite Catering Services',
-      service_type: 'Catering',
-      description: 'Premium catering for all types of events with customizable menus',
-      location: 'New York, NY',
-      price_range: { min: 50, max: 150 },
-      rating: 4.8,
-      portfolio: ['https://images.unsplash.com/photo-1555244162-803834f70033?w=400&h=300&fit=crop'],
-      contact_info: { phone: '(555) 123-4567', email: 'info@elitecatering.com' },
-      availability: ['weekdays', 'weekends']
-    },
-    {
-      id: '2',
-      name: 'Elegant Decorations',
-      service_type: 'Decoration',
-      description: 'Beautiful event decorations that transform any space into magic',
-      location: 'Los Angeles, CA',
-      price_range: { min: 800, max: 5000 },
-      rating: 4.9,
-      portfolio: ['https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop'],
-      contact_info: { phone: '(555) 987-6543', email: 'hello@elegantdecorations.com' },
-      availability: ['weekends', 'holidays']
-    },
-    {
-      id: '3',
-      name: 'Capture Moments Photography',
-      service_type: 'Photography',
-      description: 'Professional wedding and event photography with artistic vision',
-      location: 'Chicago, IL',
-      price_range: { min: 1200, max: 3500 },
-      rating: 4.7,
-      portfolio: ['https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop'],
-      contact_info: { phone: '(555) 456-7890', email: 'book@capturemoments.com' },
-      availability: ['weekends', 'weekdays']
-    },
-    {
-      id: '4',
-      name: 'Sound & Rhythm DJ Services',
-      service_type: 'Music/DJ',
-      description: 'Professional DJ services with extensive music library and equipment',
-      location: 'Miami, FL',
-      price_range: { min: 600, max: 2000 },
-      rating: 4.6,
-      portfolio: ['https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop'],
-      contact_info: { phone: '(555) 321-0987', email: 'dj@soundrhythm.com' },
-      availability: ['weekends', 'weekdays', 'holidays']
-    },
-    {
-      id: '5',
-      name: 'Bloom & Petals Florist',
-      service_type: 'Flowers',
-      description: 'Fresh flowers and beautiful arrangements for every occasion',
-      location: 'Seattle, WA',
-      price_range: { min: 300, max: 2500 },
-      rating: 4.8,
-      portfolio: ['https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop'],
-      contact_info: { phone: '(555) 654-3210', email: 'orders@bloompetals.com' },
-      availability: ['weekdays', 'weekends']
-    },
-    {
-      id: '6',
-      name: 'Luxury Transportation Co.',
-      service_type: 'Transportation',
-      description: 'Premium transportation services with luxury vehicles',
-      location: 'San Francisco, CA',
-      price_range: { min: 200, max: 800 },
-      rating: 4.5,
-      portfolio: ['https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop'],
-      contact_info: { phone: '(555) 111-2233', email: 'book@luxurytrans.com' },
-      availability: ['weekdays', 'weekends', 'holidays']
+  const loadFavorites = () => {
+    const saved = localStorage.getItem('vendor_favorites');
+    if (saved) {
+      setFavorites(JSON.parse(saved));
     }
-  ];
+  };
+
+  const toggleFavorite = (vendorId) => {
+    const newFavorites = favorites.includes(vendorId)
+      ? favorites.filter(id => id !== vendorId)
+      : [...favorites, vendorId];
+    
+    setFavorites(newFavorites);
+    localStorage.setItem('vendor_favorites', JSON.stringify(newFavorites));
+  };
 
   const applyFilters = () => {
-    let filtered = vendors;
+    let filtered = [...vendors];
 
-    if (filters.search) {
-      filtered = filtered.filter(vendor =>
-        vendor.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        vendor.service_type.toLowerCase().includes(filters.search.toLowerCase()) ||
-        vendor.description.toLowerCase().includes(filters.search.toLowerCase())
+    // Category filter
+    if (selectedCategory && selectedCategory !== 'all') {
+      filtered = filtered.filter(vendor => 
+        vendor.service_type.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
 
-    if (filters.service_type && filters.service_type !== 'All Services') {
-      filtered = filtered.filter(vendor => vendor.service_type === filters.service_type);
+    // Budget-aware filtering - this is the key enhancement
+    if (currentEvent && currentEvent.budget) {
+      const eventBudget = parseFloat(currentEvent.budget);
+      const budgetPerService = eventBudget * 0.15; // Assume 15% of total budget per service
+      
+      filtered = filtered.filter(vendor => {
+        const vendorMinPrice = vendor.price_range?.min || 0;
+        const vendorMaxPrice = vendor.price_range?.max || 999999;
+        
+        // Only show vendors whose minimum price is within budget
+        // and whose price range overlaps with the allocated budget
+        return vendorMinPrice <= budgetPerService && 
+               (vendorMaxPrice >= budgetPerService * 0.5); // Allow some flexibility
+      });
+
+      // Show budget alert if no vendors match
+      if (filtered.length === 0 && vendors.length > 0) {
+        setShowBudgetAlert(true);
+      } else {
+        setShowBudgetAlert(false);
+      }
     }
 
+    // Manual budget filters
+    if (filters.min_budget || filters.max_budget) {
+      const minBudget = parseFloat(filters.min_budget) || 0;
+      const maxBudget = parseFloat(filters.max_budget) || 999999;
+      
+      filtered = filtered.filter(vendor => {
+        const vendorMin = vendor.price_range?.min || 0;
+        const vendorMax = vendor.price_range?.max || 999999;
+        return vendorMin <= maxBudget && vendorMax >= minBudget;
+      });
+    }
+
+    // Location filter
     if (filters.location) {
       filtered = filtered.filter(vendor =>
         vendor.location.toLowerCase().includes(filters.location.toLowerCase())
       );
     }
 
-    if (filters.min_budget) {
-      filtered = filtered.filter(vendor => vendor.price_range.max >= parseInt(filters.min_budget));
+    // Search filter
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      filtered = filtered.filter(vendor =>
+        vendor.name.toLowerCase().includes(searchTerm) ||
+        vendor.description.toLowerCase().includes(searchTerm) ||
+        vendor.service_type.toLowerCase().includes(searchTerm)
+      );
     }
 
-    if (filters.max_budget) {
-      filtered = filtered.filter(vendor => vendor.price_range.min <= parseInt(filters.max_budget));
+    // Rating filter
+    if (filters.rating) {
+      filtered = filtered.filter(vendor => 
+        vendor.rating >= parseFloat(filters.rating)
+      );
     }
 
     setFilteredVendors(filtered);
   };
 
-  const handleFilterChange = (e) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
+  const selectEvent = (event) => {
+    setCurrentEvent(event);
+    setShowEventSelector(false);
   };
 
-  const toggleFavorite = (vendorId) => {
-    setFavorites(prev =>
-      prev.includes(vendorId)
-        ? prev.filter(id => id !== vendorId)
-        : [...prev, vendorId]
+  const CategoryCard = ({ category, isSelected, onClick }) => {
+    const Icon = category.icon;
+    return (
+      <div
+        onClick={onClick}
+        className={`cursor-pointer p-4 rounded-lg border-2 transition-all duration-200 ${
+          isSelected
+            ? 'border-purple-500 bg-purple-50 shadow-md'
+            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+        }`}
+      >
+        <div className="flex items-center space-x-3">
+          <div className={`p-2 rounded-lg ${category.color}`}>
+            <Icon className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-medium text-gray-900">{category.name}</h3>
+            <p className="text-sm text-gray-600">{category.description}</p>
+          </div>
+        </div>
+      </div>
     );
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
+  const VendorCard = ({ vendor, isFavorite, onToggleFavorite }) => {
+    const budgetMatch = currentEvent && currentEvent.budget ? 
+      (parseFloat(currentEvent.budget) * 0.15) >= vendor.price_range?.min : true;
 
-  const getServiceIcon = (serviceType) => {
-    const icons = {
-      'Catering': '🍽️',
-      'Decoration': '🎨',
-      'Photography': '📸',
-      'Videography': '🎥',
-      'Music/DJ': '🎵',
-      'Entertainment': '🎭',
-      'Transportation': '🚗',
-      'Security': '🛡️',
-      'Cleaning': '🧹',
-      'Lighting': '💡',
-      'Flowers': '🌸',
-      'Makeup Artist': '💄',
-      'Wedding Planner': '📋'
-    };
-    return icons[serviceType] || '🔧';
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+        {/* Vendor Image */}
+        <div className="relative h-48 bg-gray-200">
+          {vendor.portfolio && vendor.portfolio[0] ? (
+            <img
+              src={vendor.portfolio[0]}
+              alt={vendor.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Camera className="w-12 h-12 text-gray-400" />
+            </div>
+          )}
+          
+          {/* Favorite button */}
+          <button
+            onClick={() => onToggleFavorite(vendor.id)}
+            className={`absolute top-3 right-3 p-2 rounded-full transition-colors ${
+              isFavorite ? 'bg-red-500 text-white' : 'bg-white text-gray-400 hover:text-red-500'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+          </button>
+
+          {/* Verified badge */}
+          {vendor.verified && (
+            <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center">
+              <Check className="w-3 h-3 mr-1" />
+              Verified
+            </div>
+          )}
+
+          {/* Budget match indicator */}
+          {currentEvent && (
+            <div className={`absolute bottom-3 left-3 px-2 py-1 rounded-full text-xs font-medium ${
+              budgetMatch ? 'bg-green-500 text-white' : 'bg-yellow-500 text-white'
+            }`}>
+              {budgetMatch ? 'Budget Match' : 'Above Budget'}
+            </div>
+          )}
+        </div>
+
+        {/* Vendor Details */}
+        <div className="p-4">
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="font-semibold text-gray-900 text-lg">{vendor.name}</h3>
+            <div className="flex items-center text-sm text-gray-600">
+              <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+              {vendor.rating} ({vendor.reviews_count || 0})
+            </div>
+          </div>
+
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{vendor.description}</p>
+
+          {/* Location */}
+          <div className="flex items-center text-sm text-gray-600 mb-2">
+            <MapPin className="w-4 h-4 mr-1" />
+            {vendor.location}
+          </div>
+
+          {/* Price Range */}
+          <div className="flex items-center text-sm text-gray-600 mb-3">
+            <DollarSign className="w-4 h-4 mr-1" />
+            ${vendor.price_range?.min?.toLocaleString()} - ${vendor.price_range?.max?.toLocaleString()}
+          </div>
+
+          {/* Specialties */}
+          {vendor.specialties && vendor.specialties.length > 0 && (
+            <div className="mb-3">
+              <div className="flex flex-wrap gap-1">
+                {vendor.specialties.slice(0, 2).map((specialty, index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full"
+                  >
+                    {specialty}
+                  </span>
+                ))}
+                {vendor.specialties.length > 2 && (
+                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    +{vendor.specialties.length - 2} more
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <button className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+              View Details
+            </button>
+            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+              <Phone className="w-4 h-4" />
+            </button>
+            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+              <Mail className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
       </div>
     );
@@ -215,210 +448,215 @@ const VendorMarketplace = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Vendor Marketplace</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Find the perfect vendors for your event
+          <p className="text-gray-600">
+            Find perfect vendors for your event {currentEvent && `"${currentEvent.name}"`}
           </p>
         </div>
-        <div className="mt-4 sm:mt-0 flex space-x-3">
+        
+        <div className="flex items-center gap-3">
+          {/* Event Selector */}
+          <div className="relative">
+            <button
+              onClick={() => setShowEventSelector(!showEventSelector)}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
+            >
+              <Calendar className="w-4 h-4" />
+              {currentEvent ? currentEvent.name : 'Select Event'}
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            
+            {showEventSelector && (
+              <div className="absolute top-full right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                <div className="p-2">
+                  <div className="text-sm font-medium text-gray-700 px-2 py-1">Your Events</div>
+                  {userEvents.length > 0 ? (
+                    userEvents.map(event => (
+                      <button
+                        key={event.id}
+                        onClick={() => selectEvent(event)}
+                        className="w-full text-left px-2 py-2 hover:bg-gray-50 rounded text-sm"
+                      >
+                        <div className="font-medium">{event.name}</div>
+                        <div className="text-gray-600">
+                          Budget: ${parseFloat(event.budget || 0).toLocaleString()}
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-2 py-2 text-sm text-gray-500">No events found</div>
+                  )}
+                  <button
+                    onClick={() => {
+                      setCurrentEvent(null);
+                      setShowEventSelector(false);
+                    }}
+                    className="w-full text-left px-2 py-2 hover:bg-gray-50 rounded text-sm text-red-600"
+                  >
+                    Clear Selection
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm"
           >
-            <Filter className="mr-2 h-4 w-4" />
+            <Filter className="w-4 h-4" />
             Filters
           </button>
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              name="search"
-              value={filters.search}
-              onChange={handleFilterChange}
-              placeholder="Search vendors..."
-              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-          
-          <select
-            name="service_type"
-            value={filters.service_type}
-            onChange={handleFilterChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            {serviceTypes.map(type => (
-              <option key={type} value={type === 'All Services' ? '' : type}>{type}</option>
-            ))}
-          </select>
-
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              name="location"
-              value={filters.location}
-              onChange={handleFilterChange}
-              placeholder="Location..."
-              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
+      {/* Budget Alert */}
+      {showBudgetAlert && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-yellow-800">Budget Consideration</h3>
+              <p className="text-yellow-700 text-sm mt-1">
+                Based on your event budget of ${parseFloat(currentEvent?.budget || 0).toLocaleString()}, 
+                some vendors may be outside your price range. Consider adjusting your budget or 
+                looking at alternative service providers.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowBudgetAlert(false)}
+              className="text-yellow-500 hover:text-yellow-700"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
+      )}
 
-        {showFilters && (
-          <div className="border-t pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Service Categories */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Browse by Category</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {serviceCategories.map(category => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              isSelected={selectedCategory === category.id}
+              onClick={() => setSelectedCategory(
+                selectedCategory === category.id ? '' : category.id
+              )}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Advanced Filters */}
+      {showFilters && (
+        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Minimum Budget
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
               <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
-                  type="number"
-                  name="min_budget"
-                  value={filters.min_budget}
-                  onChange={handleFilterChange}
-                  placeholder="Min budget"
-                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  type="text"
+                  placeholder="Search vendors..."
+                  value={filters.search}
+                  onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                  className="pl-10 w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
             </div>
-
+            
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Maximum Budget
-              </label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="number"
-                  name="max_budget"
-                  value={filters.max_budget}
-                  onChange={handleFilterChange}
-                  placeholder="Max budget"
-                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                />
-              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+              <input
+                type="text"
+                placeholder="City, State"
+                value={filters.location}
+                onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
             </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Min Budget</label>
+              <input
+                type="number"
+                placeholder="0"
+                value={filters.min_budget}
+                onChange={(e) => setFilters({ ...filters, min_budget: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Max Budget</label>
+              <input
+                type="number"
+                placeholder="10000"
+                value={filters.max_budget}
+                onChange={(e) => setFilters({ ...filters, max_budget: e.target.value })}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results Summary */}
+      <div className="flex items-center justify-between">
+        <p className="text-gray-600">
+          Showing {filteredVendors.length} vendor{filteredVendors.length !== 1 ? 's' : ''}
+          {selectedCategory && selectedCategory !== 'all' && ` in ${selectedCategory}`}
+          {currentEvent && ` for "${currentEvent.name}"`}
+        </p>
+        
+        {currentEvent && currentEvent.budget && (
+          <div className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
+            Event Budget: ${parseFloat(currentEvent.budget).toLocaleString()}
           </div>
         )}
       </div>
 
-      {/* Results */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">
-          {filteredVendors.length} vendor{filteredVendors.length !== 1 ? 's' : ''} found
-        </p>
-      </div>
-
       {/* Vendor Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredVendors.map((vendor) => (
-          <div key={vendor.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="relative">
-              <img
-                src={vendor.portfolio[0]}
-                alt={vendor.name}
-                className="w-full h-48 object-cover"
-              />
-              <button
-                onClick={() => toggleFavorite(vendor.id)}
-                className={`absolute top-3 right-3 p-2 rounded-full ${
-                  favorites.includes(vendor.id)
-                    ? 'bg-red-500 text-white'
-                    : 'bg-white text-gray-400 hover:text-red-500'
-                }`}
-              >
-                <Heart className="h-4 w-4" fill={favorites.includes(vendor.id) ? 'currentColor' : 'none'} />
-              </button>
-              <div className="absolute bottom-3 left-3">
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white text-gray-800">
-                  <span className="mr-1">{getServiceIcon(vendor.service_type)}</span>
-                  {vendor.service_type}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
-                  {vendor.name}
-                </h3>
-                <div className="flex items-center ml-2">
-                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                  <span className="ml-1 text-sm text-gray-600">{vendor.rating}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center text-sm text-gray-500 mb-2">
-                <MapPin className="h-4 w-4 mr-1" />
-                {vendor.location}
-              </div>
-
-              <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                {vendor.description}
-              </p>
-
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-sm text-gray-500">
-                  Budget Range
-                </div>
-                <div className="text-lg font-semibold text-purple-600">
-                  {formatCurrency(vendor.price_range.min)} - {formatCurrency(vendor.price_range.max)}
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <div className="flex flex-wrap gap-1">
-                  {vendor.availability.map((availability, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800 capitalize"
-                    >
-                      {availability}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center text-sm text-gray-600">
-                  <Phone className="h-4 w-4 mr-2" />
-                  {vendor.contact_info.phone}
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <Mail className="h-4 w-4 mr-2" />
-                  {vendor.contact_info.email}
-                </div>
-              </div>
-
-              <div className="flex space-x-3">
-                <button className="flex-1 bg-purple-600 text-white text-sm font-medium py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-                  Contact
-                </button>
-                <button className="flex-1 bg-white text-purple-600 text-sm font-medium py-2 px-4 rounded-lg border border-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-                  View Portfolio
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredVendors.length === 0 && (
+      {filteredVendors.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredVendors.map(vendor => (
+            <VendorCard
+              key={vendor.id}
+              vendor={vendor}
+              isFavorite={favorites.includes(vendor.id)}
+              onToggleFavorite={toggleFavorite}
+            />
+          ))}
+        </div>
+      ) : (
         <div className="text-center py-12">
-          <Users className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No vendors found</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Try adjusting your search criteria or filters.
+          <ShoppingBag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No vendors found</h3>
+          <p className="text-gray-600 mb-4">
+            Try adjusting your filters or search criteria
           </p>
+          <button
+            onClick={() => {
+              setFilters({
+                service_type: '',
+                location: '',
+                min_budget: '',
+                max_budget: '',
+                search: '',
+                rating: '',
+                availability: ''
+              });
+              setSelectedCategory('');
+            }}
+            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Clear All Filters
+          </button>
         </div>
       )}
     </div>
