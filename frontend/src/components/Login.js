@@ -134,17 +134,22 @@ const Login = () => {
           backgroundAttachment: 'fixed'
         }}
       >
+        {/* Admin Access Icon - Top Right */}
+        <button
+          onClick={() => handleRoleSelect('admin')}
+          className="absolute top-6 right-6 z-20 p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+          title="Administrator Access"
+        >
+          <Shield className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+        </button>
+
         {/* Elegant overlay pattern */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
         
         <div className="max-w-5xl w-full space-y-8 relative z-10">
           {/* Header */}
           <div className="text-center">
-            <div 
-              className="mx-auto h-24 w-24 bg-white/95 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-sm border border-white/20 cursor-pointer hover:scale-105 transition-transform duration-200"
-              onClick={() => handleRoleSelect('admin')}
-              title="Click for Administrator Access"
-            >
+            <div className="mx-auto h-24 w-24 bg-white/95 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-sm border border-white/20">
               <img 
                 src="https://customer-assets.emergentagent.com/job_urevent-admin/artifacts/efthwf05_ureventlogos-02%20%281%29.png" 
                 alt="Urevent 360 Logo" 
