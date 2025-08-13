@@ -21,6 +21,9 @@ import PostEvent from './components/PostEvent';
 import Profile from './components/Profile';
 import Messages from './components/Messages';
 
+// Admin Components
+import AdminLayout from './components/admin/AdminLayout';
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
