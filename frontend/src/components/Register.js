@@ -49,23 +49,36 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div 
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('https://images.pexels.com/photos/33417234/pexels-photo-33417234.jpeg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Elegant overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-transparent to-blue-900/30"></div>
+      
+      <div className="max-w-md w-full space-y-8 relative z-10">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">U</span>
-            </div>
+          <div className="mx-auto h-20 w-20 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center shadow-2xl border border-white/20">
+            <img 
+              src="https://customer-assets.emergentagent.com/job_urevent-admin/artifacts/efthwf05_ureventlogos-02%20%281%29.png" 
+              alt="Urevent 360 Logo" 
+              className="h-12 w-12 object-contain"
+            />
           </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-white">
+          <h2 className="mt-6 text-3xl font-extrabold text-white drop-shadow-lg">
             Join Urevent 360
           </h2>
-          <p className="mt-2 text-sm text-purple-100">
-            Create your account and start planning unforgettable events
+          <p className="mt-2 text-sm text-white/90 drop-shadow">
+            Create your premium event planning account
           </p>
         </div>
-        
-        <form className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-2xl" onSubmit={handleSubmit}>
+
+        <form className="mt-8 space-y-6 bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-white/20" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
               {error}
