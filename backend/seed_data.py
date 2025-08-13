@@ -4,9 +4,16 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
 import uuid
+from passlib.context import CryptContext
 
 # Load environment variables
 load_dotenv()
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
