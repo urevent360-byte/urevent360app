@@ -214,7 +214,7 @@ frontend:
         agent: "main"
         comment: "Integrated user's official logo throughout platform, added elegant event backgrounds with happy people, enhanced all components with glassmorphism effects, premium styling, and sophisticated visual design to attract high-budget clients. Created luxury brand experience."
 
-  - task: "Discrete Admin Access"
+  - task: "Discrete Admin Access Icon"
     implemented: true
     working: unknown
     file: "Login.js"
@@ -224,7 +224,7 @@ frontend:
     status_history:
       - working: unknown
         agent: "main"
-        comment: "Simplified admin access by making logo clickable on main login page. Administrators can directly access admin portal by clicking the logo. Removed admin role from public role selection - only shows Client and Vendor options to general users."
+        comment: "Added discrete admin access icon (shield) in top right corner of login pages. Administrators can easily click the icon to access admin portal. Icon appears on both role selection and login form pages, with glassmorphism styling to match premium design. Much more visible and accessible than clickable logo."
 
 metadata:
   created_by: "main_agent"
