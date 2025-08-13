@@ -1,54 +1,147 @@
-import { useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import axios from 'axios';
+import './App.css';
+
+// Components
+import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
+import EventCreation from './components/EventCreation';
+import VenueBrowser from './components/VenueBrowser';
+import VendorMarketplace from './components/VendorMarketplace';
+import EventPlanning from './components/EventPlanning';
+import PaymentCenter from './components/PaymentCenter';
+import LoanCenter from './components/LoanCenter';
+import GuestManagement from './components/GuestManagement';
+import LiveEvent from './components/LiveEvent';
+import PostEvent from './components/PostEvent';
+import Profile from './components/Profile';
+import Messages from './components/Messages';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+// Auth Context
+const AuthContext = React.createContext();
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      fetchUserProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [token]);
+
+  const fetchUserProfile = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const response = await axios.get(`${API}/users/profile`);
+      setUser(response.data.user);
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+      logout();
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const login = (token, userData) => {
+    localStorage.setItem('token', token);
+    setToken(token);
+    setUser(userData);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+    delete axios.defaults.headers.common['Authorization'];
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white"></div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <div className="App">
+    <AuthContext.Provider value={{ user, login, logout, token }}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
+        <div className="min-h-screen bg-gray-50">
+          {user ? (
+            // Authenticated Layout
+            <div className="flex h-screen">
+              {/* Sidebar */}
+              <Sidebar 
+                open={sidebarOpen} 
+                setOpen={setSidebarOpen} 
+                className="hidden lg:block"
+              />
+              
+              {/* Mobile Sidebar Overlay */}
+              {sidebarOpen && (
+                <div 
+                  className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <Sidebar 
+                    open={sidebarOpen} 
+                    setOpen={setSidebarOpen} 
+                    className="absolute left-0 top-0 h-full"
+                  />
+                </div>
+              )}
+
+              {/* Main Content */}
+              <div className="flex-1 flex flex-col overflow-hidden">
+                <Navbar setSidebarOpen={setSidebarOpen} />
+                
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 lg:p-6">
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/events/create" element={<EventCreation />} />
+                    <Route path="/events/:eventId/planning" element={<EventPlanning />} />
+                    <Route path="/venues" element={<VenueBrowser />} />
+                    <Route path="/vendors" element={<VendorMarketplace />} />
+                    <Route path="/payments" element={<PaymentCenter />} />
+                    <Route path="/loans" element={<LoanCenter />} />
+                    <Route path="/guests/:eventId" element={<GuestManagement />} />
+                    <Route path="/live/:eventId" element={<LiveEvent />} />
+                    <Route path="/post-event/:eventId" element={<PostEvent />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/messages" element={<Messages />} />
+                    <Route path="*" element={<Navigate to="/" />} />
+                  </Routes>
+                </main>
+              </div>
+            </div>
+          ) : (
+            // Unauthenticated Layout
+            <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-600">
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="*" element={<Navigate to="/login" />} />
+              </Routes>
+            </div>
+          )}
+        </div>
       </BrowserRouter>
-    </div>
+    </AuthContext.Provider>
   );
 }
 
+export { AuthContext };
 export default App;
