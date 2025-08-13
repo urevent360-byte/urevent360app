@@ -228,6 +228,7 @@ async def register(user: UserCreate):
     user_dict.pop("password")
     user_dict["hashed_password"] = hashed_password
     user_dict["id"] = str(uuid.uuid4())
+    user_dict["role"] = "user"  # Default role
     user_dict["created_at"] = datetime.utcnow()
     user_dict["profile_completed"] = False
     
