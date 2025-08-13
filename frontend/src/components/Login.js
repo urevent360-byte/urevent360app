@@ -125,36 +125,52 @@ const Login = () => {
 
   if (step === 'role-selection') {
     return (
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl w-full space-y-8">
+      <div 
+        className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1513104361122-8200eb486a94')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed'
+        }}
+      >
+        {/* Elegant overlay pattern */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
+        
+        <div className="max-w-5xl w-full space-y-8 relative z-10">
           {/* Header */}
           <div className="text-center">
-            <div className="mx-auto h-20 w-20 bg-white rounded-full flex items-center justify-center shadow-lg">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-2xl">U</span>
-              </div>
+            <div className="mx-auto h-24 w-24 bg-white/95 rounded-full flex items-center justify-center shadow-2xl backdrop-blur-sm border border-white/20">
+              <img 
+                src="https://customer-assets.emergentagent.com/job_urevent-admin/artifacts/efthwf05_ureventlogos-02%20%281%29.png" 
+                alt="Urevent 360 Logo" 
+                className="h-16 w-16 object-contain"
+              />
             </div>
-            <h2 className="mt-6 text-4xl font-extrabold text-white">
+            <h2 className="mt-6 text-4xl font-extrabold text-white drop-shadow-lg">
               Welcome to Urevent 360
             </h2>
-            <p className="mt-2 text-lg text-purple-100">
-              Choose your account type to get started
+            <p className="mt-2 text-lg text-white/90 drop-shadow">
+              Premium Event Planning Excellence
             </p>
+            <div className="mt-2 text-sm text-white/80">
+              Choose your account type to access our exclusive platform
+            </div>
           </div>
 
           {/* Role Selection Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
             {roleOptions.map((role) => {
               const Icon = role.icon;
               return (
                 <div
                   key={role.id}
                   onClick={() => handleRoleSelect(role.id)}
-                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-105 transform"
+                  className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 cursor-pointer group hover:scale-105 transform border border-white/20"
                 >
                   <div className="p-8">
                     {/* Icon */}
-                    <div className={`mx-auto h-16 w-16 bg-gradient-to-r ${role.color} rounded-full flex items-center justify-center mb-6`}>
+                    <div className={`mx-auto h-16 w-16 bg-gradient-to-r ${role.color} rounded-full flex items-center justify-center mb-6 shadow-lg`}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
 
@@ -168,14 +184,14 @@ const Login = () => {
                     <div className="space-y-2 mb-6">
                       {role.features.map((feature, index) => (
                         <div key={index} className="flex items-center text-sm text-gray-600">
-                          <div className="w-2 h-2 bg-purple-400 rounded-full mr-3"></div>
+                          <div className="w-2 h-2 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full mr-3"></div>
                           {feature}
                         </div>
                       ))}
                     </div>
 
                     {/* Continue Button */}
-                    <button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all duration-200 flex items-center justify-center group-hover:shadow-lg">
+                    <button className={`w-full bg-gradient-to-r ${role.color} text-white py-3 px-4 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center group-hover:shadow-xl`}>
                       Continue as {role.title}
                       <ChevronRight className="w-4 h-4 ml-2" />
                     </button>
@@ -186,20 +202,41 @@ const Login = () => {
           </div>
 
           {/* Demo Credentials Info */}
-          <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-6 mt-8">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 mt-8 border border-white/20">
             <h3 className="text-white font-semibold mb-4 flex items-center">
               <Shield className="w-5 h-5 mr-2" />
-              Demo Credentials Available
+              Exclusive Demo Access Available
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="text-purple-100">
-                <strong>Client:</strong> Use any email/password or register
+              <div className="text-white/90 bg-white/10 rounded-lg p-3">
+                <strong>Client Portal:</strong><br/>
+                Register with any email or use existing account
               </div>
-              <div className="text-purple-100">
-                <strong>Vendor:</strong> vendor@example.com / vendor123
+              <div className="text-white/90 bg-white/10 rounded-lg p-3">
+                <strong>Vendor Access:</strong><br/>
+                vendor@example.com / vendor123
               </div>
-              <div className="text-purple-100">
-                <strong>Admin:</strong> admin@urevent360.com / admin123
+              <div className="text-white/90 bg-white/10 rounded-lg p-3">
+                <strong>Admin Console:</strong><br/>
+                admin@urevent360.com / admin123
+              </div>
+            </div>
+          </div>
+
+          {/* Premium Features Highlight */}
+          <div className="text-center mt-6">
+            <div className="flex items-center justify-center space-x-6 text-white/80 text-sm">
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-gold rounded-full mr-2"></div>
+                Premium Venues
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-gold rounded-full mr-2"></div>
+                Luxury Services
+              </div>
+              <div className="flex items-center">
+                <div className="w-2 h-2 bg-gold rounded-full mr-2"></div>
+                Exclusive Access
               </div>
             </div>
           </div>
