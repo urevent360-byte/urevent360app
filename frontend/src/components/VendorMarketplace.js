@@ -447,14 +447,36 @@ const VendorMarketplace = () => {
 
   return (
     <div className="space-y-6">
+      {/* Elegant Header Section */}
+      <div 
+        className="relative -mx-4 lg:-mx-6 -mt-4 lg:-mt-6 mb-8 rounded-b-2xl overflow-hidden"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url('https://images.pexels.com/photos/33417234/pexels-photo-33417234.jpeg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          height: '200px'
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 to-blue-900/20"></div>
+        <div className="relative z-10 h-full flex items-center justify-center text-center">
+          <div>
+            <h1 className="text-3xl font-bold text-white drop-shadow-lg mb-2">Premium Vendor Marketplace</h1>
+            <p className="text-white/90 drop-shadow">
+              Connect with elite service providers for your perfect event
+              {currentEvent && ` • "${currentEvent.name}"`}
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vendor Marketplace</h1>
+          <h2 className="text-xl font-semibold text-gray-900">Find Your Perfect Vendors</h2>
           <p className="text-gray-600">
-            Find perfect vendors for your event {currentEvent && `"${currentEvent.name}"`}
+            Discover premium vendors within your budget range
           </p>
-        </div>
+        -------div>
         
         <div className="flex items-center gap-3">
           {/* Event Selector */}
