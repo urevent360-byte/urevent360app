@@ -110,11 +110,16 @@ class Vendor(BaseModel):
     service_type: str  # decoration, catering, photography, etc.
     description: str
     location: str
-    price_range: Dict[str, float]  # min, max
-    rating: float = 0.0
+    price_range: Dict[str, float] = {"min": 0, "max": 1000}
+    rating: float = 4.0
+    reviews_count: int = 0
     portfolio: List[str] = []
     contact_info: Dict[str, str] = {}
     availability: List[str] = []
+    specialties: List[str] = []
+    experience_years: int = 1
+    verified: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class Booking(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
