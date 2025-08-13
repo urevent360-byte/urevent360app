@@ -261,6 +261,17 @@ const Login = () => {
         backgroundAttachment: 'fixed'
       }}
     >
+      {/* Admin Access Icon - Top Right (only show if not already on admin login) */}
+      {selectedRole !== 'admin' && (
+        <button
+          onClick={() => handleRoleSelect('admin')}
+          className="absolute top-6 right-6 z-20 p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+          title="Administrator Access"
+        >
+          <Shield className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+        </button>
+      )}
+
       {/* Elegant overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-transparent to-blue-900/30"></div>
       
