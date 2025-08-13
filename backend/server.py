@@ -344,21 +344,112 @@ async def get_vendors(
     service_type: Optional[str] = None,
     location: Optional[str] = None,
     min_budget: Optional[float] = None,
-    max_budget: Optional[float] = None
+    max_budget: Optional[float] = None,
+    event_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
 ):
     query = {}
-    if service_type:
+    if service_type and service_type != 'all':
         query["service_type"] = service_type
     if location:
         query["location"] = {"$regex": location, "$options": "i"}
-    if min_budget and max_budget:
-        query["$and"] = [
-            {"price_range.min": {"$lte": max_budget}},
-            {"price_range.max": {"$gte": min_budget}}
-        ]
+    
+    # Budget filtering logic
+    if min_budget or max_budget or event_id:
+        budget_filter = {}
+        
+        # If event_id is provided, get the event budget and use it for smart filtering
+        if event_id:
+            event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+            if event and event.get("budget"):
+                event_budget = float(event["budget"])
+                # Allocate 15% of total event budget per service category
+                service_budget = event_budget * 0.15
+                budget_filter = {
+                    "$and": [
+                        {"price_range.min": {"$lte": service_budget}},
+                        {"price_range.max": {"$gte": service_budget * 0.5}}  # Allow some flexibility
+                    ]
+                }
+        
+        # Manual budget filters override event-based filtering
+        if min_budget and max_budget:
+            budget_filter = {
+                "$and": [
+                    {"price_range.min": {"$lte": max_budget}},
+                    {"price_range.max": {"$gte": min_budget}}
+                ]
+            }
+        elif min_budget:
+            budget_filter = {"price_range.max": {"$gte": min_budget}}
+        elif max_budget:
+            budget_filter = {"price_range.min": {"$lte": max_budget}}
+        
+        if budget_filter:
+            query.update(budget_filter)
     
     vendors = await db.vendors.find(query).to_list(1000)
     return [Vendor(**vendor) for vendor in vendors]
+
+@api_router.get("/vendors/{vendor_id}", response_model=Vendor)
+async def get_vendor_details(vendor_id: str):
+    vendor = await db.vendors.find_one({"id": vendor_id})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    return Vendor(**vendor)
+
+@api_router.get("/vendors/category/{category}")
+async def get_vendors_by_category(
+    category: str,
+    current_user: dict = Depends(get_current_user)
+):
+    vendors = await db.vendors.find({"service_type": category}).to_list(1000)
+    return {"vendors": [Vendor(**vendor) for vendor in vendors], "category": category}
+
+@api_router.post("/vendors/{vendor_id}/favorite")
+async def toggle_vendor_favorite(
+    vendor_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    # Check if vendor exists
+    vendor = await db.vendors.find_one({"id": vendor_id})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    # Check if already favorited
+    existing_favorite = await db.user_favorites.find_one({
+        "user_id": current_user["id"],
+        "vendor_id": vendor_id
+    })
+    
+    if existing_favorite:
+        # Remove from favorites
+        await db.user_favorites.delete_one({
+            "user_id": current_user["id"],
+            "vendor_id": vendor_id
+        })
+        return {"message": "Removed from favorites", "is_favorite": False}
+    else:
+        # Add to favorites
+        favorite_data = {
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["id"],
+            "vendor_id": vendor_id,
+            "created_at": datetime.utcnow()
+        }
+        await db.user_favorites.insert_one(favorite_data)
+        return {"message": "Added to favorites", "is_favorite": True}
+
+@api_router.get("/vendors/favorites/user")
+async def get_user_favorite_vendors(current_user: dict = Depends(get_current_user)):
+    favorites = await db.user_favorites.find({"user_id": current_user["id"]}).to_list(1000)
+    vendor_ids = [fav["vendor_id"] for fav in favorites]
+    
+    if not vendor_ids:
+        return {"favorites": []}
+    
+    vendors = await db.vendors.find({"id": {"$in": vendor_ids}}).to_list(1000)
+    return {"favorites": [Vendor(**vendor) for vendor in vendors]}
 
 # Booking Routes
 @api_router.post("/bookings", response_model=Booking)
