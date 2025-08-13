@@ -476,7 +476,7 @@ const VendorMarketplace = () => {
           <p className="text-gray-600">
             Discover premium vendors within your budget range
           </p>
-        -------div>
+        </div>
         
         <div className="flex items-center gap-3">
           {/* Event Selector */}
