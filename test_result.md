@@ -129,6 +129,18 @@ backend:
         agent: "main"
         comment: "Admin routes already exist and integrated into main server"
 
+  - task: "Enhanced Vendor API"
+    implemented: true
+    working: unknown
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: unknown
+        agent: "main"
+        comment: "Enhanced vendor routes with budget-aware filtering, event-specific matching, category filtering, vendor details, and favorites system. Updated Vendor model with new fields."
+
 frontend:
   - task: "Missing Admin Components"
     implemented: true
