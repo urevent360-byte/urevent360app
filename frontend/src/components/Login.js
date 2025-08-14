@@ -81,6 +81,11 @@ const Login = () => {
         email: 'vendor@example.com',
         password: 'vendor123'
       });
+    } else if (role === 'employee') {
+      setFormData({
+        email: 'employee@example.com',
+        password: 'employee123'
+      });
     } else {
       setFormData({
         email: '',
