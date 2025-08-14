@@ -260,14 +260,19 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Employee Portal Link */}
-          <div className="text-center mt-8">
+          {/* Employee Portal Link - Discrete Bottom Access */}
+          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
             <button
               onClick={() => handleRoleSelect('employee')}
-              className="flex items-center justify-center gap-2 mx-auto px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-200 text-white/90 hover:text-white"
+              className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all duration-200 text-white/70 hover:text-white text-sm"
+              title="Employee Portal Access"
             >
-              <Users className="w-5 h-5" />
-              <span className="font-medium">Employees Portal</span>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_urevent-admin/artifacts/efthwf05_ureventlogos-02%20%281%29.png" 
+                alt="Urevent 360 Logo" 
+                className="h-4 w-4 object-contain"
+              />
+              <span className="text-xs font-medium">Employee Portal</span>
             </button>
           </div>
         </div>
