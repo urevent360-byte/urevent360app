@@ -154,7 +154,7 @@ const EventCreation = () => {
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 4));
+      setCurrentStep(prev => Math.min(prev + 1, getMaxSteps()));
       setError('');
     } else {
       setError('Please fill in all required fields');
