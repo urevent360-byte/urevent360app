@@ -425,6 +425,7 @@ test_plan:
   stuck_tasks: []
   test_all: false
   test_priority: "frontend_testing_next"
+  venue_testing_completed: true
 
 agent_communication:
   - agent: "main"
