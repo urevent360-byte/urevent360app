@@ -347,7 +347,52 @@ async def seed_database():
             },
             "availability": ["weekends", "holidays"],
             "specialties": ["Wedding Videography", "Corporate Videos", "Event Highlights", "Drone Footage"],
+            "cultural_specializations": ["african", "american", "other"],
             "experience_years": 9,
+            "verified": True,
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Spice Route Catering",
+            "service_type": "Catering",
+            "description": "Authentic Indian cuisine specialists for weddings and celebrations with traditional recipes",
+            "location": "San Francisco, CA",
+            "price_range": {"min": 35.0, "max": 120.0},
+            "rating": 4.9,
+            "reviews_count": 145,
+            "portfolio": ["https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop"],
+            "contact_info": {
+                "phone": "(555) 678-9012",
+                "email": "events@spiceroutecatering.com",
+                "website": "www.spiceroutecatering.com"
+            },
+            "availability": ["weekdays", "weekends"],
+            "specialties": ["Indian Cuisine", "Vegetarian Options", "Traditional Sweets", "Live Cooking"],
+            "cultural_specializations": ["indian", "asian"],
+            "experience_years": 12,
+            "verified": True,
+            "created_at": datetime.utcnow()
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Mariachi & More Entertainment",
+            "service_type": "Music/DJ",
+            "description": "Traditional Hispanic music and entertainment for authentic cultural celebrations",
+            "location": "Los Angeles, CA",
+            "price_range": {"min": 800.0, "max": 2500.0},
+            "rating": 4.8,
+            "reviews_count": 98,
+            "portfolio": ["https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop"],
+            "contact_info": {
+                "phone": "(555) 789-0123",
+                "email": "book@mariachiandmore.com",
+                "website": "www.mariachiandmore.com"
+            },
+            "availability": ["weekends", "holidays"],
+            "specialties": ["Mariachi Music", "Traditional Dance", "Cultural Entertainment", "Bilingual Services"],
+            "cultural_specializations": ["hispanic"],
+            "experience_years": 15,
             "verified": True,
             "created_at": datetime.utcnow()
         }
