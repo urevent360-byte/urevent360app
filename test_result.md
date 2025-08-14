@@ -141,7 +141,7 @@ backend:
         agent: "main"
         comment: "Enhanced vendor routes with budget-aware filtering, event-specific matching, category filtering, vendor details, and favorites system. Updated Vendor model with new fields."
 
-  - task: "Multi-Role User System"
+  - task: "Employee User System"
     implemented: true
     working: unknown
     file: "server.py, seed_data.py"
@@ -151,7 +151,7 @@ backend:
     status_history:
       - working: unknown
         agent: "main"
-        comment: "Created vendor user account in database. Updated seed script to create demo vendor user (vendor@example.com / vendor123). Enhanced role-based authentication."
+        comment: "Created employee user account in database with employee-specific information fields. Updated seed script to create demo employee user (employee@example.com / employee123). Added employee role to authentication system."
 
 frontend:
   - task: "Missing Admin Components"
