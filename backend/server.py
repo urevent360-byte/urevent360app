@@ -395,6 +395,12 @@ async def login(user_credentials: UserLogin):
 @api_router.get("/users/profile")
 async def get_profile(current_user: dict = Depends(get_current_user)):
     profile = await db.user_profiles.find_one({"user_id": current_user["id"]})
+    
+    # Convert ObjectId to string if present
+    if profile and "_id" in profile:
+        profile["id"] = str(profile["_id"])
+        del profile["_id"]
+    
     return {"user": User(**current_user), "profile": profile}
 
 @api_router.put("/users/profile")
