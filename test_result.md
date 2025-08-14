@@ -438,12 +438,11 @@ test_plan:
     - "Discrete Admin Access Icon"
     - "Discrete Employee Portal Access"
     - "Clean Role Selection Interface"
-  stuck_tasks:
-    - "Interactive Event Planner System Backend"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
   venue_testing_completed: true
-  interactive_planner_testing_completed: true
+  interactive_planner_testing_completed: false
 
 agent_communication:
   - agent: "main"
