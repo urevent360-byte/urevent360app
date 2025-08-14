@@ -287,16 +287,52 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     }
   };
 
-  const removeFromCart = (itemId) => {
-    const item = cart.find(c => c.id === itemId);
-    if (item) {
-      setCart(cart.filter(c => c.id !== itemId));
-      setSelectedServices(prev => {
-        const updated = { ...prev };
-        delete updated[item.stepId];
-        return updated;
+  const loadCartFromBackend = async () => {
+    try {
+      const response = await axios.get(`${API}/events/${eventId}/cart`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
       });
-      savePlan();
+
+      if (response.data) {
+        const cartItems = response.data.cart_items || [];
+        setCart(cartItems);
+        
+        // Update budget data
+        setBudgetData({
+          set: response.data.budget_tracking?.set_budget || currentEvent?.budget || 0,
+          selected: response.data.budget_tracking?.selected_total || 0,
+          remaining: response.data.budget_tracking?.remaining || 0
+        });
+      }
+    } catch (err) {
+      console.error('Error loading cart from backend:', err);
+    }
+  };
+
+  const removeFromCart = async (itemId) => {
+    try {
+      await axios.delete(`${API}/events/${eventId}/cart/remove/${itemId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      // Refresh cart and update selected services
+      await loadCartFromBackend();
+      
+      // Update selected services by removing the item
+      const item = cart.find(c => c.id === itemId);
+      if (item) {
+        setSelectedServices(prev => {
+          const updated = { ...prev };
+          delete updated[item.service_type];
+          return updated;
+        });
+      }
+    } catch (err) {
+      console.error('Error removing from cart:', err);
     }
   };
 
