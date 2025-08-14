@@ -250,7 +250,7 @@ frontend:
         agent: "main"
         comment: "Created comprehensive Employee Portal (4th module) with complete employee management system. Features include task management, performance tracking, leave management, time tracking, job management, sales tracking, financial tracking, and project updates. Added 'Employees Portal' link at bottom of login page. Created employee user account and dedicated orange-themed interface."
 
-  - task: "Employee Portal Access Enhancement"
+  - task: "Discrete Employee Portal Access"
     implemented: true
     working: unknown
     file: "Login.js"
@@ -260,7 +260,7 @@ frontend:
     status_history:
       - working: unknown
         agent: "main"
-        comment: "Enhanced employee portal access with prominent button featuring Users icon and 'Employees Portal' text at bottom of login page. Added glassmorphism styling with backdrop blur, border, and hover effects to make it clearly visible and accessible. Also added to login form page for consistency."
+        comment: "Created discrete employee portal access similar to admin icon style. Small button with user's logo and 'Employee Portal' text positioned at bottom center of login pages. Uses glassmorphism styling, rounded-full design, minimal space usage. Only visible to those who know to look for it, similar to admin shield icon approach."
 
 metadata:
   created_by: "main_agent"
