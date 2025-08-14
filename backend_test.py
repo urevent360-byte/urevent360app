@@ -296,7 +296,26 @@ class APITester:
         else:
             self.log_test("Create Regular Wedding (No Sub-type)", False, f"Status: {response.status_code if response else 'No response'}")
         
-        # Test 6: Create existing event type (corporate) to ensure backward compatibility
+        # Test 6: Create Bat Mitzvah event (NEW EVENT TYPE)
+        bat_mitzvah_data = {
+            "name": "Rachel's Bat Mitzvah Celebration",
+            "description": "A meaningful coming of age ceremony and celebration",
+            "event_type": "bat_mitzvah",
+            "date": "2024-11-30T10:00:00Z",
+            "location": "Temple Beth Shalom, New York",
+            "guest_count": 75,
+            "budget": 8000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", bat_mitzvah_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            bat_mitzvah_event = response.json()
+            self.log_test("Create Bat Mitzvah Event", True, f"Event type: {bat_mitzvah_event.get('event_type')}")
+        else:
+            self.log_test("Create Bat Mitzvah Event", False, f"Status: {response.status_code if response else 'No response'}")
+
+        # Test 7: Create existing event type (corporate) to ensure backward compatibility
         corporate_data = {
             "name": "Annual Company Gala",
             "description": "Corporate annual celebration event",
