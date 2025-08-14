@@ -241,6 +241,7 @@ async def seed_database():
             },
             "availability": ["weekends", "weekdays"],
             "specialties": ["Wedding Photography", "Portrait Sessions", "Event Coverage", "Photo Editing"],
+            "cultural_specializations": ["indian", "american", "middle_eastern"],
             "experience_years": 10,
             "verified": True,
             "created_at": datetime.utcnow()
