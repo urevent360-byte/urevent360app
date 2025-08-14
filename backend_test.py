@@ -1167,6 +1167,7 @@ class APITester:
         self.test_event_management()
         self.test_bat_mitzvah_event_type()  # NEW: Specific Bat Mitzvah testing
         self.test_enhanced_event_types()  # Enhanced event type system
+        self.test_cultural_wedding_system()  # NEW: Cultural wedding system testing
         self.test_venue_system()
         self.test_enhanced_vendor_system()
         
