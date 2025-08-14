@@ -103,6 +103,12 @@ function App() {
                 <Route path="/vendor/*" element={<VendorLayout />} />
                 <Route path="*" element={<Navigate to="/vendor" />} />
               </Routes>
+            ) : user.role === 'employee' ? (
+              // Employee Layout
+              <Routes>
+                <Route path="/employee/*" element={<EmployeeLayout />} />
+                <Route path="*" element={<Navigate to="/employee" />} />
+              </Routes>
             ) : (
               // Regular User Layout
               <div className="flex h-screen">
