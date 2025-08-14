@@ -134,11 +134,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
   const loadSavedPlan = async () => {
     try {
       // Load planner state from backend
-      const response = await axios.get(`${API}/events/${eventId}/planner/state`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await axios.get(`${API}/events/${eventId}/planner/state`, getAuthHeaders());
 
       if (response.data) {
         setCurrentStep(response.data.current_step || 0);
