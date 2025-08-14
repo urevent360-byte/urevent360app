@@ -175,6 +175,9 @@ const VendorLayout = () => {
             <Route path="/analytics" element={<VendorAnalytics />} />
           </Routes>
         </main>
+
+        {/* Customer Service Chat - Available for vendor users */}
+        <CustomerService />
       </div>
     </div>
   );
