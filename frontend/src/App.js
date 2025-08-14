@@ -27,6 +27,9 @@ import AdminLayout from './components/admin/AdminLayout';
 // Vendor Components
 import VendorLayout from './components/vendor/VendorLayout';
 
+// Employee Components
+import EmployeeLayout from './components/employee/EmployeeLayout';
+
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
