@@ -17,6 +17,7 @@ const EventCreation = () => {
     description: '',
     event_type: '',
     sub_event_type: '',
+    cultural_style: '',
     date: '',
     time: '',
     location: '',
