@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 """
-Interactive Event Planner System Testing for Urevent 360 Platform
-Focus: Testing Interactive Event Planner workflow and related backend functionality
+Comprehensive Backend Testing for Urevent 360 Platform
+Focus: Testing all backend systems to ensure no regressions after Interactive Event Planner implementation
+Review Request: Run comprehensive testing of all backend systems including:
+1. Authentication System (all user types)
+2. Event Management (all event types and cultural styles)
+3. Vendor System (budget-aware filtering, cultural specialization)
+4. Venue System (ZIP code search, capacity filtering)
+5. Budget Tracking & Payments (calculations, payment processing)
+6. Cultural Filtering (across all event types)
+7. Interactive Event Planner System (complete workflow)
 """
 
 import requests
