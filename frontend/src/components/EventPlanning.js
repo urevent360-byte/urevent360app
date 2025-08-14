@@ -314,56 +314,10 @@ const EventPlanning = () => {
         );
 
       case 'budget':
-        const totalBookingCost = bookings.reduce((sum, booking) => sum + booking.price, 0);
-        const remainingBudget = event.budget ? event.budget - totalBookingCost : null;
-        
-        return (
-          <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">Budget Overview</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-lg shadow p-6">
-                <dt className="text-sm font-medium text-gray-500 truncate">Total Budget</dt>
-                <dd className="text-2xl font-bold text-gray-900">
-                  {event.budget ? formatCurrency(event.budget) : 'Not Set'}
-                </dd>
-              </div>
-              
-              <div className="bg-white rounded-lg shadow p-6">
-                <dt className="text-sm font-medium text-gray-500 truncate">Spent</dt>
-                <dd className="text-2xl font-bold text-red-600">
-                  {formatCurrency(totalBookingCost)}
-                </dd>
-              </div>
-              
-              <div className="bg-white rounded-lg shadow p-6">
-                <dt className="text-sm font-medium text-gray-500 truncate">Remaining</dt>
-                <dd className={`text-2xl font-bold ${remainingBudget && remainingBudget < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                  {remainingBudget !== null ? formatCurrency(remainingBudget) : 'N/A'}
-                </dd>
-              </div>
-            </div>
+        return <BudgetTracker eventId={eventId} />;
 
-            <div className="bg-white rounded-lg shadow p-6">
-              <h4 className="text-lg font-medium text-gray-900 mb-4">Budget Breakdown</h4>
-              {bookings.length === 0 ? (
-                <p className="text-sm text-gray-500">No expenses recorded yet.</p>
-              ) : (
-                <div className="space-y-4">
-                  {bookings.map((booking) => (
-                    <div key={booking.id} className="flex items-center justify-between py-2 border-b border-gray-200 last:border-b-0">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{booking.service_type}</p>
-                        <p className="text-sm text-gray-500">Booked on {formatDate(booking.booking_date)}</p>
-                      </div>
-                      <p className="text-sm font-medium text-gray-900">{formatCurrency(booking.price)}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
+      case 'payments':
+        return <PaymentHistory eventId={eventId} />;
 
       case 'messages':
         return (
