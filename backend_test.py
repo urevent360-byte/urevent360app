@@ -1152,6 +1152,264 @@ class APITester:
         else:
             self.log_test("Cultural Wedding System Comprehensive Test", False, f"Only {successful_cultural_events}/8 cultural wedding types created successfully")
     
+    def test_budget_tracking_payment_system(self):
+        """Test comprehensive budget tracking and payment management system"""
+        print("\n💰 Testing Budget Tracking & Payment System...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Budget Tracking System Test", False, "No client token available")
+            return
+        
+        # Step 1: Create a test event for budget tracking
+        event_data = {
+            "name": "Sarah's Dream Wedding",
+            "description": "Comprehensive wedding with full vendor services",
+            "event_type": "wedding",
+            "date": "2024-08-15T18:00:00Z",
+            "location": "Grand Ballroom, New York",
+            "budget": 25000.0,
+            "guest_count": 120,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+        if not response or response.status_code != 200:
+            self.log_test("Create Event for Budget Testing", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        event = response.json()
+        event_id = event.get("id")
+        self.log_test("Create Event for Budget Testing", True, f"Event created with ID: {event_id}")
+        
+        # Step 2: Get vendors for booking
+        response = self.make_request("GET", "/vendors", token=self.tokens["client"])
+        if not response or response.status_code != 200:
+            self.log_test("Get Vendors for Booking", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        vendors = response.json()
+        if len(vendors) < 3:
+            self.log_test("Get Vendors for Booking", False, f"Not enough vendors available: {len(vendors)}")
+            return
+        
+        self.log_test("Get Vendors for Booking", True, f"Found {len(vendors)} vendors available")
+        
+        # Step 3: Create vendor bookings with realistic data
+        vendor_bookings = []
+        booking_data_list = [
+            {
+                "vendor_id": vendors[0]["id"],
+                "total_cost": 12000.0,
+                "deposit_required": 3600.0,  # 30% deposit
+                "final_due_date": "2024-08-01T00:00:00Z",
+                "service_details": {
+                    "service_type": "Catering",
+                    "guests": 120,
+                    "menu": "Premium 3-course dinner"
+                }
+            },
+            {
+                "vendor_id": vendors[1]["id"],
+                "total_cost": 2500.0,
+                "deposit_required": 750.0,  # 30% deposit
+                "final_due_date": "2024-07-15T00:00:00Z",
+                "service_details": {
+                    "service_type": "Photography",
+                    "hours": 8,
+                    "package": "Wedding Premium Package"
+                }
+            },
+            {
+                "vendor_id": vendors[2]["id"],
+                "total_cost": 4500.0,
+                "deposit_required": 1350.0,  # 30% deposit
+                "final_due_date": "2024-07-20T00:00:00Z",
+                "service_details": {
+                    "service_type": "Decoration",
+                    "theme": "Elegant Garden",
+                    "setup_hours": 6
+                }
+            }
+        ]
+        
+        for i, booking_data in enumerate(booking_data_list):
+            response = self.make_request("POST", f"/events/{event_id}/vendor-bookings", booking_data, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                booking = response.json()
+                vendor_bookings.append(booking)
+                self.log_test(f"Create Vendor Booking {i+1}", True, f"Service: {booking_data['service_details']['service_type']}, Cost: ${booking_data['total_cost']}")
+            else:
+                self.log_test(f"Create Vendor Booking {i+1}", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 4: Test Budget Tracker API
+        response = self.make_request("GET", f"/events/{event_id}/budget-tracker", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            budget_data = response.json()
+            
+            total_budget = budget_data.get("total_budget", 0)
+            total_paid = budget_data.get("total_paid", 0)
+            remaining_balance = budget_data.get("remaining_balance", 0)
+            payment_progress = budget_data.get("payment_progress", 0)
+            vendor_payments = budget_data.get("vendor_payments", [])
+            
+            # Verify calculations
+            expected_total = 12000.0 + 2500.0 + 4500.0  # 19000.0
+            if abs(total_budget - expected_total) < 0.01:
+                self.log_test("Budget Tracker - Total Budget Calculation", True, f"Total budget: ${total_budget}")
+            else:
+                self.log_test("Budget Tracker - Total Budget Calculation", False, f"Expected: ${expected_total}, Got: ${total_budget}")
+            
+            # Initially no payments made
+            if total_paid == 0 and remaining_balance == total_budget:
+                self.log_test("Budget Tracker - Initial Payment Status", True, f"Paid: ${total_paid}, Remaining: ${remaining_balance}")
+            else:
+                self.log_test("Budget Tracker - Initial Payment Status", False, f"Unexpected payment status - Paid: ${total_paid}, Remaining: ${remaining_balance}")
+            
+            # Check vendor payment status
+            if len(vendor_payments) == 3:
+                self.log_test("Budget Tracker - Vendor Payment Status", True, f"Found {len(vendor_payments)} vendor payment records")
+            else:
+                self.log_test("Budget Tracker - Vendor Payment Status", False, f"Expected 3 vendor records, got {len(vendor_payments)}")
+                
+        else:
+            self.log_test("Budget Tracker API", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        # Step 5: Process payments and test payment system
+        payment_tests = [
+            {
+                "vendor_id": vendors[0]["id"],
+                "amount": 3600.0,
+                "payment_type": "deposit",
+                "payment_method": "card",
+                "description": "Catering deposit payment"
+            },
+            {
+                "vendor_id": vendors[1]["id"],
+                "amount": 2500.0,
+                "payment_type": "final",
+                "payment_method": "bank_transfer",
+                "description": "Photography full payment"
+            },
+            {
+                "vendor_id": vendors[2]["id"],
+                "amount": 1000.0,
+                "payment_type": "partial",
+                "payment_method": "card",
+                "description": "Decoration partial payment"
+            }
+        ]
+        
+        for i, payment_data in enumerate(payment_tests):
+            response = self.make_request("POST", f"/events/{event_id}/payments", payment_data, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                payment = response.json()
+                self.log_test(f"Process Payment {i+1}", True, f"Amount: ${payment_data['amount']}, Type: {payment_data['payment_type']}")
+            else:
+                self.log_test(f"Process Payment {i+1}", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 6: Test budget tracker after payments
+        response = self.make_request("GET", f"/events/{event_id}/budget-tracker", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            updated_budget_data = response.json()
+            
+            total_paid_after = updated_budget_data.get("total_paid", 0)
+            remaining_after = updated_budget_data.get("remaining_balance", 0)
+            progress_after = updated_budget_data.get("payment_progress", 0)
+            
+            expected_paid = 3600.0 + 2500.0 + 1000.0  # 7100.0
+            expected_remaining = 19000.0 - 7100.0  # 11900.0
+            expected_progress = (7100.0 / 19000.0) * 100  # ~37.4%
+            
+            if abs(total_paid_after - expected_paid) < 0.01:
+                self.log_test("Budget Tracker - Updated Total Paid", True, f"Total paid: ${total_paid_after}")
+            else:
+                self.log_test("Budget Tracker - Updated Total Paid", False, f"Expected: ${expected_paid}, Got: ${total_paid_after}")
+            
+            if abs(remaining_after - expected_remaining) < 0.01:
+                self.log_test("Budget Tracker - Updated Remaining Balance", True, f"Remaining: ${remaining_after}")
+            else:
+                self.log_test("Budget Tracker - Updated Remaining Balance", False, f"Expected: ${expected_remaining}, Got: ${remaining_after}")
+            
+            if abs(progress_after - expected_progress) < 1.0:  # Allow 1% tolerance
+                self.log_test("Budget Tracker - Payment Progress", True, f"Progress: {progress_after:.1f}%")
+            else:
+                self.log_test("Budget Tracker - Payment Progress", False, f"Expected: {expected_progress:.1f}%, Got: {progress_after:.1f}%")
+                
+        else:
+            self.log_test("Budget Tracker After Payments", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 7: Test payment history
+        response = self.make_request("GET", f"/events/{event_id}/payment-history", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            payment_history = response.json()
+            
+            if len(payment_history) == 3:
+                self.log_test("Payment History", True, f"Retrieved {len(payment_history)} payment records")
+                
+                # Check if payments include vendor information
+                has_vendor_info = all(p.get("vendor_name") and p.get("service_type") for p in payment_history)
+                if has_vendor_info:
+                    self.log_test("Payment History - Vendor Information", True, "All payments include vendor details")
+                else:
+                    self.log_test("Payment History - Vendor Information", False, "Missing vendor information in payment records")
+            else:
+                self.log_test("Payment History", False, f"Expected 3 payment records, got {len(payment_history)}")
+        else:
+            self.log_test("Payment History", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 8: Test invoice system
+        if vendor_bookings:
+            # Get invoice for first vendor booking
+            first_booking = vendor_bookings[0]
+            invoice_id = first_booking.get("invoice_id")
+            
+            if invoice_id:
+                response = self.make_request("GET", f"/events/{event_id}/invoices/{invoice_id}", token=self.tokens["client"])
+                if response and response.status_code == 200:
+                    invoice_data = response.json()
+                    
+                    has_vendor_details = invoice_data.get("vendor_details") is not None
+                    has_payments = isinstance(invoice_data.get("payments"), list)
+                    
+                    if has_vendor_details and has_payments:
+                        self.log_test("Invoice System", True, f"Invoice includes vendor details and payment history")
+                    else:
+                        self.log_test("Invoice System", False, f"Missing invoice data - Vendor: {has_vendor_details}, Payments: {has_payments}")
+                else:
+                    self.log_test("Invoice System", False, f"Status: {response.status_code if response else 'No response'}")
+            else:
+                self.log_test("Invoice System", False, "No invoice ID found in vendor booking")
+        
+        # Step 9: Test additional payment processing
+        additional_payment = {
+            "vendor_id": vendors[2]["id"],
+            "amount": 500.0,
+            "payment_type": "partial",
+            "payment_method": "card",
+            "description": "Additional decoration payment"
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/payments", additional_payment, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            self.log_test("Additional Payment Processing", True, f"Additional payment of ${additional_payment['amount']} processed")
+            
+            # Verify budget tracker updates
+            response = self.make_request("GET", f"/events/{event_id}/budget-tracker", token=self.tokens["client"])
+            if response and response.status_code == 200:
+                final_budget_data = response.json()
+                final_total_paid = final_budget_data.get("total_paid", 0)
+                expected_final_paid = 7100.0 + 500.0  # 7600.0
+                
+                if abs(final_total_paid - expected_final_paid) < 0.01:
+                    self.log_test("Budget Tracker - Real-time Updates", True, f"Budget tracker updated in real-time: ${final_total_paid}")
+                else:
+                    self.log_test("Budget Tracker - Real-time Updates", False, f"Expected: ${expected_final_paid}, Got: ${final_total_paid}")
+            else:
+                self.log_test("Budget Tracker - Real-time Updates", False, "Failed to verify real-time updates")
+        else:
+            self.log_test("Additional Payment Processing", False, f"Status: {response.status_code if response else 'No response'}")
+
     def run_all_tests(self):
         """Run comprehensive test suite"""
         print("🚀 Starting Comprehensive Backend API Testing for Urevent 360")
@@ -1165,6 +1423,10 @@ class APITester:
         self.test_authentication()
         self.test_user_management()
         self.test_event_management()
+        
+        # NEW: Budget Tracking & Payment System Testing (Priority)
+        self.test_budget_tracking_payment_system()
+        
         self.test_bat_mitzvah_event_type()  # NEW: Specific Bat Mitzvah testing
         self.test_enhanced_event_types()  # Enhanced event type system
         self.test_cultural_wedding_system()  # NEW: Cultural wedding system testing
