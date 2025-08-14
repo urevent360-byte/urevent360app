@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Calendar, MapPin, Users, DollarSign, CheckCircle, Clock, MessageCircle, Plus } from 'lucide-react';
+import BudgetTracker from './BudgetTracker';
+import PaymentHistory from './PaymentHistory';
+import InvoiceViewer from './InvoiceViewer';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
