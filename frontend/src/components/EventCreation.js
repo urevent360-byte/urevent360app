@@ -84,9 +84,10 @@ const EventCreation = () => {
   const steps = [
     { id: 1, name: 'Basic Info', desc: 'Event details' },
     { id: 2, name: 'Type & Date', desc: 'When and what' },
-    { id: 3, name: 'Requirements', desc: 'Your needs' },
-    { id: 4, name: 'Budget', desc: 'Financial planning' }
-  ];
+    { id: 3, name: 'Wedding Details', desc: 'Ceremony preferences', condition: () => eventData.event_type === 'wedding' },
+    { id: 4, name: 'Requirements', desc: 'Your needs' },
+    { id: 5, name: 'Budget', desc: 'Financial planning' }
+  ].filter(step => !step.condition || step.condition());
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
