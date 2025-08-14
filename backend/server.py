@@ -131,6 +131,7 @@ class Vendor(BaseModel):
     contact_info: Dict[str, str] = {}
     availability: List[str] = []
     specialties: List[str] = []
+    cultural_specializations: List[str] = []  # indian, american, hispanic, african, asian, middle_eastern, other
     experience_years: int = 1
     verified: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
