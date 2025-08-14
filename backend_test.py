@@ -358,7 +358,7 @@ class APITester:
         else:
             self.log_test("Event Retrieval with Enhanced Types", False, f"Status: {response.status_code if response else 'No response'}")
         
-        # Test 8: Test individual event retrieval to verify sub_event_type field
+        # Test 9: Test individual event retrieval to verify sub_event_type field
         if response and response.status_code == 200 and all_events:
             # Find a wedding event with sub_event_type
             wedding_with_subtype = None
@@ -378,6 +378,27 @@ class APITester:
                     self.log_test("Individual Event Retrieval with Sub-type", False, f"Status: {response.status_code if response else 'No response'}")
             else:
                 self.log_test("Individual Event Retrieval with Sub-type", False, "No wedding with sub-type found to test")
+        
+        # Test 10: Test Bat Mitzvah event retrieval specifically
+        if response and response.status_code == 200 and all_events:
+            # Find the Bat Mitzvah event
+            bat_mitzvah_event = None
+            for event in all_events:
+                if event.get('event_type') == 'bat_mitzvah':
+                    bat_mitzvah_event = event
+                    break
+            
+            if bat_mitzvah_event:
+                event_id = bat_mitzvah_event.get('id')
+                response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+                if response and response.status_code == 200:
+                    event_details = response.json()
+                    event_type = event_details.get('event_type')
+                    self.log_test("Individual Bat Mitzvah Event Retrieval", True, f"Event type confirmed: {event_type}")
+                else:
+                    self.log_test("Individual Bat Mitzvah Event Retrieval", False, f"Status: {response.status_code if response else 'No response'}")
+            else:
+                self.log_test("Individual Bat Mitzvah Event Retrieval", False, "No Bat Mitzvah event found to test")
     
     def test_venue_system(self):
         """Test venue search and details"""
