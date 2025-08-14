@@ -254,31 +254,54 @@ const EventDashboard = () => {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Next Steps</h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <button 
+                  onClick={() => setShowInteractivePlanner(true)}
+                  className="w-full text-left p-3 border border-purple-200 rounded-lg hover:bg-purple-50 bg-gradient-to-r from-purple-50 to-blue-50"
+                >
                   <div className="flex items-center">
-                    <Building className="h-5 w-5 text-gray-600 mr-3" />
-                    <span className="text-sm font-medium text-gray-900">
-                      {event.venue_id ? 'Review Venue Details' : 'Select Venue'}
-                    </span>
+                    <Wand2 className="h-5 w-5 text-purple-600 mr-3" />
+                    <div>
+                      <p className="text-sm font-medium text-purple-900">Interactive Event Planner</p>
+                      <p className="text-xs text-purple-700">Step-by-step vendor selection with comparison</p>
+                    </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
-                </div>
+                </button>
                 
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <button
+                  onClick={() => setShowVenueSelection(true)}
+                  className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                >
                   <div className="flex items-center">
-                    <Users className="h-5 w-5 text-gray-600 mr-3" />
-                    <span className="text-sm font-medium text-gray-900">Browse Vendors</span>
+                    <Building className="h-5 w-5 text-gray-400 mr-3" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        {event.venue_id ? 'Change Venue' : 'Find Venues'}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {event.venue_id ? 'Update venue selection' : 'Browse available venues'}
+                      </p>
+                    </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
-                </div>
+                </button>
                 
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
                   <div className="flex items-center">
-                    <CreditCard className="h-5 w-5 text-gray-600 mr-3" />
-                    <span className="text-sm font-medium text-gray-900">Set Up Budget Tracker</span>
+                    <Users className="h-5 w-5 text-gray-400 mr-3" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Browse Vendors</p>
+                      <p className="text-xs text-gray-500">Find service providers individually</p>
+                    </div>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-gray-400" />
-                </div>
+                </button>
+                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <div className="flex items-center">
+                    <CreditCard className="h-5 w-5 text-gray-400 mr-3" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Set Up Budget Tracker</p>
+                      <p className="text-xs text-gray-500">Plan your expenses</p>
+                    </div>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
