@@ -444,6 +444,19 @@ const Login = () => {
               Create Account
             </Link>
           </div>
+
+          {/* Employee Portal Link - Also available on login form */}
+          {selectedRole !== 'employee' && (
+            <div className="text-center mt-4">
+              <button
+                onClick={() => handleRoleSelect('employee')}
+                className="flex items-center justify-center gap-2 mx-auto px-3 py-2 bg-white/10 backdrop-blur-md border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-gray-600 hover:text-orange-600"
+              >
+                <Users className="w-4 h-4" />
+                <span className="text-sm font-medium">Employees Portal</span>
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>
