@@ -63,6 +63,32 @@ async def seed_database():
     else:
         print("ℹ️ Vendor user already exists")
     
+    # Create employee user if not exists
+    employee_user = await db.users.find_one({"email": "employee@example.com"})
+    if not employee_user:
+        employee_data = {
+            "id": str(uuid.uuid4()),
+            "name": "Demo Employee",
+            "email": "employee@example.com",
+            "mobile": "+1122334455",
+            "role": "employee",
+            "hashed_password": get_password_hash("employee123"),
+            "created_at": datetime.utcnow(),
+            "profile_completed": True,
+            "employee_info": {
+                "employee_id": "EMP001",
+                "department": "Event Operations",
+                "position": "Event Coordinator",
+                "hire_date": datetime.utcnow().isoformat(),
+                "manager_id": "vendor@example.com",
+                "status": "active"
+            }
+        }
+        await db.users.insert_one(employee_data)
+        print("✅ Employee user created: employee@example.com / employee123")
+    else:
+        print("ℹ️ Employee user already exists")
+    
     # Sample Venues
     venues = [
         {
