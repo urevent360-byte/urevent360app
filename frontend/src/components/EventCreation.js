@@ -63,7 +63,7 @@ const EventCreation = () => {
     {
       id: 'american',
       name: 'American',
-      desc: 'Traditional American wedding style with classic elegance',
+      desc: 'Traditional American style with classic elegance and customs',
       icon: '🗽',
       color: 'bg-blue-50 border-blue-200 hover:border-blue-300'
     },
@@ -105,7 +105,7 @@ const EventCreation = () => {
     {
       id: 'jewish',
       name: 'Jewish',
-      desc: 'Traditional Jewish wedding with meaningful ceremonies',
+      desc: 'Traditional Jewish celebrations with meaningful ceremonies',
       icon: '✡️',
       color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-300'
     },
