@@ -30,7 +30,9 @@ const EventCreation = () => {
   });
 
   const eventTypes = [
-    { id: 'wedding', name: 'Wedding', desc: 'Celebrate your special day' },
+    { id: 'wedding', name: 'Wedding', desc: 'Celebrate your special day', hasSubTypes: true },
+    { id: 'quinceanera', name: 'Quinceañera', desc: 'Celebrate the transition to womanhood' },
+    { id: 'sweet_16', name: 'Sweet 16', desc: 'Celebrate the milestone birthday' },
     { id: 'corporate', name: 'Corporate Event', desc: 'Business meetings and conferences' },
     { id: 'birthday', name: 'Birthday Party', desc: 'Celebrate another year of life' },
     { id: 'anniversary', name: 'Anniversary', desc: 'Commemorate special milestones' },
@@ -38,6 +40,21 @@ const EventCreation = () => {
     { id: 'baby_shower', name: 'Baby Shower', desc: 'Welcome the new arrival' },
     { id: 'retirement', name: 'Retirement Party', desc: 'Celebrate career achievements' },
     { id: 'other', name: 'Other', desc: 'Custom event type' }
+  ];
+
+  const weddingSubTypes = [
+    { 
+      id: 'reception_only', 
+      name: 'Reception Only', 
+      desc: 'Celebrate with family and friends after the ceremony',
+      icon: '🥂'
+    },
+    { 
+      id: 'reception_with_ceremony', 
+      name: 'Reception with Ceremony at the Same Location', 
+      desc: 'Full wedding ceremony and reception at one venue',
+      icon: '💒'
+    }
   ];
 
   const venueTypes = [
