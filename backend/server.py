@@ -454,7 +454,7 @@ async def search_venues(
             budget_filter["$gte"] = budget_min
         if budget_max:
             budget_filter["$lte"] = budget_max
-        query["base_price"] = budget_filter
+        query["price_per_person"] = budget_filter
     
     # Search venues
     venues = await db.venues.find(query).limit(20).to_list(20)
