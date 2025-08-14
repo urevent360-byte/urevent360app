@@ -172,11 +172,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
         step_data: {
           last_saved: new Date().toISOString()
         }
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      }, getAuthHeaders());
       
       // Keep localStorage as backup
       const planData = {
