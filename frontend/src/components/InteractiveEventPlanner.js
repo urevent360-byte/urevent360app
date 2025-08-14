@@ -309,11 +309,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
       };
 
       // Use the new Interactive Event Planner cart API
-      const response = await axios.post(`${API}/events/${eventId}/cart/add`, cartRequest, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await axios.post(`${API}/events/${eventId}/cart/add`, cartRequest, getAuthHeaders());
 
       if (response.data) {
         // Refresh cart from backend
