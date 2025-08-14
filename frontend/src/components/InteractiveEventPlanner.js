@@ -171,12 +171,15 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
       
       // Map step IDs to service types
       const serviceTypeMap = {
-        'venue': 'Venue',
-        'decoration': 'Decoration',
-        'catering': 'Catering',
-        'dj': 'Music/DJ',
-        'photography': 'Photography',
-        'staffing': 'Staffing'
+        'venue': 'venue',
+        'decoration': 'decoration',
+        'catering': 'catering',
+        'bar': 'bar',
+        'planner': 'planning',
+        'photography': 'photography',
+        'dj': 'dj',
+        'staffing': 'staffing',
+        'entertainment': 'entertainment'
       };
 
       const params = new URLSearchParams();
