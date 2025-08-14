@@ -108,6 +108,7 @@ const EventDashboard = () => {
 
   const tabs = [
     { id: 'overview', name: 'Overview', icon: Calendar },
+    { id: 'planner', name: 'Interactive Planner', icon: Wand2 },
     { id: 'venue', name: 'Venue', icon: Building },
     { id: 'budget', name: 'Budget Tracker', icon: DollarSign },
     { id: 'payments', name: 'Payment History', icon: History },
