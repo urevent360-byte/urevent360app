@@ -388,11 +388,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
       setSaving(true);
       
       // Use the new Interactive Event Planner finalize endpoint
-      const response = await axios.post(`${API}/events/${eventId}/planner/finalize`, {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await axios.post(`${API}/events/${eventId}/planner/finalize`, {}, getAuthHeaders());
 
       if (response.data) {
         const bookings = response.data.bookings_created || [];
