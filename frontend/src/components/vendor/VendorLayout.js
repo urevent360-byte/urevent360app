@@ -27,6 +27,9 @@ import VendorMessages from './VendorMessages';
 import VendorProfile from './VendorProfile';
 import VendorAnalytics from './VendorAnalytics';
 
+// Customer Service Component
+import CustomerService from '../CustomerService';
+
 const VendorLayout = () => {
   const { user, logout } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
