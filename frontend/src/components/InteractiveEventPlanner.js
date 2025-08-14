@@ -169,51 +169,38 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     try {
       setLoading(true);
       
-      // Map step IDs to service types
-      const serviceTypeMap = {
-        'venue': 'venue',
-        'decoration': 'decoration',
-        'catering': 'catering',
-        'bar': 'bar',
-        'planner': 'planning',
-        'photography': 'photography',
-        'dj': 'dj',
-        'staffing': 'staffing',
-        'entertainment': 'entertainment'
-      };
-
+      // Use the new Interactive Event Planner API endpoint
       const params = new URLSearchParams();
-      if (serviceTypeMap[stepId]) {
-        params.append('service_type', serviceTypeMap[stepId]);
-      }
       
       if (searchTerm.trim()) {
         params.append('search', searchTerm);
       }
 
-      // Add event-specific filters
-      if (currentEvent?.location) {
-        params.append('location', currentEvent.location);
-      }
-      
-      if (currentEvent?.cultural_style) {
-        params.append('cultural_style', currentEvent.cultural_style);
-      }
-
+      // Add budget filtering based on current event
       if (currentEvent?.budget) {
-        params.append('max_budget', currentEvent.budget);
+        const serviceBudget = currentEvent.budget * 0.15; // Allocate 15% per service
+        params.append('max_price', serviceBudget);
       }
 
       let response;
       if (stepId === 'venue') {
+        // Use venue search API
+        if (currentEvent?.location) {
+          params.append('city', currentEvent.location);
+        }
+        if (currentEvent?.guest_count) {
+          params.append('capacity_min', Math.floor(currentEvent.guest_count * 0.8));
+          params.append('capacity_max', Math.ceil(currentEvent.guest_count * 1.2));
+        }
         response = await axios.get(`${API}/venues/search?${params}`);
       } else {
-        response = await axios.get(`${API}/vendors?${params}`);
+        // Use the new Interactive Event Planner vendor endpoint
+        response = await axios.get(`${API}/events/${eventId}/planner/vendors/${stepId}?${params}`);
       }
 
       setVendors(prev => ({
         ...prev,
-        [stepId]: response.data || []
+        [stepId]: response.data?.vendors || response.data || []
       }));
     } catch (err) {
       console.error('Error searching vendors:', err);
