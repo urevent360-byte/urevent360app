@@ -287,30 +287,6 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     }
   };
 
-  const loadCartFromBackend = async () => {
-    try {
-      const response = await axios.get(`${API}/events/${eventId}/cart`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      if (response.data) {
-        const cartItems = response.data.cart_items || [];
-        setCart(cartItems);
-        
-        // Update budget data
-        setBudgetData({
-          set: response.data.budget_tracking?.set_budget || currentEvent?.budget || 0,
-          selected: response.data.budget_tracking?.selected_total || 0,
-          remaining: response.data.budget_tracking?.remaining || 0
-        });
-      }
-    } catch (err) {
-      console.error('Error loading cart from backend:', err);
-    }
-  };
-
   const removeFromCart = async (itemId) => {
     try {
       await axios.delete(`${API}/events/${eventId}/cart/remove/${itemId}`, {
