@@ -807,6 +807,351 @@ class APITester:
         else:
             self.log_test("Create Review", False, f"Status: {response.status_code if response else 'No response'}")
     
+    def test_cultural_wedding_system(self):
+        """Test comprehensive cultural wedding system with cultural matching"""
+        print("\n🌍 Testing Cultural Wedding System...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Cultural Wedding System Test", False, "No client token available")
+            return
+        
+        # Store created event IDs for vendor matching tests
+        cultural_events = {}
+        
+        # Test 1: Create Indian Wedding
+        indian_wedding_data = {
+            "name": "Priya & Raj's Indian Wedding",
+            "description": "Traditional Indian wedding ceremony with vibrant celebrations",
+            "event_type": "wedding",
+            "sub_event_type": "reception_with_ceremony",
+            "cultural_style": "indian",
+            "date": "2024-12-01T16:00:00Z",
+            "location": "Grand Palace Banquet Hall, Mumbai",
+            "guest_count": 200,
+            "budget": 40000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", indian_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            indian_event = response.json()
+            cultural_events["indian"] = indian_event.get("id")
+            cultural_style = indian_event.get("cultural_style")
+            self.log_test("Create Indian Wedding", True, f"Cultural style: {cultural_style}, Budget: ${indian_event.get('budget')}")
+        else:
+            self.log_test("Create Indian Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 2: Create Hispanic Wedding
+        hispanic_wedding_data = {
+            "name": "Maria & Carlos's Hispanic Wedding",
+            "description": "Beautiful Hispanic wedding with traditional music and dance",
+            "event_type": "wedding",
+            "sub_event_type": "reception_with_ceremony",
+            "cultural_style": "hispanic",
+            "date": "2024-11-15T17:00:00Z",
+            "location": "Casa de Eventos, Mexico City",
+            "guest_count": 150,
+            "budget": 30000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", hispanic_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            hispanic_event = response.json()
+            cultural_events["hispanic"] = hispanic_event.get("id")
+            cultural_style = hispanic_event.get("cultural_style")
+            self.log_test("Create Hispanic Wedding", True, f"Cultural style: {cultural_style}, Budget: ${hispanic_event.get('budget')}")
+        else:
+            self.log_test("Create Hispanic Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 3: Create American Wedding
+        american_wedding_data = {
+            "name": "Sarah & Michael's American Wedding",
+            "description": "Classic American wedding with elegant reception",
+            "event_type": "wedding",
+            "sub_event_type": "reception_only",
+            "cultural_style": "american",
+            "date": "2024-10-20T18:00:00Z",
+            "location": "Country Club, Nashville",
+            "guest_count": 100,
+            "budget": 25000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", american_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            american_event = response.json()
+            cultural_events["american"] = american_event.get("id")
+            cultural_style = american_event.get("cultural_style")
+            self.log_test("Create American Wedding", True, f"Cultural style: {cultural_style}, Budget: ${american_event.get('budget')}")
+        else:
+            self.log_test("Create American Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 4: Create Jewish Wedding
+        jewish_wedding_data = {
+            "name": "Rebecca & David's Jewish Wedding",
+            "description": "Traditional Jewish wedding ceremony with kosher reception",
+            "event_type": "wedding",
+            "sub_event_type": "reception_with_ceremony",
+            "cultural_style": "jewish",
+            "date": "2024-09-08T19:00:00Z",
+            "location": "Temple Beth El, New York",
+            "guest_count": 180,
+            "budget": 35000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", jewish_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            jewish_event = response.json()
+            cultural_events["jewish"] = jewish_event.get("id")
+            cultural_style = jewish_event.get("cultural_style")
+            self.log_test("Create Jewish Wedding", True, f"Cultural style: {cultural_style}, Budget: ${jewish_event.get('budget')}")
+        else:
+            self.log_test("Create Jewish Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 5: Create African Wedding
+        african_wedding_data = {
+            "name": "Amara & Kwame's African Wedding",
+            "description": "Vibrant African wedding with traditional ceremonies",
+            "event_type": "wedding",
+            "sub_event_type": "reception_with_ceremony",
+            "cultural_style": "african",
+            "date": "2024-08-25T16:00:00Z",
+            "location": "Cultural Center, Lagos",
+            "guest_count": 250,
+            "budget": 45000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", african_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            african_event = response.json()
+            cultural_events["african"] = african_event.get("id")
+            cultural_style = african_event.get("cultural_style")
+            self.log_test("Create African Wedding", True, f"Cultural style: {cultural_style}, Budget: ${african_event.get('budget')}")
+        else:
+            self.log_test("Create African Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 6: Create Asian Wedding
+        asian_wedding_data = {
+            "name": "Li Wei & Mei's Asian Wedding",
+            "description": "Traditional Asian wedding with tea ceremony",
+            "event_type": "wedding",
+            "sub_event_type": "reception_with_ceremony",
+            "cultural_style": "asian",
+            "date": "2024-07-12T15:00:00Z",
+            "location": "Dragon Palace, Beijing",
+            "guest_count": 120,
+            "budget": 32000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", asian_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            asian_event = response.json()
+            cultural_events["asian"] = asian_event.get("id")
+            cultural_style = asian_event.get("cultural_style")
+            self.log_test("Create Asian Wedding", True, f"Cultural style: {cultural_style}, Budget: ${asian_event.get('budget')}")
+        else:
+            self.log_test("Create Asian Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 7: Create Middle Eastern Wedding
+        middle_eastern_wedding_data = {
+            "name": "Fatima & Omar's Middle Eastern Wedding",
+            "description": "Elegant Middle Eastern wedding with traditional music",
+            "event_type": "wedding",
+            "sub_event_type": "reception_with_ceremony",
+            "cultural_style": "middle_eastern",
+            "date": "2024-06-30T18:00:00Z",
+            "location": "Grand Ballroom, Dubai",
+            "guest_count": 300,
+            "budget": 50000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", middle_eastern_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            middle_eastern_event = response.json()
+            cultural_events["middle_eastern"] = middle_eastern_event.get("id")
+            cultural_style = middle_eastern_event.get("cultural_style")
+            self.log_test("Create Middle Eastern Wedding", True, f"Cultural style: {cultural_style}, Budget: ${middle_eastern_event.get('budget')}")
+        else:
+            self.log_test("Create Middle Eastern Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 8: Create Other Cultural Style Wedding
+        other_wedding_data = {
+            "name": "Emma & James's Fusion Wedding",
+            "description": "Multi-cultural fusion wedding celebration",
+            "event_type": "wedding",
+            "sub_event_type": "reception_only",
+            "cultural_style": "other",
+            "date": "2024-05-18T17:30:00Z",
+            "location": "Garden Venue, Sydney",
+            "guest_count": 80,
+            "budget": 22000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", other_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            other_event = response.json()
+            cultural_events["other"] = other_event.get("id")
+            cultural_style = other_event.get("cultural_style")
+            self.log_test("Create Other Cultural Wedding", True, f"Cultural style: {cultural_style}, Budget: ${other_event.get('budget')}")
+        else:
+            self.log_test("Create Other Cultural Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 9: Verify Cultural Style Storage and Retrieval
+        response = self.make_request("GET", "/events", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            all_events = response.json()
+            cultural_styles_found = []
+            
+            for event in all_events:
+                if event.get("cultural_style"):
+                    cultural_styles_found.append(event.get("cultural_style"))
+            
+            expected_styles = ["indian", "hispanic", "american", "jewish", "african", "asian", "middle_eastern", "other"]
+            found_styles = set(cultural_styles_found)
+            
+            if len(found_styles.intersection(expected_styles)) >= 6:  # At least 6 cultural styles
+                self.log_test("Cultural Style Storage & Retrieval", True, f"Found cultural styles: {sorted(found_styles)}")
+            else:
+                self.log_test("Cultural Style Storage & Retrieval", False, f"Missing cultural styles. Found: {sorted(found_styles)}")
+        else:
+            self.log_test("Cultural Style Storage & Retrieval", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 10: Test Cultural Vendor Matching - Direct Cultural Style Filter
+        print("\n🎯 Testing Cultural Vendor Matching...")
+        
+        # Test Indian vendor matching
+        params = {"cultural_style": "indian"}
+        response = self.make_request("GET", "/vendors", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            indian_vendors = response.json()
+            self.log_test("Indian Cultural Vendor Matching", True, f"Found {len(indian_vendors)} vendors specializing in Indian weddings")
+        else:
+            self.log_test("Indian Cultural Vendor Matching", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test Hispanic vendor matching
+        params = {"cultural_style": "hispanic"}
+        response = self.make_request("GET", "/vendors", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            hispanic_vendors = response.json()
+            self.log_test("Hispanic Cultural Vendor Matching", True, f"Found {len(hispanic_vendors)} vendors specializing in Hispanic weddings")
+        else:
+            self.log_test("Hispanic Cultural Vendor Matching", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test American vendor matching
+        params = {"cultural_style": "american"}
+        response = self.make_request("GET", "/vendors", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            american_vendors = response.json()
+            self.log_test("American Cultural Vendor Matching", True, f"Found {len(american_vendors)} vendors specializing in American weddings")
+        else:
+            self.log_test("American Cultural Vendor Matching", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test Jewish vendor matching
+        params = {"cultural_style": "jewish"}
+        response = self.make_request("GET", "/vendors", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            jewish_vendors = response.json()
+            self.log_test("Jewish Cultural Vendor Matching", True, f"Found {len(jewish_vendors)} vendors specializing in Jewish weddings")
+        else:
+            self.log_test("Jewish Cultural Vendor Matching", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 11: Test Event-Based Cultural Vendor Matching
+        print("\n🔗 Testing Event-Based Cultural Vendor Matching...")
+        
+        # Test with Indian event ID - should auto-extract cultural style
+        if "indian" in cultural_events and cultural_events["indian"]:
+            params = {"event_id": cultural_events["indian"]}
+            response = self.make_request("GET", "/vendors", params=params, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                event_matched_vendors = response.json()
+                self.log_test("Event-Based Indian Vendor Matching", True, f"Found {len(event_matched_vendors)} vendors for Indian event")
+            else:
+                self.log_test("Event-Based Indian Vendor Matching", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test with Hispanic event ID
+        if "hispanic" in cultural_events and cultural_events["hispanic"]:
+            params = {"event_id": cultural_events["hispanic"]}
+            response = self.make_request("GET", "/vendors", params=params, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                event_matched_vendors = response.json()
+                self.log_test("Event-Based Hispanic Vendor Matching", True, f"Found {len(event_matched_vendors)} vendors for Hispanic event")
+            else:
+                self.log_test("Event-Based Hispanic Vendor Matching", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 12: Test Vendor Cultural Specializations
+        print("\n🏪 Testing Vendor Cultural Specializations...")
+        
+        # Get all vendors and check for cultural_specializations field
+        response = self.make_request("GET", "/vendors", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            all_vendors = response.json()
+            vendors_with_cultural_specs = []
+            cultural_specializations_found = set()
+            
+            for vendor in all_vendors:
+                cultural_specs = vendor.get("cultural_specializations", [])
+                if cultural_specs:
+                    vendors_with_cultural_specs.append(vendor.get("name", "Unknown"))
+                    cultural_specializations_found.update(cultural_specs)
+            
+            if vendors_with_cultural_specs:
+                self.log_test("Vendor Cultural Specializations", True, f"{len(vendors_with_cultural_specs)} vendors have cultural specializations: {sorted(cultural_specializations_found)}")
+            else:
+                self.log_test("Vendor Cultural Specializations", False, "No vendors found with cultural specializations")
+        else:
+            self.log_test("Vendor Cultural Specializations", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 13: Test Combined Cultural and Budget Filtering
+        print("\n💰 Testing Combined Cultural and Budget Filtering...")
+        
+        # Test Indian vendors within budget range
+        params = {"cultural_style": "indian", "min_budget": 20000, "max_budget": 50000}
+        response = self.make_request("GET", "/vendors", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            filtered_vendors = response.json()
+            self.log_test("Cultural + Budget Filtering", True, f"Found {len(filtered_vendors)} Indian vendors in $20K-$50K range")
+        else:
+            self.log_test("Cultural + Budget Filtering", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 14: Test Backward Compatibility - Wedding without Cultural Style
+        backward_compatibility_data = {
+            "name": "Traditional Wedding (No Cultural Style)",
+            "description": "Wedding without specific cultural style for backward compatibility",
+            "event_type": "wedding",
+            "sub_event_type": "reception_with_ceremony",
+            "date": "2024-04-15T16:00:00Z",
+            "location": "Classic Venue",
+            "guest_count": 90,
+            "budget": 20000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", backward_compatibility_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            backward_event = response.json()
+            cultural_style = backward_event.get("cultural_style")
+            self.log_test("Backward Compatibility (No Cultural Style)", True, f"Event created without cultural_style: {cultural_style}")
+        else:
+            self.log_test("Backward Compatibility (No Cultural Style)", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 15: Comprehensive Cultural System Verification
+        print("\n✅ Comprehensive Cultural System Verification...")
+        
+        # Verify all cultural styles are accepted
+        cultural_styles_tested = ["indian", "hispanic", "american", "jewish", "african", "asian", "middle_eastern", "other"]
+        successful_cultural_events = len([style for style in cultural_styles_tested if style in cultural_events and cultural_events[style]])
+        
+        if successful_cultural_events >= 7:  # At least 7 out of 8 cultural styles
+            self.log_test("Cultural Wedding System Comprehensive Test", True, f"Successfully created {successful_cultural_events}/8 cultural wedding types")
+        else:
+            self.log_test("Cultural Wedding System Comprehensive Test", False, f"Only {successful_cultural_events}/8 cultural wedding types created successfully")
+    
     def run_all_tests(self):
         """Run comprehensive test suite"""
         print("🚀 Starting Comprehensive Backend API Testing for Urevent 360")
