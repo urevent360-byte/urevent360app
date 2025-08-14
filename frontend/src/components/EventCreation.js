@@ -220,7 +220,14 @@ const EventCreation = () => {
         }
         return true;
       case culturalStyleStepNumber:
-        if (eventData.event_type === 'wedding' && culturalStyleStepNumber) {
+        // Cultural style step validation for applicable event types
+        const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
+        if (selectedEventType?.hasCulturalStyles && eventData.event_type !== 'bat_mitzvah') {
+          // For weddings, only require if sub_event_type is set
+          if (eventData.event_type === 'wedding') {
+            return eventData.sub_event_type ? eventData.cultural_style !== '' : true;
+          }
+          // For other event types, cultural style is required
           return eventData.cultural_style !== '';
         }
         return true;
