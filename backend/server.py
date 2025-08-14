@@ -607,6 +607,14 @@ async def calculate_budget(event_id: str, requirements: dict, current_user: dict
         "breakdown": breakdown
     }
 
+# Import admin and vendor routes after all functions are defined to avoid circular imports
+from admin_routes import admin_router
+from vendor_subscription_routes import vendor_router
+
+# Include admin and vendor routers in the app
+app.include_router(admin_router)
+app.include_router(vendor_router)
+
 # Include router in main app
 app.include_router(api_router)
 
