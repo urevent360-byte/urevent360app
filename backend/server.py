@@ -74,6 +74,19 @@ class UserProfile(BaseModel):
     preferences: Optional[Dict[str, Any]] = None
     avatar_url: Optional[str] = None
 
+class EventCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    event_type: str  # wedding, corporate, birthday, quinceanera, sweet_16, etc.
+    sub_event_type: Optional[str] = None  # For wedding: reception_only, reception_with_ceremony
+    date: datetime
+    location: Optional[str] = None
+    venue_id: Optional[str] = None
+    budget: Optional[float] = None
+    estimated_budget: Optional[float] = None
+    guest_count: Optional[int] = None
+    status: str = "planning"  # planning, booked, completed, cancelled
+
 class Event(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
