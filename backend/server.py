@@ -716,6 +716,20 @@ async def get_budget_tracker(event_id: str, current_user: dict = Depends(get_cur
             "booking_status": booking["booking_status"]
         })
     
+    # Convert recent payments to proper format
+    recent_payments = []
+    for payment in sorted(payments, key=lambda x: x["payment_date"], reverse=True)[:5]:
+        recent_payments.append({
+            "id": payment["id"],
+            "vendor_id": payment["vendor_id"],
+            "amount": payment["amount"],
+            "payment_type": payment["payment_type"],
+            "payment_method": payment["payment_method"],
+            "payment_date": payment["payment_date"],
+            "status": payment["status"],
+            "description": payment.get("description", "")
+        })
+    
     return {
         "event_id": event_id,
         "event_name": event["name"],
@@ -724,7 +738,7 @@ async def get_budget_tracker(event_id: str, current_user: dict = Depends(get_cur
         "remaining_balance": remaining_balance,
         "payment_progress": (total_paid / total_budget * 100) if total_budget > 0 else 0,
         "vendor_payments": vendor_payment_status,
-        "recent_payments": sorted(payments, key=lambda x: x["payment_date"], reverse=True)[:5]
+        "recent_payments": recent_payments
     }
 
 @api_router.post("/events/{event_id}/vendor-bookings")
