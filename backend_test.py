@@ -2350,7 +2350,15 @@ class APITester:
         self.test_bat_mitzvah_event_type()  # NEW: Specific Bat Mitzvah testing
         self.test_enhanced_event_types()  # Enhanced event type system
         self.test_cultural_wedding_system()  # NEW: Cultural wedding system testing
-        self.test_venue_system()
+        
+        # NEW: VENUE SYSTEM TESTING (Priority for this review)
+        self.test_venue_search_system()  # Comprehensive venue search with ZIP code mapping
+        self.test_venue_selection_for_events()  # Venue association with events
+        self.test_dashboard_inline_editing()  # Event field updates from dashboard
+        self.test_venue_integration_with_budget_tracking()  # Venue integration with budget
+        self.test_complete_venue_workflow()  # End-to-end venue workflow
+        
+        self.test_venue_system()  # Original venue system tests
         self.test_enhanced_vendor_system()
         
         # Portal-specific tests
