@@ -209,31 +209,43 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     }
   };
 
-  const addToCart = (stepId, vendor) => {
-    const cartItem = {
-      id: `${stepId}-${vendor.id || Date.now()}`,
-      stepId,
-      vendorId: vendor.id,
-      name: vendor.name,
-      serviceType: plannerSteps.find(s => s.id === stepId)?.title,
-      price: vendor.price_per_person || vendor.base_price || 0,
-      description: vendor.description,
-      contact: vendor.contact_info,
-      vendor: vendor
-    };
+  const addToCart = async (stepId, vendor) => {
+    try {
+      const cartRequest = {
+        vendor_id: vendor.id,
+        service_type: stepId,
+        service_name: vendor.name,
+        price: vendor.recommended_price || vendor.price_range?.min || vendor.base_price || 1000,
+        quantity: 1,
+        notes: `Selected from ${plannerSteps.find(s => s.id === stepId)?.title} step`
+      };
 
-    // Remove existing item of same step type (single selection per category)
-    const filteredCart = cart.filter(item => item.stepId !== stepId);
-    const newCart = [...filteredCart, cartItem];
-    
-    setCart(newCart);
-    setSelectedServices(prev => ({
-      ...prev,
-      [stepId]: vendor.id
-    }));
+      // Use the new Interactive Event Planner cart API
+      const response = await axios.post(`${API}/events/${eventId}/cart/add`, cartRequest, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
 
-    // Auto-save progress
-    savePlan();
+      if (response.data) {
+        // Refresh cart from backend
+        await loadCartFromBackend();
+        
+        // Update selected services
+        setSelectedServices(prev => ({
+          ...prev,
+          [stepId]: vendor.id
+        }));
+
+        // Show budget status
+        if (response.data.budget_status === 'over_budget') {
+          alert('Warning: This selection puts you over budget!');
+        }
+      }
+    } catch (err) {
+      console.error('Error adding to cart:', err);
+      alert('Failed to add item to cart. Please try again.');
+    }
   };
 
   const removeFromCart = (itemId) => {
