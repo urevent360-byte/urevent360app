@@ -1771,7 +1771,10 @@ class APITester:
         self.test_user_management()
         self.test_event_management()
         
-        # NEW: Budget Tracking & Payment System Testing (Priority)
+        # NEW: Enhanced Cultural Filtering System Testing (Priority for this review)
+        self.test_enhanced_cultural_filtering_system()
+        
+        # NEW: Budget Tracking & Payment System Testing
         self.test_budget_tracking_payment_system()
         
         self.test_bat_mitzvah_event_type()  # NEW: Specific Bat Mitzvah testing
