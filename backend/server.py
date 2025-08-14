@@ -197,6 +197,71 @@ class Booking(BaseModel):
     service_date: datetime
     notes: Optional[str] = None
 
+# Interactive Event Planner Models
+class CartItem(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    vendor_id: str
+    vendor_name: str
+    service_type: str
+    service_name: str
+    price: float
+    quantity: int = 1
+    notes: Optional[str] = None
+    added_at: datetime = Field(default_factory=datetime.utcnow)
+
+class EventPlannerState(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    current_step: int = 0
+    completed_steps: List[int] = []
+    cart_items: List[CartItem] = []
+    step_data: Dict[str, Any] = {}  # Store step-specific data
+    budget_tracking: Dict[str, float] = {
+        "set_budget": 0.0,
+        "selected_total": 0.0,
+        "remaining": 0.0
+    }
+    saved_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PlannerScenario(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    scenario_name: str
+    cart_items: List[CartItem] = []
+    total_cost: float = 0.0
+    notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Request/Response Models for Interactive Planner
+class AddToCartRequest(BaseModel):
+    vendor_id: str
+    service_type: str
+    service_name: str
+    price: float
+    quantity: int = 1
+    notes: Optional[str] = None
+
+class UpdatePlannerStateRequest(BaseModel):
+    current_step: int
+    step_data: Optional[Dict[str, Any]] = None
+    completed_steps: Optional[List[int]] = None
+
+class SaveScenarioRequest(BaseModel):
+    scenario_name: str
+    cart_items: List[CartItem]
+    notes: Optional[str] = None
+
+class PlannerStepInfo(BaseModel):
+    step_id: str
+    title: str
+    subtitle: str
+    icon: str
+    color: str
+    completed: bool = False
+    vendor_count: int = 0
+
 
 class Loan(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
