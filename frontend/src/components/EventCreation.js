@@ -618,6 +618,9 @@ const EventCreation = () => {
                 {eventData.sub_event_type && (
                   <p><strong>Wedding Type:</strong> {weddingSubTypes.find(st => st.id === eventData.sub_event_type)?.name}</p>
                 )}
+                {eventData.cultural_style && (
+                  <p><strong>Cultural Style:</strong> {culturalStyles.find(cs => cs.id === eventData.cultural_style)?.name}</p>
+                )}
                 <p><strong>Date:</strong> {eventData.date}</p>
                 <p><strong>Guests:</strong> {eventData.guest_count}</p>
                 <p><strong>Venue Type:</strong> {eventData.requirements.venue_type}</p>
