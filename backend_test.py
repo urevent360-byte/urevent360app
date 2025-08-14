@@ -334,7 +334,7 @@ class APITester:
         else:
             self.log_test("Create Corporate Event (Existing Type)", False, f"Status: {response.status_code if response else 'No response'}")
         
-        # Test 7: Verify all events are retrieved with proper fields
+        # Test 8: Verify all events are retrieved with proper fields
         response = self.make_request("GET", "/events", token=self.tokens["client"])
         if response and response.status_code == 200:
             all_events = response.json()
@@ -345,12 +345,13 @@ class APITester:
             
             has_quinceanera = 'quinceanera' in event_types_found
             has_sweet16 = 'sweet_16' in event_types_found
+            has_bat_mitzvah = 'bat_mitzvah' in event_types_found
             has_reception_only = 'reception_only' in sub_types_found
             has_ceremony_reception = 'reception_with_ceremony' in sub_types_found
             
             success_msg = f"Found event types: {set(event_types_found)}, Sub-types: {set(sub_types_found)}"
             
-            if has_quinceanera and has_sweet16 and has_reception_only and has_ceremony_reception:
+            if has_quinceanera and has_sweet16 and has_bat_mitzvah and has_reception_only and has_ceremony_reception:
                 self.log_test("Event Retrieval with Enhanced Types", True, success_msg)
             else:
                 self.log_test("Event Retrieval with Enhanced Types", False, f"Missing types. {success_msg}")
