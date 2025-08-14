@@ -24,6 +24,7 @@ const EventDashboard = () => {
   const [editValues, setEditValues] = useState({});
   const [activeTab, setActiveTab] = useState('overview');
   const [showVenueSelection, setShowVenueSelection] = useState(false);
+  const [showInteractivePlanner, setShowInteractivePlanner] = useState(false);
 
   useEffect(() => {
     fetchEvent();
