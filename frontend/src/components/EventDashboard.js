@@ -554,6 +554,19 @@ const EventDashboard = () => {
           }}
         />
       )}
+
+      {/* Interactive Event Planner Modal */}
+      {showInteractivePlanner && (
+        <InteractiveEventPlanner
+          eventId={eventId}
+          event={event}
+          onClose={() => setShowInteractivePlanner(false)}
+          onEventUpdate={(updatedEvent) => {
+            setEvent(updatedEvent);
+            setShowInteractivePlanner(false);
+          }}
+        />
+      )}
     </div>
   );
 };
