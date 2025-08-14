@@ -2718,6 +2718,9 @@ class APITester:
         self.test_user_management()
         self.test_event_management()
         
+        # NEW: Interactive Event Planner System Testing (PRIORITY for this review)
+        self.test_interactive_event_planner_system()
+        
         # NEW: Enhanced Cultural Filtering System Testing (Priority for this review)
         self.test_enhanced_cultural_filtering_system()
         
