@@ -378,9 +378,9 @@ const EventCreation = () => {
                     key={type.id}
                     onClick={() => {
                       handleInputChange({ target: { name: 'event_type', value: type.id } });
-                      // Reset sub_event_type when changing event type
+                      // Reset sub_event_type and cultural_style when changing event type
                       if (eventData.event_type !== type.id) {
-                        setEventData(prev => ({ ...prev, sub_event_type: '' }));
+                        setEventData(prev => ({ ...prev, sub_event_type: '', cultural_style: '' }));
                       }
                     }}
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
@@ -391,11 +391,18 @@ const EventCreation = () => {
                   >
                     <h3 className="font-medium text-gray-900">{type.name}</h3>
                     <p className="text-sm text-gray-500 mt-1">{type.desc}</p>
-                    {type.hasSubTypes && (
-                      <span className="inline-block mt-2 px-2 py-1 text-xs bg-purple-100 text-purple-600 rounded-full">
-                        Additional options available
-                      </span>
-                    )}
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {type.id === 'wedding' && (
+                        <span className="inline-block px-2 py-1 text-xs bg-purple-100 text-purple-600 rounded-full">
+                          Ceremony options
+                        </span>
+                      )}
+                      {type.hasCulturalStyles && (
+                        <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded-full">
+                          Cultural styles
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
