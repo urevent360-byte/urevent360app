@@ -349,12 +349,152 @@ async def get_user_events(current_user: dict = Depends(get_current_user)):
     events = await db.events.find({"user_id": current_user["id"]}).to_list(1000)
     return [Event(**event) for event in events]
 
+# Event Management Routes
+
 @api_router.get("/events/{event_id}", response_model=Event)
 async def get_event(event_id: str, current_user: dict = Depends(get_current_user)):
     event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     return Event(**event)
+
+@api_router.put("/events/{event_id}")
+async def update_event(
+    event_id: str, 
+    event_updates: dict, 
+    current_user: dict = Depends(get_current_user)
+):
+    """Update event details from dashboard"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Prepare update data
+    update_data = {}
+    
+    # Allow updating specific fields
+    updatable_fields = [
+        'name', 'description', 'date', 'location', 'venue_id', 'venue_name',
+        'venue_address', 'budget', 'guest_count', 'status', 'requirements'
+    ]
+    
+    for field in updatable_fields:
+        if field in event_updates:
+            update_data[field] = event_updates[field]
+    
+    if update_data:
+        update_data['updated_at'] = datetime.utcnow()
+        await db.events.update_one(
+            {"id": event_id},
+            {"$set": update_data}
+        )
+    
+    # Get updated event
+    updated_event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    return Event(**updated_event)
+
+@api_router.get("/venues/search")
+async def search_venues(
+    zip_code: Optional[str] = None,
+    city: Optional[str] = None,
+    radius: Optional[int] = 25,  # Default 25 miles
+    venue_type: Optional[str] = None,
+    capacity_min: Optional[int] = None,
+    capacity_max: Optional[int] = None,
+    budget_min: Optional[float] = None,
+    budget_max: Optional[float] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Search venues based on location and criteria"""
+    query = {}
+    
+    # Location-based search
+    if zip_code:
+        # In a real app, you'd use geolocation APIs to find venues within radius of ZIP code
+        # For now, we'll do a simple text search that includes the ZIP or nearby cities
+        location_terms = [zip_code]
+        
+        # Add common city names for popular ZIP codes (simplified for demo)
+        zip_to_cities = {
+            '10001': ['New York', 'Manhattan', 'NYC'],
+            '90210': ['Beverly Hills', 'Los Angeles', 'LA'],
+            '60601': ['Chicago', 'IL'],
+            '33101': ['Miami', 'FL'],
+            '30301': ['Atlanta', 'GA']
+        }
+        
+        if zip_code in zip_to_cities:
+            location_terms.extend(zip_to_cities[zip_code])
+        
+        # Create location regex for flexible matching
+        location_pattern = '|'.join(location_terms)
+        query["location"] = {"$regex": location_pattern, "$options": "i"}
+    
+    elif city:
+        query["location"] = {"$regex": city, "$options": "i"}
+    
+    # Venue type filter
+    if venue_type and venue_type != 'all':
+        query["venue_type"] = venue_type
+    
+    # Capacity filter
+    if capacity_min or capacity_max:
+        capacity_filter = {}
+        if capacity_min:
+            capacity_filter["$gte"] = capacity_min
+        if capacity_max:
+            capacity_filter["$lte"] = capacity_max
+        query["capacity"] = capacity_filter
+    
+    # Budget filter (price per person or base price)
+    if budget_min or budget_max:
+        budget_filter = {}
+        if budget_min:
+            budget_filter["$gte"] = budget_min
+        if budget_max:
+            budget_filter["$lte"] = budget_max
+        query["base_price"] = budget_filter
+    
+    # Search venues
+    venues = await db.venues.find(query).limit(20).to_list(20)
+    
+    # Add distance indicator (simplified for demo)
+    for venue in venues:
+        venue["estimated_distance"] = "Within selected radius"
+        venue["match_score"] = 85  # Simplified matching score
+    
+    return [Venue(**venue) for venue in venues]
+
+@api_router.post("/events/{event_id}/select-venue")
+async def select_venue_for_event(
+    event_id: str,
+    venue_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Associate a venue with an event"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Update event with venue information
+    venue_update = {
+        "venue_id": venue_data.get("venue_id"),
+        "venue_name": venue_data.get("venue_name"),
+        "venue_address": venue_data.get("venue_address"),
+        "venue_contact": venue_data.get("venue_contact"),
+        "updated_at": datetime.utcnow()
+    }
+    
+    await db.events.update_one(
+        {"id": event_id},
+        {"$set": venue_update}
+    )
+    
+    # Get updated event
+    updated_event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    return Event(**updated_event)
 
 @api_router.put("/events/{event_id}")
 async def update_event(event_id: str, event_data: dict, current_user: dict = Depends(get_current_user)):
