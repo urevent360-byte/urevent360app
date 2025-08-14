@@ -146,7 +146,20 @@ const EventCreation = () => {
     { id: 1, name: 'Basic Info', desc: 'Event details' },
     { id: 2, name: 'Type & Date', desc: 'When and what' },
     { id: 3, name: 'Wedding Details', desc: 'Ceremony preferences', condition: () => eventData.event_type === 'wedding' },
-    { id: 4, name: 'Cultural Style', desc: 'Wedding traditions', condition: () => eventData.event_type === 'wedding' && eventData.sub_event_type },
+    { 
+      id: 4, 
+      name: 'Cultural Style', 
+      desc: 'Cultural preferences', 
+      condition: () => {
+        const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
+        // For weddings, show after sub_event_type is selected
+        if (eventData.event_type === 'wedding') {
+          return eventData.sub_event_type;
+        }
+        // For other event types (except bat_mitzvah), show if they have cultural styles
+        return selectedEventType?.hasCulturalStyles && eventData.event_type !== 'bat_mitzvah';
+      }
+    },
     { id: 5, name: 'Requirements', desc: 'Your needs' },
     { id: 6, name: 'Budget', desc: 'Financial planning' }
   ].filter(step => !step.condition || step.condition());
