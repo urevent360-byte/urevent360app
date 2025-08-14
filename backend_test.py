@@ -190,6 +190,113 @@ class APITester:
         else:
             self.log_test("Create Event", False, f"Status: {response.status_code if response else 'No response'}")
     
+    def test_bat_mitzvah_event_type(self):
+        """Test Bat Mitzvah event type specifically as requested"""
+        print("\n🕯️ Testing Bat Mitzvah Event Type...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Bat Mitzvah Event Type Test", False, "No client token available")
+            return
+        
+        # Test 1: Create Bat Mitzvah event with exact data from request
+        bat_mitzvah_data = {
+            "name": "Rachel's Bat Mitzvah Celebration",
+            "description": "A meaningful coming of age ceremony and celebration",
+            "event_type": "bat_mitzvah",
+            "date": "2024-11-30T10:00:00Z",
+            "location": "Temple Beth Shalom, New York",
+            "guest_count": 75,
+            "budget": 8000.0,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", bat_mitzvah_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            bat_mitzvah_event = response.json()
+            bat_mitzvah_id = bat_mitzvah_event.get('id')
+            self.log_test("Create Bat Mitzvah Event", True, f"Event created with ID: {bat_mitzvah_id}")
+            
+            # Test 2: Verify event storage and retrieval
+            response = self.make_request("GET", f"/events/{bat_mitzvah_id}", token=self.tokens["client"])
+            if response and response.status_code == 200:
+                retrieved_event = response.json()
+                event_type = retrieved_event.get('event_type')
+                name = retrieved_event.get('name')
+                budget = retrieved_event.get('budget')
+                guest_count = retrieved_event.get('guest_count')
+                
+                if event_type == 'bat_mitzvah' and name == "Rachel's Bat Mitzvah Celebration":
+                    self.log_test("Bat Mitzvah Event Storage & Retrieval", True, f"All data preserved correctly - Budget: ${budget}, Guests: {guest_count}")
+                else:
+                    self.log_test("Bat Mitzvah Event Storage & Retrieval", False, f"Data mismatch - Type: {event_type}, Name: {name}")
+            else:
+                self.log_test("Bat Mitzvah Event Storage & Retrieval", False, f"Status: {response.status_code if response else 'No response'}")
+            
+            # Test 3: Verify it works alongside other event types
+            response = self.make_request("GET", "/events", token=self.tokens["client"])
+            if response and response.status_code == 200:
+                all_events = response.json()
+                event_types = [event.get('event_type') for event in all_events]
+                
+                has_bat_mitzvah = 'bat_mitzvah' in event_types
+                has_other_types = any(t in event_types for t in ['wedding', 'corporate', 'birthday', 'quinceanera', 'sweet_16'])
+                
+                if has_bat_mitzvah and has_other_types:
+                    self.log_test("Bat Mitzvah Integration with Other Types", True, f"Found event types: {set(event_types)}")
+                else:
+                    self.log_test("Bat Mitzvah Integration with Other Types", False, f"Integration issue - Types found: {set(event_types)}")
+            else:
+                self.log_test("Bat Mitzvah Integration with Other Types", False, f"Status: {response.status_code if response else 'No response'}")
+            
+            # Test 4: Test database operations stability
+            # Update the Bat Mitzvah event
+            update_data = {"status": "confirmed", "guest_count": 80}
+            response = self.make_request("PUT", f"/events/{bat_mitzvah_id}", update_data, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                # Verify update worked
+                response = self.make_request("GET", f"/events/{bat_mitzvah_id}", token=self.tokens["client"])
+                if response and response.status_code == 200:
+                    updated_event = response.json()
+                    if updated_event.get('status') == 'confirmed' and updated_event.get('guest_count') == 80:
+                        self.log_test("Bat Mitzvah Database Operations", True, "Update operations working correctly")
+                    else:
+                        self.log_test("Bat Mitzvah Database Operations", False, "Update not reflected properly")
+                else:
+                    self.log_test("Bat Mitzvah Database Operations", False, "Failed to retrieve updated event")
+            else:
+                self.log_test("Bat Mitzvah Database Operations", False, f"Update failed - Status: {response.status_code if response else 'No response'}")
+                
+        else:
+            self.log_test("Create Bat Mitzvah Event", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        # Test 5: Verify no conflicts with existing functionality
+        # Create a wedding event to ensure no conflicts
+        wedding_data = {
+            "name": "Test Wedding After Bat Mitzvah",
+            "description": "Testing compatibility",
+            "event_type": "wedding",
+            "sub_event_type": "reception_only",
+            "date": "2024-12-15T17:00:00Z",
+            "location": "Test Venue",
+            "budget": 20000.0,
+            "guest_count": 100,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            wedding_event = response.json()
+            wedding_type = wedding_event.get('event_type')
+            wedding_subtype = wedding_event.get('sub_event_type')
+            
+            if wedding_type == 'wedding' and wedding_subtype == 'reception_only':
+                self.log_test("No Conflicts with Existing Functionality", True, "Wedding sub-types still working after Bat Mitzvah addition")
+            else:
+                self.log_test("No Conflicts with Existing Functionality", False, f"Wedding functionality affected - Type: {wedding_type}, Sub-type: {wedding_subtype}")
+        else:
+            self.log_test("No Conflicts with Existing Functionality", False, f"Wedding creation failed after Bat Mitzvah - Status: {response.status_code if response else 'No response'}")
+
     def test_enhanced_event_types(self):
         """Test enhanced event type system with new types and sub-types"""
         print("\n🎊 Testing Enhanced Event Type System...")
