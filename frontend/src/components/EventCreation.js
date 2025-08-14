@@ -183,7 +183,8 @@ const EventCreation = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(4)) {
+    const budgetStepNumber = getStepNumber('Budget');
+    if (!validateStep(budgetStepNumber)) {
       setError('Please fill in all required fields');
       return;
     }
@@ -202,6 +203,7 @@ const EventCreation = () => {
         name: eventData.name,
         description: eventData.description,
         event_type: eventData.event_type,
+        sub_event_type: eventData.sub_event_type || null,
         date: eventDateTime.toISOString(),
         location: eventData.location,
         guest_count: parseInt(eventData.guest_count),
