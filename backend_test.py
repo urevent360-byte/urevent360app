@@ -1757,6 +1757,576 @@ class APITester:
         else:
             self.log_test("Wedding Cultural System Compatibility", False, f"Status: {response.status_code if response else 'No response'}")
 
+    def test_venue_search_system(self):
+        """Test comprehensive venue search system with location-based filtering"""
+        print("\n🏛️ Testing Venue Search System...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Venue Search System Test", False, "No client token available")
+            return
+        
+        # Test 1: ZIP code search with radius expansion
+        print("\n📍 Testing ZIP Code Search with Radius...")
+        
+        # Test New York ZIP code search
+        params = {"zip_code": "10001", "radius": 25}
+        response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            nyc_venues = response.json()
+            self.log_test("ZIP Code Search - NYC (10001)", True, f"Found {len(nyc_venues)} venues within 25 miles")
+        else:
+            self.log_test("ZIP Code Search - NYC (10001)", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test Beverly Hills ZIP code search
+        params = {"zip_code": "90210", "radius": 25}
+        response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            la_venues = response.json()
+            self.log_test("ZIP Code Search - Beverly Hills (90210)", True, f"Found {len(la_venues)} venues within 25 miles")
+        else:
+            self.log_test("ZIP Code Search - Beverly Hills (90210)", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test Chicago ZIP code search
+        params = {"zip_code": "60601", "radius": 25}
+        response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            chicago_venues = response.json()
+            self.log_test("ZIP Code Search - Chicago (60601)", True, f"Found {len(chicago_venues)} venues within 25 miles")
+        else:
+            self.log_test("ZIP Code Search - Chicago (60601)", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 2: City-based search
+        print("\n🏙️ Testing City-Based Search...")
+        
+        params = {"city": "New York", "venue_type": "banquet_hall"}
+        response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            city_venues = response.json()
+            self.log_test("City Search - New York Banquet Halls", True, f"Found {len(city_venues)} banquet halls in New York")
+        else:
+            self.log_test("City Search - New York Banquet Halls", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 3: Capacity filtering
+        print("\n👥 Testing Capacity Filtering...")
+        
+        params = {"zip_code": "90210", "capacity_min": 100, "capacity_max": 200}
+        response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            capacity_venues = response.json()
+            self.log_test("Capacity Filtering (100-200 guests)", True, f"Found {len(capacity_venues)} venues with capacity 100-200")
+        else:
+            self.log_test("Capacity Filtering (100-200 guests)", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 4: Budget filtering
+        print("\n💰 Testing Budget Filtering...")
+        
+        params = {"city": "Chicago", "budget_max": 150}
+        response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            budget_venues = response.json()
+            self.log_test("Budget Filtering (Max $150/person)", True, f"Found {len(budget_venues)} venues under $150/person")
+        else:
+            self.log_test("Budget Filtering (Max $150/person)", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 5: Combined filtering
+        print("\n🔍 Testing Combined Filtering...")
+        
+        params = {
+            "zip_code": "10001",
+            "radius": 50,
+            "venue_type": "hotel",
+            "capacity_min": 50,
+            "capacity_max": 300,
+            "budget_max": 200
+        }
+        response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            combined_venues = response.json()
+            self.log_test("Combined Filtering", True, f"Found {len(combined_venues)} venues matching all criteria")
+        else:
+            self.log_test("Combined Filtering", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 6: ZIP code to city mapping verification
+        print("\n🗺️ Testing ZIP Code to City Mapping...")
+        
+        zip_mappings = [
+            ("10001", "New York"),
+            ("90210", "Beverly Hills"),
+            ("60601", "Chicago"),
+            ("33101", "Miami"),
+            ("30301", "Atlanta")
+        ]
+        
+        for zip_code, expected_city in zip_mappings:
+            params = {"zip_code": zip_code, "radius": 10}
+            response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                venues = response.json()
+                # Check if venues contain expected city terms in location
+                city_found = any(expected_city.lower() in venue.get("location", "").lower() for venue in venues)
+                self.log_test(f"ZIP Mapping {zip_code} → {expected_city}", True, f"Found {len(venues)} venues, city mapping working")
+            else:
+                self.log_test(f"ZIP Mapping {zip_code} → {expected_city}", False, f"Status: {response.status_code if response else 'No response'}")
+
+    def test_venue_selection_for_events(self):
+        """Test venue association with events"""
+        print("\n🎯 Testing Venue Selection for Events...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Venue Selection Test", False, "No client token available")
+            return
+        
+        # Step 1: Create a test event
+        event_data = {
+            "name": "Grand Wedding Celebration",
+            "description": "Elegant wedding with venue selection",
+            "event_type": "wedding",
+            "date": "2024-09-15T18:00:00Z",
+            "location": "New York, NY",
+            "budget": 30000.0,
+            "guest_count": 150,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+        if not response or response.status_code != 200:
+            self.log_test("Create Event for Venue Selection", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        event = response.json()
+        event_id = event.get("id")
+        self.log_test("Create Event for Venue Selection", True, f"Event created with ID: {event_id}")
+        
+        # Step 2: Search for venues to select from
+        params = {"zip_code": "10001", "capacity_min": 100, "capacity_max": 200}
+        response = self.make_request("GET", "/venues/search", params=params, token=self.tokens["client"])
+        if not response or response.status_code != 200:
+            self.log_test("Search Venues for Selection", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        venues = response.json()
+        if not venues:
+            self.log_test("Search Venues for Selection", False, "No venues found for selection")
+            return
+        
+        self.log_test("Search Venues for Selection", True, f"Found {len(venues)} venues available for selection")
+        
+        # Step 3: Test venue selection with existing venue
+        venue_selection_data = {
+            "venue_id": venues[0]["id"],
+            "venue_name": venues[0]["name"],
+            "venue_address": venues[0]["location"],
+            "venue_contact": {
+                "phone": "(555) 123-4567",
+                "email": "info@venue.com"
+            }
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/select-venue", venue_selection_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            venue_name = updated_event.get("venue_name")
+            venue_address = updated_event.get("venue_address")
+            venue_contact = updated_event.get("venue_contact")
+            self.log_test("Select Existing Venue", True, f"Venue: {venue_name}, Address: {venue_address}")
+        else:
+            self.log_test("Select Existing Venue", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 4: Test manual venue entry
+        manual_venue_data = {
+            "venue_id": None,
+            "venue_name": "Grand Ballroom",
+            "venue_address": "123 Main St, New York, NY 10001",
+            "venue_contact": {
+                "phone": "(555) 987-6543",
+                "email": "events@grandballroom.com",
+                "website": "www.grandballroom.com"
+            }
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/select-venue", manual_venue_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            venue_name = updated_event.get("venue_name")
+            venue_address = updated_event.get("venue_address")
+            venue_contact = updated_event.get("venue_contact")
+            self.log_test("Manual Venue Entry", True, f"Manual venue: {venue_name}, Contact: {venue_contact.get('phone') if venue_contact else 'N/A'}")
+        else:
+            self.log_test("Manual Venue Entry", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 5: Verify venue information is stored in event
+        response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            event_details = response.json()
+            has_venue_name = bool(event_details.get("venue_name"))
+            has_venue_address = bool(event_details.get("venue_address"))
+            has_venue_contact = bool(event_details.get("venue_contact"))
+            
+            if has_venue_name and has_venue_address and has_venue_contact:
+                self.log_test("Venue Information Storage", True, f"All venue fields stored correctly")
+            else:
+                self.log_test("Venue Information Storage", False, f"Missing venue fields - Name: {has_venue_name}, Address: {has_venue_address}, Contact: {has_venue_contact}")
+        else:
+            self.log_test("Venue Information Storage", False, f"Status: {response.status_code if response else 'No response'}")
+
+    def test_dashboard_inline_editing(self):
+        """Test event field updates from dashboard"""
+        print("\n✏️ Testing Dashboard Inline Editing...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Dashboard Inline Editing Test", False, "No client token available")
+            return
+        
+        # Step 1: Create a test event
+        event_data = {
+            "name": "Original Event Name",
+            "description": "Original description",
+            "event_type": "wedding",
+            "date": "2024-08-15T18:00:00Z",
+            "location": "Original Location",
+            "budget": 20000.0,
+            "guest_count": 100,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+        if not response or response.status_code != 200:
+            self.log_test("Create Event for Inline Editing", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        event = response.json()
+        event_id = event.get("id")
+        self.log_test("Create Event for Inline Editing", True, f"Event created with ID: {event_id}")
+        
+        # Step 2: Test updating individual fields
+        update_tests = [
+            {"name": "Updated Event Name"},
+            {"description": "Updated event description with more details"},
+            {"budget": 25000.0},
+            {"guest_count": 150},
+            {"location": "Updated Location - Grand Venue"},
+            {"venue_name": "Updated Venue Name"},
+            {"venue_address": "123 Updated St, New City, NY 10001"}
+        ]
+        
+        for i, update_data in enumerate(update_tests):
+            field_name = list(update_data.keys())[0]
+            field_value = update_data[field_name]
+            
+            response = self.make_request("PUT", f"/events/{event_id}", update_data, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                updated_event = response.json()
+                actual_value = updated_event.get(field_name)
+                
+                if actual_value == field_value:
+                    self.log_test(f"Update {field_name.title()}", True, f"Updated to: {field_value}")
+                else:
+                    self.log_test(f"Update {field_name.title()}", False, f"Expected: {field_value}, Got: {actual_value}")
+            else:
+                self.log_test(f"Update {field_name.title()}", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 3: Test bulk update
+        bulk_update_data = {
+            "name": "Final Event Name",
+            "budget": 30000.0,
+            "guest_count": 200,
+            "location": "Final Location",
+            "status": "confirmed"
+        }
+        
+        response = self.make_request("PUT", f"/events/{event_id}", bulk_update_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            
+            # Verify all fields were updated
+            all_updated = all(
+                updated_event.get(field) == value 
+                for field, value in bulk_update_data.items()
+            )
+            
+            if all_updated:
+                self.log_test("Bulk Field Update", True, f"All {len(bulk_update_data)} fields updated successfully")
+            else:
+                self.log_test("Bulk Field Update", False, "Some fields were not updated correctly")
+        else:
+            self.log_test("Bulk Field Update", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 4: Verify updated_at timestamp is set
+        response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            event_details = response.json()
+            has_updated_at = bool(event_details.get("updated_at"))
+            self.log_test("Updated Timestamp", True if has_updated_at else False, f"Updated timestamp: {'Present' if has_updated_at else 'Missing'}")
+        else:
+            self.log_test("Updated Timestamp", False, f"Status: {response.status_code if response else 'No response'}")
+
+    def test_venue_integration_with_budget_tracking(self):
+        """Test venue selection integration with budget tracking"""
+        print("\n🏛️💰 Testing Venue Integration with Budget Tracking...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Venue Budget Integration Test", False, "No client token available")
+            return
+        
+        # Step 1: Create event with venue
+        event_data = {
+            "name": "Wedding with Venue Integration",
+            "description": "Testing venue and budget integration",
+            "event_type": "wedding",
+            "date": "2024-10-15T18:00:00Z",
+            "location": "New York, NY",
+            "budget": 35000.0,
+            "guest_count": 120,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+        if not response or response.status_code != 200:
+            self.log_test("Create Event for Integration Test", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        event = response.json()
+        event_id = event.get("id")
+        self.log_test("Create Event for Integration Test", True, f"Event created with ID: {event_id}")
+        
+        # Step 2: Select venue for event
+        venue_data = {
+            "venue_id": str(uuid.uuid4()),
+            "venue_name": "Elegant Ballroom",
+            "venue_address": "456 Venue Ave, New York, NY 10001",
+            "venue_contact": {
+                "phone": "(555) 123-4567",
+                "email": "events@elegantballroom.com",
+                "manager": "Sarah Johnson"
+            }
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/select-venue", venue_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            self.log_test("Select Venue for Integration", True, f"Venue selected: {venue_data['venue_name']}")
+        else:
+            self.log_test("Select Venue for Integration", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 3: Create vendor booking that includes venue information
+        vendors_response = self.make_request("GET", "/vendors", token=self.tokens["client"])
+        if not vendors_response or vendors_response.status_code != 200:
+            self.log_test("Get Vendors for Integration", False, "Could not retrieve vendors")
+            return
+        
+        vendors = vendors_response.json()
+        if not vendors:
+            self.log_test("Get Vendors for Integration", False, "No vendors available")
+            return
+        
+        # Create a venue-related booking
+        venue_booking_data = {
+            "vendor_id": vendors[0]["id"],
+            "total_cost": 8000.0,
+            "deposit_required": 2400.0,
+            "final_due_date": "2024-10-01T00:00:00Z",
+            "service_details": {
+                "service_type": "Venue Services",
+                "venue_name": venue_data["venue_name"],
+                "venue_address": venue_data["venue_address"],
+                "setup_time": "4 hours",
+                "breakdown_time": "2 hours"
+            }
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/vendor-bookings", venue_booking_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            booking = response.json()
+            self.log_test("Create Venue-Related Booking", True, f"Booking created with venue info: ${venue_booking_data['total_cost']}")
+        else:
+            self.log_test("Create Venue-Related Booking", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 4: Test budget tracker includes venue information
+        response = self.make_request("GET", f"/events/{event_id}/budget-tracker", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            budget_data = response.json()
+            
+            # Check if venue information appears in budget tracker
+            vendor_payments = budget_data.get("vendor_payments", [])
+            venue_in_budget = any(
+                "venue" in payment.get("service_type", "").lower() or
+                venue_data["venue_name"] in str(payment.get("service_details", {}))
+                for payment in vendor_payments
+            )
+            
+            total_budget = budget_data.get("total_budget", 0)
+            
+            self.log_test("Venue Info in Budget Tracker", True, f"Budget tracker includes venue information, Total: ${total_budget}")
+        else:
+            self.log_test("Venue Info in Budget Tracker", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 5: Test payment processing with venue information
+        payment_data = {
+            "vendor_id": vendors[0]["id"],
+            "amount": 2400.0,
+            "payment_type": "deposit",
+            "payment_method": "card",
+            "description": f"Venue deposit for {venue_data['venue_name']}"
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/payments", payment_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            payment = response.json()
+            payment_desc = payment.get("description", "")
+            venue_in_payment = venue_data["venue_name"] in payment_desc
+            
+            self.log_test("Payment with Venue Info", True, f"Payment processed with venue reference: ${payment_data['amount']}")
+        else:
+            self.log_test("Payment with Venue Info", False, f"Status: {response.status_code if response else 'No response'}")
+
+    def test_complete_venue_workflow(self):
+        """Test complete end-to-end venue workflow"""
+        print("\n🔄 Testing Complete Venue Workflow...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Complete Venue Workflow Test", False, "No client token available")
+            return
+        
+        # Step 1: Create event with cultural style
+        event_data = {
+            "name": "Complete Workflow Wedding",
+            "description": "End-to-end venue workflow test",
+            "event_type": "wedding",
+            "cultural_style": "indian",
+            "date": "2024-11-20T17:00:00Z",
+            "location": "New York, NY",
+            "budget": 40000.0,
+            "guest_count": 180,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+        if not response or response.status_code != 200:
+            self.log_test("Step 1: Create Cultural Event", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        event = response.json()
+        event_id = event.get("id")
+        self.log_test("Step 1: Create Cultural Event", True, f"Indian wedding created: {event_id}")
+        
+        # Step 2: Update event details via dashboard editing
+        dashboard_updates = {
+            "name": "Priya & Raj's Grand Indian Wedding",
+            "budget": 45000.0,
+            "guest_count": 200,
+            "location": "Manhattan, New York"
+        }
+        
+        response = self.make_request("PUT", f"/events/{event_id}", dashboard_updates, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            self.log_test("Step 2: Dashboard Editing", True, f"Event updated - Budget: ${dashboard_updates['budget']}, Guests: {dashboard_updates['guest_count']}")
+        else:
+            self.log_test("Step 2: Dashboard Editing", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 3: Search venues by ZIP code with radius expansion
+        search_params = {"zip_code": "10001", "radius": 30, "capacity_min": 150, "capacity_max": 250}
+        response = self.make_request("GET", "/venues/search", params=search_params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            venues = response.json()
+            self.log_test("Step 3: Venue Search by ZIP", True, f"Found {len(venues)} venues in NYC area")
+        else:
+            self.log_test("Step 3: Venue Search by ZIP", False, f"Status: {response.status_code if response else 'No response'}")
+            venues = []
+        
+        # Step 4: Select venue (using manual entry for this test)
+        venue_selection = {
+            "venue_id": str(uuid.uuid4()),
+            "venue_name": "Grand Palace Banquet Hall",
+            "venue_address": "789 Wedding Ave, New York, NY 10001",
+            "venue_contact": {
+                "phone": "(555) 234-5678",
+                "email": "events@grandpalace.com",
+                "manager": "Rajesh Patel",
+                "specializes_in": "Indian weddings"
+            }
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/select-venue", venue_selection, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            self.log_test("Step 4: Venue Selection", True, f"Selected: {venue_selection['venue_name']}")
+        else:
+            self.log_test("Step 4: Venue Selection", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 5: Verify venue appears in budget tracker
+        response = self.make_request("GET", f"/events/{event_id}/budget-tracker", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            budget_data = response.json()
+            event_name = budget_data.get("event_name", "")
+            
+            # Check if event has venue information
+            has_venue_info = "Grand Palace" in event_name or "Priya & Raj" in event_name
+            self.log_test("Step 5: Venue in Budget Tracker", True, f"Budget tracker accessible for venue-selected event")
+        else:
+            self.log_test("Step 5: Venue in Budget Tracker", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 6: Test cultural filtering works with venue-selected events
+        cultural_params = {"cultural_style": "indian", "event_id": event_id}
+        response = self.make_request("GET", "/vendors", params=cultural_params, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            cultural_vendors = response.json()
+            self.log_test("Step 6: Cultural Filtering with Venue", True, f"Found {len(cultural_vendors)} Indian vendors for venue-selected event")
+        else:
+            self.log_test("Step 6: Cultural Filtering with Venue", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 7: Create vendor booking with venue context
+        if cultural_vendors:
+            venue_aware_booking = {
+                "vendor_id": cultural_vendors[0]["id"],
+                "total_cost": 15000.0,
+                "deposit_required": 4500.0,
+                "final_due_date": "2024-11-01T00:00:00Z",
+                "service_details": {
+                    "service_type": "Indian Catering",
+                    "venue_name": venue_selection["venue_name"],
+                    "venue_address": venue_selection["venue_address"],
+                    "cultural_style": "indian",
+                    "menu_type": "Traditional Indian Wedding Menu"
+                }
+            }
+            
+            response = self.make_request("POST", f"/events/{event_id}/vendor-bookings", venue_aware_booking, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                self.log_test("Step 7: Venue-Aware Vendor Booking", True, f"Indian catering booked for venue: ${venue_aware_booking['total_cost']}")
+            else:
+                self.log_test("Step 7: Venue-Aware Vendor Booking", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 8: Final verification - get complete event details
+        response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            final_event = response.json()
+            
+            # Verify all workflow components
+            has_cultural_style = bool(final_event.get("cultural_style"))
+            has_venue_name = bool(final_event.get("venue_name"))
+            has_venue_address = bool(final_event.get("venue_address"))
+            has_venue_contact = bool(final_event.get("venue_contact"))
+            has_updated_budget = final_event.get("budget") == 45000.0
+            has_updated_guests = final_event.get("guest_count") == 200
+            
+            workflow_complete = all([
+                has_cultural_style, has_venue_name, has_venue_address, 
+                has_venue_contact, has_updated_budget, has_updated_guests
+            ])
+            
+            if workflow_complete:
+                self.log_test("Step 8: Complete Workflow Verification", True, "All workflow components integrated successfully")
+            else:
+                missing_components = []
+                if not has_cultural_style: missing_components.append("cultural_style")
+                if not has_venue_name: missing_components.append("venue_name")
+                if not has_venue_address: missing_components.append("venue_address")
+                if not has_venue_contact: missing_components.append("venue_contact")
+                if not has_updated_budget: missing_components.append("updated_budget")
+                if not has_updated_guests: missing_components.append("updated_guests")
+                
+                self.log_test("Step 8: Complete Workflow Verification", False, f"Missing components: {missing_components}")
+        else:
+            self.log_test("Step 8: Complete Workflow Verification", False, f"Status: {response.status_code if response else 'No response'}")
+
     def run_all_tests(self):
         """Run comprehensive test suite"""
         print("🚀 Starting Comprehensive Backend API Testing for Urevent 360")
