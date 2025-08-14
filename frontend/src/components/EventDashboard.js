@@ -308,7 +308,44 @@ const EventDashboard = () => {
         );
 
       case 'planner':
-        return <InteractiveEventPlanner eventId={eventId} event={event} onEventUpdate={setEvent} />;
+        return (
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="text-center py-8">
+              <Wand2 className="mx-auto h-16 w-16 text-purple-500 mb-4" />
+              <h3 className="text-2xl font-semibold text-gray-900 mb-2">Interactive Event Planner</h3>
+              <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Plan your entire event step-by-step with our interactive wizard. Compare vendors, 
+                build your perfect event package, and track your budget in real-time.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <div className="text-purple-600 mb-2">🎯</div>
+                  <h4 className="font-medium text-gray-900">Step-by-Step Process</h4>
+                  <p className="text-sm text-gray-600">Navigate through each service category at your own pace</p>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="text-blue-600 mb-2">💰</div>
+                  <h4 className="font-medium text-gray-900">Real-Time Budget</h4>
+                  <p className="text-sm text-gray-600">See how your choices affect your budget instantly</p>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-green-600 mb-2">⚖️</div>
+                  <h4 className="font-medium text-gray-900">Compare Options</h4>
+                  <p className="text-sm text-gray-600">Try different vendor combinations and scenarios</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowInteractivePlanner(true)}
+                className="inline-flex items-center px-8 py-3 border border-transparent text-lg font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              >
+                <Wand2 className="h-6 w-6 mr-2" />
+                Start Interactive Planning
+              </button>
+            </div>
+          </div>
+        );
 
       case 'venue':
         return (
