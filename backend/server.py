@@ -608,17 +608,18 @@ async def calculate_budget(event_id: str, requirements: dict, current_user: dict
     }
 
 # Import admin and vendor routes after all functions are defined to avoid circular imports
-try:
-    from admin_routes import admin_router
-    from vendor_subscription_routes import vendor_router
-    
-    # Include admin and vendor routers in the app
-    app.include_router(admin_router)
-    app.include_router(vendor_router)
-    print("✅ Admin and vendor routes loaded successfully")
-except ImportError as e:
-    print(f"⚠️ Warning: Could not load admin/vendor routes: {e}")
-    # Continue without these routes for now
+# Temporarily disabled due to circular import issues
+# try:
+#     from admin_routes import admin_router
+#     from vendor_subscription_routes import vendor_router
+#     
+#     # Include admin and vendor routers in the app
+#     app.include_router(admin_router)
+#     app.include_router(vendor_router)
+#     print("✅ Admin and vendor routes loaded successfully")
+# except ImportError as e:
+#     print(f"⚠️ Warning: Could not load admin/vendor routes: {e}")
+#     # Continue without these routes for now
 
 # Include router in main app
 app.include_router(api_router)
