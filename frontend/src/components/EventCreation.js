@@ -188,6 +188,7 @@ const EventCreation = () => {
   const getMaxSteps = () => steps.length;
 
   const validateStep = (step) => {
+    const culturalStyleStepNumber = getStepNumber('Cultural Style');
     const requirementsStepNumber = getStepNumber('Requirements');
     const budgetStepNumber = getStepNumber('Budget');
     
@@ -203,6 +204,11 @@ const EventCreation = () => {
         // If step 3 is Requirements (when not wedding)
         if (step === requirementsStepNumber) {
           return eventData.requirements.venue_type !== '';
+        }
+        return true;
+      case culturalStyleStepNumber:
+        if (eventData.event_type === 'wedding' && culturalStyleStepNumber) {
+          return eventData.cultural_style !== '';
         }
         return true;
       case requirementsStepNumber:
