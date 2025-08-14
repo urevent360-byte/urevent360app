@@ -3,7 +3,7 @@ from pydantic import BaseModel, EmailStr
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 import uuid
-from .server import get_current_user, db
+from server import get_current_user, db
 
 # Vendor subscription routes
 vendor_router = APIRouter(prefix="/api/vendor")
