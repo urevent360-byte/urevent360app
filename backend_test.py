@@ -711,6 +711,7 @@ class APITester:
         
         print("\n🎯 Key Features Tested:")
         print("   ✓ Multi-role authentication (Admin, Vendor, Employee, Client)")
+        print("   ✓ Enhanced event type system (Quinceañera, Sweet 16, Wedding sub-types)")
         print("   ✓ Enhanced vendor marketplace with budget-aware filtering")
         print("   ✓ Admin system APIs and dashboard")
         print("   ✓ Vendor portal and subscription management")
