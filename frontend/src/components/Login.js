@@ -245,6 +245,16 @@ const Login = () => {
               </div>
             </div>
           </div>
+
+          {/* Employee Portal Link */}
+          <div className="text-center mt-8">
+            <button
+              onClick={() => handleRoleSelect('employee')}
+              className="text-white/70 hover:text-white text-sm underline transition-colors duration-200"
+            >
+              Employees Portal
+            </button>
+          </div>
         </div>
       </div>
     );
