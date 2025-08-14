@@ -12,6 +12,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }) => {
+  const { token } = useContext(AuthContext);
   const [currentStep, setCurrentStep] = useState(0);
   const [searchTerms, setSearchTerms] = useState({});
   const [vendors, setVendors] = useState({});
