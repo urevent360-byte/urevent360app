@@ -671,6 +671,249 @@ async def calculate_budget(event_id: str, requirements: dict, current_user: dict
         "breakdown": breakdown
     }
 
+# Budget Tracking & Payment Management Routes
+
+@api_router.get("/events/{event_id}/budget-tracker")
+async def get_budget_tracker(event_id: str, current_user: dict = Depends(get_current_user)):
+    """Get comprehensive budget tracking information for an event"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Get all vendor bookings for this event
+    vendor_bookings = await db.vendor_bookings.find({"event_id": event_id}).to_list(1000)
+    
+    # Get all payments for this event
+    payments = await db.payments.find({"event_id": event_id}).to_list(1000)
+    
+    # Calculate totals
+    total_budget = sum(booking["total_cost"] for booking in vendor_bookings)
+    total_paid = sum(payment["amount"] for payment in payments if payment["status"] == "completed")
+    remaining_balance = total_budget - total_paid
+    
+    # Calculate vendor-specific payment status
+    vendor_payment_status = []
+    for booking in vendor_bookings:
+        vendor_payments = [p for p in payments if p["vendor_id"] == booking["vendor_id"]]
+        vendor_total_paid = sum(p["amount"] for p in vendor_payments if p["status"] == "completed")
+        vendor_remaining = booking["total_cost"] - vendor_total_paid
+        
+        # Get vendor details
+        vendor = await db.vendors.find_one({"id": booking["vendor_id"]})
+        
+        vendor_payment_status.append({
+            "vendor_id": booking["vendor_id"],
+            "vendor_name": vendor["name"] if vendor else "Unknown Vendor",
+            "service_type": vendor["service_type"] if vendor else "Unknown",
+            "total_amount": booking["total_cost"],
+            "total_paid": vendor_total_paid,
+            "remaining_balance": vendor_remaining,
+            "deposit_required": booking["deposit_required"],
+            "deposit_paid": booking["deposit_paid"],
+            "final_due_date": booking["final_due_date"],
+            "payment_status": booking["payment_status"],
+            "booking_status": booking["booking_status"]
+        })
+    
+    return {
+        "event_id": event_id,
+        "event_name": event["name"],
+        "total_budget": total_budget,
+        "total_paid": total_paid,
+        "remaining_balance": remaining_balance,
+        "payment_progress": (total_paid / total_budget * 100) if total_budget > 0 else 0,
+        "vendor_payments": vendor_payment_status,
+        "recent_payments": sorted(payments, key=lambda x: x["payment_date"], reverse=True)[:5]
+    }
+
+@api_router.post("/events/{event_id}/vendor-bookings")
+async def create_vendor_booking(
+    event_id: str, 
+    booking_data: dict, 
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new vendor booking for an event"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Verify vendor exists
+    vendor = await db.vendors.find_one({"id": booking_data["vendor_id"]})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    # Create vendor booking
+    booking = VendorBooking(
+        event_id=event_id,
+        vendor_id=booking_data["vendor_id"],
+        service_details=booking_data.get("service_details", {}),
+        total_cost=booking_data["total_cost"],
+        deposit_required=booking_data.get("deposit_required", booking_data["total_cost"] * 0.3),
+        final_due_date=datetime.fromisoformat(booking_data["final_due_date"])
+    )
+    
+    booking_dict = booking.dict()
+    await db.vendor_bookings.insert_one(booking_dict)
+    
+    # Create associated invoice
+    invoice = Invoice(
+        vendor_id=booking_data["vendor_id"],
+        event_id=event_id,
+        total_amount=booking_data["total_cost"],
+        deposit_amount=booking_dict["deposit_required"],
+        final_amount=booking_data["total_cost"] - booking_dict["deposit_required"],
+        final_due_date=datetime.fromisoformat(booking_data["final_due_date"]),
+        items=booking_data.get("service_items", [])
+    )
+    
+    invoice_dict = invoice.dict()
+    await db.invoices.insert_one(invoice_dict)
+    
+    # Update booking with invoice ID
+    await db.vendor_bookings.update_one(
+        {"id": booking_dict["id"]},
+        {"$set": {"invoice_id": invoice_dict["id"]}}
+    )
+    
+    return VendorBooking(**booking_dict)
+
+@api_router.post("/events/{event_id}/payments")
+async def make_payment(
+    event_id: str,
+    payment_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Process a payment for a vendor"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Verify vendor booking exists
+    booking = await db.vendor_bookings.find_one({
+        "event_id": event_id,
+        "vendor_id": payment_data["vendor_id"]
+    })
+    if not booking:
+        raise HTTPException(status_code=404, detail="Vendor booking not found")
+    
+    # Create payment record
+    payment = Payment(
+        event_id=event_id,
+        vendor_id=payment_data["vendor_id"],
+        amount=payment_data["amount"],
+        payment_type=payment_data.get("payment_type", "partial"),
+        payment_method=payment_data.get("payment_method", "card"),
+        description=payment_data.get("description", ""),
+        transaction_id=payment_data.get("transaction_id")
+    )
+    
+    payment_dict = payment.dict()
+    await db.payments.insert_one(payment_dict)
+    
+    # Update vendor booking payment status
+    current_total_paid = booking["total_paid"] + payment_data["amount"]
+    
+    # Update payment status based on amount paid
+    if payment_data.get("payment_type") == "deposit":
+        booking["deposit_paid"] = min(booking["deposit_paid"] + payment_data["amount"], booking["deposit_required"])
+    
+    booking["total_paid"] = current_total_paid
+    
+    if current_total_paid >= booking["total_cost"]:
+        payment_status = "fully_paid"
+    elif current_total_paid >= booking["deposit_required"]:
+        payment_status = "deposit_paid"
+    elif current_total_paid > 0:
+        payment_status = "partially_paid"
+    else:
+        payment_status = "pending"
+    
+    await db.vendor_bookings.update_one(
+        {"id": booking["id"]},
+        {
+            "$set": {
+                "total_paid": current_total_paid,
+                "deposit_paid": booking["deposit_paid"],
+                "payment_status": payment_status,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # Update invoice status
+    if booking.get("invoice_id"):
+        invoice_status = "fully_paid" if current_total_paid >= booking["total_cost"] else "partially_paid"
+        await db.invoices.update_one(
+            {"id": booking["invoice_id"]},
+            {
+                "$set": {
+                    "status": invoice_status,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+    
+    return Payment(**payment_dict)
+
+@api_router.get("/events/{event_id}/invoices/{invoice_id}")
+async def get_invoice(
+    event_id: str,
+    invoice_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get detailed invoice information"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Get invoice
+    invoice = await db.invoices.find_one({"id": invoice_id, "event_id": event_id})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    # Get vendor details
+    vendor = await db.vendors.find_one({"id": invoice["vendor_id"]})
+    
+    # Get related payments
+    payments = await db.payments.find({
+        "event_id": event_id,
+        "vendor_id": invoice["vendor_id"]
+    }).to_list(1000)
+    
+    invoice_data = Invoice(**invoice).dict()
+    invoice_data["vendor_details"] = vendor
+    invoice_data["payments"] = payments
+    
+    return invoice_data
+
+@api_router.get("/events/{event_id}/payment-history")
+async def get_payment_history(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get complete payment history for an event"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Get all payments with vendor details
+    payments = await db.payments.find({"event_id": event_id}).sort("payment_date", -1).to_list(1000)
+    
+    payment_history = []
+    for payment in payments:
+        vendor = await db.vendors.find_one({"id": payment["vendor_id"]})
+        payment_info = Payment(**payment).dict()
+        payment_info["vendor_name"] = vendor["name"] if vendor else "Unknown Vendor"
+        payment_info["service_type"] = vendor["service_type"] if vendor else "Unknown"
+        payment_history.append(payment_info)
+    
+    return payment_history
+
 # Import admin and vendor routes after all functions are defined to avoid circular imports
 # Temporarily disabled due to circular import issues
 # try:
