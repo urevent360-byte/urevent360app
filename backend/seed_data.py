@@ -219,6 +219,7 @@ async def seed_database():
             },
             "availability": ["weekends", "holidays"],
             "specialties": ["Wedding Decor", "Theme Parties", "Corporate Styling", "Floral Arrangements"],
+            "cultural_specializations": ["american", "hispanic", "asian"],
             "experience_years": 6,
             "verified": True,
             "created_at": datetime.utcnow()
