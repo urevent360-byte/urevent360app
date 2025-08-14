@@ -456,6 +456,57 @@ const EventCreation = () => {
           );
         }
         // If not wedding, fall through to requirements
+
+      case 4:
+        // Cultural Style Step (only shown for weddings with sub-type selected)
+        if (eventData.event_type === 'wedding' && eventData.sub_event_type) {
+          return (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">
+                  Wedding Cultural Style *
+                </label>
+                <p className="text-sm text-gray-600 mb-6">
+                  Choose the cultural style that best represents your wedding traditions. This will help us match you with vendors who specialize in your cultural preferences:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {culturalStyles.map((style) => (
+                    <div
+                      key={style.id}
+                      onClick={() => handleInputChange({ target: { name: 'cultural_style', value: style.id } })}
+                      className={`p-5 border rounded-lg cursor-pointer transition-all ${
+                        eventData.cultural_style === style.id
+                          ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
+                          : `border-gray-300 hover:border-gray-400 ${style.color}`
+                      }`}
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className="text-2xl">{style.icon}</div>
+                        <div>
+                          <h3 className="font-medium text-gray-900 text-base">{style.name}</h3>
+                          <p className="text-sm text-gray-600 mt-1">{style.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-blue-600">ℹ️</div>
+                    <div>
+                      <h4 className="font-medium text-blue-900">Cultural Vendor Matching</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Based on your selection, we'll prioritize vendors who specialize in your cultural traditions, including appropriate decorations, cuisine, music, and ceremonial expertise.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+        // If not wedding with sub-type, fall through to requirements
+        
         
       case requirementsStepNumber:
         return (
