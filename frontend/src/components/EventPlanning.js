@@ -387,6 +387,18 @@ const EventPlanning = () => {
 
       {/* Tab Content */}
       {renderTabContent()}
+
+      {/* Invoice Viewer Modal */}
+      {showInvoiceViewer && selectedInvoiceId && (
+        <InvoiceViewer
+          eventId={eventId}
+          invoiceId={selectedInvoiceId}
+          onClose={() => {
+            setShowInvoiceViewer(false);
+            setSelectedInvoiceId(null);
+          }}
+        />
+      )}
     </div>
   );
 };
