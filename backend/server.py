@@ -79,7 +79,8 @@ class Event(BaseModel):
     user_id: str
     name: str
     description: Optional[str] = None
-    event_type: str  # wedding, corporate, birthday, etc.
+    event_type: str  # wedding, corporate, birthday, quinceanera, sweet_16, etc.
+    sub_event_type: Optional[str] = None  # For wedding: reception_only, reception_with_ceremony
     date: datetime
     location: Optional[str] = None
     venue_id: Optional[str] = None
