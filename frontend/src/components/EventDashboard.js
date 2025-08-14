@@ -307,6 +307,9 @@ const EventDashboard = () => {
           </div>
         );
 
+      case 'planner':
+        return <InteractiveEventPlanner eventId={eventId} event={event} onEventUpdate={setEvent} />;
+
       case 'venue':
         return (
           <div className="space-y-6">
