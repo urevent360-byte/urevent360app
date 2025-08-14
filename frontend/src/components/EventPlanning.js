@@ -71,7 +71,8 @@ const EventPlanning = () => {
     { id: 'overview', name: 'Overview', icon: Calendar },
     { id: 'bookings', name: 'Bookings', icon: CheckCircle },
     { id: 'timeline', name: 'Timeline', icon: Clock },
-    { id: 'budget', name: 'Budget', icon: DollarSign },
+    { id: 'budget', name: 'Budget Tracker', icon: DollarSign },
+    { id: 'payments', name: 'Payment History', icon: DollarSign },
     { id: 'messages', name: 'Messages', icon: MessageCircle }
   ];
 
