@@ -174,6 +174,18 @@ backend:
         agent: "testing"
         comment: "✅ EMPLOYEE AUTHENTICATION WORKING: Employee login successful (employee@example.com/employee123). JWT token generated with employee role. Employee-specific data fields present in database including employee_id, department, position, hire_date, manager_id, and status. Employee user system fully functional and ready for employee portal integration."
 
+  - task: "Enhanced Event Type System"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ ENHANCED EVENT TYPE SYSTEM FULLY FUNCTIONAL: All new event types working perfectly. Quinceañera events ✅, Sweet 16 events ✅, Wedding sub-types (reception_only, reception_with_ceremony) ✅. Regular weddings without sub-type work correctly ✅. Backward compatibility maintained for existing event types (corporate, birthday) ✅. Event model properly stores and retrieves sub_event_type field. Event creation API accepts EventCreate model without user_id requirement. All enhanced event functionality operational and ready for production."
+
 frontend:
   - task: "Missing Admin Components"
     implemented: true
