@@ -272,6 +272,7 @@ const EventCreation = () => {
         description: eventData.description,
         event_type: eventData.event_type,
         sub_event_type: eventData.sub_event_type || null,
+        cultural_style: eventData.cultural_style || null,
         date: eventDateTime.toISOString(),
         location: eventData.location,
         guest_count: parseInt(eventData.guest_count),
