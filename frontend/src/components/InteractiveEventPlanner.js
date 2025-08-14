@@ -346,37 +346,32 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     try {
       setSaving(true);
       
-      // Create vendor bookings for selected services
-      const bookings = [];
-      
-      for (const item of cart) {
-        const bookingData = {
-          vendor_id: item.vendorId,
-          total_cost: item.price * (currentEvent?.guest_count || 1),
-          deposit_required: (item.price * (currentEvent?.guest_count || 1)) * 0.3,
-          final_due_date: new Date(currentEvent?.date),
-          service_details: {
-            service_type: item.serviceType,
-            description: item.description,
-            selected_via: 'interactive_planner'
-          }
-        };
-        
-        const response = await axios.post(`${API}/events/${eventId}/vendor-bookings`, bookingData);
-        bookings.push(response.data);
-      }
+      // Use the new Interactive Event Planner finalize endpoint
+      const response = await axios.post(`${API}/events/${eventId}/planner/finalize`, {}, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
 
-      // Clear saved plan
-      localStorage.removeItem(`event-plan-${eventId}`);
-      
-      // Notify parent component
-      if (onPlanSaved) {
-        onPlanSaved(bookings);
+      if (response.data) {
+        const bookings = response.data.bookings_created || [];
+        
+        // Notify parent component
+        if (onPlanSaved) {
+          onPlanSaved(bookings);
+        }
+        
+        // Clear local state
+        setCart([]);
+        setSelectedServices({});
+        
+        alert(`Event plan finalized successfully! Created ${bookings.length} vendor bookings with total cost of ${formatCurrency(response.data.total_cost || 0)}.`);
+        
+        onClose();
       }
-      
-      onClose();
     } catch (err) {
       console.error('Error finalizing event plan:', err);
+      alert('Failed to finalize event plan. Please try again.');
     } finally {
       setSaving(false);
     }
