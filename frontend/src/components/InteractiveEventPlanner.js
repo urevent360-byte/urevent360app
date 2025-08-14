@@ -4,7 +4,7 @@ import {
   ChevronLeft, ChevronRight, Search, Plus, Trash2, X, Save, 
   DollarSign, Users, MapPin, Camera, Music, Utensils, 
   Sparkles, UserCheck, Calendar, ShoppingCart, AlertTriangle,
-  CheckCircle, Eye, Skip, RotateCcw
+  CheckCircle, Eye, FastForward, RotateCcw
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
