@@ -1133,6 +1133,647 @@ async def get_payment_history(
     
     return payment_history
 
+# ============================================================================
+# Interactive Event Planner System API Routes
+# ============================================================================
+
+@api_router.get("/events/{event_id}/planner/state")
+async def get_planner_state(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get the current state of the interactive event planner for an event"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Get existing planner state or create default
+    planner_state = await db.planner_states.find_one({"event_id": event_id})
+    
+    if not planner_state:
+        # Create default state
+        default_state = EventPlannerState(
+            event_id=event_id,
+            budget_tracking={
+                "set_budget": event.get("budget", 0.0),
+                "selected_total": 0.0,
+                "remaining": event.get("budget", 0.0)
+            }
+        )
+        await db.planner_states.insert_one(default_state.dict())
+        planner_state = default_state.dict()
+    
+    return EventPlannerState(**planner_state)
+
+@api_router.post("/events/{event_id}/planner/state")
+async def update_planner_state(
+    event_id: str,
+    state_update: UpdatePlannerStateRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update the planner state (current step, completed steps, step data)"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    update_data = {
+        "current_step": state_update.current_step,
+        "updated_at": datetime.utcnow()
+    }
+    
+    if state_update.completed_steps is not None:
+        update_data["completed_steps"] = state_update.completed_steps
+    
+    if state_update.step_data is not None:
+        update_data["step_data"] = state_update.step_data
+    
+    await db.planner_states.update_one(
+        {"event_id": event_id},
+        {"$set": update_data},
+        upsert=True
+    )
+    
+    # Get updated state
+    updated_state = await db.planner_states.find_one({"event_id": event_id})
+    return EventPlannerState(**updated_state)
+
+@api_router.get("/events/{event_id}/cart")
+async def get_cart(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get the current shopping cart for an event planner session"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Get planner state with cart items
+    planner_state = await db.planner_states.find_one({"event_id": event_id})
+    
+    if not planner_state or not planner_state.get("cart_items"):
+        return {
+            "cart_items": [],
+            "total_cost": 0.0,
+            "item_count": 0,
+            "budget_tracking": {
+                "set_budget": event.get("budget", 0.0),
+                "selected_total": 0.0,
+                "remaining": event.get("budget", 0.0)
+            }
+        }
+    
+    cart_items = planner_state["cart_items"]
+    total_cost = sum(item["price"] * item["quantity"] for item in cart_items)
+    set_budget = event.get("budget", 0.0)
+    
+    return {
+        "cart_items": cart_items,
+        "total_cost": total_cost,
+        "item_count": len(cart_items),
+        "budget_tracking": {
+            "set_budget": set_budget,
+            "selected_total": total_cost,
+            "remaining": set_budget - total_cost
+        }
+    }
+
+@api_router.post("/events/{event_id}/cart/add")
+async def add_to_cart(
+    event_id: str,
+    cart_request: AddToCartRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Add a vendor service to the shopping cart"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Verify vendor exists
+    vendor = await db.vendors.find_one({"id": cart_request.vendor_id})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    # Get or create planner state
+    planner_state = await db.planner_states.find_one({"event_id": event_id})
+    
+    if not planner_state:
+        planner_state = EventPlannerState(
+            event_id=event_id,
+            budget_tracking={
+                "set_budget": event.get("budget", 0.0),
+                "selected_total": 0.0,
+                "remaining": event.get("budget", 0.0)
+            }
+        ).dict()
+        await db.planner_states.insert_one(planner_state)
+    
+    # Create cart item
+    cart_item = CartItem(
+        event_id=event_id,
+        vendor_id=cart_request.vendor_id,
+        vendor_name=vendor["name"],
+        service_type=cart_request.service_type,
+        service_name=cart_request.service_name,
+        price=cart_request.price,
+        quantity=cart_request.quantity,
+        notes=cart_request.notes
+    )
+    
+    # Check if item with same service type already exists (replace if so)
+    cart_items = planner_state.get("cart_items", [])
+    cart_items = [item for item in cart_items if item["service_type"] != cart_request.service_type]
+    cart_items.append(cart_item.dict())
+    
+    # Calculate new totals
+    total_cost = sum(item["price"] * item["quantity"] for item in cart_items)
+    set_budget = event.get("budget", 0.0)
+    
+    # Update planner state
+    await db.planner_states.update_one(
+        {"event_id": event_id},
+        {
+            "$set": {
+                "cart_items": cart_items,
+                "budget_tracking": {
+                    "set_budget": set_budget,
+                    "selected_total": total_cost,
+                    "remaining": set_budget - total_cost
+                },
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    return {
+        "message": "Item added to cart successfully",
+        "cart_item": cart_item.dict(),
+        "total_cost": total_cost,
+        "budget_status": "over_budget" if total_cost > set_budget else "within_budget"
+    }
+
+@api_router.delete("/events/{event_id}/cart/remove/{item_id}")
+async def remove_from_cart(
+    event_id: str,
+    item_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Remove an item from the shopping cart"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Get planner state
+    planner_state = await db.planner_states.find_one({"event_id": event_id})
+    if not planner_state:
+        raise HTTPException(status_code=404, detail="Cart not found")
+    
+    # Remove item from cart
+    cart_items = planner_state.get("cart_items", [])
+    cart_items = [item for item in cart_items if item["id"] != item_id]
+    
+    # Recalculate totals
+    total_cost = sum(item["price"] * item["quantity"] for item in cart_items)
+    set_budget = event.get("budget", 0.0)
+    
+    # Update planner state
+    await db.planner_states.update_one(
+        {"event_id": event_id},
+        {
+            "$set": {
+                "cart_items": cart_items,
+                "budget_tracking": {
+                    "set_budget": set_budget,
+                    "selected_total": total_cost,
+                    "remaining": set_budget - total_cost
+                },
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    return {
+        "message": "Item removed from cart successfully",
+        "total_cost": total_cost,
+        "remaining_items": len(cart_items)
+    }
+
+@api_router.post("/events/{event_id}/cart/clear")
+async def clear_cart(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Clear all items from the shopping cart"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    set_budget = event.get("budget", 0.0)
+    
+    # Clear cart and reset budget tracking
+    await db.planner_states.update_one(
+        {"event_id": event_id},
+        {
+            "$set": {
+                "cart_items": [],
+                "budget_tracking": {
+                    "set_budget": set_budget,
+                    "selected_total": 0.0,
+                    "remaining": set_budget
+                },
+                "updated_at": datetime.utcnow()
+            }
+        },
+        upsert=True
+    )
+    
+    return {"message": "Cart cleared successfully"}
+
+@api_router.post("/events/{event_id}/planner/finalize")
+async def finalize_event_plan(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Finalize the event plan by converting cart items to actual bookings"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Get planner state
+    planner_state = await db.planner_states.find_one({"event_id": event_id})
+    if not planner_state or not planner_state.get("cart_items"):
+        raise HTTPException(status_code=400, detail="No items in cart to finalize")
+    
+    # Create vendor bookings for each cart item
+    bookings_created = []
+    total_cost = 0
+    
+    for cart_item in planner_state["cart_items"]:
+        # Create vendor booking
+        booking = VendorBooking(
+            event_id=event_id,
+            vendor_id=cart_item["vendor_id"],
+            service_details={
+                "service_name": cart_item["service_name"],
+                "service_type": cart_item["service_type"],
+                "quantity": cart_item["quantity"],
+                "notes": cart_item.get("notes", "")
+            },
+            total_cost=cart_item["price"] * cart_item["quantity"],
+            deposit_required=cart_item["price"] * cart_item["quantity"] * 0.3,  # 30% deposit
+            final_due_date=event["date"] - timedelta(days=7)  # Due 7 days before event
+        )
+        
+        booking_dict = booking.dict()
+        await db.vendor_bookings.insert_one(booking_dict)
+        
+        # Create associated invoice
+        invoice = Invoice(
+            vendor_id=cart_item["vendor_id"],
+            event_id=event_id,
+            total_amount=booking_dict["total_cost"],
+            deposit_amount=booking_dict["deposit_required"],
+            final_amount=booking_dict["total_cost"] - booking_dict["deposit_required"],
+            final_due_date=booking_dict["final_due_date"],
+            items=[{
+                "service_name": cart_item["service_name"],
+                "quantity": cart_item["quantity"],
+                "unit_price": cart_item["price"],
+                "total_price": cart_item["price"] * cart_item["quantity"]
+            }]
+        )
+        
+        invoice_dict = invoice.dict()
+        await db.invoices.insert_one(invoice_dict)
+        
+        # Update booking with invoice ID
+        await db.vendor_bookings.update_one(
+            {"id": booking_dict["id"]},
+            {"$set": {"invoice_id": invoice_dict["id"]}}
+        )
+        
+        bookings_created.append({
+            "booking_id": booking_dict["id"],
+            "invoice_id": invoice_dict["id"],
+            "vendor_name": cart_item["vendor_name"],
+            "service_type": cart_item["service_type"],
+            "total_cost": booking_dict["total_cost"]
+        })
+        
+        total_cost += booking_dict["total_cost"]
+    
+    # Update event status and clear cart
+    await db.events.update_one(
+        {"id": event_id},
+        {"$set": {"status": "booked", "updated_at": datetime.utcnow()}}
+    )
+    
+    # Clear the cart after finalizing
+    await db.planner_states.update_one(
+        {"event_id": event_id},
+        {
+            "$set": {
+                "cart_items": [],
+                "current_step": 0,
+                "completed_steps": list(range(7)),  # Mark all steps as completed
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    return {
+        "message": "Event plan finalized successfully",
+        "bookings_created": bookings_created,
+        "total_cost": total_cost,
+        "event_status": "booked"
+    }
+
+@api_router.get("/events/{event_id}/planner/steps")
+async def get_planner_steps(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get the planner steps with vendor counts and completion status"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Get planner state
+    planner_state = await db.planner_states.find_one({"event_id": event_id})
+    completed_steps = planner_state.get("completed_steps", []) if planner_state else []
+    
+    # Define the planner steps
+    steps = [
+        {
+            "step_id": "venue",
+            "title": "Select Venue",
+            "subtitle": "Choose the perfect location for your event",
+            "icon": "MapPin",
+            "color": "bg-blue-500",
+            "service_types": ["venue"]
+        },
+        {
+            "step_id": "decoration",
+            "title": "Event Decoration",
+            "subtitle": "Transform your space with beautiful decorations",
+            "icon": "Sparkles",
+            "color": "bg-purple-500",
+            "service_types": ["decoration"]
+        },
+        {
+            "step_id": "catering",
+            "title": "Catering Services",
+            "subtitle": "Delight your guests with amazing food",
+            "icon": "Utensils",
+            "color": "bg-green-500",
+            "service_types": ["catering"]
+        },
+        {
+            "step_id": "bar",
+            "title": "Bar Services",
+            "subtitle": "Professional bar and beverage service",
+            "icon": "Wine",
+            "color": "bg-amber-500",
+            "service_types": ["bar", "beverage"]
+        },
+        {
+            "step_id": "planner",
+            "title": "Event Planner",
+            "subtitle": "Professional event planning and coordination",
+            "icon": "Calendar",
+            "color": "bg-teal-500",
+            "service_types": ["planning", "coordination"]
+        },
+        {
+            "step_id": "photography",
+            "title": "Photography & Video",
+            "subtitle": "Capture every precious moment",
+            "icon": "Camera",
+            "color": "bg-indigo-500",
+            "service_types": ["photography", "videography"]
+        },
+        {
+            "step_id": "dj",
+            "title": "DJ & Music",
+            "subtitle": "Set the perfect mood with music",
+            "icon": "Music",
+            "color": "bg-red-500",
+            "service_types": ["dj", "music", "entertainment"]
+        },
+        {
+            "step_id": "staffing",
+            "title": "Waitstaff Service",
+            "subtitle": "Professional staff for seamless service",
+            "icon": "UserCheck",
+            "color": "bg-orange-500",
+            "service_types": ["staffing", "waitstaff"]
+        },
+        {
+            "step_id": "entertainment",
+            "title": "Entertainment",
+            "subtitle": "Additional entertainment for your guests",
+            "icon": "Zap",
+            "color": "bg-pink-500",
+            "service_types": ["entertainment", "performers"]
+        },
+        {
+            "step_id": "review",
+            "title": "Review & Confirm",
+            "subtitle": "Review your selections and finalize your event plan",
+            "icon": "CheckCircle",
+            "color": "bg-emerald-500",
+            "service_types": []
+        }
+    ]
+    
+    # Get vendor counts for each step
+    for i, step in enumerate(steps):
+        step["step_number"] = i
+        step["completed"] = i in completed_steps
+        
+        if step["service_types"]:
+            # Count vendors for this service type
+            vendor_count = await db.vendors.count_documents({
+                "service_type": {"$in": step["service_types"]}
+            })
+            step["vendor_count"] = vendor_count
+        else:
+            step["vendor_count"] = 0
+    
+    return {
+        "steps": steps,
+        "current_step": planner_state.get("current_step", 0) if planner_state else 0,
+        "total_steps": len(steps)
+    }
+
+@api_router.post("/events/{event_id}/planner/scenarios/save")
+async def save_planner_scenario(
+    event_id: str,
+    scenario_request: SaveScenarioRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Save the current cart as a comparison scenario"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Calculate total cost
+    total_cost = sum(item.price * item.quantity for item in scenario_request.cart_items)
+    
+    # Create scenario
+    scenario = PlannerScenario(
+        event_id=event_id,
+        scenario_name=scenario_request.scenario_name,
+        cart_items=scenario_request.cart_items,
+        total_cost=total_cost,
+        notes=scenario_request.notes
+    )
+    
+    scenario_dict = scenario.dict()
+    await db.planner_scenarios.insert_one(scenario_dict)
+    
+    return PlannerScenario(**scenario_dict)
+
+@api_router.get("/events/{event_id}/planner/scenarios")
+async def get_planner_scenarios(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all saved scenarios for comparison"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    scenarios = await db.planner_scenarios.find({"event_id": event_id}).to_list(1000)
+    return [PlannerScenario(**scenario) for scenario in scenarios]
+
+@api_router.delete("/events/{event_id}/planner/scenarios/{scenario_id}")
+async def delete_planner_scenario(
+    event_id: str,
+    scenario_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete a saved scenario"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    result = await db.planner_scenarios.delete_one({
+        "id": scenario_id,
+        "event_id": event_id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Scenario not found")
+    
+    return {"message": "Scenario deleted successfully"}
+
+@api_router.get("/events/{event_id}/planner/vendors/{service_type}")
+async def get_planner_vendors(
+    event_id: str,
+    service_type: str,
+    search: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get vendors for a specific planner step with enhanced filtering"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Build query
+    query = {}
+    
+    # Service type mapping for flexible searching
+    service_type_mapping = {
+        "venue": ["venue"],
+        "decoration": ["decoration"],
+        "catering": ["catering"],
+        "bar": ["bar", "beverage"],
+        "planner": ["planning", "coordination"],
+        "photography": ["photography", "videography"],
+        "dj": ["dj", "music", "entertainment"],
+        "staffing": ["staffing", "waitstaff"],
+        "entertainment": ["entertainment", "performers"]
+    }
+    
+    if service_type in service_type_mapping:
+        query["service_type"] = {"$in": service_type_mapping[service_type]}
+    else:
+        query["service_type"] = service_type
+    
+    # Add cultural filtering if event has cultural style
+    if event.get("cultural_style"):
+        query["cultural_specializations"] = {"$in": [event["cultural_style"]]}
+    
+    # Budget-aware filtering based on event budget
+    if event.get("budget"):
+        event_budget = float(event["budget"])
+        # Allocate 15% of total budget per service category
+        service_budget = event_budget * 0.15
+        
+        # Show vendors within service budget range
+        query["$and"] = [
+            {"price_range.min": {"$lte": service_budget}},
+            {"price_range.max": {"$gte": service_budget * 0.3}}  # Allow some flexibility
+        ]
+    
+    # Manual price filtering overrides automatic filtering
+    if min_price or max_price:
+        price_filter = {}
+        if min_price:
+            price_filter["price_range.max"] = {"$gte": min_price}
+        if max_price:
+            price_filter["price_range.min"] = {"$lte": max_price}
+        query.update(price_filter)
+    
+    # Search filtering
+    if search:
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}},
+            {"specialties": {"$regex": search, "$options": "i"}},
+            {"location": {"$regex": search, "$options": "i"}}
+        ]
+    
+    # Get vendors
+    vendors = await db.vendors.find(query).limit(20).to_list(20)
+    
+    # Add additional metadata
+    for vendor in vendors:
+        vendor["service_category"] = service_type
+        vendor["budget_fit"] = "good"  # Simplified for now
+        
+        # Calculate recommended price based on service type
+        base_price = vendor["price_range"]["min"]
+        if service_type in ["catering", "venue"]:
+            vendor["recommended_price"] = base_price * event.get("guest_count", 50)
+        else:
+            vendor["recommended_price"] = base_price
+    
+    return {
+        "vendors": [Vendor(**vendor) for vendor in vendors],
+        "service_type": service_type,
+        "count": len(vendors),
+        "filters_applied": {
+            "cultural_style": event.get("cultural_style"),
+            "budget_aware": bool(event.get("budget")),
+            "search_term": search
+        }
+    }
+
 # Import admin and vendor routes after all functions are defined to avoid circular imports
 # Temporarily disabled due to circular import issues
 # try:
