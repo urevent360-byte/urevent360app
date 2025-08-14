@@ -12,7 +12,7 @@ import uuid
 import os
 
 # Configuration - Use environment variable for backend URL
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://2bb37186-a89d-4468-942c-bbf8f3622cde.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://festivity-pro-1.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 
 class InteractiveEventPlannerTester:
