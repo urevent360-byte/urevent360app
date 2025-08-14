@@ -672,7 +672,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
                     onClick={skipStep}
                     className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800"
                   >
-                    <Skip className="h-4 w-4 mr-2" />
+                    <FastForward className="h-4 w-4 mr-2" />
                     Skip
                   </button>
                 )}
