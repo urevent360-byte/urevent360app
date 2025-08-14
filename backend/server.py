@@ -192,15 +192,6 @@ class Booking(BaseModel):
     service_date: datetime
     notes: Optional[str] = None
 
-class Payment(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    booking_id: str
-    event_id: str
-    amount: float
-    payment_method: str  # card, loan, cash
-    status: str = "pending"  # pending, completed, failed
-    transaction_id: Optional[str] = None
-    payment_date: datetime = Field(default_factory=datetime.utcnow)
 
 class Loan(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
