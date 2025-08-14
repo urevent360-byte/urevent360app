@@ -672,6 +672,7 @@ class APITester:
         self.test_authentication()
         self.test_user_management()
         self.test_event_management()
+        self.test_enhanced_event_types()  # NEW: Test enhanced event type system
         self.test_venue_system()
         self.test_enhanced_vendor_system()
         
