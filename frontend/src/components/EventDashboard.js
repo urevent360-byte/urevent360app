@@ -4,11 +4,12 @@ import axios from 'axios';
 import { 
   Calendar, MapPin, Users, DollarSign, Edit3, Save, X, Plus, 
   CheckCircle, AlertCircle, Clock, Building, Phone, Mail, Globe,
-  ArrowRight, Settings, CreditCard, Receipt, History
+  ArrowRight, Settings, CreditCard, Receipt, History, Wand2
 } from 'lucide-react';
 import BudgetTracker from './BudgetTracker';
 import PaymentHistory from './PaymentHistory';
 import VenueSelection from './VenueSelection';
+import InteractiveEventPlanner from './InteractiveEventPlanner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
