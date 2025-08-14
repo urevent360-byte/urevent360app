@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend API Testing for Urevent 360 Platform
-Tests all 4 portals: Admin, Vendor, Employee, and Client systems
+Interactive Event Planner System Testing for Urevent 360 Platform
+Focus: Testing Interactive Event Planner workflow and related backend functionality
 """
 
 import requests
@@ -10,8 +10,10 @@ import sys
 from datetime import datetime
 import uuid
 
-# Configuration
-BASE_URL = "https://plannerportal.preview.emergentagent.com/api"
+# Configuration - Use environment variable for backend URL
+import os
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://2bb37186-a89d-4468-942c-bbf8f3622cde.preview.emergentagent.com')
+BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
 # Test credentials
