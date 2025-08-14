@@ -258,13 +258,15 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     }
   };
 
+  const getAuthHeaders = () => ({
+    headers: {
+      'Authorization': `Bearer ${token || localStorage.getItem('token')}`
+    }
+  });
+
   const loadCartFromBackend = async () => {
     try {
-      const response = await axios.get(`${API}/events/${eventId}/cart`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await axios.get(`${API}/events/${eventId}/cart`, getAuthHeaders());
 
       if (response.data) {
         const cartItems = response.data.cart_items || [];
