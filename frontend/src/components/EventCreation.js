@@ -222,6 +222,9 @@ const EventCreation = () => {
   };
 
   const renderStep = () => {
+    const requirementsStepNumber = getStepNumber('Requirements');
+    const budgetStepNumber = getStepNumber('Budget');
+    
     switch (currentStep) {
       case 1:
         return (
@@ -284,7 +287,13 @@ const EventCreation = () => {
                 {eventTypes.map((type) => (
                   <div
                     key={type.id}
-                    onClick={() => handleInputChange({ target: { name: 'event_type', value: type.id } })}
+                    onClick={() => {
+                      handleInputChange({ target: { name: 'event_type', value: type.id } });
+                      // Reset sub_event_type when changing event type
+                      if (eventData.event_type !== type.id) {
+                        setEventData(prev => ({ ...prev, sub_event_type: '' }));
+                      }
+                    }}
                     className={`p-4 border rounded-lg cursor-pointer transition-all ${
                       eventData.event_type === type.id
                         ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
@@ -293,6 +302,11 @@ const EventCreation = () => {
                   >
                     <h3 className="font-medium text-gray-900">{type.name}</h3>
                     <p className="text-sm text-gray-500 mt-1">{type.desc}</p>
+                    {type.hasSubTypes && (
+                      <span className="inline-block mt-2 px-2 py-1 text-xs bg-purple-100 text-purple-600 rounded-full">
+                        Additional options available
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -336,6 +350,45 @@ const EventCreation = () => {
         );
 
       case 3:
+        // Wedding Details Step (only shown for weddings)
+        if (eventData.event_type === 'wedding') {
+          return (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">
+                  Wedding Type *
+                </label>
+                <p className="text-sm text-gray-600 mb-6">
+                  Please select the type of wedding celebration you're planning:
+                </p>
+                <div className="grid grid-cols-1 gap-4">
+                  {weddingSubTypes.map((subType) => (
+                    <div
+                      key={subType.id}
+                      onClick={() => handleInputChange({ target: { name: 'sub_event_type', value: subType.id } })}
+                      className={`p-6 border rounded-lg cursor-pointer transition-all ${
+                        eventData.sub_event_type === subType.id
+                          ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <div className="flex items-start space-x-4">
+                        <div className="text-3xl">{subType.icon}</div>
+                        <div>
+                          <h3 className="font-medium text-gray-900 text-lg">{subType.name}</h3>
+                          <p className="text-sm text-gray-600 mt-2">{subType.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        }
+        // If not wedding, fall through to requirements
+        
+      case requirementsStepNumber:
         return (
           <div className="space-y-6">
             <div>
@@ -394,7 +447,7 @@ const EventCreation = () => {
           </div>
         );
 
-      case 4:
+      case budgetStepNumber:
         return (
           <div className="space-y-6">
             <div>
@@ -442,6 +495,9 @@ const EventCreation = () => {
               <div className="space-y-1 text-sm text-purple-700">
                 <p><strong>Event:</strong> {eventData.name}</p>
                 <p><strong>Type:</strong> {eventTypes.find(t => t.id === eventData.event_type)?.name}</p>
+                {eventData.sub_event_type && (
+                  <p><strong>Wedding Type:</strong> {weddingSubTypes.find(st => st.id === eventData.sub_event_type)?.name}</p>
+                )}
                 <p><strong>Date:</strong> {eventData.date}</p>
                 <p><strong>Guests:</strong> {eventData.guest_count}</p>
                 <p><strong>Venue Type:</strong> {eventData.requirements.venue_type}</p>
