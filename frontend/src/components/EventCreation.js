@@ -59,6 +59,65 @@ const EventCreation = () => {
     }
   ];
 
+  const culturalStyles = [
+    {
+      id: 'american',
+      name: 'American',
+      desc: 'Traditional American wedding style with classic elegance',
+      icon: '🗽',
+      color: 'bg-blue-50 border-blue-200 hover:border-blue-300'
+    },
+    {
+      id: 'indian',
+      name: 'Indian',
+      desc: 'Rich traditions with vibrant colors, ceremonies, and celebrations',
+      icon: '🕉️',
+      color: 'bg-orange-50 border-orange-200 hover:border-orange-300'
+    },
+    {
+      id: 'hispanic',
+      name: 'Hispanic/Latino',
+      desc: 'Warm family traditions with lively music and cultural rituals',
+      icon: '🌺',
+      color: 'bg-red-50 border-red-200 hover:border-red-300'
+    },
+    {
+      id: 'african',
+      name: 'African',
+      desc: 'Beautiful cultural ceremonies with traditional music and attire',
+      icon: '🌍',
+      color: 'bg-yellow-50 border-yellow-200 hover:border-yellow-300'
+    },
+    {
+      id: 'asian',
+      name: 'Asian',
+      desc: 'Elegant traditions including Chinese, Japanese, Korean styles',
+      icon: '🏮',
+      color: 'bg-pink-50 border-pink-200 hover:border-pink-300'
+    },
+    {
+      id: 'middle_eastern',
+      name: 'Middle Eastern',
+      desc: 'Luxurious celebrations with rich cultural traditions',
+      icon: '🕌',
+      color: 'bg-purple-50 border-purple-200 hover:border-purple-300'
+    },
+    {
+      id: 'jewish',
+      name: 'Jewish',
+      desc: 'Traditional Jewish wedding with meaningful ceremonies',
+      icon: '✡️',
+      color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-300'
+    },
+    {
+      id: 'other',
+      name: 'Other/Mixed',
+      desc: 'Custom blend of cultures or unique cultural background',
+      icon: '🌐',
+      color: 'bg-gray-50 border-gray-200 hover:border-gray-300'
+    }
+  ];
+
   const venueTypes = [
     'Hotel/Banquet Hall',
     'Restaurant',
