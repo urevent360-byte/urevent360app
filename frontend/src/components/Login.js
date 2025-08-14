@@ -53,6 +53,14 @@ const Login = () => {
       icon: Shield,
       color: 'from-purple-500 to-purple-600',
       features: ['User Management', 'Platform Analytics', 'Vendor Oversight', 'System Control']
+    },
+    {
+      id: 'employee',
+      title: 'Employee',
+      description: 'Manage tasks and track performance',
+      icon: Users,
+      color: 'from-orange-500 to-orange-600',
+      features: ['Task Management', 'Performance Tracking', 'Leave Management', 'Project Updates']
     }
   ];
 
