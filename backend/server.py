@@ -496,15 +496,7 @@ async def select_venue_for_event(
     updated_event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
     return Event(**updated_event)
 
-@api_router.put("/events/{event_id}")
-async def update_event(event_id: str, event_data: dict, current_user: dict = Depends(get_current_user)):
-    result = await db.events.update_one(
-        {"id": event_id, "user_id": current_user["id"]},
-        {"$set": event_data}
-    )
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Event not found")
-    return {"message": "Event updated successfully"}
+
 
 # Venue Routes
 @api_router.get("/venues", response_model=List[Venue])
