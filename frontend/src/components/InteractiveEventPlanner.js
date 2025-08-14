@@ -54,11 +54,20 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
       required: false
     },
     {
-      id: 'dj',
-      title: 'DJ & Music',
-      subtitle: 'Set the perfect mood with music',
-      icon: Music,
-      color: 'bg-red-500',
+      id: 'bar',
+      title: 'Bar Services',
+      subtitle: 'Professional bar and beverage service',
+      icon: Wine,
+      color: 'bg-amber-500',
+      searchable: true,
+      required: false
+    },
+    {
+      id: 'planner',
+      title: 'Event Planner',
+      subtitle: 'Professional event planning and coordination',
+      icon: Calendar,
+      color: 'bg-teal-500',
       searchable: true,
       required: false
     },
@@ -72,11 +81,29 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
       required: false
     },
     {
+      id: 'dj',
+      title: 'DJ & Music',
+      subtitle: 'Set the perfect mood with music',
+      icon: Music,
+      color: 'bg-red-500',
+      searchable: true,
+      required: false
+    },
+    {
       id: 'staffing',
-      title: 'Event Staffing',
+      title: 'Waitstaff Service',
       subtitle: 'Professional staff for seamless service',
       icon: UserCheck,
       color: 'bg-orange-500',
+      searchable: true,
+      required: false
+    },
+    {
+      id: 'entertainment',
+      title: 'Entertainment',
+      subtitle: 'Additional entertainment for your guests',
+      icon: Zap,
+      color: 'bg-pink-500',
       searchable: true,
       required: false
     },
