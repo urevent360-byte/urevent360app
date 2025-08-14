@@ -190,6 +190,175 @@ class APITester:
         else:
             self.log_test("Create Event", False, f"Status: {response.status_code if response else 'No response'}")
     
+    def test_enhanced_event_types(self):
+        """Test enhanced event type system with new types and sub-types"""
+        print("\n🎊 Testing Enhanced Event Type System...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Enhanced Event Types Test", False, "No client token available")
+            return
+        
+        # Test 1: Create Quinceañera event
+        quinceanera_data = {
+            "name": "Isabella's Quinceañera Celebration",
+            "description": "A traditional quinceañera celebration with family and friends",
+            "event_type": "quinceanera",
+            "date": "2024-08-15T19:00:00Z",
+            "location": "Grand Ballroom, Miami",
+            "budget": 15000.0,
+            "guest_count": 80,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", quinceanera_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            quince_event = response.json()
+            self.log_test("Create Quinceañera Event", True, f"Event type: {quince_event.get('event_type')}")
+        else:
+            self.log_test("Create Quinceañera Event", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 2: Create Sweet 16 event
+        sweet16_data = {
+            "name": "Emma's Sweet 16 Party",
+            "description": "A glamorous sweet 16 birthday celebration",
+            "event_type": "sweet_16",
+            "date": "2024-09-20T18:00:00Z",
+            "location": "Country Club, Los Angeles",
+            "budget": 12000.0,
+            "guest_count": 60,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", sweet16_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            sweet16_event = response.json()
+            self.log_test("Create Sweet 16 Event", True, f"Event type: {sweet16_event.get('event_type')}")
+        else:
+            self.log_test("Create Sweet 16 Event", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 3: Create wedding with reception_only sub-type
+        reception_only_data = {
+            "name": "Michael & Sarah's Reception",
+            "description": "Wedding reception celebration following private ceremony",
+            "event_type": "wedding",
+            "sub_event_type": "reception_only",
+            "date": "2024-07-12T17:00:00Z",
+            "location": "Riverside Gardens, Portland",
+            "budget": 18000.0,
+            "guest_count": 100,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", reception_only_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            reception_event = response.json()
+            self.log_test("Create Reception Only Wedding", True, f"Sub-type: {reception_event.get('sub_event_type')}")
+        else:
+            self.log_test("Create Reception Only Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 4: Create wedding with reception_with_ceremony sub-type
+        ceremony_reception_data = {
+            "name": "David & Lisa's Wedding",
+            "description": "Complete wedding ceremony and reception at the same venue",
+            "event_type": "wedding",
+            "sub_event_type": "reception_with_ceremony",
+            "date": "2024-10-05T16:00:00Z",
+            "location": "Oceanview Resort, California",
+            "budget": 35000.0,
+            "guest_count": 150,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", ceremony_reception_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            ceremony_event = response.json()
+            self.log_test("Create Ceremony + Reception Wedding", True, f"Sub-type: {ceremony_event.get('sub_event_type')}")
+        else:
+            self.log_test("Create Ceremony + Reception Wedding", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 5: Create regular wedding without sub-type (backward compatibility)
+        regular_wedding_data = {
+            "name": "Traditional Wedding Celebration",
+            "description": "Classic wedding celebration",
+            "event_type": "wedding",
+            "date": "2024-11-15T15:00:00Z",
+            "location": "Historic Chapel, Boston",
+            "budget": 28000.0,
+            "guest_count": 120,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", regular_wedding_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            regular_event = response.json()
+            sub_type = regular_event.get('sub_event_type')
+            self.log_test("Create Regular Wedding (No Sub-type)", True, f"Sub-type: {sub_type if sub_type else 'None (as expected)'}")
+        else:
+            self.log_test("Create Regular Wedding (No Sub-type)", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 6: Create existing event type (corporate) to ensure backward compatibility
+        corporate_data = {
+            "name": "Annual Company Gala",
+            "description": "Corporate annual celebration event",
+            "event_type": "corporate",
+            "date": "2024-12-10T19:00:00Z",
+            "location": "Convention Center, Chicago",
+            "budget": 20000.0,
+            "guest_count": 200,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", corporate_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            corporate_event = response.json()
+            self.log_test("Create Corporate Event (Existing Type)", True, f"Event type: {corporate_event.get('event_type')}")
+        else:
+            self.log_test("Create Corporate Event (Existing Type)", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 7: Verify all events are retrieved with proper fields
+        response = self.make_request("GET", "/events", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            all_events = response.json()
+            
+            # Check for new event types in the retrieved events
+            event_types_found = [event.get('event_type') for event in all_events]
+            sub_types_found = [event.get('sub_event_type') for event in all_events if event.get('sub_event_type')]
+            
+            has_quinceanera = 'quinceanera' in event_types_found
+            has_sweet16 = 'sweet_16' in event_types_found
+            has_reception_only = 'reception_only' in sub_types_found
+            has_ceremony_reception = 'reception_with_ceremony' in sub_types_found
+            
+            success_msg = f"Found event types: {set(event_types_found)}, Sub-types: {set(sub_types_found)}"
+            
+            if has_quinceanera and has_sweet16 and has_reception_only and has_ceremony_reception:
+                self.log_test("Event Retrieval with Enhanced Types", True, success_msg)
+            else:
+                self.log_test("Event Retrieval with Enhanced Types", False, f"Missing types. {success_msg}")
+        else:
+            self.log_test("Event Retrieval with Enhanced Types", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 8: Test individual event retrieval to verify sub_event_type field
+        if response and response.status_code == 200 and all_events:
+            # Find a wedding event with sub_event_type
+            wedding_with_subtype = None
+            for event in all_events:
+                if event.get('event_type') == 'wedding' and event.get('sub_event_type'):
+                    wedding_with_subtype = event
+                    break
+            
+            if wedding_with_subtype:
+                event_id = wedding_with_subtype.get('id')
+                response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+                if response and response.status_code == 200:
+                    event_details = response.json()
+                    sub_type = event_details.get('sub_event_type')
+                    self.log_test("Individual Event Retrieval with Sub-type", True, f"Sub-type field present: {sub_type}")
+                else:
+                    self.log_test("Individual Event Retrieval with Sub-type", False, f"Status: {response.status_code if response else 'No response'}")
+            else:
+                self.log_test("Individual Event Retrieval with Sub-type", False, "No wedding with sub-type found to test")
+    
     def test_venue_system(self):
         """Test venue search and details"""
         print("\n🏛️ Testing Venue System...")
