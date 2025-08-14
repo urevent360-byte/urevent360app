@@ -291,9 +291,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Vendor API"
-    - "Multi-Role User System" 
-    - "Employee User System"
     - "Admin Routes Integration"
     - "Enhanced Vendor Marketplace"
     - "Multi-Role Login System"
@@ -303,8 +300,8 @@ test_plan:
     - "Discrete Employee Portal Access"
     - "Clean Role Selection Interface"
   stuck_tasks: []
-  test_all: true
-  test_priority: "comprehensive_verification"
+  test_all: false
+  test_priority: "frontend_testing_next"
 
 agent_communication:
   - agent: "main"
