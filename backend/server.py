@@ -13,9 +13,7 @@ import uuid
 import logging
 from pathlib import Path
 
-# Import vendor subscription routes
-from admin_routes import admin_router
-from vendor_subscription_routes import vendor_router
+# Import vendor subscription routes will be imported later to avoid circular imports
 
 # Load environment variables
 ROOT_DIR = Path(__file__).parent
