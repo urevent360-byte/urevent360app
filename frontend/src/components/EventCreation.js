@@ -31,17 +31,17 @@ const EventCreation = () => {
   });
 
   const eventTypes = [
-    { id: 'wedding', name: 'Wedding', desc: 'Celebrate your special day', hasSubTypes: true },
-    { id: 'quinceanera', name: 'Quinceañera', desc: 'Celebrate the transition to womanhood' },
-    { id: 'sweet_16', name: 'Sweet 16', desc: 'Celebrate the milestone birthday' },
-    { id: 'bat_mitzvah', name: 'Bat Mitzvah', desc: 'Celebrate the coming of age ceremony' },
-    { id: 'corporate', name: 'Corporate Event', desc: 'Business meetings and conferences' },
-    { id: 'birthday', name: 'Birthday Party', desc: 'Celebrate another year of life' },
-    { id: 'anniversary', name: 'Anniversary', desc: 'Commemorate special milestones' },
-    { id: 'graduation', name: 'Graduation', desc: 'Academic achievement celebrations' },
-    { id: 'baby_shower', name: 'Baby Shower', desc: 'Welcome the new arrival' },
-    { id: 'retirement', name: 'Retirement Party', desc: 'Celebrate career achievements' },
-    { id: 'other', name: 'Other', desc: 'Custom event type' }
+    { id: 'wedding', name: 'Wedding', desc: 'Celebrate your special day', hasCulturalStyles: true },
+    { id: 'quinceanera', name: 'Quinceañera', desc: 'Celebrate the transition to womanhood', hasCulturalStyles: true },
+    { id: 'sweet_16', name: 'Sweet 16', desc: 'Celebrate the milestone birthday', hasCulturalStyles: true },
+    { id: 'bat_mitzvah', name: 'Bat Mitzvah', desc: 'Celebrate the coming of age ceremony', hasCulturalStyles: false },
+    { id: 'corporate', name: 'Corporate Event', desc: 'Business meetings and conferences', hasCulturalStyles: true },
+    { id: 'birthday', name: 'Birthday Party', desc: 'Celebrate another year of life', hasCulturalStyles: true },
+    { id: 'anniversary', name: 'Anniversary', desc: 'Commemorate special milestones', hasCulturalStyles: true },
+    { id: 'graduation', name: 'Graduation', desc: 'Academic achievement celebrations', hasCulturalStyles: true },
+    { id: 'baby_shower', name: 'Baby Shower', desc: 'Welcome the new arrival', hasCulturalStyles: true },
+    { id: 'retirement', name: 'Retirement Party', desc: 'Celebrate career achievements', hasCulturalStyles: true },
+    { id: 'other', name: 'Other', desc: 'Custom event type', hasCulturalStyles: true }
   ];
 
   const weddingSubTypes = [
