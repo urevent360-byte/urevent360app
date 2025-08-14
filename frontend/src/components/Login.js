@@ -305,6 +305,24 @@ const Login = () => {
       {/* Elegant overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-transparent to-blue-900/30"></div>
       
+      {/* Employee Portal Link - Discrete Bottom Access */}
+      {selectedRole !== 'employee' && (
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+          <button
+            onClick={() => handleRoleSelect('employee')}
+            className="flex items-center gap-2 px-3 py-2 bg-white/90 backdrop-blur-md rounded-full border border-gray-200 hover:bg-white transition-all duration-200 text-gray-600 hover:text-orange-600 text-sm shadow-lg"
+            title="Employee Portal Access"
+          >
+            <img 
+              src="https://customer-assets.emergentagent.com/job_urevent-admin/artifacts/efthwf05_ureventlogos-02%20%281%29.png" 
+              alt="Urevent 360 Logo" 
+              className="h-4 w-4 object-contain"
+            />
+            <span className="text-xs font-medium">Employee Portal</span>
+          </button>
+        </div>
+      )}
+      
       <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Back Button */}
         <button
