@@ -296,7 +296,7 @@ async def update_profile(profile: UserProfile, current_user: dict = Depends(get_
 
 # Event Routes
 @api_router.post("/events", response_model=Event)
-async def create_event(event: Event, current_user: dict = Depends(get_current_user)):
+async def create_event(event: EventCreate, current_user: dict = Depends(get_current_user)):
     event_dict = event.dict()
     event_dict["user_id"] = current_user["id"]
     event_dict["id"] = str(uuid.uuid4())
