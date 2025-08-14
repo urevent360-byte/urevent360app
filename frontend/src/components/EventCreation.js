@@ -16,6 +16,7 @@ const EventCreation = () => {
     name: '',
     description: '',
     event_type: '',
+    sub_event_type: '',
     date: '',
     time: '',
     location: '',
