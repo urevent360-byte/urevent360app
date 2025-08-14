@@ -366,6 +366,7 @@ async def get_vendors(
     min_budget: Optional[float] = None,
     max_budget: Optional[float] = None,
     event_id: Optional[str] = None,
+    cultural_style: Optional[str] = None,
     current_user: dict = Depends(get_current_user)
 ):
     query = {}
@@ -373,6 +374,10 @@ async def get_vendors(
         query["service_type"] = service_type
     if location:
         query["location"] = {"$regex": location, "$options": "i"}
+    
+    # Cultural style filtering - match vendors who specialize in the cultural style
+    if cultural_style:
+        query["cultural_specializations"] = {"$in": [cultural_style]}
     
     # Budget filtering logic
     if min_budget or max_budget or event_id:
@@ -383,6 +388,12 @@ async def get_vendors(
             event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
             if event and event.get("budget"):
                 event_budget = float(event["budget"])
+                # Auto-extract cultural style from event if not provided
+                if not cultural_style and event.get("cultural_style"):
+                    query["cultural_specializations"] = {"$in": [event["cultural_style"]]}
+                    
+                # Adjust budget filtering based on event budget
+                budget_filter["price_range.min"] = {"$lte": event_budget * 0.8}  # Show vendors within 80% of budget
                 # Allocate 15% of total event budget per service category
                 service_budget = event_budget * 0.15
                 budget_filter = {
