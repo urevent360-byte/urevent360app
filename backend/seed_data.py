@@ -404,6 +404,223 @@ async def seed_database():
     
     print(f"✅ Inserted {len(venues)} venues")
     print(f"✅ Inserted {len(vendors)} vendors")
+    
+    # Create sample vendor bookings and payments for testing
+    print("🎯 Creating sample vendor bookings and payments...")
+    
+    # Get a sample event to create bookings for
+    sample_event = await db.events.find_one({"user_id": admin_user["id"]})
+    if sample_event:
+        # Get some vendors for bookings
+        catering_vendor = await db.vendors.find_one({"service_type": "Catering"})
+        photo_vendor = await db.vendors.find_one({"service_type": "Photography"})
+        decoration_vendor = await db.vendors.find_one({"service_type": "Decoration"})
+        
+        sample_bookings = []
+        sample_invoices = []
+        sample_payments = []
+        
+        if catering_vendor:
+            booking_id = str(uuid.uuid4())
+            invoice_id = str(uuid.uuid4())
+            
+            # Catering booking
+            booking = {
+                "id": booking_id,
+                "event_id": sample_event["id"],
+                "vendor_id": catering_vendor["id"],
+                "service_details": {
+                    "service_type": "Wedding Catering",
+                    "guest_count": 150,
+                    "menu_type": "Indian Cuisine",
+                    "includes": ["Appetizers", "Main Course", "Desserts", "Beverages"]
+                },
+                "total_cost": 12000.0,
+                "deposit_required": 3600.0,  # 30% deposit
+                "deposit_paid": 3600.0,
+                "total_paid": 3600.0,
+                "final_due_date": datetime(2024, 11, 15),
+                "booking_status": "confirmed",
+                "payment_status": "deposit_paid",
+                "invoice_id": invoice_id,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            sample_bookings.append(booking)
+            
+            # Catering invoice
+            invoice = {
+                "id": invoice_id,
+                "vendor_id": catering_vendor["id"],
+                "event_id": sample_event["id"],
+                "total_amount": 12000.0,
+                "deposit_amount": 3600.0,
+                "deposit_paid": True,
+                "final_amount": 8400.0,
+                "final_due_date": datetime(2024, 11, 15),
+                "status": "partially_paid",
+                "items": [
+                    {"description": "Indian Wedding Catering for 150 guests", "quantity": 150, "rate": 80.0, "amount": 12000.0}
+                ],
+                "terms": "Deposit required to confirm booking. Final payment due 7 days before event.",
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            sample_invoices.append(invoice)
+            
+            # Deposit payment
+            payment = {
+                "id": str(uuid.uuid4()),
+                "event_id": sample_event["id"],
+                "vendor_id": catering_vendor["id"],
+                "amount": 3600.0,
+                "payment_type": "deposit",
+                "payment_method": "card",
+                "payment_date": datetime.utcnow() - timedelta(days=7),
+                "status": "completed",
+                "description": "Deposit payment for catering services",
+                "transaction_id": "txn_" + str(uuid.uuid4())[:8],
+                "created_at": datetime.utcnow()
+            }
+            sample_payments.append(payment)
+        
+        if photo_vendor:
+            booking_id = str(uuid.uuid4())
+            invoice_id = str(uuid.uuid4())
+            
+            # Photography booking
+            booking = {
+                "id": booking_id,
+                "event_id": sample_event["id"],
+                "vendor_id": photo_vendor["id"],
+                "service_details": {
+                    "service_type": "Wedding Photography",
+                    "hours": 8,
+                    "includes": ["Ceremony Photos", "Reception Photos", "Edited Photos", "Digital Gallery"]
+                },
+                "total_cost": 2500.0,
+                "deposit_required": 750.0,  # 30% deposit
+                "deposit_paid": 750.0,
+                "total_paid": 2500.0,  # Fully paid
+                "final_due_date": datetime(2024, 11, 20),
+                "booking_status": "confirmed",
+                "payment_status": "fully_paid",
+                "invoice_id": invoice_id,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            sample_bookings.append(booking)
+            
+            # Photography invoice
+            invoice = {
+                "id": invoice_id,
+                "vendor_id": photo_vendor["id"],
+                "event_id": sample_event["id"],
+                "total_amount": 2500.0,
+                "deposit_amount": 750.0,
+                "deposit_paid": True,
+                "final_amount": 1750.0,
+                "final_due_date": datetime(2024, 11, 20),
+                "status": "fully_paid",
+                "items": [
+                    {"description": "Wedding Photography Package - 8 hours", "quantity": 1, "rate": 2500.0, "amount": 2500.0}
+                ],
+                "terms": "Full payment received. Thank you for your business!",
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            sample_invoices.append(invoice)
+            
+            # Photography payments
+            deposit_payment = {
+                "id": str(uuid.uuid4()),
+                "event_id": sample_event["id"],
+                "vendor_id": photo_vendor["id"],
+                "amount": 750.0,
+                "payment_type": "deposit",
+                "payment_method": "card",
+                "payment_date": datetime.utcnow() - timedelta(days=14),
+                "status": "completed",
+                "description": "Deposit payment for photography services",
+                "transaction_id": "txn_" + str(uuid.uuid4())[:8],
+                "created_at": datetime.utcnow()
+            }
+            
+            final_payment = {
+                "id": str(uuid.uuid4()),
+                "event_id": sample_event["id"],
+                "vendor_id": photo_vendor["id"],
+                "amount": 1750.0,
+                "payment_type": "final",
+                "payment_method": "bank_transfer",
+                "payment_date": datetime.utcnow() - timedelta(days=3),
+                "status": "completed",
+                "description": "Final payment for photography services",
+                "transaction_id": "txn_" + str(uuid.uuid4())[:8],
+                "created_at": datetime.utcnow()
+            }
+            sample_payments.extend([deposit_payment, final_payment])
+        
+        if decoration_vendor:
+            booking_id = str(uuid.uuid4())
+            invoice_id = str(uuid.uuid4())
+            
+            # Decoration booking (pending payment)
+            booking = {
+                "id": booking_id,
+                "event_id": sample_event["id"],
+                "vendor_id": decoration_vendor["id"],
+                "service_details": {
+                    "service_type": "Wedding Decoration",
+                    "theme": "Indian Traditional",
+                    "includes": ["Floral Arrangements", "Stage Decoration", "Table Settings", "Lighting"]
+                },
+                "total_cost": 4500.0,
+                "deposit_required": 1350.0,  # 30% deposit
+                "deposit_paid": 0.0,
+                "total_paid": 0.0,
+                "final_due_date": datetime(2024, 11, 25),
+                "booking_status": "confirmed",
+                "payment_status": "pending",
+                "invoice_id": invoice_id,
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            sample_bookings.append(booking)
+            
+            # Decoration invoice
+            invoice = {
+                "id": invoice_id,
+                "vendor_id": decoration_vendor["id"],
+                "event_id": sample_event["id"],
+                "total_amount": 4500.0,
+                "deposit_amount": 1350.0,
+                "deposit_paid": False,
+                "final_amount": 3150.0,
+                "final_due_date": datetime(2024, 11, 25),
+                "status": "pending",
+                "items": [
+                    {"description": "Indian Traditional Wedding Decoration Package", "quantity": 1, "rate": 4500.0, "amount": 4500.0}
+                ],
+                "terms": "30% deposit required to start work. Remaining balance due on completion.",
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            sample_invoices.append(invoice)
+        
+        # Insert sample data
+        if sample_bookings:
+            await db.vendor_bookings.insert_many(sample_bookings)
+            print(f"✅ Inserted {len(sample_bookings)} sample vendor bookings")
+        
+        if sample_invoices:
+            await db.invoices.insert_many(sample_invoices)
+            print(f"✅ Inserted {len(sample_invoices)} sample invoices")
+        
+        if sample_payments:
+            await db.payments.insert_many(sample_payments)
+            print(f"✅ Inserted {len(sample_payments)} sample payments")
+    
     print("🎉 Database seeding completed!")
 
 if __name__ == "__main__":
