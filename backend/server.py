@@ -99,11 +99,16 @@ class Event(BaseModel):
     date: datetime
     location: Optional[str] = None
     venue_id: Optional[str] = None
+    venue_name: Optional[str] = None
+    venue_address: Optional[str] = None
+    venue_contact: Optional[Dict[str, str]] = None
     budget: Optional[float] = None
     estimated_budget: Optional[float] = None
     guest_count: Optional[int] = None
     status: str = "planning"  # planning, booked, completed, cancelled
+    requirements: Optional[Dict[str, Any]] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
 
 class Venue(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
