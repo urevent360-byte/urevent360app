@@ -250,6 +250,18 @@ frontend:
         agent: "main"
         comment: "Created comprehensive Employee Portal (4th module) with complete employee management system. Features include task management, performance tracking, leave management, time tracking, job management, sales tracking, financial tracking, and project updates. Added 'Employees Portal' link at bottom of login page. Created employee user account and dedicated orange-themed interface."
 
+  - task: "Discrete Employee Portal Access"
+    implemented: true
+    working: unknown
+    file: "Login.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: unknown
+        agent: "main"
+        comment: "Created discrete employee portal access similar to admin icon style. Small button with user's logo and 'Employee Portal' text positioned at bottom center of login pages. Uses glassmorphism styling, rounded-full design, minimal space usage. Only visible to those who know to look for it, similar to admin shield icon approach."
+
   - task: "Clean Role Selection Interface"
     implemented: true
     working: unknown
