@@ -278,14 +278,20 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
 
   const removeFromCart = async (itemId) => {
     try {
-      await axios.delete(`${API}/events/${eventId}/cart/remove/${itemId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await axios.delete(`${API}/events/${eventId}/cart/remove/${itemId}`, getAuthHeaders());
       
-      // Refresh cart
+      // Refresh cart and update selected services
       await loadCartFromBackend();
+      
+      // Update selected services by removing the item
+      const item = cart.find(c => c.id === itemId);
+      if (item) {
+        setSelectedServices(prev => {
+          const updated = { ...prev };
+          delete updated[item.service_type];
+          return updated;
+        });
+      }
     } catch (err) {
       console.error('Error removing from cart:', err);
     }
