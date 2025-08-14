@@ -136,6 +136,51 @@ class Vendor(BaseModel):
     verified: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+class Payment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    vendor_id: str
+    amount: float
+    payment_type: str  # deposit, partial, final, extra
+    payment_method: str  # card, bank_transfer, cash, check
+    payment_date: datetime = Field(default_factory=datetime.utcnow)
+    status: str = "completed"  # pending, completed, failed, refunded
+    description: Optional[str] = None
+    transaction_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class Invoice(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    vendor_id: str
+    event_id: str
+    total_amount: float
+    deposit_amount: float
+    deposit_paid: bool = False
+    deposit_due_date: Optional[datetime] = None
+    final_amount: float
+    final_due_date: datetime
+    status: str = "pending"  # pending, partially_paid, fully_paid, overdue
+    items: List[Dict[str, Any]] = []  # Service breakdown
+    terms: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class VendorBooking(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    vendor_id: str
+    service_details: Dict[str, Any]
+    total_cost: float
+    deposit_required: float
+    deposit_paid: float = 0.0
+    total_paid: float = 0.0
+    final_due_date: datetime
+    booking_status: str = "confirmed"  # pending, confirmed, completed, cancelled
+    payment_status: str = "pending"  # pending, deposit_paid, partially_paid, fully_paid
+    invoice_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
 class Booking(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     event_id: str
