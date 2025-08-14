@@ -119,8 +119,9 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
   ];
 
   useEffect(() => {
-    // Load saved plan if exists
+    // Load saved plan and cart from backend when component mounts
     loadSavedPlan();
+    loadCartFromBackend();
   }, [eventId]);
 
   useEffect(() => {
@@ -130,15 +131,37 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
 
   const loadSavedPlan = async () => {
     try {
-      const savedPlan = localStorage.getItem(`event-plan-${eventId}`);
-      if (savedPlan) {
-        const parsed = JSON.parse(savedPlan);
-        setCart(parsed.cart || []);
-        setSelectedServices(parsed.selectedServices || {});
-        setCurrentStep(parsed.currentStep || 0);
+      // Load planner state from backend
+      const response = await axios.get(`${API}/events/${eventId}/planner/state`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (response.data) {
+        setCurrentStep(response.data.current_step || 0);
+        // Budget tracking is handled by loadCartFromBackend
+        
+        // Build selected services from cart items
+        const services = {};
+        (response.data.cart_items || []).forEach(item => {
+          services[item.service_type] = item.vendor_id;
+        });
+        setSelectedServices(services);
       }
     } catch (err) {
-      console.error('Error loading saved plan:', err);
+      console.error('Error loading saved plan from backend:', err);
+      // Fallback to localStorage if backend fails
+      try {
+        const savedPlan = localStorage.getItem(`event-plan-${eventId}`);
+        if (savedPlan) {
+          const parsed = JSON.parse(savedPlan);
+          setCurrentStep(parsed.currentStep || 0);
+          setSelectedServices(parsed.selectedServices || {});
+        }
+      } catch (localErr) {
+        console.error('Error loading local saved plan:', localErr);
+      }
     }
   };
 
