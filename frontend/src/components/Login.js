@@ -183,7 +183,7 @@ const Login = () => {
 
           {/* Role Selection Cards - Only Client and Vendor */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 max-w-4xl mx-auto">
-            {roleOptions.filter(role => role.id !== 'admin').map((role) => {
+            {roleOptions.filter(role => role.id !== 'admin' && role.id !== 'employee').map((role) => {
               const Icon = role.icon;
               return (
                 <div
