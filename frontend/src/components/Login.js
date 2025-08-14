@@ -407,6 +407,12 @@ const Login = () => {
             </div>
           )}
 
+          {selectedRole === 'employee' && (
+            <div className="bg-orange-50 border border-orange-200 text-orange-700 px-4 py-3 rounded-xl text-sm">
+              <strong>Demo Employee Access:</strong> Credentials are pre-filled for testing
+            </div>
+          )}
+
           {/* Login Button */}
           <div>
             <button
