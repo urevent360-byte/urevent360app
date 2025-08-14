@@ -264,9 +264,10 @@ const Login = () => {
           <div className="text-center mt-8">
             <button
               onClick={() => handleRoleSelect('employee')}
-              className="text-white/70 hover:text-white text-sm underline transition-colors duration-200"
+              className="flex items-center justify-center gap-2 mx-auto px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg hover:bg-white/20 transition-all duration-200 text-white/90 hover:text-white"
             >
-              Employees Portal
+              <Users className="w-5 h-5" />
+              <span className="font-medium">Employees Portal</span>
             </button>
           </div>
         </div>
