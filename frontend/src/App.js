@@ -158,6 +158,9 @@ function App() {
                     </Routes>
                   </main>
                 </div>
+
+                {/* Customer Service Chat - Available for all client users */}
+                <CustomerService />
               </div>
             )
           ) : (
