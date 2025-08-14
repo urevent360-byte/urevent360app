@@ -197,6 +197,7 @@ async def seed_database():
             },
             "availability": ["weekdays", "weekends"],
             "specialties": ["Wedding Catering", "Corporate Events", "Fine Dining", "Dietary Accommodations"],
+            "cultural_specializations": ["american", "jewish", "other"],
             "experience_years": 8,
             "verified": True,
             "created_at": datetime.utcnow()
