@@ -118,15 +118,34 @@ const EventCreation = () => {
     }));
   };
 
+  const getStepNumber = (stepName) => {
+    const dynamicSteps = steps.map((step, index) => ({ ...step, dynamicId: index + 1 }));
+    return dynamicSteps.find(step => step.name === stepName)?.dynamicId || null;
+  };
+
+  const getMaxSteps = () => steps.length;
+
   const validateStep = (step) => {
+    const requirementsStepNumber = getStepNumber('Requirements');
+    const budgetStepNumber = getStepNumber('Budget');
+    
     switch (step) {
       case 1:
         return eventData.name.trim() !== '';
       case 2:
         return eventData.event_type !== '' && eventData.date !== '';
       case 3:
+        if (eventData.event_type === 'wedding') {
+          return eventData.sub_event_type !== '';
+        }
+        // If step 3 is Requirements (when not wedding)
+        if (step === requirementsStepNumber) {
+          return eventData.requirements.venue_type !== '';
+        }
+        return true;
+      case requirementsStepNumber:
         return eventData.requirements.venue_type !== '';
-      case 4:
+      case budgetStepNumber:
         return eventData.guest_count !== '';
       default:
         return true;
