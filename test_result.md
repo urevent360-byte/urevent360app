@@ -282,17 +282,20 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Employee Portal Module"
-    - "Employee User System"
-    - "Premium Logo & Design Integration"
-    - "Multi-Role Login System"
-    - "Admin Routes Integration" 
-    - "Enhanced Vendor Marketplace"
     - "Enhanced Vendor API"
-    - "Admin Authentication Flow"
+    - "Multi-Role User System" 
+    - "Employee User System"
+    - "Admin Routes Integration"
+    - "Enhanced Vendor Marketplace"
+    - "Multi-Role Login System"
+    - "Employee Portal Module"
+    - "Premium Logo & Design Integration"
+    - "Discrete Admin Access Icon"
+    - "Discrete Employee Portal Access"
+    - "Clean Role Selection Interface"
   stuck_tasks: []
-  test_all: false
-  test_priority: "high_first"
+  test_all: true
+  test_priority: "comprehensive_verification"
 
 agent_communication:
   - agent: "main"
