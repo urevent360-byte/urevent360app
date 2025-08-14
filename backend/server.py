@@ -338,6 +338,12 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     user = await db.users.find_one({"email": email})
     if user is None:
         raise credentials_exception
+    
+    # Convert ObjectId to string for serialization
+    if "_id" in user:
+        user["id"] = str(user["_id"])
+        del user["_id"]
+    
     return user
 
 # Authentication Routes
