@@ -165,17 +165,41 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     }
   };
 
-  const savePlan = () => {
+  const savePlan = async () => {
     try {
+      // Save planner state to backend
+      await axios.post(`${API}/events/${eventId}/planner/state`, {
+        current_step: currentStep,
+        completed_steps: Array.from({ length: currentStep }, (_, i) => i), // Mark previous steps as completed
+        step_data: {
+          last_saved: new Date().toISOString()
+        }
+      }, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      // Keep localStorage as backup
       const planData = {
-        cart,
-        selectedServices,
         currentStep,
+        selectedServices,
         timestamp: new Date().toISOString()
       };
       localStorage.setItem(`event-plan-${eventId}`, JSON.stringify(planData));
     } catch (err) {
-      console.error('Error saving plan:', err);
+      console.error('Error saving plan to backend:', err);
+      // Fallback to localStorage only
+      try {
+        const planData = {
+          currentStep,
+          selectedServices,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem(`event-plan-${eventId}`, JSON.stringify(planData));
+      } catch (localErr) {
+        console.error('Error saving plan locally:', localErr);
+      }
     }
   };
 
