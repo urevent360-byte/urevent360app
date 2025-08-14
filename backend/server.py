@@ -791,6 +791,9 @@ async def create_vendor_booking(
         {"$set": {"invoice_id": invoice_dict["id"]}}
     )
     
+    # Update booking_dict to include invoice_id for return
+    booking_dict["invoice_id"] = invoice_dict["id"]
+    
     return VendorBooking(**booking_dict)
 
 @api_router.post("/events/{event_id}/payments")
