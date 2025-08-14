@@ -334,11 +334,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
 
   const clearCart = async () => {
     try {
-      await axios.post(`${API}/events/${eventId}/cart/clear`, {}, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await axios.post(`${API}/events/${eventId}/cart/clear`, {}, getAuthHeaders());
       
       setCart([]);
       setSelectedServices({});
