@@ -307,6 +307,7 @@ const EventCreation = () => {
   };
 
   const renderStep = () => {
+    const culturalStyleStepNumber = getStepNumber('Cultural Style');
     const requirementsStepNumber = getStepNumber('Requirements');
     const budgetStepNumber = getStepNumber('Budget');
     
