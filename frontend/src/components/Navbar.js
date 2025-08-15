@@ -1,6 +1,12 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../App';
-import { Bell, Menu, Search, User } from 'lucide-react';
+import { 
+  Bell, Menu, Search, User, Settings, LogOut, Edit, Lock, 
+  Globe, Shield, HelpCircle, Smartphone, Eye, Link as LinkIcon,
+  ChevronRight, Camera, Mail, Phone, UserCog, Languages,
+  CreditCard, MessageCircle
+} from 'lucide-react';
 
 const Navbar = ({ setSidebarOpen }) => {
   const { user, logout } = useContext(AuthContext);
