@@ -8,10 +8,18 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const EventCreation = () => {
+  const { token } = useContext(AuthContext);
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Helper function for authenticated API calls
+  const getAuthHeaders = () => ({
+    headers: {
+      'Authorization': `Bearer ${token || localStorage.getItem('token')}`
+    }
+  });
   
   const [eventData, setEventData] = useState({
     name: '',
