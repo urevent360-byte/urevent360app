@@ -89,6 +89,24 @@ async def seed_database():
     else:
         print("ℹ️ Employee user already exists")
     
+    # Create client user if not exists
+    client_user = await db.users.find_one({"email": "sarah.johnson@email.com"})
+    if not client_user:
+        client_data = {
+            "id": str(uuid.uuid4()),
+            "name": "Sarah Johnson",
+            "email": "sarah.johnson@email.com",
+            "mobile": "+1555123456",
+            "role": "user",  # 'user' role for clients
+            "hashed_password": get_password_hash("SecurePass123"),
+            "created_at": datetime.utcnow(),
+            "profile_completed": True
+        }
+        await db.users.insert_one(client_data)
+        print("✅ Client user created: sarah.johnson@email.com / SecurePass123")
+    else:
+        print("ℹ️ Client user already exists")
+    
     # Sample Venues
     venues = [
         {
