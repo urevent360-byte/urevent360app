@@ -476,6 +476,58 @@ async def update_event(
     updated_event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
     return Event(**updated_event)
 
+@api_router.delete("/events/{event_id}")
+async def delete_event(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete an event and all associated data"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    try:
+        # Delete all associated data in order
+        
+        # 1. Delete planner states and scenarios
+        await db.planner_states.delete_many({"event_id": event_id})
+        await db.planner_scenarios.delete_many({"event_id": event_id})
+        
+        # 2. Delete payments associated with this event
+        await db.payments.delete_many({"event_id": event_id})
+        
+        # 3. Delete vendor bookings and their invoices
+        vendor_bookings = await db.vendor_bookings.find({"event_id": event_id}).to_list(1000)
+        for booking in vendor_bookings:
+            # Delete associated invoices
+            if booking.get("invoice_id"):
+                await db.invoices.delete_one({"id": booking["invoice_id"]})
+        
+        await db.vendor_bookings.delete_many({"event_id": event_id})
+        
+        # 4. Finally delete the event itself
+        result = await db.events.delete_one({"id": event_id, "user_id": current_user["id"]})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        return {
+            "message": "Event deleted successfully",
+            "event_id": event_id,
+            "deleted_data": {
+                "planner_states": "deleted",
+                "scenarios": "deleted", 
+                "payments": "deleted",
+                "vendor_bookings": len(vendor_bookings),
+                "invoices": len([b for b in vendor_bookings if b.get("invoice_id")]),
+                "event": "deleted"
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting event: {str(e)}")
+
 @api_router.get("/venues/search")
 async def search_venues(
     zip_code: Optional[str] = None,
