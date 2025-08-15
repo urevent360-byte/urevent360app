@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
-Authentication Flow and Token Validation Testing for Urevent 360 Platform
-Focus: Testing authentication flow and token validation to identify why EventCreation component 
-is getting "could not validate credentials" errors.
+Event Retrieval Functionality Testing for Urevent 360 Platform
+Focus: Testing event retrieval functionality to ensure the "manage" button navigation issue is resolved.
 
 SPECIFIC TESTING FOCUS:
-1. User Registration/Login and JWT token generation
-2. Profile endpoint testing (which works - returns 200 OK)  
-3. Event creation endpoints testing (which fail - return 401 Unauthorized)
-4. Token validation differences between working profile endpoint and failing event endpoints
-5. Token format, expiration, and validation logic consistency
+1. List Events API: Test GET /api/events to retrieve all events
+2. Individual Event Retrieval: Test GET /api/events/{event_id} for existing events
+3. Event ID Validation: Verify event IDs are properly formatted (UUIDs)
+4. Authentication on Event Routes: Verify both endpoints work with authentication
+5. Event data structure includes all required fields for dashboard display
+6. No 404 errors when trying to access individual events
+7. Authentication consistency across event-related endpoints
 """
 
 import requests
