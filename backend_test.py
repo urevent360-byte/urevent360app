@@ -3320,23 +3320,30 @@ class APITester:
             print("\n⚠️  OVERALL STATUS: Some critical issues need attention")
 
 def main():
-    """Run focused authentication flow testing"""
-    print("🚀 Starting Authentication Flow & Token Validation Testing...")
+    """Run comprehensive backend API testing with focus on event retrieval"""
+    print("🚀 Starting Urevent 360 Backend API Testing...")
+    print("🎯 FOCUS: Event Retrieval Functionality Testing")
+    print(f"Backend URL: {BACKEND_URL}")
+    print(f"API Base URL: {BASE_URL}")
     print("=" * 80)
     
     tester = APITester()
     
-    # Run focused authentication tests
-    tester.test_authentication_flow_detailed()
-    tester.test_authentication()  # Multi-role authentication
-    tester.test_user_management()  # Profile management
+    # Run tests in logical order - prioritizing event retrieval testing
+    tester.test_health_check()
+    tester.test_authentication()
     
-    # Test event creation specifically
+    # MAIN FOCUS: Event Retrieval Functionality Testing
+    tester.test_event_retrieval_functionality()
+    
+    # Additional supporting tests
+    tester.test_user_management()
     tester.test_event_management()
+    tester.test_enhanced_vendor_system()
     
-    # Print summary
+    # Print final summary
     print("\n" + "=" * 80)
-    print("🎯 AUTHENTICATION FLOW TESTING SUMMARY")
+    print("🎯 EVENT RETRIEVAL TESTING SUMMARY")
     print("=" * 80)
     
     total_tests = len(tester.test_results)
@@ -3353,22 +3360,26 @@ def main():
         for test in tester.failed_tests:
             print(f"   - {test}")
     
-    # Specific analysis for authentication issues
-    print(f"\n🔍 AUTHENTICATION ANALYSIS:")
-    auth_tests = [t for t in tester.test_results if "auth" in t["test"].lower() or "profile" in t["test"].lower() or "event" in t["test"].lower()]
+    # Specific analysis for event retrieval issues
+    print(f"\n🔍 EVENT RETRIEVAL ANALYSIS:")
+    event_tests = [t for t in tester.test_results if "event" in t["test"].lower() and "retrieval" in t["test"].lower()]
     
-    profile_working = any(t["success"] and "profile" in t["test"].lower() for t in auth_tests)
-    event_working = any(t["success"] and ("event creation" in t["test"].lower() or "temp budget" in t["test"].lower()) for t in auth_tests)
+    list_events_working = any(t["success"] and "list events" in t["test"].lower() for t in tester.test_results)
+    individual_retrieval_working = any(t["success"] and "individual event retrieval" in t["test"].lower() for t in tester.test_results)
+    manage_button_ready = any(t["success"] and "manage button" in t["test"].lower() for t in tester.test_results)
     
-    print(f"   Profile Endpoint Working: {'✅ YES' if profile_working else '❌ NO'}")
-    print(f"   Event Endpoints Working: {'✅ YES' if event_working else '❌ NO'}")
+    print(f"   List Events API Working: {'✅ YES' if list_events_working else '❌ NO'}")
+    print(f"   Individual Event Retrieval Working: {'✅ YES' if individual_retrieval_working else '❌ NO'}")
+    print(f"   Manage Button Navigation Ready: {'✅ YES' if manage_button_ready else '❌ NO'}")
     
-    if profile_working and not event_working:
-        print(f"   🚨 ISSUE CONFIRMED: Profile works but Event endpoints fail - Token validation inconsistency detected!")
-    elif profile_working and event_working:
-        print(f"   ✅ ISSUE RESOLVED: Both Profile and Event endpoints working with same token")
+    if list_events_working and individual_retrieval_working and manage_button_ready:
+        print(f"   ✅ EVENT RETRIEVAL ISSUE RESOLVED: All event retrieval functionality working correctly")
+    elif list_events_working and not individual_retrieval_working:
+        print(f"   🚨 ISSUE IDENTIFIED: List events works but individual retrieval fails - ID format or routing issue")
+    elif not list_events_working:
+        print(f"   🚨 CRITICAL ISSUE: List events API not working - authentication or endpoint issue")
     else:
-        print(f"   ⚠️  BROADER ISSUE: Authentication problems across multiple endpoints")
+        print(f"   ⚠️  PARTIAL ISSUE: Some event retrieval functionality not working properly")
     
     return failed_tests == 0
 
