@@ -205,6 +205,11 @@ const EventCreation = () => {
     const requirementsStepNumber = getStepNumber('Requirements');
     const budgetStepNumber = getStepNumber('Budget');
     
+    console.log('Validating step:', step);
+    console.log('Cultural style step number:', culturalStyleStepNumber);
+    console.log('Current eventData.cultural_style:', eventData.cultural_style);
+    console.log('Current eventData:', eventData);
+    
     switch (step) {
       case 1:
         return eventData.name.trim() !== '';
@@ -218,13 +223,21 @@ const EventCreation = () => {
       case culturalStyleStepNumber:
         // Cultural style step validation for applicable event types
         const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
+        console.log('Selected event type:', selectedEventType);
+        console.log('Has cultural styles:', selectedEventType?.hasCulturalStyles);
+        console.log('Is bat mitzvah:', eventData.event_type === 'bat_mitzvah');
+        
         if (selectedEventType?.hasCulturalStyles && eventData.event_type !== 'bat_mitzvah') {
           // For weddings, only require if sub_event_type is set
           if (eventData.event_type === 'wedding') {
-            return eventData.sub_event_type ? eventData.cultural_style !== '' : true;
+            const result = eventData.sub_event_type ? eventData.cultural_style !== '' : true;
+            console.log('Wedding validation result:', result);
+            return result;
           }
           // For other event types, cultural style is required
-          return eventData.cultural_style !== '';
+          const result = eventData.cultural_style !== '';
+          console.log('Non-wedding validation result:', result);
+          return result;
         }
         return true;
       case requirementsStepNumber:
