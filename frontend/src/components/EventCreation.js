@@ -214,11 +214,7 @@ const EventCreation = () => {
         if (eventData.event_type === 'wedding') {
           return eventData.sub_event_type !== '';
         }
-        // If step 3 is Requirements (when not wedding)
-        if (step === requirementsStepNumber) {
-          return eventData.requirements.venue_type !== '';
-        }
-        return true;
+        return true; // For non-wedding events, step 3 always passes
       case culturalStyleStepNumber:
         // Cultural style step validation for applicable event types
         const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
