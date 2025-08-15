@@ -70,6 +70,37 @@ const Dashboard = () => {
     });
   };
 
+  const handleDeleteClick = (event) => {
+    setEventToDelete(event);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!eventToDelete) return;
+    
+    setDeleting(true);
+    try {
+      await axios.delete(`${API}/events/${eventToDelete.id}`);
+      
+      // Refresh dashboard data after successful deletion
+      await fetchDashboardData();
+      
+      // Close modal and reset state
+      setShowDeleteModal(false);
+      setEventToDelete(null);
+    } catch (error) {
+      console.error('Failed to delete event:', error);
+      alert('Failed to delete event. Please try again.');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setEventToDelete(null);
+  };
+
   const getEventStatus = (event) => {
     const eventDate = new Date(event.date);
     const now = new Date();
