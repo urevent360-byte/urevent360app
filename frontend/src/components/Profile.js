@@ -95,6 +95,51 @@ const Profile = () => {
     }
   };
 
+  // Preferred Vendors Functions
+  const fetchPreferredVendors = async () => {
+    setLoadingVendors(true);
+    try {
+      const response = await axios.get(`${API}/users/preferred-vendors`);
+      setPreferredVendors(response.data.preferred_vendors || []);
+    } catch (error) {
+      console.error('Failed to fetch preferred vendors:', error);
+    } finally {
+      setLoadingVendors(false);
+    }
+  };
+
+  const removePreferredVendor = async (vendorId) => {
+    try {
+      await axios.delete(`${API}/users/preferred-vendors/${vendorId}`);
+      setPreferredVendors(prev => prev.filter(vendor => vendor.id !== vendorId));
+    } catch (error) {
+      console.error('Failed to remove preferred vendor:', error);
+    }
+  };
+
+  // Load preferred vendors when switching to that tab
+  useEffect(() => {
+    if (activeTab === 'vendors') {
+      fetchPreferredVendors();
+    }
+  }, [activeTab]);
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name.includes('.')) {
@@ -168,51 +213,6 @@ const Profile = () => {
     setEditing(false);
   };
 
-  // Preferred Vendors Functions
-  const fetchPreferredVendors = async () => {
-    setLoadingVendors(true);
-    try {
-      const response = await axios.get(`${API}/users/preferred-vendors`);
-      setPreferredVendors(response.data.preferred_vendors || []);
-    } catch (error) {
-      console.error('Failed to fetch preferred vendors:', error);
-    } finally {
-      setLoadingVendors(false);
-    }
-  };
-
-  const removePreferredVendor = async (vendorId) => {
-    try {
-      await axios.delete(`${API}/users/preferred-vendors/${vendorId}`);
-      setPreferredVendors(prev => prev.filter(vendor => vendor.id !== vendorId));
-    } catch (error) {
-      console.error('Failed to remove preferred vendor:', error);
-    }
-  };
-
-  // Load preferred vendors when switching to that tab
-  useEffect(() => {
-    if (activeTab === 'vendors') {
-      fetchPreferredVendors();
-    }
-  }, [activeTab]);
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(amount);
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -239,7 +239,7 @@ const Profile = () => {
             <Edit className="mr-2 h-4 w-4" />
             Edit Profile
           </button>
-        ) : activeTab === 'profile' ? (
+        ) : activeTab === 'profile' && editing ? (
           <div className="mt-4 sm:mt-0 flex space-x-3">
             <button
               onClick={handleCancel}
@@ -256,7 +256,7 @@ const Profile = () => {
               Save Changes
             </button>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Profile Card */}
@@ -289,205 +289,339 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Bio Section */}
+      {/* Tabs */}
       <div className="bg-white shadow rounded-lg">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex">
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`py-4 px-6 border-b-2 font-medium text-sm ${
+                activeTab === 'profile'
+                  ? 'border-purple-500 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <User className="w-4 h-4 inline mr-2" />
+              Profile & Preferences
+            </button>
+            <button
+              onClick={() => setActiveTab('vendors')}
+              className={`py-4 px-6 border-b-2 font-medium text-sm ${
+                activeTab === 'vendors'
+                  ? 'border-purple-500 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Heart className="w-4 h-4 inline mr-2" />
+              Preferred Vendors
+            </button>
+          </nav>
+        </div>
+
+        {/* Tab Content */}
         <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">About</h3>
-          {editing ? (
-            <div className="space-y-4">
+          {activeTab === 'profile' ? (
+            <div className="space-y-6">
+              {/* Bio Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                <textarea
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="Tell us about yourself..."
-                />
+                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">About</h3>
+                {editing ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                      <textarea
+                        name="bio"
+                        value={formData.bio}
+                        onChange={handleInputChange}
+                        rows={4}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Tell us about yourself..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                        <input
+                          type="text"
+                          name="location"
+                          value={formData.location}
+                          onChange={handleInputChange}
+                          className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          placeholder="Your city, state"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700">Bio</h4>
+                      <p className="mt-1 text-sm text-gray-900">
+                        {profile?.bio || 'No bio provided yet.'}
+                      </p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700">Location</h4>
+                      <div className="mt-1 flex items-center text-sm text-gray-900">
+                        <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                        <span>{profile?.location || 'Location not specified'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* Event Preferences */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="Your city, state"
-                  />
+                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Event Preferences</h3>
+                <div className="space-y-6">
+                  {/* Event Types */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">Preferred Event Types</h4>
+                    {editing ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {eventTypes.map((type) => (
+                          <label key={type} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={formData.preferences.event_types.includes(type)}
+                              onChange={() => handleEventTypeToggle(type)}
+                              className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">{type}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {profile?.preferences?.event_types?.length > 0 ? (
+                          profile.preferences.event_types.map((type) => (
+                            <span
+                              key={type}
+                              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
+                            >
+                              {type}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-gray-500">No preferences selected</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Budget Range */}
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">Typical Budget Range</h4>
+                    {editing ? (
+                      <select
+                        name="preferences.budget_range"
+                        value={formData.preferences.budget_range}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      >
+                        <option value="">Select budget range</option>
+                        {budgetRanges.map((range) => (
+                          <option key={range} value={range}>{range}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <p className="text-sm text-gray-900">
+                        {profile?.preferences?.budget_range || 'Not specified'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Notification Preferences */}
+              <div>
+                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Notification Preferences</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900">Email Notifications</h4>
+                      <p className="text-sm text-gray-500">Receive updates about your events via email</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => editing && handleNotificationChange('email')}
+                      disabled={!editing}
+                      className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
+                        formData.preferences.notification_preferences.email
+                          ? 'bg-purple-600'
+                          : 'bg-gray-200'
+                      } ${!editing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
+                          formData.preferences.notification_preferences.email
+                            ? 'translate-x-5'
+                            : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900">SMS Notifications</h4>
+                      <p className="text-sm text-gray-500">Receive important updates via text message</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => editing && handleNotificationChange('sms')}
+                      disabled={!editing}
+                      className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
+                        formData.preferences.notification_preferences.sms
+                          ? 'bg-purple-600'
+                          : 'bg-gray-200'
+                      } ${!editing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
+                          formData.preferences.notification_preferences.sms
+                            ? 'translate-x-5'
+                            : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-900">Push Notifications</h4>
+                      <p className="text-sm text-gray-500">Receive notifications in the app</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => editing && handleNotificationChange('push')}
+                      disabled={!editing}
+                      className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
+                        formData.preferences.notification_preferences.push
+                          ? 'bg-purple-600'
+                          : 'bg-gray-200'
+                      } ${!editing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
+                          formData.preferences.notification_preferences.push
+                            ? 'translate-x-5'
+                            : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">Bio</h4>
-                <p className="mt-1 text-sm text-gray-900">
-                  {profile?.bio || 'No bio provided yet.'}
+            /* Preferred Vendors Tab */
+            <div>
+              <div className="mb-6">
+                <h3 className="text-lg leading-6 font-medium text-gray-900">Preferred Vendors</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Browse and select from our Preferred Vendors list — trusted professionals we've worked with before who have delivered outstanding results. 
+                  With just one click, you can view their profile, see what services they offer, check photos/videos of their work, 
+                  and hire them again for your event directly through the platform.
+                </p>
+                <p className="mt-2 text-sm text-gray-500">
+                  This way, you save time searching, have peace of mind knowing they're reliable, and can move on to your next planning step without delays.
                 </p>
               </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">Location</h4>
-                <div className="mt-1 flex items-center text-sm text-gray-900">
-                  <MapPin className="h-4 w-4 mr-2 text-gray-400" />
-                  <span>{profile?.location || 'Location not specified'}</span>
+
+              {loadingVendors ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
                 </div>
-              </div>
+              ) : preferredVendors.length === 0 ? (
+                <div className="text-center py-12">
+                  <Heart className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No Preferred Vendors</h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Vendors are automatically added to this list when you've hired them and given them a high rating.
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Complete some events and rate your vendors to start building your preferred list!
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {preferredVendors.map((vendor) => (
+                    <div key={vendor.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 bg-purple-600 rounded-full flex items-center justify-center">
+                            <span className="text-white font-medium">
+                              {vendor.name?.charAt(0) || 'V'}
+                            </span>
+                          </div>
+                          <div className="ml-3">
+                            <h4 className="text-sm font-medium text-gray-900">{vendor.name}</h4>
+                            <p className="text-xs text-gray-500">{vendor.service_type}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => removePreferredVendor(vendor.id)}
+                          className="text-red-400 hover:text-red-600"
+                          title="Remove from preferred list"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500">Rating:</span>
+                          <div className="flex items-center">
+                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                            <span className="ml-1 text-gray-900">
+                              {vendor.preferred_info?.average_rating?.toFixed(1) || 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500">Events:</span>
+                          <span className="text-gray-900">{vendor.preferred_info?.total_bookings || 0}</span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500">Total Spent:</span>
+                          <span className="text-gray-900">
+                            {formatCurrency(vendor.preferred_info?.total_spent || 0)}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-500">Last Used:</span>
+                          <span className="text-gray-900">
+                            {vendor.preferred_info?.last_used ? formatDate(vendor.preferred_info.last_used) : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {vendor.preferred_info?.notes && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <p className="text-xs text-gray-600">{vendor.preferred_info.notes}</p>
+                        </div>
+                      )}
+
+                      <div className="mt-4 flex space-x-2">
+                        <button className="flex-1 text-xs bg-purple-600 text-white px-3 py-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                          View Profile
+                        </button>
+                        <button className="flex-1 text-xs bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                          Hire Again
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-        </div>
-      </div>
-
-      {/* Preferences Section */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Event Preferences</h3>
-          
-          <div className="space-y-6">
-            {/* Event Types */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Preferred Event Types</h4>
-              {editing ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {eventTypes.map((type) => (
-                    <label key={type} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.preferences.event_types.includes(type)}
-                        onChange={() => handleEventTypeToggle(type)}
-                        className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
-                      />
-                      <span className="ml-2 text-sm text-gray-700">{type}</span>
-                    </label>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {profile?.preferences?.event_types?.length > 0 ? (
-                    profile.preferences.event_types.map((type) => (
-                      <span
-                        key={type}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
-                      >
-                        {type}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-sm text-gray-500">No preferences selected</span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Budget Range */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Typical Budget Range</h4>
-              {editing ? (
-                <select
-                  name="preferences.budget_range"
-                  value={formData.preferences.budget_range}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  <option value="">Select budget range</option>
-                  {budgetRanges.map((range) => (
-                    <option key={range} value={range}>{range}</option>
-                  ))}
-                </select>
-              ) : (
-                <p className="text-sm text-gray-900">
-                  {profile?.preferences?.budget_range || 'Not specified'}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Notification Preferences */}
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Notification Preferences</h3>
-          
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">Email Notifications</h4>
-                <p className="text-sm text-gray-500">Receive updates about your events via email</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => editing && handleNotificationChange('email')}
-                disabled={!editing}
-                className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
-                  formData.preferences.notification_preferences.email
-                    ? 'bg-purple-600'
-                    : 'bg-gray-200'
-                } ${!editing ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
-                    formData.preferences.notification_preferences.email
-                      ? 'translate-x-5'
-                      : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">SMS Notifications</h4>
-                <p className="text-sm text-gray-500">Receive important updates via text message</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => editing && handleNotificationChange('sms')}
-                disabled={!editing}
-                className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
-                  formData.preferences.notification_preferences.sms
-                    ? 'bg-purple-600'
-                    : 'bg-gray-200'
-                } ${!editing ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
-                    formData.preferences.notification_preferences.sms
-                      ? 'translate-x-5'
-                      : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-medium text-gray-900">Push Notifications</h4>
-                <p className="text-sm text-gray-500">Receive notifications in the app</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => editing && handleNotificationChange('push')}
-                disabled={!editing}
-                className={`relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
-                  formData.preferences.notification_preferences.push
-                    ? 'bg-purple-600'
-                    : 'bg-gray-200'
-                } ${!editing ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200 ${
-                    formData.preferences.notification_preferences.push
-                      ? 'translate-x-5'
-                      : 'translate-x-0'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
