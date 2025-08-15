@@ -442,6 +442,18 @@ frontend:
         agent: "main"
         comment: "Removed employee role card from main role selection interface to maintain discrete access like admin. Now only shows Client and Vendor cards in main interface, while Admin (shield icon top-right) and Employee (logo bottom-center) have discrete access points. Clean, professional interface for regular users."
 
+  - task: "Event Creation Authentication Fix"
+    implemented: true
+    working: false
+    file: "EventCreation.js, App.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE: Frontend session persistence problem preventing complete event creation workflow. Backend authentication working perfectly - both /api/events/temp/calculate-budget and /api/events endpoints functional with proper JWT tokens. Frontend EventCreation.js has correct AuthContext integration and getAuthHeaders() implementation. However, user gets redirected to login when accessing /events/create page, indicating authentication state not maintained during navigation. Root cause: Frontend authentication state management issue, not backend API problem."
+
 metadata:
   created_by: "main_agent"
   version: "1.1"
