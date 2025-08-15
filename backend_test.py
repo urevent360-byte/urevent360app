@@ -3000,6 +3000,58 @@ class APITester:
         else:
             print("\n⚠️  OVERALL STATUS: Some critical issues need attention")
 
-if __name__ == "__main__":
+def main():
+    """Run focused authentication flow testing"""
+    print("🚀 Starting Authentication Flow & Token Validation Testing...")
+    print("=" * 80)
+    
     tester = APITester()
-    tester.run_all_tests()
+    
+    # Run focused authentication tests
+    tester.test_authentication_flow_detailed()
+    tester.test_authentication()  # Multi-role authentication
+    tester.test_user_management()  # Profile management
+    
+    # Test event creation specifically
+    tester.test_event_management()
+    
+    # Print summary
+    print("\n" + "=" * 80)
+    print("🎯 AUTHENTICATION FLOW TESTING SUMMARY")
+    print("=" * 80)
+    
+    total_tests = len(tester.test_results)
+    passed_tests = len([t for t in tester.test_results if t["success"]])
+    failed_tests = len(tester.failed_tests)
+    
+    print(f"Total Tests: {total_tests}")
+    print(f"Passed: {passed_tests}")
+    print(f"Failed: {failed_tests}")
+    print(f"Success Rate: {(passed_tests/total_tests*100):.1f}%")
+    
+    if tester.failed_tests:
+        print(f"\n❌ FAILED TESTS:")
+        for test in tester.failed_tests:
+            print(f"   - {test}")
+    
+    # Specific analysis for authentication issues
+    print(f"\n🔍 AUTHENTICATION ANALYSIS:")
+    auth_tests = [t for t in tester.test_results if "auth" in t["test"].lower() or "profile" in t["test"].lower() or "event" in t["test"].lower()]
+    
+    profile_working = any(t["success"] and "profile" in t["test"].lower() for t in auth_tests)
+    event_working = any(t["success"] and ("event creation" in t["test"].lower() or "temp budget" in t["test"].lower()) for t in auth_tests)
+    
+    print(f"   Profile Endpoint Working: {'✅ YES' if profile_working else '❌ NO'}")
+    print(f"   Event Endpoints Working: {'✅ YES' if event_working else '❌ NO'}")
+    
+    if profile_working and not event_working:
+        print(f"   🚨 ISSUE CONFIRMED: Profile works but Event endpoints fail - Token validation inconsistency detected!")
+    elif profile_working and event_working:
+        print(f"   ✅ ISSUE RESOLVED: Both Profile and Event endpoints working with same token")
+    else:
+        print(f"   ⚠️  BROADER ISSUE: Authentication problems across multiple endpoints")
+    
+    return failed_tests == 0
+
+if __name__ == "__main__":
+    main()
