@@ -838,6 +838,55 @@ async def get_event_messages(event_id: str, current_user: dict = Depends(get_cur
     return [Message(**message) for message in messages]
 
 # Budget Calculation Route
+@api_router.post("/events/temp/calculate-budget")
+async def calculate_temp_budget(requirements: dict, current_user: dict = Depends(get_current_user)):
+    """Calculate estimated budget for event planning without creating an event"""
+    guest_count = requirements.get("guest_count", 50)
+    venue_type = requirements.get("venue_type", "hotel/banquet hall")
+    services = requirements.get("services", [])
+    
+    # Base cost calculation per guest
+    base_cost_per_guest = {
+        "hotel/banquet hall": 120,
+        "restaurant": 100,
+        "outdoor/garden": 80,
+        "community center": 60,
+        "beach/waterfront": 150,
+        "private residence": 70,
+        "church/religious venue": 40,
+        "other": 90
+    }
+    
+    base_cost = guest_count * base_cost_per_guest.get(venue_type.lower(), 90)
+    
+    # Service costs
+    service_costs = {
+        "catering": guest_count * 45,
+        "decoration": guest_count * 15,
+        "photography": 800,
+        "videography": 1200,
+        "music/dj": 600,
+        "entertainment": 400,
+        "transportation": 300,
+        "security": 200,
+        "cleaning": 150,
+        "lighting": 500
+    }
+    
+    total_estimated = base_cost
+    breakdown = {"base_cost": base_cost}
+    
+    for service in services:
+        service_lower = service.lower()
+        if service_lower in service_costs:
+            total_estimated += service_costs[service_lower]
+            breakdown[service] = service_costs[service_lower]
+    
+    return {
+        "estimated_budget": total_estimated,
+        "breakdown": breakdown
+    }
+
 @api_router.post("/events/{event_id}/calculate-budget")
 async def calculate_budget(event_id: str, requirements: dict, current_user: dict = Depends(get_current_user)):
     # Verify event belongs to user
