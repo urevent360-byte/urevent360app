@@ -262,6 +262,34 @@ class PlannerStepInfo(BaseModel):
     completed: bool = False
     vendor_count: int = 0
 
+# Preferred Vendors Models
+class PreferredVendor(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    vendor_id: str
+    vendor_name: str
+    service_type: str
+    average_rating: float = 0.0
+    total_bookings: int = 0
+    last_used: datetime = Field(default_factory=datetime.utcnow)
+    total_spent: float = 0.0
+    notes: Optional[str] = None
+    added_at: datetime = Field(default_factory=datetime.utcnow)
+
+class VendorRating(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    vendor_id: str
+    event_id: str
+    booking_id: str
+    rating: int  # 1-5 stars
+    review: Optional[str] = None
+    service_quality: int = 0
+    communication: int = 0
+    timeliness: int = 0
+    value_for_money: int = 0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 
 class Loan(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
