@@ -168,6 +168,51 @@ const Profile = () => {
     setEditing(false);
   };
 
+  // Preferred Vendors Functions
+  const fetchPreferredVendors = async () => {
+    setLoadingVendors(true);
+    try {
+      const response = await axios.get(`${API}/users/preferred-vendors`);
+      setPreferredVendors(response.data.preferred_vendors || []);
+    } catch (error) {
+      console.error('Failed to fetch preferred vendors:', error);
+    } finally {
+      setLoadingVendors(false);
+    }
+  };
+
+  const removePreferredVendor = async (vendorId) => {
+    try {
+      await axios.delete(`${API}/users/preferred-vendors/${vendorId}`);
+      setPreferredVendors(prev => prev.filter(vendor => vendor.id !== vendorId));
+    } catch (error) {
+      console.error('Failed to remove preferred vendor:', error);
+    }
+  };
+
+  // Load preferred vendors when switching to that tab
+  useEffect(() => {
+    if (activeTab === 'vendors') {
+      fetchPreferredVendors();
+    }
+  }, [activeTab]);
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(amount);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
