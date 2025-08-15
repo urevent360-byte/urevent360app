@@ -481,7 +481,7 @@ const EventCreation = () => {
         }
         // If not wedding, fall through to requirements
 
-      case 4:
+      case culturalStyleStepNumber:
         // Cultural Style Step (shown for applicable event types)
         const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
         const showCulturalStep = selectedEventType?.hasCulturalStyles && eventData.event_type !== 'bat_mitzvah';
