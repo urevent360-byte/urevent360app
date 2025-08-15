@@ -267,7 +267,7 @@ const EventCreation = () => {
         services: eventData.requirements.services.map(s => s.toLowerCase())
       };
 
-      const response = await axios.post(`${API}/events/temp/calculate-budget`, requirements, getAuthHeaders());
+      const response = await axios.post(`${API}/events/temp/calculate-budget`, requirements);
       return response.data.estimated_budget;
     } catch (error) {
       console.error('Failed to calculate budget:', error);
