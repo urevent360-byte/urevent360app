@@ -89,9 +89,195 @@ class APITester:
             self.log_test("Health Check", False, f"Status: {response.status_code if response else 'No response'}")
             return False
     
+    def test_authentication_flow_detailed(self):
+        """Test detailed authentication flow and token validation for EventCreation issue"""
+        print("\n🔐 Testing Authentication Flow & Token Validation...")
+        
+        # Step 1: Register a new test user with realistic data
+        test_user_data = {
+            "name": "Test User Authentication",
+            "email": "test.auth.user@example.com",
+            "mobile": "+1-555-0199",
+            "password": "TestAuth123!"
+        }
+        
+        print("Step 1: User Registration...")
+        response = self.make_request("POST", "/auth/register", test_user_data)
+        if response and response.status_code in [200, 400]:  # 400 if already exists
+            if response.status_code == 200:
+                reg_data = response.json()
+                token_from_registration = reg_data.get("access_token")
+                self.log_test("User Registration", True, f"Registration successful, token received: {token_from_registration[:20]}..." if token_from_registration else "No token")
+            else:
+                self.log_test("User Registration", True, "User already exists (expected)")
+        else:
+            self.log_test("User Registration", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        # Step 2: Login with credentials and get JWT token
+        print("Step 2: User Login...")
+        login_data = {
+            "email": test_user_data["email"],
+            "password": test_user_data["password"]
+        }
+        
+        response = self.make_request("POST", "/auth/login", login_data)
+        if response and response.status_code == 200:
+            login_response = response.json()
+            access_token = login_response.get("access_token")
+            token_type = login_response.get("token_type")
+            user_data = login_response.get("user")
+            
+            if access_token and user_data:
+                self.log_test("User Login", True, f"Token type: {token_type}, User ID: {user_data.get('id')}")
+                print(f"   JWT Token (first 50 chars): {access_token[:50]}...")
+                print(f"   Token format: Bearer {access_token[:20]}...")
+                
+                # Store token for further testing
+                test_token = access_token
+            else:
+                self.log_test("User Login", False, "Missing token or user data in response")
+                return
+        else:
+            self.log_test("User Login", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        # Step 3: Test Profile Endpoint (WORKING according to logs)
+        print("Step 3: Testing Profile Endpoint (should work)...")
+        response = self.make_request("GET", "/users/profile", token=test_token)
+        if response and response.status_code == 200:
+            profile_data = response.json()
+            self.log_test("Profile Endpoint Test", True, f"Profile retrieved successfully, user: {profile_data.get('user', {}).get('name', 'Unknown')}")
+            print(f"   Profile response: {response.status_code} OK")
+        else:
+            self.log_test("Profile Endpoint Test", False, f"Status: {response.status_code if response else 'No response'}")
+            if response:
+                print(f"   Profile error response: {response.text}")
+        
+        # Step 4: Test Event Temp Budget Calculation (FAILING according to logs)
+        print("Step 4: Testing Event Temp Budget Calculation (reported failing)...")
+        budget_requirements = {
+            "guest_count": 50,
+            "venue_type": "hotel/banquet hall",
+            "services": ["catering", "decoration", "photography"]
+        }
+        
+        response = self.make_request("POST", "/events/temp/calculate-budget", budget_requirements, token=test_token)
+        if response and response.status_code == 200:
+            budget_data = response.json()
+            estimated_budget = budget_data.get("estimated_budget", 0)
+            self.log_test("Event Temp Budget Calculation", True, f"Budget calculated: ${estimated_budget}")
+            print(f"   Budget calculation response: {response.status_code} OK")
+        else:
+            self.log_test("Event Temp Budget Calculation", False, f"Status: {response.status_code if response else 'No response'}")
+            if response:
+                print(f"   Budget calculation error: {response.text}")
+                if response.status_code == 401:
+                    print("   ❌ CRITICAL: 401 Unauthorized - Token validation failed for budget endpoint")
+        
+        # Step 5: Test Event Creation (FAILING according to logs)
+        print("Step 5: Testing Event Creation (reported failing)...")
+        event_data = {
+            "name": "Test Authentication Event",
+            "description": "Testing authentication flow for event creation",
+            "event_type": "birthday",
+            "date": "2024-06-15T18:00:00Z",
+            "location": "Test Location",
+            "budget": 5000.0,
+            "guest_count": 30,
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=test_token)
+        if response and response.status_code == 200:
+            event_response = response.json()
+            event_id = event_response.get("id")
+            self.log_test("Event Creation", True, f"Event created successfully with ID: {event_id}")
+            print(f"   Event creation response: {response.status_code} OK")
+        else:
+            self.log_test("Event Creation", False, f"Status: {response.status_code if response else 'No response'}")
+            if response:
+                print(f"   Event creation error: {response.text}")
+                if response.status_code == 401:
+                    print("   ❌ CRITICAL: 401 Unauthorized - Token validation failed for event creation")
+        
+        # Step 6: Token Format and Header Analysis
+        print("Step 6: Token Format and Header Analysis...")
+        print(f"   Token length: {len(test_token)} characters")
+        print(f"   Token starts with: {test_token[:10]}...")
+        print(f"   Authorization header format: 'Bearer {test_token[:20]}...'")
+        
+        # Test with malformed token
+        malformed_token = test_token[:-5] + "XXXXX"  # Corrupt last 5 characters
+        response = self.make_request("GET", "/users/profile", token=malformed_token)
+        if response and response.status_code == 401:
+            self.log_test("Malformed Token Rejection", True, "Malformed token correctly rejected")
+        else:
+            self.log_test("Malformed Token Rejection", False, f"Malformed token not rejected properly: {response.status_code if response else 'No response'}")
+        
+        # Step 7: Compare Token Usage Between Endpoints
+        print("Step 7: Comparing Token Usage Between Endpoints...")
+        
+        # Test the same token on multiple endpoints to identify inconsistencies
+        endpoints_to_test = [
+            ("GET", "/users/profile", None, "Profile Endpoint"),
+            ("POST", "/events/temp/calculate-budget", budget_requirements, "Temp Budget Endpoint"),
+            ("POST", "/events", event_data, "Event Creation Endpoint"),
+            ("GET", "/vendors", None, "Vendors Endpoint")
+        ]
+        
+        for method, endpoint, data, name in endpoints_to_test:
+            response = self.make_request(method, endpoint, data, token=test_token)
+            status = response.status_code if response else "No response"
+            
+            if response and response.status_code in [200, 201]:
+                print(f"   ✅ {name}: {status} - Token accepted")
+            elif response and response.status_code == 401:
+                print(f"   ❌ {name}: {status} - Token rejected (401 Unauthorized)")
+            else:
+                print(f"   ⚠️  {name}: {status} - Other response")
+        
+        # Step 8: Test Token Expiration (if applicable)
+        print("Step 8: Token Validation Summary...")
+        
+        # Try to decode token information (basic inspection)
+        try:
+            import base64
+            import json
+            
+            # JWT tokens have 3 parts separated by dots
+            token_parts = test_token.split('.')
+            if len(token_parts) == 3:
+                # Decode the payload (second part)
+                # Add padding if needed
+                payload = token_parts[1]
+                payload += '=' * (4 - len(payload) % 4)
+                
+                try:
+                    decoded_payload = base64.urlsafe_b64decode(payload)
+                    payload_data = json.loads(decoded_payload)
+                    
+                    print(f"   Token payload contains: {list(payload_data.keys())}")
+                    if 'exp' in payload_data:
+                        import datetime
+                        exp_time = datetime.datetime.fromtimestamp(payload_data['exp'])
+                        print(f"   Token expires at: {exp_time}")
+                    if 'sub' in payload_data:
+                        print(f"   Token subject (email): {payload_data['sub']}")
+                        
+                except Exception as e:
+                    print(f"   Could not decode token payload: {e}")
+            else:
+                print(f"   Token does not appear to be a valid JWT (has {len(token_parts)} parts instead of 3)")
+                
+        except Exception as e:
+            print(f"   Token analysis failed: {e}")
+        
+        self.log_test("Authentication Flow Analysis Complete", True, "Detailed authentication flow testing completed")
+
     def test_authentication(self):
         """Test multi-role authentication system"""
-        print("\n🔐 Testing Authentication System...")
+        print("\n🔐 Testing Multi-Role Authentication System...")
         
         # Test client registration first
         client_data = {
