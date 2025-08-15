@@ -1915,6 +1915,240 @@ async def get_planner_vendors(
         }
     }
 
+# ============================================================================
+# Preferred Vendors System API Routes  
+# ============================================================================
+
+@api_router.get("/users/preferred-vendors")
+async def get_preferred_vendors(current_user: dict = Depends(get_current_user)):
+    """Get user's preferred vendors list"""
+    preferred_vendors = await db.preferred_vendors.find({"user_id": current_user["id"]}).sort("last_used", -1).to_list(1000)
+    
+    # Get full vendor details for each preferred vendor
+    vendor_list = []
+    for pref_vendor in preferred_vendors:
+        vendor = await db.vendors.find_one({"id": pref_vendor["vendor_id"]})
+        if vendor:
+            vendor_info = Vendor(**vendor).dict()
+            vendor_info["preferred_info"] = {
+                "average_rating": pref_vendor["average_rating"],
+                "total_bookings": pref_vendor["total_bookings"],
+                "last_used": pref_vendor["last_used"],
+                "total_spent": pref_vendor["total_spent"],
+                "notes": pref_vendor.get("notes", "")
+            }
+            vendor_list.append(vendor_info)
+    
+    return {
+        "preferred_vendors": vendor_list,
+        "count": len(vendor_list)
+    }
+
+@api_router.post("/users/preferred-vendors/{vendor_id}")
+async def add_preferred_vendor(
+    vendor_id: str,
+    notes: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Manually add a vendor to preferred list"""
+    # Verify vendor exists
+    vendor = await db.vendors.find_one({"id": vendor_id})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    # Check if already in preferred list
+    existing = await db.preferred_vendors.find_one({
+        "user_id": current_user["id"],
+        "vendor_id": vendor_id
+    })
+    
+    if existing:
+        return {"message": "Vendor already in preferred list", "action": "none"}
+    
+    # Add to preferred vendors
+    preferred_vendor = PreferredVendor(
+        user_id=current_user["id"],
+        vendor_id=vendor_id,
+        vendor_name=vendor["name"],
+        service_type=vendor["service_type"],
+        notes=notes
+    )
+    
+    await db.preferred_vendors.insert_one(preferred_vendor.dict())
+    
+    return {"message": "Vendor added to preferred list", "action": "added"}
+
+@api_router.delete("/users/preferred-vendors/{vendor_id}")
+async def remove_preferred_vendor(
+    vendor_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Remove a vendor from preferred list"""
+    result = await db.preferred_vendors.delete_one({
+        "user_id": current_user["id"],
+        "vendor_id": vendor_id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Preferred vendor not found")
+    
+    return {"message": "Vendor removed from preferred list"}
+
+@api_router.post("/events/{event_id}/rate-vendor/{vendor_id}")
+async def rate_vendor(
+    event_id: str,
+    vendor_id: str,
+    rating_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Rate a vendor after event completion and automatically add to preferred if rating is high"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Verify vendor booking exists
+    booking = await db.vendor_bookings.find_one({
+        "event_id": event_id,
+        "vendor_id": vendor_id
+    })
+    if not booking:
+        raise HTTPException(status_code=404, detail="Vendor booking not found")
+    
+    # Create vendor rating
+    rating = VendorRating(
+        user_id=current_user["id"],
+        vendor_id=vendor_id,
+        event_id=event_id,
+        booking_id=booking["id"],
+        rating=rating_data["rating"],
+        review=rating_data.get("review"),
+        service_quality=rating_data.get("service_quality", rating_data["rating"]),
+        communication=rating_data.get("communication", rating_data["rating"]),
+        timeliness=rating_data.get("timeliness", rating_data["rating"]),
+        value_for_money=rating_data.get("value_for_money", rating_data["rating"])
+    )
+    
+    await db.vendor_ratings.insert_one(rating.dict())
+    
+    # If rating is 4 or 5 stars, automatically add to preferred vendors
+    if rating_data["rating"] >= 4:
+        # Check if already in preferred list
+        existing = await db.preferred_vendors.find_one({
+            "user_id": current_user["id"],
+            "vendor_id": vendor_id
+        })
+        
+        # Get vendor details
+        vendor = await db.vendors.find_one({"id": vendor_id})
+        
+        if not existing and vendor:
+            # Add to preferred vendors
+            preferred_vendor = PreferredVendor(
+                user_id=current_user["id"],
+                vendor_id=vendor_id,
+                vendor_name=vendor["name"],
+                service_type=vendor["service_type"],
+                average_rating=rating_data["rating"],
+                total_bookings=1,
+                last_used=datetime.utcnow(),
+                total_spent=booking["total_cost"],
+                notes=f"Automatically added after {rating_data['rating']}-star rating"
+            )
+            
+            await db.preferred_vendors.insert_one(preferred_vendor.dict())
+            added_to_preferred = True
+        elif existing:
+            # Update existing preferred vendor stats
+            await db.preferred_vendors.update_one(
+                {"user_id": current_user["id"], "vendor_id": vendor_id},
+                {
+                    "$set": {
+                        "last_used": datetime.utcnow(),
+                        "average_rating": (existing["average_rating"] + rating_data["rating"]) / 2,
+                        "total_bookings": existing["total_bookings"] + 1,
+                        "total_spent": existing["total_spent"] + booking["total_cost"]
+                    }
+                }
+            )
+            added_to_preferred = True
+        else:
+            added_to_preferred = False
+    else:
+        added_to_preferred = False
+    
+    return {
+        "message": "Vendor rating submitted successfully",
+        "rating": rating.dict(),
+        "added_to_preferred": added_to_preferred
+    }
+
+@api_router.get("/users/preferred-vendors/recommendations/{event_id}")
+async def get_preferred_vendor_recommendations(
+    event_id: str,
+    service_type: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get preferred vendor recommendations for an event"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Build query for preferred vendors
+    query = {"user_id": current_user["id"]}
+    if service_type:
+        query["service_type"] = service_type
+    
+    # Get preferred vendors for this service type
+    preferred_vendors = await db.preferred_vendors.find(query).sort("average_rating", -1).to_list(1000)
+    
+    # Get full vendor details
+    recommendations = []
+    for pref_vendor in preferred_vendors:
+        vendor = await db.vendors.find_one({"id": pref_vendor["vendor_id"]})
+        if vendor:
+            # Check cultural match
+            cultural_match = True
+            if event.get("cultural_style") and vendor.get("cultural_specializations"):
+                cultural_match = event["cultural_style"] in vendor["cultural_specializations"]
+            
+            # Check budget compatibility
+            budget_compatible = True
+            if event.get("budget"):
+                service_budget = event["budget"] * 0.15  # 15% per service
+                budget_compatible = (
+                    vendor["price_range"]["min"] <= service_budget and
+                    vendor["price_range"]["max"] >= service_budget * 0.5
+                )
+            
+            recommendation = {
+                "vendor": Vendor(**vendor).dict(),
+                "preferred_info": {
+                    "average_rating": pref_vendor["average_rating"],
+                    "total_bookings": pref_vendor["total_bookings"],
+                    "last_used": pref_vendor["last_used"],
+                    "total_spent": pref_vendor["total_spent"],
+                    "notes": pref_vendor.get("notes", "")
+                },
+                "match_score": {
+                    "cultural_match": cultural_match,
+                    "budget_compatible": budget_compatible,
+                    "overall_score": 90 if (cultural_match and budget_compatible) else 70
+                }
+            }
+            recommendations.append(recommendation)
+    
+    # Sort by match score and rating
+    recommendations.sort(key=lambda x: (x["match_score"]["overall_score"], x["preferred_info"]["average_rating"]), reverse=True)
+    
+    return {
+        "recommendations": recommendations,
+        "event_cultural_style": event.get("cultural_style"),
+        "event_budget": event.get("budget"),
+        "service_type": service_type
+    }
+
 # Import admin and vendor routes after all functions are defined to avoid circular imports
 # Temporarily disabled due to circular import issues
 # try:
