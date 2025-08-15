@@ -231,7 +231,7 @@ const Profile = () => {
             Manage your account information and preferences
           </p>
         </div>
-        {!editing ? (
+        {activeTab === 'profile' && !editing ? (
           <button
             onClick={() => setEditing(true)}
             className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
@@ -239,7 +239,7 @@ const Profile = () => {
             <Edit className="mr-2 h-4 w-4" />
             Edit Profile
           </button>
-        ) : (
+        ) : activeTab === 'profile' ? (
           <div className="mt-4 sm:mt-0 flex space-x-3">
             <button
               onClick={handleCancel}
