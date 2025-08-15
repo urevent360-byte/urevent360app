@@ -31,14 +31,20 @@ const Dashboard = () => {
       const events = eventsResponse.data;
       setEvents(events);
 
-      // Calculate stats
+      // Separate recent and past events
       const now = new Date();
-      const upcomingEvents = events.filter(event => new Date(event.date) > now);
+      const upcoming = events.filter(event => new Date(event.date) >= now);
+      const past = events.filter(event => new Date(event.date) < now);
+      
+      setRecentEvents(upcoming.slice(0, 5)); // Show 5 most recent upcoming events
+      setPastEvents(past.sort((a, b) => new Date(b.date) - new Date(a.date))); // Sort past events by date desc
+
+      // Calculate stats
       const totalBudget = events.reduce((sum, event) => sum + (event.budget || 0), 0);
 
       setStats({
         totalEvents: events.length,
-        upcomingEvents: upcomingEvents.length,
+        upcomingEvents: upcoming.length,
         totalBudget: totalBudget,
         activeBookings: events.filter(event => event.status === 'planning').length
       });
