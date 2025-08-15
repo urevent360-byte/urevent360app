@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Urevent 360 Platform
-Focus: Testing all backend systems to ensure no regressions after Interactive Event Planner implementation
-Review Request: Run comprehensive testing of all backend systems including:
-1. Authentication System (all user types)
-2. Event Management (all event types and cultural styles)
-3. Vendor System (budget-aware filtering, cultural specialization)
-4. Venue System (ZIP code search, capacity filtering)
-5. Budget Tracking & Payments (calculations, payment processing)
-6. Cultural Filtering (across all event types)
-7. Interactive Event Planner System (complete workflow)
+Authentication Flow and Token Validation Testing for Urevent 360 Platform
+Focus: Testing authentication flow and token validation to identify why EventCreation component 
+is getting "could not validate credentials" errors.
+
+SPECIFIC TESTING FOCUS:
+1. User Registration/Login and JWT token generation
+2. Profile endpoint testing (which works - returns 200 OK)  
+3. Event creation endpoints testing (which fail - return 401 Unauthorized)
+4. Token validation differences between working profile endpoint and failing event endpoints
+5. Token format, expiration, and validation logic consistency
 """
 
 import requests
