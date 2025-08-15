@@ -306,7 +306,7 @@ const EventCreation = () => {
         status: 'planning'
       };
 
-      const response = await axios.post(`${API}/events`, submitData, getAuthHeaders());
+      const response = await axios.post(`${API}/events`, submitData);
       navigate(`/events/${response.data.id}/planning`);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to create event. Please try again.');
