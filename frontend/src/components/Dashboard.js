@@ -345,6 +345,102 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Past Events */}
+      {pastEvents.length > 0 && (
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">Event History</h3>
+              <span className="text-sm text-gray-500">{pastEvents.length} completed events</span>
+            </div>
+            
+            <div className="overflow-hidden">
+              <ul className="divide-y divide-gray-200">
+                {pastEvents.slice(0, 10).map((event) => (
+                  <li key={event.id} className="py-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <div className="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center">
+                            <Calendar className="h-4 w-4 text-white" />
+                          </div>
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-gray-900">{event.name}</p>
+                          <div className="flex items-center text-xs text-gray-500">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            <span className="truncate">{event.location || 'Location not specified'}</span>
+                            <span className="mx-2">•</span>
+                            <span>{formatDate(event.date)}</span>
+                            {event.budget && (
+                              <>
+                                <span className="mx-2">•</span>
+                                <span>{formatCurrency(event.budget)}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          Completed
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              
+              {pastEvents.length > 10 && (
+                <div className="mt-3 text-center">
+                  <button className="text-sm text-purple-600 hover:text-purple-500">
+                    View all {pastEvents.length} past events
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">Delete Event</h3>
+              <div className="mt-2 px-7 py-3">
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to delete "{eventToDelete?.name}"? This action cannot be undone.
+                  All associated data including vendor bookings, payments, and planning information will be permanently deleted.
+                </p>
+              </div>
+              <div className="items-center px-4 py-3">
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleDeleteCancel}
+                    disabled={deleting}
+                    className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteConfirm}
+                    disabled={deleting}
+                    className="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+                  >
+                    {deleting ? 'Deleting...' : 'Delete Event'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
