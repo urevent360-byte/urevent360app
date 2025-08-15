@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../App';
-import { User, Mail, Phone, MapPin, Calendar, Edit, Save, X } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Edit, Save, X, Star, Heart, Trash2, ExternalLink } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
