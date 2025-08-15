@@ -40,7 +40,7 @@ const EventDashboard = () => {
       setError('Failed to load event details');
       console.error('Event fetch error:', err);
       if (err.response?.status === 404) {
-        navigate('/events');
+        navigate('/');
       }
     } finally {
       setLoading(false);
