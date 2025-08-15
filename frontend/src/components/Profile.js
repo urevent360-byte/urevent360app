@@ -11,6 +11,9 @@ const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [preferredVendors, setPreferredVendors] = useState([]);
+  const [loadingVendors, setLoadingVendors] = useState(false);
+  const [activeTab, setActiveTab] = useState('profile');
   const [formData, setFormData] = useState({
     bio: '',
     location: '',
