@@ -8,6 +8,8 @@ const API = `${BACKEND_URL}/api`;
 
 const Dashboard = () => {
   const [events, setEvents] = useState([]);
+  const [recentEvents, setRecentEvents] = useState([]);
+  const [pastEvents, setPastEvents] = useState([]);
   const [stats, setStats] = useState({
     totalEvents: 0,
     upcomingEvents: 0,
@@ -15,6 +17,9 @@ const Dashboard = () => {
     activeBookings: 0
   });
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
