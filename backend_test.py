@@ -90,6 +90,324 @@ class APITester:
             self.log_test("Health Check", False, f"Status: {response.status_code if response else 'No response'}")
             return False
     
+    def test_event_retrieval_functionality(self):
+        """Test comprehensive event retrieval functionality to resolve manage button navigation issues"""
+        print("\n🎯 Testing Event Retrieval Functionality (Manage Button Fix)...")
+        
+        if "client" not in self.tokens:
+            # First ensure we have a valid client token
+            self.test_authentication()
+        
+        if "client" not in self.tokens:
+            self.log_test("Event Retrieval Test", False, "No client token available")
+            return
+        
+        # Step 1: Create multiple test events with different types to ensure we have data
+        print("Step 1: Creating test events for retrieval testing...")
+        test_events_created = []
+        
+        test_events_data = [
+            {
+                "name": "Sarah's Birthday Celebration",
+                "description": "A wonderful birthday party with friends and family",
+                "event_type": "birthday",
+                "date": "2024-08-16T18:00:00Z",
+                "location": "New York, NY",
+                "budget": 8000.0,
+                "guest_count": 50,
+                "status": "planning"
+            },
+            {
+                "name": "Corporate Annual Gala",
+                "description": "Company's annual celebration event",
+                "event_type": "corporate",
+                "date": "2024-09-20T19:00:00Z",
+                "location": "Chicago, IL",
+                "budget": 25000.0,
+                "guest_count": 200,
+                "status": "planning"
+            },
+            {
+                "name": "Emma's Wedding Reception",
+                "description": "Beautiful wedding reception celebration",
+                "event_type": "wedding",
+                "sub_event_type": "reception_only",
+                "cultural_style": "american",
+                "date": "2024-10-12T17:00:00Z",
+                "location": "Los Angeles, CA",
+                "budget": 35000.0,
+                "guest_count": 120,
+                "status": "planning"
+            }
+        ]
+        
+        for event_data in test_events_data:
+            response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+            if response and response.status_code == 200:
+                created_event = response.json()
+                event_id = created_event.get("id")
+                test_events_created.append({
+                    "id": event_id,
+                    "name": event_data["name"],
+                    "event_type": event_data["event_type"]
+                })
+                print(f"   ✅ Created event: {event_data['name']} (ID: {event_id})")
+            else:
+                print(f"   ❌ Failed to create event: {event_data['name']} - Status: {response.status_code if response else 'No response'}")
+        
+        if len(test_events_created) == 0:
+            self.log_test("Event Creation for Testing", False, "Could not create any test events")
+            return
+        else:
+            self.log_test("Event Creation for Testing", True, f"Created {len(test_events_created)} test events")
+        
+        # Step 2: Test GET /api/events - List Events API
+        print("Step 2: Testing List Events API (GET /api/events)...")
+        response = self.make_request("GET", "/events", token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            events_list = response.json()
+            
+            # Verify response is a list
+            if isinstance(events_list, list):
+                self.log_test("List Events API Response Format", True, f"Retrieved {len(events_list)} events as list")
+                
+                # Verify events have proper IDs
+                events_with_valid_ids = []
+                events_with_invalid_ids = []
+                
+                for event in events_list:
+                    event_id = event.get("id")
+                    if event_id:
+                        # Check if ID is UUID format (36 characters with hyphens)
+                        if len(event_id) == 36 and event_id.count('-') == 4:
+                            events_with_valid_ids.append(event_id)
+                        else:
+                            events_with_invalid_ids.append(event_id)
+                
+                if len(events_with_invalid_ids) == 0:
+                    self.log_test("Event ID Format Validation", True, f"All {len(events_with_valid_ids)} events have valid UUID format IDs")
+                else:
+                    self.log_test("Event ID Format Validation", False, f"Found {len(events_with_invalid_ids)} events with invalid ID format")
+                
+                # Verify events contain required fields for dashboard display
+                required_fields = ["id", "name", "event_type", "date", "status", "budget", "guest_count"]
+                events_with_all_fields = 0
+                missing_fields_summary = {}
+                
+                for event in events_list:
+                    missing_fields = []
+                    for field in required_fields:
+                        if field not in event or event[field] is None:
+                            missing_fields.append(field)
+                    
+                    if len(missing_fields) == 0:
+                        events_with_all_fields += 1
+                    else:
+                        for field in missing_fields:
+                            missing_fields_summary[field] = missing_fields_summary.get(field, 0) + 1
+                
+                if events_with_all_fields == len(events_list):
+                    self.log_test("Event Data Structure Validation", True, f"All {len(events_list)} events have required fields")
+                else:
+                    self.log_test("Event Data Structure Validation", False, f"Only {events_with_all_fields}/{len(events_list)} events have all required fields. Missing: {missing_fields_summary}")
+                
+            else:
+                self.log_test("List Events API Response Format", False, f"Expected list, got {type(events_list)}")
+                events_list = []
+        else:
+            self.log_test("List Events API", False, f"Status: {response.status_code if response else 'No response'}")
+            events_list = []
+        
+        # Step 3: Test Individual Event Retrieval (GET /api/events/{event_id})
+        print("Step 3: Testing Individual Event Retrieval...")
+        
+        if len(events_list) > 0:
+            successful_retrievals = 0
+            failed_retrievals = 0
+            retrieval_errors = []
+            
+            # Test retrieval for each event from the list
+            for event in events_list[:5]:  # Test first 5 events to avoid too many requests
+                event_id = event.get("id")
+                event_name = event.get("name", "Unknown")
+                
+                if event_id:
+                    response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+                    
+                    if response and response.status_code == 200:
+                        individual_event = response.json()
+                        
+                        # Verify the retrieved event matches the list event
+                        if individual_event.get("id") == event_id and individual_event.get("name") == event_name:
+                            successful_retrievals += 1
+                            print(f"   ✅ Successfully retrieved: {event_name} (ID: {event_id})")
+                        else:
+                            failed_retrievals += 1
+                            retrieval_errors.append(f"Data mismatch for {event_name}")
+                    elif response and response.status_code == 404:
+                        failed_retrievals += 1
+                        retrieval_errors.append(f"404 Not Found for {event_name} (ID: {event_id})")
+                        print(f"   ❌ 404 Error for: {event_name} (ID: {event_id})")
+                    else:
+                        failed_retrievals += 1
+                        retrieval_errors.append(f"HTTP {response.status_code if response else 'No response'} for {event_name}")
+                        print(f"   ❌ Error retrieving: {event_name} - Status: {response.status_code if response else 'No response'}")
+            
+            if failed_retrievals == 0:
+                self.log_test("Individual Event Retrieval", True, f"Successfully retrieved all {successful_retrievals} tested events")
+            else:
+                self.log_test("Individual Event Retrieval", False, f"{failed_retrievals} failures out of {successful_retrievals + failed_retrievals} attempts. Errors: {retrieval_errors}")
+        else:
+            self.log_test("Individual Event Retrieval", False, "No events available to test individual retrieval")
+        
+        # Step 4: Test Authentication Consistency Across Event Endpoints
+        print("Step 4: Testing Authentication Consistency...")
+        
+        # Test with valid token
+        endpoints_to_test = [
+            ("GET", "/events", None, "List Events"),
+        ]
+        
+        # Add individual event retrieval if we have events
+        if len(events_list) > 0:
+            first_event_id = events_list[0].get("id")
+            if first_event_id:
+                endpoints_to_test.append(("GET", f"/events/{first_event_id}", None, "Individual Event Retrieval"))
+        
+        auth_success_count = 0
+        auth_total_count = len(endpoints_to_test)
+        
+        for method, endpoint, data, name in endpoints_to_test:
+            response = self.make_request(method, endpoint, data, token=self.tokens["client"])
+            
+            if response and response.status_code == 200:
+                auth_success_count += 1
+                print(f"   ✅ {name}: Authentication successful")
+            elif response and response.status_code == 401:
+                print(f"   ❌ {name}: Authentication failed (401 Unauthorized)")
+            else:
+                print(f"   ⚠️  {name}: Unexpected response ({response.status_code if response else 'No response'})")
+        
+        if auth_success_count == auth_total_count:
+            self.log_test("Authentication Consistency", True, f"All {auth_total_count} event endpoints accept authentication")
+        else:
+            self.log_test("Authentication Consistency", False, f"Only {auth_success_count}/{auth_total_count} event endpoints accept authentication")
+        
+        # Step 5: Test with Invalid Event ID (should return 404)
+        print("Step 5: Testing Invalid Event ID Handling...")
+        
+        invalid_event_id = "00000000-0000-0000-0000-000000000000"  # Valid UUID format but non-existent
+        response = self.make_request("GET", f"/events/{invalid_event_id}", token=self.tokens["client"])
+        
+        if response and response.status_code == 404:
+            self.log_test("Invalid Event ID Handling", True, "Correctly returns 404 for non-existent event")
+        else:
+            self.log_test("Invalid Event ID Handling", False, f"Expected 404, got {response.status_code if response else 'No response'}")
+        
+        # Step 6: Test Event ID Consistency Between List and Individual Retrieval
+        print("Step 6: Testing Event ID Consistency...")
+        
+        if len(events_list) > 0:
+            consistency_issues = []
+            
+            for event in events_list[:3]:  # Test first 3 events
+                list_event_id = event.get("id")
+                list_event_name = event.get("name")
+                
+                if list_event_id:
+                    response = self.make_request("GET", f"/events/{list_event_id}", token=self.tokens["client"])
+                    
+                    if response and response.status_code == 200:
+                        individual_event = response.json()
+                        individual_event_id = individual_event.get("id")
+                        individual_event_name = individual_event.get("name")
+                        
+                        if list_event_id != individual_event_id:
+                            consistency_issues.append(f"ID mismatch: List={list_event_id}, Individual={individual_event_id}")
+                        
+                        if list_event_name != individual_event_name:
+                            consistency_issues.append(f"Name mismatch for {list_event_id}: List='{list_event_name}', Individual='{individual_event_name}'")
+                    else:
+                        consistency_issues.append(f"Could not retrieve individual event {list_event_id} from list")
+            
+            if len(consistency_issues) == 0:
+                self.log_test("Event ID Consistency", True, "Event data consistent between list and individual retrieval")
+            else:
+                self.log_test("Event ID Consistency", False, f"Consistency issues found: {consistency_issues}")
+        else:
+            self.log_test("Event ID Consistency", False, "No events available to test consistency")
+        
+        # Step 7: Test Event Data Completeness for Dashboard Display
+        print("Step 7: Testing Event Data Completeness for Dashboard...")
+        
+        if len(events_list) > 0:
+            dashboard_ready_events = 0
+            dashboard_issues = []
+            
+            # Fields specifically needed for EventDashboard component
+            dashboard_required_fields = [
+                "id", "name", "event_type", "date", "status", "budget", 
+                "guest_count", "location", "description"
+            ]
+            
+            for event in events_list:
+                missing_dashboard_fields = []
+                for field in dashboard_required_fields:
+                    if field not in event or event[field] is None:
+                        missing_dashboard_fields.append(field)
+                
+                if len(missing_dashboard_fields) == 0:
+                    dashboard_ready_events += 1
+                else:
+                    dashboard_issues.append(f"Event {event.get('name', 'Unknown')} missing: {missing_dashboard_fields}")
+            
+            if dashboard_ready_events == len(events_list):
+                self.log_test("Dashboard Data Completeness", True, f"All {len(events_list)} events have complete dashboard data")
+            else:
+                self.log_test("Dashboard Data Completeness", False, f"Only {dashboard_ready_events}/{len(events_list)} events dashboard-ready. Issues: {dashboard_issues[:3]}")  # Show first 3 issues
+        else:
+            self.log_test("Dashboard Data Completeness", False, "No events available to test dashboard data")
+        
+        # Step 8: Test Manage Button Navigation Data Requirements
+        print("Step 8: Testing Manage Button Navigation Requirements...")
+        
+        if len(events_list) > 0:
+            navigation_ready_events = 0
+            navigation_issues = []
+            
+            for event in events_list:
+                event_id = event.get("id")
+                event_name = event.get("name")
+                
+                # Check if event has valid ID for navigation
+                if event_id and len(event_id) == 36 and event_id.count('-') == 4:
+                    # Test if the event can be retrieved (this is what manage button needs)
+                    response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+                    
+                    if response and response.status_code == 200:
+                        navigation_ready_events += 1
+                    else:
+                        navigation_issues.append(f"Event {event_name} (ID: {event_id}) not retrievable for navigation")
+                else:
+                    navigation_issues.append(f"Event {event_name} has invalid ID format: {event_id}")
+            
+            if navigation_ready_events == len(events_list):
+                self.log_test("Manage Button Navigation Readiness", True, f"All {len(events_list)} events ready for manage button navigation")
+            else:
+                self.log_test("Manage Button Navigation Readiness", False, f"Only {navigation_ready_events}/{len(events_list)} events navigation-ready. Issues: {navigation_issues[:3]}")
+        else:
+            self.log_test("Manage Button Navigation Readiness", False, "No events available to test navigation readiness")
+        
+        # Summary
+        print("\n📊 Event Retrieval Testing Summary:")
+        print(f"   • Created {len(test_events_created)} test events")
+        print(f"   • Found {len(events_list)} total events in system")
+        print(f"   • Tested individual retrieval for up to 5 events")
+        print(f"   • Verified authentication on {auth_total_count} endpoints")
+        print(f"   • Checked data completeness for dashboard display")
+        print(f"   • Validated manage button navigation requirements")
+
     def test_authentication_flow_detailed(self):
         """Test detailed authentication flow and token validation for EventCreation issue"""
         print("\n🔐 Testing Authentication Flow & Token Validation...")
