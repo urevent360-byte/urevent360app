@@ -220,10 +220,10 @@ const Dashboard = () => {
             </Link>
           </div>
           
-          {events.length === 0 ? (
+          {recentEvents.length === 0 ? (
             <div className="text-center py-12">
               <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No events</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No upcoming events</h3>
               <p className="mt-1 text-sm text-gray-500">Get started by creating your first event.</p>
               <div className="mt-6">
                 <Link
@@ -238,7 +238,7 @@ const Dashboard = () => {
           ) : (
             <div className="overflow-hidden">
               <ul className="divide-y divide-gray-200">
-                {events.slice(0, 5).map((event) => {
+                {recentEvents.map((event) => {
                   const status = getEventStatus(event);
                   return (
                     <li key={event.id} className="py-4">
@@ -266,7 +266,7 @@ const Dashboard = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
                           {event.budget && (
                             <div className="text-right">
                               <p className="text-sm font-medium text-gray-900">{formatCurrency(event.budget)}</p>
@@ -279,6 +279,12 @@ const Dashboard = () => {
                           >
                             Manage
                           </Link>
+                          <button
+                            onClick={() => handleDeleteClick(event)}
+                            className="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </div>
                     </li>
