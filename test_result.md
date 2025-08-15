@@ -462,6 +462,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Event Creation Authentication Fix"
     - "Admin Routes Integration"
     - "Enhanced Vendor Marketplace"
     - "Multi-Role Login System"
@@ -470,7 +471,8 @@ test_plan:
     - "Discrete Admin Access Icon"
     - "Discrete Employee Portal Access"
     - "Clean Role Selection Interface"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Event Creation Authentication Fix"
   test_all: false
   test_priority: "high_first"
   venue_testing_completed: true
