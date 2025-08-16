@@ -433,22 +433,141 @@ const EventCreation = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City/Location
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <input
+                    type="text"
+                    name="location"
+                    value={eventData.location}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="City or specific area"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Zipcode *
+                </label>
                 <input
                   type="text"
-                  name="location"
-                  value={eventData.location}
+                  name="zipcode"
+                  value={eventData.zipcode}
                   onChange={handleInputChange}
-                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="City or specific venue"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  placeholder="Enter zipcode (e.g., 90210)"
+                  maxLength="5"
+                  pattern="[0-9]{5}"
                 />
               </div>
             </div>
+            
+            {/* Location Preferences - Show after zipcode is entered */}
+            {eventData.zipcode && eventData.zipcode.length === 5 && (
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-3">📍 Venue Location Preferences</h4>
+                
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-blue-700 mb-3">
+                      Would you like to see venues only in <strong>{eventData.location || eventData.zipcode}</strong>, or expand your search to nearby areas?
+                    </p>
+                    
+                    <div className="space-y-3">
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="location_preferences.only_exact_location"
+                          value="true"
+                          checked={eventData.location_preferences.only_exact_location === true}
+                          onChange={(e) => setEventData(prev => ({
+                            ...prev,
+                            location_preferences: {
+                              ...prev.location_preferences,
+                              only_exact_location: true,
+                              search_radius: 0
+                            }
+                          }))}
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                          Only show venues in this exact area
+                        </span>
+                      </label>
+                      
+                      <label className="flex items-center">
+                        <input
+                          type="radio"
+                          name="location_preferences.only_exact_location"
+                          value="false"
+                          checked={eventData.location_preferences.only_exact_location === false}
+                          onChange={(e) => setEventData(prev => ({
+                            ...prev,
+                            location_preferences: {
+                              ...prev.location_preferences,
+                              only_exact_location: false
+                            }
+                          }))}
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500"
+                        />
+                        <span className="ml-2 text-sm text-gray-700">
+                          Show venues within a specific range
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {/* Search Radius Slider - Show when user wants range search */}
+                  {!eventData.location_preferences.only_exact_location && (
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-blue-900 mb-3">
+                        Search Range: <span className="font-bold">{eventData.location_preferences.search_radius} miles</span>
+                      </label>
+                      
+                      <div className="px-2">
+                        <input
+                          type="range"
+                          min="5"
+                          max="100"
+                          step="5"
+                          value={eventData.location_preferences.search_radius}
+                          onChange={(e) => setEventData(prev => ({
+                            ...prev,
+                            location_preferences: {
+                              ...prev.location_preferences,
+                              search_radius: parseInt(e.target.value)
+                            }
+                          }))}
+                          className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer slider"
+                        />
+                        
+                        <div className="flex justify-between text-xs text-blue-600 mt-1">
+                          <span>5 mi</span>
+                          <span>25 mi</span>
+                          <span>50 mi</span>
+                          <span>100 mi</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 text-sm text-blue-700">
+                        <p>🎯 <strong>Recommendation:</strong></p>
+                        <ul className="mt-1 space-y-1 text-xs">
+                          <li>• <strong>5-15 miles:</strong> Local venues, easier logistics</li>
+                          <li>• <strong>15-30 miles:</strong> More options, moderate travel</li>
+                          <li>• <strong>30+ miles:</strong> Maximum variety, longer guest travel</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         );
 
