@@ -1066,17 +1066,79 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
           </div>
         )}
 
-        {/* No Results */}
+        {/* No Results / Extra Services Suggestion */}
         {!loading && stepVendors.length === 0 && vendors[step.id] !== undefined && (
-          <div className="text-center py-8 text-gray-500">
-            <Search className="mx-auto h-8 w-8 mb-2" />
-            <p>No {step.title.toLowerCase()} found matching your criteria</p>
-            <button
-              onClick={() => searchVendors(step.id, '')}
-              className="mt-2 text-purple-600 hover:text-purple-800"
-            >
-              View all options
-            </button>
+          <div className="text-center py-8">
+            {checkIfServiceNeeded(step.id, currentEvent?.services_needed || []) ? (
+              // Standard no results message for needed services
+              <div className="text-gray-500">
+                <Search className="mx-auto h-8 w-8 mb-2" />
+                <p>No {step.title.toLowerCase()} found matching your criteria</p>
+                <button
+                  onClick={() => searchVendors(step.id, '')}
+                  className="mt-2 text-purple-600 hover:text-purple-800"
+                >
+                  View all options
+                </button>
+              </div>
+            ) : (
+              // "Sparkle Your Event" suggestion for extra services
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-8 rounded-xl border border-purple-200">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="relative">
+                    <div className="h-16 w-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
+                      <Sparkles className="h-8 w-8 text-white" />
+                    </div>
+                    <div className="absolute -top-1 -right-1 h-6 w-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                      <span className="text-xs">✨</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <h3 className="text-xl font-semibold text-purple-900 mb-2">
+                  ✨ Sparkle Your Event with {step.title}!
+                </h3>
+                
+                <p className="text-purple-700 mb-6 max-w-md mx-auto">
+                  You didn't originally select {step.title.toLowerCase()}, but adding this service could make your event even more special! 
+                  Discover amazing {step.title.toLowerCase()} options that could enhance your celebration.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    onClick={() => {
+                      // Add this service to the event's needed services and search
+                      const updatedServices = [...(currentEvent?.services_needed || [])];
+                      if (!updatedServices.includes(step.title)) {
+                        updatedServices.push(step.title);
+                      }
+                      // Update the event data
+                      setCurrentEvent(prev => ({
+                        ...prev,
+                        services_needed: updatedServices
+                      }));
+                      // Search for vendors
+                      searchVendors(step.id, '');
+                    }}
+                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
+                  >
+                    <Sparkles className="h-5 w-5 mr-2" />
+                    Explore {step.title} Options
+                  </button>
+                  
+                  <button
+                    onClick={() => nextStep()}
+                    className="inline-flex items-center px-6 py-3 border border-purple-300 text-purple-700 font-medium rounded-lg hover:bg-purple-50 transition-colors"
+                  >
+                    Skip This Service
+                  </button>
+                </div>
+                
+                <div className="mt-4 text-sm text-purple-600">
+                  <p>💡 <strong>Tip:</strong> Adding extra services often creates a more memorable and seamless experience for your guests!</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
