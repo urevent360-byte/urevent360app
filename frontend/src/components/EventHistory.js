@@ -269,7 +269,8 @@ const EventHistory = () => {
   const downloadEventSummary = async (eventId) => {
     try {
       const response = await axios.get(`${API}/events/${eventId}/summary-pdf`, {
-        responseType: 'blob'
+        responseType: 'blob',
+        headers: getAuthHeaders()
       });
       
       const event = events.find(e => e.id === eventId);
