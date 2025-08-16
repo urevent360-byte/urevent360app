@@ -381,6 +381,8 @@ const EventCreation = () => {
         cultural_style: eventData.cultural_style || null,
         date: eventDateTime.toISOString(),
         location: eventData.location,
+        zipcode: eventData.zipcode,
+        location_preferences: eventData.location_preferences,
         guest_count: parseInt(eventData.guest_count),
         budget: parseFloat(eventData.budget) || null,
         estimated_budget: estimated_budget,
