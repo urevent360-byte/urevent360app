@@ -245,43 +245,43 @@ const VenueBrowser = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              name="search"
-              value={filters.search}
-              onChange={handleFilterChange}
-              placeholder="Search venues..."
-              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-          
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <input
-              type="text"
-              name="location"
-              value={filters.location}
-              onChange={handleFilterChange}
-              placeholder="Location..."
-              className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
+      <div className="space-y-4">
+        {/* Location Filter */}
+        <LocationFilter
+          initialZipcode={filters.zipcode}
+          initialLocation={filters.location}
+          initialRadius={filters.search_radius}
+          initialOnlyExact={filters.only_exact_location}
+          onLocationChange={handleLocationChange}
+          compact={true}
+        />
+        
+        {/* Other Filters */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <input
+                type="text"
+                name="search"
+                value={filters.search}
+                onChange={handleFilterChange}
+                placeholder="Search venues..."
+                className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
 
-          <select
-            name="venue_type"
-            value={filters.venue_type}
-            onChange={handleFilterChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            {venueTypes.map(type => (
-              <option key={type} value={type === 'All Types' ? '' : type}>{type}</option>
-            ))}
-          </select>
-        </div>
+            <select
+              name="venue_type"
+              value={filters.venue_type}
+              onChange={handleFilterChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              {venueTypes.map(type => (
+                <option key={type} value={type === 'All Types' ? '' : type}>{type}</option>
+              ))}
+            </select>
+          </div>
 
         {showFilters && (
           <div className="border-t pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
