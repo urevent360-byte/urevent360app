@@ -148,6 +148,16 @@ const VenueBrowser = () => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
+  const handleLocationChange = (locationData) => {
+    setFilters(prev => ({
+      ...prev,
+      zipcode: locationData.zipcode,
+      location: locationData.location,
+      search_radius: locationData.searchRadius,
+      only_exact_location: locationData.onlyExactLocation
+    }));
+  };
+
   const toggleFavorite = (venueId) => {
     setFavorites(prev =>
       prev.includes(venueId)
