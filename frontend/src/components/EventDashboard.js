@@ -412,44 +412,23 @@ const EventDashboard = () => {
                   <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mb-6">
                     <Calendar className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Complete Your Event Planning</h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                    Use our Interactive Event Planner to select venues, book vendors, manage your budget, 
-                    and handle all event details in one comprehensive experience.
-                  </p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6">Interactive Event Planner</h3>
                   
-                  <div className="flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
-                    <Link
-                      to="/interactive-planner"
-                      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-                    >
-                      <Calendar className="h-5 w-5 mr-2" />
-                      Start Interactive Planner
-                    </Link>
-                    
-                    <button
-                      onClick={() => setShowVenueSelection(true)}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <Building className="h-4 w-4 mr-2" />
-                      Quick Venue Selection
-                    </button>
-                  </div>
+                  <Link
+                    to="/interactive-planner"
+                    className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg mr-4"
+                  >
+                    <Calendar className="h-5 w-5 mr-2" />
+                    Start Planning
+                  </Link>
                   
-                  <div className="mt-6 flex items-center justify-center space-x-6 text-sm text-gray-500">
-                    <div className="flex items-center space-x-1">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Step-by-step guidance</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Budget management</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span>Vendor matching</span>
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => setShowVenueSelection(true)}
+                    className="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <Building className="h-4 w-4 mr-2" />
+                    Quick Venue Only
+                  </button>
                 </div>
               </div>
             )}
