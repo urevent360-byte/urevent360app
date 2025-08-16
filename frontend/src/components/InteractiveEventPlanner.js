@@ -930,9 +930,13 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">Interactive Event Planner</h2>
-            <p className="text-sm text-gray-600">{currentEvent?.name}</p>
+            <p className="text-sm text-gray-600">{eventData?.name || 'My Event'}</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button 
+            onClick={handleClose} 
+            className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
+            title="Close planner"
+          >
             <X className="h-6 w-6" />
           </button>
         </div>
