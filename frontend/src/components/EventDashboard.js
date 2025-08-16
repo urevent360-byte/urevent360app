@@ -56,7 +56,30 @@ const EventDashboard = () => {
     }
   };
 
-  const fetchPlanningProgress = async () => {
+  const handleQuickEdit = () => {
+    setQuickEditData({
+      name: event?.name || '',
+      event_type: event?.event_type || '',
+      guest_count: event?.guest_count || '',
+      budget: event?.budget || '',
+      location: event?.location || ''
+    });
+    setShowQuickEdit(true);
+  };
+
+  const saveQuickEdit = async () => {
+    try {
+      setLoading(true);
+      await axios.put(`${API}/events/${eventId}`, quickEditData);
+      setEvent({ ...event, ...quickEditData });
+      setShowQuickEdit(false);
+    } catch (err) {
+      console.error('Quick edit error:', err);
+      setError('Failed to update event details');
+    } finally {
+      setLoading(false);
+    }
+  };
     try {
       // Fetch planning state and cart to show progress
       const [stateResponse, cartResponse] = await Promise.all([
