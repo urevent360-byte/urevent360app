@@ -344,7 +344,12 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     // Load saved plan and cart from backend when component mounts
     loadSavedPlan();
     loadCartFromBackend();
-  }, [eventId]);
+    
+    // If in continue mode, load planning progress
+    if (mode === 'continue') {
+      loadPlanningProgress();
+    }
+  }, [eventId, mode]);
 
   useEffect(() => {
     // Update budget calculations when cart changes
