@@ -35,6 +35,7 @@ class UserRegister(BaseModel):
     name: str
     email: str
     password: str
+    mobile: Optional[str] = None
     role: str = "client"  # admin, vendor, employee, client
 
 class User(BaseModel):
