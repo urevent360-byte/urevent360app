@@ -1272,8 +1272,8 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     );
   };
 
-  // Render different interfaces based on mode
-  if (mode === 'continue') {
+  // Render different interfaces based on current mode
+  if (currentMode === 'continue') {
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
         <div className="relative top-4 mx-auto p-0 border w-full max-w-7xl shadow-lg rounded-lg bg-white mb-8">
