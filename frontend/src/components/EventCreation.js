@@ -44,6 +44,80 @@ const EventCreation = () => {
     { id: 'other', name: 'Other', desc: 'Custom event type', hasCulturalStyles: true }
   ];
 
+  // Corporate Event Types - Professional categories for business events
+  const corporateEventTypes = [
+    {
+      id: 'conferences_seminars',
+      name: 'Conferences & Seminars',
+      desc: 'Professional conferences, seminars, and educational events',
+      icon: '🎤',
+      color: 'bg-blue-50 border-blue-200 hover:border-blue-300'
+    },
+    {
+      id: 'trade_shows_expos',
+      name: 'Trade Shows & Expos',
+      desc: 'Industry exhibitions, trade shows, and expo events',
+      icon: '🏢',
+      color: 'bg-green-50 border-green-200 hover:border-green-300'
+    },
+    {
+      id: 'workshops_training',
+      name: 'Workshops & Training Sessions',
+      desc: 'Employee training, workshops, and skill development sessions',
+      icon: '📚',
+      color: 'bg-yellow-50 border-yellow-200 hover:border-yellow-300'
+    },
+    {
+      id: 'product_launches',
+      name: 'Product Launches',
+      desc: 'New product launches, reveals, and announcement events',
+      icon: '🚀',
+      color: 'bg-purple-50 border-purple-200 hover:border-purple-300'
+    },
+    {
+      id: 'networking_events',
+      name: 'Networking Events',
+      desc: 'Professional networking, mixers, and business meetups',
+      icon: '🤝',
+      color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-300'
+    },
+    {
+      id: 'corporate_parties',
+      name: 'Corporate Parties',
+      desc: 'Holiday parties, year-end celebrations, company anniversaries',
+      icon: '🎉',
+      color: 'bg-pink-50 border-pink-200 hover:border-pink-300'
+    },
+    {
+      id: 'board_meetings_retreats',
+      name: 'Board Meetings & Executive Retreats',
+      desc: 'Executive meetings, board retreats, and leadership summits',
+      icon: '👔',
+      color: 'bg-gray-50 border-gray-200 hover:border-gray-300'
+    },
+    {
+      id: 'award_ceremonies_galas',
+      name: 'Award Ceremonies & Gala Dinners',
+      desc: 'Recognition events, award ceremonies, and formal galas',
+      icon: '🏆',
+      color: 'bg-orange-50 border-orange-200 hover:border-orange-300'
+    },
+    {
+      id: 'team_building',
+      name: 'Team Building Activities',
+      desc: 'Team building events, company outings, and team bonding',
+      icon: '⚽',
+      color: 'bg-teal-50 border-teal-200 hover:border-teal-300'
+    },
+    {
+      id: 'press_conferences_media',
+      name: 'Press Conferences & Media Events',
+      desc: 'Media briefings, press conferences, and PR events',
+      icon: '📺',
+      color: 'bg-red-50 border-red-200 hover:border-red-300'
+    }
+  ];
+
   const weddingSubTypes = [
     { 
       id: 'reception_only', 
