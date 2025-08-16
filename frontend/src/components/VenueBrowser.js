@@ -194,6 +194,12 @@ const VenueBrowser = () => {
     }));
   };
 
+  const extractState = (location) => {
+    // Simple state extraction from location string
+    const parts = location.split(',');
+    return parts.length > 1 ? parts[parts.length - 1].trim() : null;
+  };
+
   const toggleFavorite = (venueId) => {
     setFavorites(prev =>
       prev.includes(venueId)
