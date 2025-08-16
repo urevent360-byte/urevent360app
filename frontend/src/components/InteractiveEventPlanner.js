@@ -735,48 +735,93 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
 
           {/* Event Summary Card */}
           <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl border border-purple-200">
-            <h4 className="font-semibold text-purple-900 mb-4 flex items-center">
-              <Sparkles className="h-5 w-5 mr-2" />
-              Your Event Overview
-            </h4>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="font-semibold text-purple-900 flex items-center">
+                <Sparkles className="h-5 w-5 mr-2" />
+                Your Event Overview
+              </h4>
+              <button
+                onClick={() => openEditModal('all')}
+                className="text-purple-600 hover:text-purple-800 p-2 rounded-lg hover:bg-purple-100 transition-colors"
+                title="Edit event details"
+              >
+                <Edit3 className="h-4 w-4" />
+              </button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-lg border border-purple-100">
-                <div className="flex items-center space-x-3">
-                  <Calendar className="h-5 w-5 text-purple-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Event Type</p>
-                    <p className="font-medium text-gray-900">{eventData?.event_type || 'Not specified'}</p>
+              <div className="bg-white p-4 rounded-lg border border-purple-100 relative group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="h-5 w-5 text-purple-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Event Type</p>
+                      <p className="font-medium text-gray-900">{eventData?.event_type || 'Not specified'}</p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => openEditModal('event_type')}
+                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-purple-600 p-1 rounded transition-all duration-200"
+                    title="Edit event type"
+                  >
+                    <Edit3 className="h-3 w-3" />
+                  </button>
                 </div>
               </div>
               
-              <div className="bg-white p-4 rounded-lg border border-purple-100">
-                <div className="flex items-center space-x-3">
-                  <Users className="h-5 w-5 text-purple-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Guest Count</p>
-                    <p className="font-medium text-gray-900">{eventData?.guest_count || 'Not specified'}</p>
+              <div className="bg-white p-4 rounded-lg border border-purple-100 relative group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Users className="h-5 w-5 text-purple-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Guest Count</p>
+                      <p className="font-medium text-gray-900">{eventData?.guest_count || 'Not specified'}</p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => openEditModal('guest_count')}
+                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-purple-600 p-1 rounded transition-all duration-200"
+                    title="Edit guest count"
+                  >
+                    <Edit3 className="h-3 w-3" />
+                  </button>
                 </div>
               </div>
               
-              <div className="bg-white p-4 rounded-lg border border-purple-100">
-                <div className="flex items-center space-x-3">
-                  <DollarSign className="h-5 w-5 text-purple-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Budget</p>
-                    <p className="font-medium text-gray-900">{eventData?.budget ? formatCurrency(eventData.budget) : 'Not set'}</p>
+              <div className="bg-white p-4 rounded-lg border border-purple-100 relative group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <DollarSign className="h-5 w-5 text-purple-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Budget</p>
+                      <p className="font-medium text-gray-900">{eventData?.budget ? formatCurrency(eventData.budget) : 'Not set'}</p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => openEditModal('budget')}
+                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-purple-600 p-1 rounded transition-all duration-200"
+                    title="Edit budget"
+                  >
+                    <Edit3 className="h-3 w-3" />
+                  </button>
                 </div>
               </div>
               
-              <div className="bg-white p-4 rounded-lg border border-purple-100">
-                <div className="flex items-center space-x-3">
-                  <MapPin className="h-5 w-5 text-purple-600" />
-                  <div>
-                    <p className="text-sm text-gray-600">Location</p>
-                    <p className="font-medium text-gray-900">{eventData?.location || eventData?.zipcode || 'Not specified'}</p>
+              <div className="bg-white p-4 rounded-lg border border-purple-100 relative group">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="h-5 w-5 text-purple-600" />
+                    <div>
+                      <p className="text-sm text-gray-600">Location</p>
+                      <p className="font-medium text-gray-900">{eventData?.location || eventData?.zipcode || 'Not specified'}</p>
+                    </div>
                   </div>
+                  <button
+                    onClick={() => openEditModal('location')}
+                    className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-purple-600 p-1 rounded transition-all duration-200"
+                    title="Edit location"
+                  >
+                    <Edit3 className="h-3 w-3" />
+                  </button>
                 </div>
               </div>
             </div>
