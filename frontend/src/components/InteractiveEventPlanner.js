@@ -711,21 +711,21 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
           </div>
 
           {/* Budget Recommendation */}
-          {currentEvent?.budget && (
+          {eventData?.budget && (
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <div className="flex items-start space-x-3">
                 <DollarSign className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
                   <h5 className="font-medium text-blue-900">Smart Budget Allocation</h5>
                   <p className="text-sm text-blue-700 mt-1">
-                    Based on your ${formatCurrency(currentEvent.budget)} budget, we recommend allocating approximately:
+                    Based on your {formatCurrency(eventData.budget)} budget, we recommend allocating approximately:
                   </p>
                   <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                    <span>• Venue: {formatCurrency(currentEvent.budget * 0.4)} (40%)</span>
-                    <span>• Catering: {formatCurrency(currentEvent.budget * 0.3)} (30%)</span>
-                    <span>• Decoration: {formatCurrency(currentEvent.budget * 0.15)} (15%)</span>
-                    <span>• Entertainment: {formatCurrency(currentEvent.budget * 0.1)} (10%)</span>
-                    <span>• Other: {formatCurrency(currentEvent.budget * 0.05)} (5%)</span>
+                    <span>• Venue: {formatCurrency(eventData.budget * 0.4)} (40%)</span>
+                    <span>• Catering: {formatCurrency(eventData.budget * 0.3)} (30%)</span>
+                    <span>• Decoration: {formatCurrency(eventData.budget * 0.15)} (15%)</span>
+                    <span>• Entertainment: {formatCurrency(eventData.budget * 0.1)} (10%)</span>
+                    <span>• Other: {formatCurrency(eventData.budget * 0.05)} (5%)</span>
                   </div>
                 </div>
               </div>
