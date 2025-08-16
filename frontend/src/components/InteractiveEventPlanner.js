@@ -44,6 +44,67 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     }
   };
 
+  // Edit event functionality
+  const openEditModal = (field) => {
+    setEditingField(field);
+    setEditFormData({
+      event_type: eventData?.event_type || '',
+      guest_count: eventData?.guest_count || '',
+      budget: eventData?.budget || '',
+      location: eventData?.location || '',
+      zipcode: eventData?.zipcode || '',
+      date: eventData?.date || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const saveEventData = async () => {
+    try {
+      setLoading(true);
+      
+      // Update the local eventData state
+      const updatedEventData = {
+        ...eventData,
+        ...editFormData,
+        guest_count: parseInt(editFormData.guest_count) || eventData.guest_count,
+        budget: parseFloat(editFormData.budget) || eventData.budget
+      };
+      
+      setEventData(updatedEventData);
+      
+      // Update budget data if budget changed
+      if (editFormData.budget) {
+        setBudgetData(prev => ({
+          ...prev,
+          set: parseFloat(editFormData.budget),
+          remaining: parseFloat(editFormData.budget) - prev.selected
+        }));
+      }
+      
+      // If we have an event ID, update it via API
+      if (eventData?.id) {
+        await axios.put(`${API}/events/${eventData.id}`, updatedEventData, {
+          headers: getAuthHeaders()
+        });
+      }
+      
+      setShowEditModal(false);
+      setEditingField(null);
+    } catch (error) {
+      console.error('Failed to save event data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch user's most recent event or create a default one
   useEffect(() => {
     const fetchEventData = async () => {
