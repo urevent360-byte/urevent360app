@@ -2343,6 +2343,8 @@ async def regenerate_backup_codes(current_user: dict = Depends(get_current_user)
 async def get_privacy_settings(current_user: dict = Depends(get_current_user)):
     """Get user's privacy settings"""
     user = await db.users.find_one({"id": current_user["id"]})
+    if not user:
+        user = current_user  # Fallback to current_user data
     default_settings = {
         "profile_visibility": "public",
         "event_visibility": "public",
