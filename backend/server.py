@@ -1743,6 +1743,18 @@ async def finalize_event_plan(
         })
         
         total_cost += booking_dict["total_cost"]
+        
+        # CREATE AUTOMATIC PAYMENT DEADLINE EVENTS
+        vendor = await db.users.find_one({"id": cart_item["vendor_id"]})
+        vendor_name = vendor.get("name", cart_item["vendor_name"]) if vendor else cart_item["vendor_name"]
+        
+        await create_payment_deadline_events(
+            booking_id=booking_dict["id"],
+            user_id=current_user["id"],
+            vendor_name=vendor_name,
+            payment_amount=booking_dict["total_cost"],
+            due_date=booking_dict["final_due_date"]
+        )
     
     # Update event status and clear cart
     await db.events.update_one(
