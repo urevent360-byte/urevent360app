@@ -177,7 +177,12 @@ function App() {
                       <Route path="/preferred-vendors" element={<PreferredVendors />} />
                       <Route path="/event-history" element={<EventHistory />} />
                       <Route path="/calendar" element={<CalendarComponent />} />
-                      <Route path="/interactive-planner" element={<InteractiveEventPlanner />} />
+                      <Route path="/interactive-planner" element={
+                        <InteractiveEventPlanner 
+                          mode="new"
+                          onClose={() => window.history.back()} 
+                        />
+                      } />
                       
                       {/* Profile & Settings Routes */}
                       <Route path="/profile/settings" element={<ProfileSettings />} />
