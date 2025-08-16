@@ -179,6 +179,7 @@ function App() {
                       
                       {/* Settings Routes */}
                       <Route path="/settings/account" element={<AccountSettings />} />
+                      <Route path="/settings/account-enhanced" element={<EnhancedAccountSettings />} />
                       <Route path="/settings/security" element={<SecuritySettings />} />
                       <Route path="/settings/notifications" element={<NotificationSettings />} />
                       <Route path="/settings/language" element={<LanguageSettings />} />
