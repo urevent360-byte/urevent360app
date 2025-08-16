@@ -507,6 +507,14 @@ async def search_venues(
     current_user: dict = Depends(get_current_user)
 ):
     """Search venues based on location and criteria with preference filtering"""
+    
+    # Handle special venue types that don't need venue search
+    no_venue_search_types = ["My Own Private Space", "I Already Have a Venue"]
+    filter_venue_type = preferred_venue_type or venue_type
+    
+    if filter_venue_type in no_venue_search_types:
+        return []  # Return empty list - no venues needed
+    
     query = {}
     
     # Location-based search
@@ -531,7 +539,6 @@ async def search_venues(
         query["location"] = {"$regex": city, "$options": "i"}
     
     # Venue type filter - prioritize preferred venue type if provided
-    filter_venue_type = preferred_venue_type or venue_type
     if filter_venue_type and filter_venue_type != 'all':
         # Handle different venue type formats
         venue_type_mappings = {
@@ -543,7 +550,8 @@ async def search_venues(
             "private residence": ["Private", "Residence", "private", "residence"],
             "church/religious venue": ["Church", "Religious", "church", "religious"],
             "conference center": ["Conference Center", "conference"],
-            "barn": ["Barn", "barn"]
+            "barn": ["Barn", "barn"],
+            "other": ["Other", "other", "unique", "specialty"]
         }
         
         # Find matching venue types
