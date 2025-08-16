@@ -137,8 +137,6 @@ const Login = () => {
 
   const selectedRoleData = roleOptions.find(role => role.id === selectedRole);
 
-  console.log('Login component render - step:', step, 'selectedRole:', selectedRole);
-
   if (step === 'role-selection') {
     return (
       <div 
