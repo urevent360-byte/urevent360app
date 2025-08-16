@@ -963,14 +963,26 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
                 <div>
                   <h5 className="font-medium text-blue-900">Smart Budget Allocation</h5>
                   <p className="text-sm text-blue-700 mt-1">
-                    Based on your {formatCurrency(eventData.budget)} budget, we recommend allocating approximately:
+                    Based on your {formatCurrency(eventData.budget)} budget{!shouldIncludeVenueStep() ? " and existing venue" : ""}, we recommend allocating approximately:
                   </p>
                   <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                    <span>• Venue: {formatCurrency(eventData.budget * 0.4)} (40%)</span>
-                    <span>• Catering: {formatCurrency(eventData.budget * 0.3)} (30%)</span>
-                    <span>• Decoration: {formatCurrency(eventData.budget * 0.15)} (15%)</span>
-                    <span>• Entertainment: {formatCurrency(eventData.budget * 0.1)} (10%)</span>
-                    <span>• Other: {formatCurrency(eventData.budget * 0.05)} (5%)</span>
+                    {shouldIncludeVenueStep() ? (
+                      <>
+                        <span>• Venue: {formatCurrency(eventData.budget * 0.4)} (40%)</span>
+                        <span>• Catering: {formatCurrency(eventData.budget * 0.3)} (30%)</span>
+                        <span>• Decoration: {formatCurrency(eventData.budget * 0.15)} (15%)</span>
+                        <span>• Entertainment: {formatCurrency(eventData.budget * 0.1)} (10%)</span>
+                        <span>• Other: {formatCurrency(eventData.budget * 0.05)} (5%)</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>• Catering: {formatCurrency(eventData.budget * 0.45)} (45%)</span>
+                        <span>• Decoration: {formatCurrency(eventData.budget * 0.25)} (25%)</span>
+                        <span>• Photography: {formatCurrency(eventData.budget * 0.15)} (15%)</span>
+                        <span>• Entertainment: {formatCurrency(eventData.budget * 0.1)} (10%)</span>
+                        <span>• Other Services: {formatCurrency(eventData.budget * 0.05)} (5%)</span>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
