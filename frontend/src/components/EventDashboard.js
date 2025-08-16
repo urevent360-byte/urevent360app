@@ -428,16 +428,17 @@ const EventDashboard = () => {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="text-center py-8">
                   <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mb-6">
-                    <Calendar className="h-8 w-8 text-white" />
+                    <Wand2 className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-6">Interactive Event Planner</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Create New Planning Scenario</h3>
+                  <p className="text-gray-600 mb-6">Explore different options and create multiple planning scenarios for your event</p>
                   
                   <Link
                     to="/interactive-planner"
                     className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg mr-4"
                   >
-                    <Calendar className="h-5 w-5 mr-2" />
-                    Start Planning
+                    <Wand2 className="h-5 w-5 mr-2" />
+                    New Scenario
                   </Link>
                   
                   <button
