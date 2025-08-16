@@ -2238,6 +2238,8 @@ async def update_language_preference(
 async def get_two_factor_status(current_user: dict = Depends(get_current_user)):
     """Get user's two-factor authentication status"""
     user = await db.users.find_one({"id": current_user["id"]})
+    if not user:
+        user = current_user  # Fallback to current_user data
     return {
         "enabled": user.get("two_factor_enabled", False),
         "backup_codes": user.get("backup_codes", []) if user.get("two_factor_enabled") else []
