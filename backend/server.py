@@ -100,6 +100,8 @@ class Event(BaseModel):
     cultural_style: Optional[str] = None  # For wedding: indian, american, hispanic, african, asian, middle_eastern, other
     date: datetime
     location: Optional[str] = None
+    zipcode: Optional[str] = None
+    location_preferences: Optional[Dict[str, Any]] = None  # search_radius, only_exact_location, preferred_areas
     venue_id: Optional[str] = None
     venue_name: Optional[str] = None
     venue_address: Optional[str] = None
