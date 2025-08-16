@@ -1646,6 +1646,46 @@ async def finalize_event_plan(
     if not planner_state or not planner_state.get("cart_items"):
         raise HTTPException(status_code=400, detail="No items in cart to finalize")
     
+    # APPOINTMENT VALIDATION: Check if all vendors have confirmed appointments
+    vendor_ids_in_cart = list(set([item["vendor_id"] for item in planner_state["cart_items"]]))
+    
+    appointment_validation = {}
+    for vendor_id in vendor_ids_in_cart:
+        # Check if there's a confirmed appointment with this vendor for this event
+        confirmed_appointment = await db.appointments.find_one({
+            "client_id": current_user["id"],
+            "vendor_id": vendor_id,
+            "$or": [
+                {"event_id": event_id},
+                {"event_id": None}  # General appointments also count
+            ],
+            "status": "confirmed"
+        })
+        
+        if not confirmed_appointment:
+            vendor = await db.users.find_one({"id": vendor_id})
+            vendor_name = vendor.get("name", "Unknown Vendor") if vendor else "Unknown Vendor"
+            appointment_validation[vendor_id] = {
+                "vendor_name": vendor_name,
+                "has_confirmed_appointment": False
+            }
+        else:
+            appointment_validation[vendor_id] = {
+                "vendor_name": confirmed_appointment.get("vendor_name", "Vendor"),
+                "has_confirmed_appointment": True,
+                "appointment_id": confirmed_appointment["id"]
+            }
+    
+    # Check if any vendors don't have confirmed appointments
+    missing_appointments = [v for v in appointment_validation.values() if not v["has_confirmed_appointment"]]
+    
+    if missing_appointments:
+        vendor_names = [v["vendor_name"] for v in missing_appointments]
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot finalize booking. Missing confirmed appointments with: {', '.join(vendor_names)}. Please schedule and confirm appointments with all vendors before finalizing your booking."
+        )
+    
     # Create vendor bookings for each cart item
     bookings_created = []
     total_cost = 0
