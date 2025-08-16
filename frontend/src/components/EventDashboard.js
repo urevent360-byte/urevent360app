@@ -291,7 +291,10 @@ const EventDashboard = () => {
                       <div className="bg-white rounded-lg p-3 mb-4 border border-green-200">
                         <div className="flex items-center justify-between mb-2">
                           <h5 className="font-medium text-gray-900 text-sm">Event Details</h5>
-                          <button className="text-green-600 hover:text-green-700 p-1">
+                          <button 
+                            onClick={handleQuickEdit}
+                            className="text-green-600 hover:text-green-700 p-1"
+                          >
                             <Edit3 className="h-3 w-3" />
                           </button>
                         </div>
