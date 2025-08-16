@@ -12,7 +12,7 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }) => {
+const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, mode = 'new' }) => {
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
@@ -32,6 +32,11 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingField, setEditingField] = useState(null);
   const [editFormData, setEditFormData] = useState({});
+  const [planningProgress, setPlanningProgress] = useState({
+    selectedVendors: [],
+    completedSteps: 0,
+    pendingServices: []
+  });
 
   // Handle close/exit functionality
   const handleClose = () => {
