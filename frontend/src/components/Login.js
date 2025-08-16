@@ -214,10 +214,17 @@ const Login = () => {
                     </div>
 
                     {/* Continue Button */}
-                    <div className={`w-full bg-gradient-to-r ${role.color} text-white py-3 px-4 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center group-hover:shadow-xl cursor-pointer`}>
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleRoleSelect(role.id);
+                      }}
+                      className={`w-full bg-gradient-to-r ${role.color} text-white py-3 px-4 rounded-xl font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center group-hover:shadow-xl cursor-pointer`}
+                    >
                       Continue as {role.title}
                       <ChevronRight className="w-4 h-4 ml-2" />
-                    </div>
+                    </button>
                   </div>
                 </div>
               );
