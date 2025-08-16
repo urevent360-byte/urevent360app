@@ -1495,10 +1495,28 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       <div className="relative top-4 mx-auto p-0 border w-full max-w-7xl shadow-lg rounded-lg bg-white mb-8">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Interactive Event Planner</h2>
-            <p className="text-sm text-gray-600">{eventData?.name || 'My Event'}</p>
+          <div className="flex items-center space-x-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">Interactive Event Planner</h2>
+              <p className="text-sm text-gray-600">{eventData?.name || 'My Event'}</p>
+            </div>
+            
+            {/* Back to Progress View Button - Only show if we started from continue mode */}
+            {mode === 'continue' && (
+              <button
+                onClick={() => {
+                  setCurrentMode('continue');
+                  loadPlanningProgress();
+                }}
+                className="inline-flex items-center px-3 py-2 text-sm border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors"
+                title="Back to progress overview"
+              >
+                <CheckCircle className="h-4 w-4 mr-1" />
+                Progress View
+              </button>
+            )}
           </div>
+          
           <button 
             onClick={handleClose} 
             className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
