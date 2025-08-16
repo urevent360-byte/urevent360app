@@ -80,7 +80,8 @@ const EventDashboard = () => {
       setLoading(false);
     }
   };
-    try {
+
+  const fetchPlanningProgress = async () => {
       // Fetch planning state and cart to show progress
       const [stateResponse, cartResponse] = await Promise.all([
         axios.get(`${API}/events/${eventId}/planner/state`),
