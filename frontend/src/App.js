@@ -168,6 +168,27 @@ function App() {
                       <Route path="/post-event/:eventId" element={<PostEvent />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/messages" element={<Messages />} />
+                      
+                      {/* Profile & Settings Routes */}
+                      <Route path="/profile/settings" element={<ProfileSettings />} />
+                      <Route path="/profile/edit" element={<EditProfile />} />
+                      <Route path="/profile/change-password" element={<ChangePassword />} />
+                      <Route path="/profile/language" element={<LanguageSettings />} />
+                      <Route path="/profile/security" element={<TwoFactorAuth />} />
+                      
+                      {/* Settings Routes */}
+                      <Route path="/settings/account" element={<AccountSettings />} />
+                      <Route path="/settings/security" element={<SecuritySettings />} />
+                      <Route path="/settings/notifications" element={<NotificationSettings />} />
+                      <Route path="/settings/language" element={<LanguageSettings />} />
+                      <Route path="/settings/privacy" element={<PrivacySettings />} />
+                      <Route path="/settings/integrations" element={<IntegrationsSettings />} />
+                      <Route path="/settings/billing" element={<BillingSettings />} />
+                      
+                      {/* Help & Support Routes */}
+                      <Route path="/help" element={<HelpSupport />} />
+                      <Route path="/help/support" element={<HelpSupport />} />
+                      
                       <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
                   </main>
