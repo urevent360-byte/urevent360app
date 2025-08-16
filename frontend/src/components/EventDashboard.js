@@ -292,57 +292,89 @@ const EventDashboard = () => {
                       <div className="bg-white rounded-lg p-3 mb-4 border border-green-200 flex-1">
                         <div className="flex items-center justify-between mb-2">
                           <h5 className="font-medium text-gray-900 text-sm">Planning Progress</h5>
-                          <span className="text-xs text-green-600 font-medium">3/10 Complete</span>
+                          <span className="text-xs text-green-600 font-medium">
+                            {planningProgress.completedSteps}/{planningProgress.totalSteps} Complete
+                          </span>
                         </div>
                         
                         {/* Progress Bar */}
                         <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-                          <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full" style={{width: '30%'}}></div>
+                          <div 
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-300" 
+                            style={{width: `${(planningProgress.completedSteps / planningProgress.totalSteps) * 100}%`}}
+                          ></div>
                         </div>
                         
-                        {/* Selected Vendors Preview */}
+                        {/* Selected Vendors - Real Data */}
                         <div className="space-y-2 max-h-32 overflow-y-auto">
-                          {/* Mock selected vendors - replace with real data */}
-                          <div className="flex items-center justify-between text-xs bg-green-50 rounded p-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span className="font-medium">🏛️ Grand Palace Hall</span>
-                            </div>
-                            <span className="text-green-600">$8,000</span>
-                          </div>
+                          {planningProgress.selectedVendors.length > 0 ? (
+                            planningProgress.selectedVendors.map((vendor, index) => (
+                              <div key={index} className="flex items-center justify-between text-xs bg-green-50 rounded p-2">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                  <span className="font-medium">
+                                    {vendor.service_type === 'venue' && '🏛️'}
+                                    {vendor.service_type === 'catering' && '🍽️'}
+                                    {vendor.service_type === 'photography' && '📸'}
+                                    {vendor.service_type === 'decoration' && '🎨'}
+                                    {vendor.service_type === 'dj' && '🎵'}
+                                    {vendor.service_type === 'bar' && '🍸'}
+                                    {vendor.service_type === 'planner' && '📋'}
+                                    {vendor.service_type === 'staffing' && '👥'}
+                                    {vendor.service_type === 'entertainment' && '🎭'}
+                                    {!['venue', 'catering', 'photography', 'decoration', 'dj', 'bar', 'planner', 'staffing', 'entertainment'].includes(vendor.service_type) && '🔧'}
+                                    {vendor.vendor_name}
+                                  </span>
+                                </div>
+                                <span className="text-green-600">${vendor.price?.toLocaleString()}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <>
+                              {/* Mock data when no real selections exist */}
+                              <div className="flex items-center justify-between text-xs bg-gray-50 rounded p-2 opacity-60">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                                  <span>🏛️ Select Venue</span>
+                                </div>
+                                <span className="text-gray-500">Pending</span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between text-xs bg-gray-50 rounded p-2 opacity-60">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                                  <span>🍽️ Choose Catering</span>
+                                </div>
+                                <span className="text-gray-500">Pending</span>
+                              </div>
+                              
+                              <div className="flex items-center justify-between text-xs bg-gray-50 rounded p-2 opacity-60">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                                  <span>📸 Book Photography</span>
+                                </div>
+                                <span className="text-gray-500">Pending</span>
+                              </div>
+                            </>
+                          )}
                           
-                          <div className="flex items-center justify-between text-xs bg-green-50 rounded p-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span className="font-medium">🍽️ Elite Catering Co.</span>
+                          {/* Total Spent */}
+                          {planningProgress.totalSpent > 0 && (
+                            <div className="border-t pt-2 mt-2">
+                              <div className="flex items-center justify-between text-xs font-medium">
+                                <span className="text-gray-600">Total Selected:</span>
+                                <span className="text-green-600">${planningProgress.totalSpent.toLocaleString()}</span>
+                              </div>
+                              {event?.budget && (
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-gray-500">Remaining:</span>
+                                  <span className={`${(event.budget - planningProgress.totalSpent) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    ${(event.budget - planningProgress.totalSpent).toLocaleString()}
+                                  </span>
+                                </div>
+                              )}
                             </div>
-                            <span className="text-green-600">$4,500</span>
-                          </div>
-                          
-                          <div className="flex items-center justify-between text-xs bg-green-50 rounded p-2">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span className="font-medium">📸 Perfect Moments</span>
-                            </div>
-                            <span className="text-green-600">$2,200</span>
-                          </div>
-                          
-                          {/* Pending Services */}
-                          <div className="flex items-center justify-between text-xs bg-gray-50 rounded p-2 opacity-60">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                              <span>🎵 DJ & Music</span>
-                            </div>
-                            <span className="text-gray-500">Pending</span>
-                          </div>
-                          
-                          <div className="flex items-center justify-between text-xs bg-gray-50 rounded p-2 opacity-60">
-                            <div className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                              <span>🎨 Decoration</span>
-                            </div>
-                            <span className="text-gray-500">Pending</span>
-                          </div>
+                          )}
                         </div>
                       </div>
 
