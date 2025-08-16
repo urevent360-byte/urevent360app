@@ -1526,192 +1526,259 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           </button>
         </div>
 
-        <div className="flex">
-          {/* Main Content */}
-          <div className="flex-1 p-6">
-            {/* Progress Steps */}
-            <div className="flex items-center justify-between mb-8">
-              {plannerSteps.map((step, index) => {
-                const Icon = step.icon;
-                const isActive = index === currentStep;
-                const isCompleted = selectedServices[step.id] || index < currentStep;
-                
-                return (
-                  <div key={step.id} className="flex flex-col items-center">
-                    <button
-                      onClick={() => goToStep(index)}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-colors ${
-                        isActive
-                          ? `${step.color} text-white`
-                          : isCompleted
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-200 text-gray-400'
-                      }`}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </button>
-                    <span className={`text-xs text-center ${isActive ? 'text-purple-600 font-medium' : 'text-gray-500'}`}>
-                      {step.title}
-                    </span>
+        {/* Step-by-Step Mode: Read-Only Progress Dashboard */}
+        <div className="p-6">
+          {/* Progress Timeline */}
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+              <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
+              Planning Progress Timeline
+            </h3>
+            
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              {/* Current Phase Banner */}
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 mb-6 border border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-purple-900">Current Phase: Vendor Selection</h4>
+                    <p className="text-sm text-purple-700">Select vendors for your remaining services</p>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Step Content */}
-            <div className="mb-8">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-semibold text-gray-900">
-                  {plannerSteps[currentStep].title}
-                </h3>
-                <p className="text-gray-600 mt-1">
-                  {plannerSteps[currentStep].subtitle}
-                </p>
+                  <div className="text-right">
+                    <span className="text-sm text-purple-600">Next Deadline:</span>
+                    <p className="font-medium text-purple-900">Contract Review - Sep 15</p>
+                  </div>
+                </div>
               </div>
-              
-              {renderStepContent()}
-            </div>
 
-            {/* Navigation */}
-            <div className="flex items-center justify-between pt-6 border-t">
-              <button
-                onClick={prevStep}
-                disabled={currentStep === 0}
-                className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Back
-              </button>
-
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() => savePlan()}
-                  className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Progress
-                </button>
-
-                {currentStep < plannerSteps.length - 1 && (
-                  <button
-                    onClick={skipStep}
-                    className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800"
-                  >
-                    <FastForward className="h-4 w-4 mr-2" />
-                    Skip
-                  </button>
-                )}
-
-                <button
-                  onClick={nextStep}
-                  disabled={currentStep >= plannerSteps.length - 1}
-                  className="flex items-center px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </button>
+              {/* Progress Steps */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {[
+                  { name: 'Event Planning', status: 'Completed', icon: CheckCircle, color: 'text-green-600 bg-green-50' },
+                  { name: 'Vendor Selection', status: 'In Progress', icon: Users, color: 'text-purple-600 bg-purple-50' },
+                  { name: 'Contract Review', status: 'Pending', icon: Eye, color: 'text-gray-400 bg-gray-50' },
+                  { name: 'Payments', status: 'Pending', icon: DollarSign, color: 'text-gray-400 bg-gray-50' },
+                  { name: 'Final Checklist', status: 'Pending', icon: Calendar, color: 'text-gray-400 bg-gray-50' }
+                ].map((step, index) => {
+                  const Icon = step.icon;
+                  return (
+                    <div key={step.name} className="text-center">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 ${step.color}`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-900">{step.name}</p>
+                      <p className="text-xs text-gray-600">{step.status}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          {/* Shopping Cart Panel */}
-          <div className="w-80 border-l bg-gray-50 p-6">
-            <div className="sticky top-0">
-              {/* Budget Tracker */}
-              <div className="bg-white rounded-lg p-4 mb-6 shadow-sm">
-                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Budget Tracker
-                </h4>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Budget Set:</span>
-                    <span className="font-medium">{formatCurrency(budgetData.set)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Selected:</span>
-                    <span className="font-medium text-purple-600">{formatCurrency(budgetData.selected)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm border-t pt-2">
-                    <span className="text-gray-600">Remaining:</span>
-                    <span className={`font-bold ${budgetData.remaining < 0 ? 'text-red-600' : 'text-green-600'}`}>
-                      {formatCurrency(budgetData.remaining)}
-                    </span>
-                  </div>
-                </div>
-
-                {budgetData.remaining < 0 && (
-                  <div className="mt-3 p-2 bg-red-50 rounded-md flex items-center">
-                    <AlertTriangle className="h-4 w-4 text-red-600 mr-2" />
-                    <span className="text-xs text-red-700">Over budget!</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Shopping Cart */}
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium text-gray-900 flex items-center">
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Selected Services ({cart.length})
-                  </h4>
-                  {cart.length > 0 && (
-                    <button
-                      onClick={clearCart}
-                      className="text-xs text-red-600 hover:text-red-800 flex items-center"
-                    >
-                      <RotateCcw className="h-3 w-3 mr-1" />
-                      Clear All
-                    </button>
-                  )}
-                </div>
-
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {cart.length === 0 ? (
-                    <div className="text-center py-4 text-gray-500">
-                      <ShoppingCart className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                      <p className="text-sm">No services selected</p>
+          {/* Budget & Cart Overview Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Budget Overview */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <DollarSign className="h-5 w-5 text-green-600 mr-2" />
+                Budget Overview
+              </h4>
+              
+              <div className="space-y-4">
+                {/* Budget Summary */}
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-sm text-gray-600">Target Budget</p>
+                      <p className="text-lg font-semibold text-gray-900">${eventData?.budget?.toLocaleString() || '0'}</p>
                     </div>
-                  ) : (
-                    cart.map((item) => (
-                      <div key={item.id} className="border border-gray-200 rounded-lg p-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1 min-w-0">
-                            <h5 className="text-sm font-medium text-gray-900 truncate">
-                              {item.name}
-                            </h5>
-                            <p className="text-xs text-gray-600">{item.serviceType}</p>
-                            <p className="text-sm font-medium text-purple-600 mt-1">
-                              {formatCurrency(item.price)}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="ml-2 text-red-400 hover:text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                    <div>
+                      <p className="text-sm text-gray-600">Committed</p>
+                      <p className="text-lg font-semibold text-green-600">${budgetData.selected?.toLocaleString() || '0'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Remaining</p>
+                      <p className={`text-lg font-semibold ${budgetData.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        ${budgetData.remaining?.toLocaleString() || '0'}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-300" 
+                      style={{width: `${budgetData.set > 0 ? Math.min((budgetData.selected / budgetData.set) * 100, 100) : 0}%`}}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Category Breakdown */}
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-3">Category Breakdown</h5>
+                  <div className="space-y-2">
+                    {[
+                      { name: 'Venue', committed: 0, color: 'bg-blue-500' },
+                      { name: 'Catering', committed: 0, color: 'bg-green-500' },
+                      { name: 'Photography', committed: 0, color: 'bg-purple-500' },
+                      { name: 'Decoration', committed: 0, color: 'bg-pink-500' }
+                    ].map(category => (
+                      <div key={category.name} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center">
+                          <div className={`w-3 h-3 rounded ${category.color} mr-2`}></div>
+                          <span className="text-gray-700">{category.name}</span>
+                        </div>
+                        <span className="font-medium text-gray-900">${category.committed.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Edit Budget Button */}
+                <button className="w-full px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 text-sm">
+                  Edit Budget Settings
+                </button>
+              </div>
+            </div>
+
+            {/* Shopping Cart Summary */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <ShoppingCart className="h-5 w-5 text-purple-600 mr-2" />
+                Shopping Cart ({cart.length} items)
+              </h4>
+              
+              {cart.length === 0 ? (
+                /* Empty State */
+                <div className="text-center py-8">
+                  <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                  <p className="text-gray-600 mb-4">No vendors selected yet</p>
+                  <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    Browse Vendors
+                  </button>
+                </div>
+              ) : (
+                /* Cart Items */
+                <div className="space-y-3 max-h-64 overflow-y-auto">
+                  {cart.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900 text-sm">{item.vendor_name}</p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded capitalize">
+                            {item.service_type}
+                          </span>
+                          <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
+                            Approved
+                          </span>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
-
-                {cart.length > 0 && (
-                  <div className="mt-4 pt-3 border-t">
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Total:</span>
-                      <span className="text-purple-600">{formatCurrency(budgetData.selected)}</span>
-                    </div>
-                    {currentEvent?.guest_count && (
-                      <div className="text-xs text-gray-600 text-center mt-1">
-                        Estimated total for {currentEvent.guest_count} guests: {formatCurrency(budgetData.selected * currentEvent.guest_count)}
+                      <div className="text-right">
+                        <p className="font-semibold text-gray-900">${item.price?.toLocaleString()}</p>
+                        <button className="text-purple-600 hover:text-purple-800 text-xs mt-1">
+                          Edit
+                        </button>
                       </div>
-                    )}
+                    </div>
+                  ))}
+                  
+                  {/* Cart Total */}
+                  <div className="border-t pt-3 mt-4">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-gray-900">Total:</span>
+                      <span className="font-bold text-lg text-purple-600">
+                        ${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()}
+                      </span>
+                    </div>
                   </div>
-                )}
+                  
+                  {/* Cart Actions */}
+                  <div className="flex space-x-2 mt-4">
+                    <button className="flex-1 px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 text-sm">
+                      Edit Cart
+                    </button>
+                    <button className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
+                      Checkout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Appointments & Deadlines */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Upcoming Appointments */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <Calendar className="h-5 w-5 text-blue-600 mr-2" />
+                Upcoming Appointments
+              </h4>
+              
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 text-sm">Venue Walkthrough</p>
+                    <p className="text-sm text-gray-600">Grand Palace Hall</p>
+                    <p className="text-xs text-blue-600 mt-1">Aug 20, 2025 - 3:00 PM</p>
+                  </div>
+                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">Confirmed</span>
+                </div>
+                
+                <div className="text-center py-4">
+                  <button className="text-blue-600 hover:text-blue-800 text-sm">
+                    View Full Calendar
+                  </button>
+                </div>
               </div>
+            </div>
+
+            {/* Critical Tasks & Alerts */}
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <AlertTriangle className="h-5 w-5 text-amber-600 mr-2" />
+                Tasks & Alerts
+              </h4>
+              
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 text-sm">Insurance Certificate Required</p>
+                    <p className="text-sm text-gray-600">Upload COI for venue booking</p>
+                    <p className="text-xs text-amber-600 mt-1">Due: Aug 25, 2025</p>
+                  </div>
+                </div>
+                
+                <div className="text-center py-4">
+                  <button className="text-amber-600 hover:text-amber-800 text-sm">
+                    View All Tasks
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-between items-center pt-6 border-t">
+            <button
+              onClick={() => setCurrentMode('continue')}
+              className="inline-flex items-center px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50"
+            >
+              <CheckCircle className="h-4 w-4 mr-2" />
+              Back to Progress View
+            </button>
+            
+            <div className="flex space-x-3">
+              <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                Export Summary
+              </button>
+              <button 
+                onClick={handleClose}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                Close Dashboard
+              </button>
             </div>
           </div>
         </div>
