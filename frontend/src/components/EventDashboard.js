@@ -82,6 +82,7 @@ const EventDashboard = () => {
   };
 
   const fetchPlanningProgress = async () => {
+    try {
       // Fetch planning state and cart to show progress
       const [stateResponse, cartResponse] = await Promise.all([
         axios.get(`${API}/events/${eventId}/planner/state`),
