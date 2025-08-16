@@ -122,8 +122,7 @@ const Login = () => {
       // For regular users, allow login regardless of role in database
       login(response.data.access_token, userData);
       
-      // Navigate to dashboard after successful login
-      navigate('/');
+      // React Router will automatically redirect when user state changes
     } catch (err) {
       if (err.response?.status === 401) {
         setError('Invalid email or password. Please check your credentials and try again.');
