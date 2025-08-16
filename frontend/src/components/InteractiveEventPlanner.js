@@ -14,6 +14,7 @@ const API = `${BACKEND_URL}/api`;
 
 const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }) => {
   const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [eventData, setEventData] = useState(currentEvent || null);
   const [loading, setLoading] = useState(false);
@@ -28,6 +29,17 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     remaining: 0
   });
   const [expandedCard, setExpandedCard] = useState(null);
+
+  // Handle close/exit functionality
+  const handleClose = () => {
+    if (onClose) {
+      // Used as modal - call the provided onClose
+      onClose();
+    } else {
+      // Used as standalone page - navigate back to dashboard
+      navigate('/');
+    }
+  };
 
   // Fetch user's most recent event or create a default one
   useEffect(() => {
