@@ -25,6 +25,8 @@ const EventDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showVenueSelection, setShowVenueSelection] = useState(false);
   const [showInteractivePlanner, setShowInteractivePlanner] = useState(false);
+  const [showQuickEdit, setShowQuickEdit] = useState(false);
+  const [quickEditData, setQuickEditData] = useState({});
   const [planningProgress, setPlanningProgress] = useState({
     selectedVendors: [],
     completedSteps: 0,
