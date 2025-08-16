@@ -171,6 +171,8 @@ function App() {
                       <Route path="/post-event/:eventId" element={<PostEvent />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/messages" element={<Messages />} />
+                      <Route path="/preferred-vendors" element={<PreferredVendors />} />
+                      <Route path="/event-history" element={<EventHistory />} />
                       
                       {/* Profile & Settings Routes */}
                       <Route path="/profile/settings" element={<ProfileSettings />} />
