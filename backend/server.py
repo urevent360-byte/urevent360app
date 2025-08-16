@@ -2976,6 +2976,543 @@ async def download_event_summary(
 #     print(f"⚠️ Warning: Could not load admin/vendor routes: {e}")
 #     # Continue without these routes for now
 
+# ====================================================================
+# APPOINTMENT & CALENDAR SYSTEM API ENDPOINTS
+# ====================================================================
+
+# Vendor Availability Management
+@api_router.post("/vendors/availability")
+async def create_vendor_availability(
+    availability: VendorAvailabilityRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create vendor availability time slot"""
+    if current_user.get("role") != "vendor":
+        raise HTTPException(status_code=403, detail="Only vendors can set availability")
+    
+    availability_data = VendorAvailability(
+        vendor_id=current_user["id"],
+        **availability.dict()
+    )
+    
+    result = await db.vendor_availability.insert_one(availability_data.dict())
+    return {"message": "Availability created successfully", "id": availability_data.id}
+
+@api_router.get("/vendors/availability")
+async def get_vendor_availability(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get vendor's availability schedule"""
+    if current_user.get("role") != "vendor":
+        raise HTTPException(status_code=403, detail="Only vendors can access this")
+    
+    availability = await db.vendor_availability.find(
+        {"vendor_id": current_user["id"], "is_active": True}
+    ).to_list(None)
+    
+    return {"availability": availability}
+
+@api_router.get("/vendors/{vendor_id}/availability")
+async def get_public_vendor_availability(
+    vendor_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get vendor's public availability for booking appointments"""
+    availability = await db.vendor_availability.find(
+        {"vendor_id": vendor_id, "is_active": True}
+    ).to_list(None)
+    
+    # Get existing appointments to filter out booked slots
+    existing_appointments = await db.appointments.find({
+        "vendor_id": vendor_id,
+        "status": {"$in": ["approved", "confirmed"]},
+        "scheduled_datetime": {"$gte": datetime.utcnow()}
+    }).to_list(None)
+    
+    return {
+        "availability": availability,
+        "booked_slots": [apt["scheduled_datetime"] for apt in existing_appointments]
+    }
+
+@api_router.put("/vendors/availability/{availability_id}")
+async def update_vendor_availability(
+    availability_id: str,
+    availability: VendorAvailabilityRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update vendor availability"""
+    if current_user.get("role") != "vendor":
+        raise HTTPException(status_code=403, detail="Only vendors can update availability")
+    
+    update_data = availability.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await db.vendor_availability.update_one(
+        {"id": availability_id, "vendor_id": current_user["id"]},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Availability slot not found")
+    
+    return {"message": "Availability updated successfully"}
+
+@api_router.delete("/vendors/availability/{availability_id}")
+async def delete_vendor_availability(
+    availability_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete vendor availability"""
+    if current_user.get("role") != "vendor":
+        raise HTTPException(status_code=403, detail="Only vendors can delete availability")
+    
+    result = await db.vendor_availability.update_one(
+        {"id": availability_id, "vendor_id": current_user["id"]},
+        {"$set": {"is_active": False}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Availability slot not found")
+    
+    return {"message": "Availability deleted successfully"}
+
+# Appointment Management
+@api_router.post("/appointments")
+async def create_appointment(
+    appointment_request: CreateAppointmentRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Client creates appointment request with vendor"""
+    # Validate vendor exists
+    vendor = await db.users.find_one({"id": appointment_request.vendor_id, "role": "vendor"})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+    
+    # Check if time slot is available
+    existing_appointment = await db.appointments.find_one({
+        "vendor_id": appointment_request.vendor_id,
+        "scheduled_datetime": appointment_request.scheduled_datetime,
+        "status": {"$in": ["approved", "confirmed"]}
+    })
+    
+    if existing_appointment:
+        raise HTTPException(status_code=400, detail="Time slot not available")
+    
+    # Create appointment
+    appointment = Appointment(
+        client_id=current_user["id"],
+        **appointment_request.dict()
+    )
+    
+    result = await db.appointments.insert_one(appointment.dict())
+    
+    # Create notification for vendor
+    await create_appointment_notification(
+        vendor_id=appointment_request.vendor_id,
+        client_name=current_user.get("name", "Client"),
+        appointment_type=appointment_request.appointment_type,
+        scheduled_datetime=appointment_request.scheduled_datetime,
+        appointment_id=appointment.id
+    )
+    
+    # Add to client's calendar
+    calendar_event = CalendarEvent(
+        user_id=current_user["id"],
+        title=f"Appointment with {vendor.get('name', 'Vendor')}",
+        description=f"{appointment_request.appointment_type.title()} appointment for event planning",
+        event_type="appointment",
+        date=appointment_request.scheduled_datetime,
+        appointment_id=appointment.id,
+        vendor_id=appointment_request.vendor_id,
+        reminder_minutes=[1440, 60]  # 24h and 1h reminders
+    )
+    await db.calendar_events.insert_one(calendar_event.dict())
+    
+    return {"message": "Appointment request created successfully", "appointment_id": appointment.id}
+
+@api_router.get("/appointments")
+async def get_appointments(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get user's appointments (client or vendor)"""
+    if current_user.get("role") == "vendor":
+        appointments = await db.appointments.find(
+            {"vendor_id": current_user["id"]}
+        ).sort("scheduled_datetime", 1).to_list(None)
+    else:
+        appointments = await db.appointments.find(
+            {"client_id": current_user["id"]}
+        ).sort("scheduled_datetime", 1).to_list(None)
+    
+    # Enrich with client/vendor information
+    for appointment in appointments:
+        if current_user.get("role") == "vendor":
+            client = await db.users.find_one({"id": appointment["client_id"]})
+            appointment["client_info"] = {
+                "name": client.get("name") if client else "Unknown Client",
+                "email": client.get("email") if client else ""
+            }
+        else:
+            vendor = await db.users.find_one({"id": appointment["vendor_id"]})
+            appointment["vendor_info"] = {
+                "name": vendor.get("name") if vendor else "Unknown Vendor",
+                "service": vendor.get("service") if vendor else "",
+                "rating": vendor.get("rating", 0)
+            }
+    
+    return {"appointments": appointments}
+
+@api_router.get("/appointments/{appointment_id}")
+async def get_appointment(
+    appointment_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get specific appointment details"""
+    appointment = await db.appointments.find_one({"id": appointment_id})
+    
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Check access permissions
+    if (current_user["id"] != appointment["client_id"] and 
+        current_user["id"] != appointment["vendor_id"]):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Enrich with additional info
+    client = await db.users.find_one({"id": appointment["client_id"]})
+    vendor = await db.users.find_one({"id": appointment["vendor_id"]})
+    
+    appointment["client_info"] = {
+        "name": client.get("name") if client else "Unknown Client",
+        "email": client.get("email") if client else "",
+        "phone": client.get("phone") if client else ""
+    }
+    appointment["vendor_info"] = {
+        "name": vendor.get("name") if vendor else "Unknown Vendor",
+        "service": vendor.get("service") if vendor else "",
+        "rating": vendor.get("rating", 0),
+        "contact": vendor.get("contact_info", {}) if vendor else {}
+    }
+    
+    return {"appointment": appointment}
+
+@api_router.put("/appointments/{appointment_id}/respond")
+async def respond_to_appointment(
+    appointment_id: str,
+    response: AppointmentResponseRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Vendor responds to appointment request (approve/decline)"""
+    appointment = await db.appointments.find_one({"id": appointment_id})
+    
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Only vendor can respond
+    if current_user["id"] != appointment["vendor_id"]:
+        raise HTTPException(status_code=403, detail="Only the vendor can respond to this appointment")
+    
+    # Update appointment status
+    update_data = {
+        "status": response.status,
+        "vendor_notes": response.vendor_notes,
+        "updated_at": datetime.utcnow()
+    }
+    
+    if response.status == "approved":
+        update_data["approved_at"] = datetime.utcnow()
+        if response.meeting_link and appointment["appointment_type"] == "virtual":
+            update_data["meeting_link"] = response.meeting_link
+        if response.suggested_datetime:
+            update_data["scheduled_datetime"] = response.suggested_datetime
+    
+    result = await db.appointments.update_one(
+        {"id": appointment_id},
+        {"$set": update_data}
+    )
+    
+    # Notify client of vendor response
+    client = await db.users.find_one({"id": appointment["client_id"]})
+    if client:
+        await create_appointment_response_notification(
+            client_id=appointment["client_id"],
+            vendor_name=current_user.get("name", "Vendor"),
+            status=response.status,
+            appointment_type=appointment["appointment_type"],
+            scheduled_datetime=appointment["scheduled_datetime"],
+            appointment_id=appointment_id
+        )
+    
+    return {"message": f"Appointment {response.status} successfully"}
+
+@api_router.put("/appointments/{appointment_id}/confirm")
+async def confirm_appointment(
+    appointment_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Client confirms approved appointment"""
+    appointment = await db.appointments.find_one({"id": appointment_id})
+    
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Only client can confirm
+    if current_user["id"] != appointment["client_id"]:
+        raise HTTPException(status_code=403, detail="Only the client can confirm this appointment")
+    
+    if appointment["status"] != "approved":
+        raise HTTPException(status_code=400, detail="Appointment must be approved before confirmation")
+    
+    # Update appointment status
+    result = await db.appointments.update_one(
+        {"id": appointment_id},
+        {"$set": {
+            "status": "confirmed",
+            "confirmed_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    # Add to vendor's calendar
+    vendor = await db.users.find_one({"id": appointment["vendor_id"]})
+    calendar_event = CalendarEvent(
+        user_id=appointment["vendor_id"],
+        title=f"Appointment with {current_user.get('name', 'Client')}",
+        description=f"{appointment['appointment_type'].title()} appointment for event planning",
+        event_type="appointment",
+        date=appointment["scheduled_datetime"],
+        appointment_id=appointment_id,
+        vendor_id=appointment["vendor_id"],
+        reminder_minutes=[1440, 60]  # 24h and 1h reminders
+    )
+    await db.calendar_events.insert_one(calendar_event.dict())
+    
+    return {"message": "Appointment confirmed successfully"}
+
+@api_router.put("/appointments/{appointment_id}/cancel")
+async def cancel_appointment(
+    appointment_id: str,
+    reason: str = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Cancel appointment (client or vendor)"""
+    appointment = await db.appointments.find_one({"id": appointment_id})
+    
+    if not appointment:
+        raise HTTPException(status_code=404, detail="Appointment not found")
+    
+    # Check if user is involved in appointment
+    if (current_user["id"] != appointment["client_id"] and 
+        current_user["id"] != appointment["vendor_id"]):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Update appointment status
+    result = await db.appointments.update_one(
+        {"id": appointment_id},
+        {"$set": {
+            "status": "cancelled",
+            "cancellation_reason": reason,
+            "cancelled_by": current_user["id"],
+            "cancelled_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow()
+        }}
+    )
+    
+    # Remove from calendars
+    await db.calendar_events.delete_many({"appointment_id": appointment_id})
+    
+    return {"message": "Appointment cancelled successfully"}
+
+# Calendar Management
+@api_router.get("/calendar")
+async def get_calendar_events(
+    start_date: str = None,
+    end_date: str = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get user's calendar events"""
+    filter_query = {"user_id": current_user["id"]}
+    
+    if start_date and end_date:
+        try:
+            start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+            end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+            filter_query["date"] = {"$gte": start_dt, "$lte": end_dt}
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format")
+    
+    events = await db.calendar_events.find(filter_query).sort("date", 1).to_list(None)
+    
+    # Also include appointments as calendar events
+    appointment_query = {"$or": [
+        {"client_id": current_user["id"]},
+        {"vendor_id": current_user["id"]}
+    ]}
+    
+    if start_date and end_date:
+        appointment_query["scheduled_datetime"] = filter_query.get("date", {})
+    
+    appointments = await db.appointments.find(appointment_query).to_list(None)
+    
+    # Convert appointments to calendar event format
+    for apt in appointments:
+        is_client = apt["client_id"] == current_user["id"]
+        other_user_id = apt["vendor_id"] if is_client else apt["client_id"]
+        other_user = await db.users.find_one({"id": other_user_id})
+        other_name = other_user.get("name", "Unknown") if other_user else "Unknown"
+        
+        events.append({
+            "id": f"appointment_{apt['id']}",
+            "title": f"Appointment with {other_name}",
+            "description": f"{apt['appointment_type'].title()} - {apt.get('client_notes', '')}",
+            "event_type": "appointment",
+            "date": apt["scheduled_datetime"],
+            "appointment_id": apt["id"],
+            "status": apt["status"]
+        })
+    
+    return {"events": events}
+
+@api_router.post("/calendar")
+async def create_calendar_event(
+    event_request: CalendarEventRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create custom calendar event/note"""
+    calendar_event = CalendarEvent(
+        user_id=current_user["id"],
+        **event_request.dict()
+    )
+    
+    result = await db.calendar_events.insert_one(calendar_event.dict())
+    return {"message": "Calendar event created successfully", "id": calendar_event.id}
+
+@api_router.put("/calendar/{event_id}")
+async def update_calendar_event(
+    event_id: str,
+    event_request: CalendarEventRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update calendar event"""
+    update_data = event_request.dict()
+    update_data["updated_at"] = datetime.utcnow()
+    
+    result = await db.calendar_events.update_one(
+        {"id": event_id, "user_id": current_user["id"]},
+        {"$set": update_data}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Calendar event not found")
+    
+    return {"message": "Calendar event updated successfully"}
+
+@api_router.delete("/calendar/{event_id}")
+async def delete_calendar_event(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete calendar event"""
+    result = await db.calendar_events.delete_one({
+        "id": event_id, 
+        "user_id": current_user["id"],
+        "event_type": {"$ne": "appointment"}  # Don't delete appointment events
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Calendar event not found")
+    
+    return {"message": "Calendar event deleted successfully"}
+
+# Notification System for Appointments
+async def create_appointment_notification(vendor_id: str, client_name: str, appointment_type: str, 
+                                       scheduled_datetime: datetime, appointment_id: str):
+    """Create notification for vendor when appointment is requested"""
+    # This would integrate with your notification system
+    # For now, we'll create a simple in-app notification
+    
+    notification = {
+        "id": str(uuid.uuid4()),
+        "user_id": vendor_id,
+        "type": "appointment_request",
+        "title": "New Appointment Request",
+        "message": f"{client_name} requested a {appointment_type} appointment on {scheduled_datetime.strftime('%Y-%m-%d %H:%M')}",
+        "data": {
+            "appointment_id": appointment_id,
+            "client_name": client_name,
+            "appointment_type": appointment_type,
+            "scheduled_datetime": scheduled_datetime.isoformat()
+        },
+        "read": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.notifications.insert_one(notification)
+    
+    # TODO: Send email/SMS notifications here
+    # await send_email_notification(vendor_email, notification)
+    # await send_sms_notification(vendor_phone, notification)
+
+async def create_appointment_response_notification(client_id: str, vendor_name: str, status: str,
+                                                 appointment_type: str, scheduled_datetime: datetime, 
+                                                 appointment_id: str):
+    """Create notification for client when vendor responds to appointment"""
+    notification = {
+        "id": str(uuid.uuid4()),
+        "user_id": client_id,
+        "type": "appointment_response",
+        "title": f"Appointment {status.title()}",
+        "message": f"{vendor_name} has {status} your {appointment_type} appointment on {scheduled_datetime.strftime('%Y-%m-%d %H:%M')}",
+        "data": {
+            "appointment_id": appointment_id,
+            "vendor_name": vendor_name,
+            "status": status,
+            "appointment_type": appointment_type,
+            "scheduled_datetime": scheduled_datetime.isoformat()
+        },
+        "read": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.notifications.insert_one(notification)
+
+# Payment Deadline Automation
+async def create_payment_deadline_events(booking_id: str, user_id: str, vendor_name: str, 
+                                       payment_amount: float, due_date: datetime):
+    """Automatically create calendar events for payment deadlines"""
+    # Main payment deadline
+    payment_event = CalendarEvent(
+        user_id=user_id,
+        title=f"Payment Due: {vendor_name}",
+        description=f"Final payment of ${payment_amount:,.2f} due for {vendor_name}",
+        event_type="payment_deadline",
+        date=due_date,
+        booking_id=booking_id,
+        reminder_minutes=[10080, 4320, 1440]  # 7 days, 3 days, 1 day
+    )
+    
+    await db.calendar_events.insert_one(payment_event.dict())
+    
+    # Create reminder events
+    reminder_dates = [
+        due_date - timedelta(days=7),
+        due_date - timedelta(days=3),
+        due_date - timedelta(days=1)
+    ]
+    
+    for i, reminder_date in enumerate(reminder_dates):
+        if reminder_date > datetime.utcnow():
+            days_before = [7, 3, 1][i]
+            reminder_event = CalendarEvent(
+                user_id=user_id,
+                title=f"Payment Reminder: {vendor_name}",
+                description=f"Payment of ${payment_amount:,.2f} due in {days_before} day(s)",
+                event_type="reminder",
+                date=reminder_date,
+                booking_id=booking_id
+            )
+            await db.calendar_events.insert_one(reminder_event.dict())
+
 # Include router in main app
 app.include_router(api_router)
 
