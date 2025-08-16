@@ -294,43 +294,13 @@ const EventDashboard = () => {
               </div>
             </div>
 
-            {/* Next Steps */}
+            {/* Quick Actions */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Continue Planning</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                {/* Continue Working Button - Uses EXACT event data */}
-                <button 
-                  onClick={() => {
-                    if (!loading && event) {
-                      setShowInteractivePlanner(true);
-                    }
-                  }}
-                  disabled={loading || !event}
-                  className={`w-full text-left p-4 border-2 border-green-200 rounded-lg hover:bg-green-50 bg-gradient-to-r from-green-50 to-emerald-50 ${loading || !event ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                        <Play className="h-6 w-6 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="text-base font-semibold text-green-900">Continue Your Event Planning</p>
-                        <p className="text-sm text-green-700">Pick up where you left off with your event details</p>
-                        <div className="flex items-center mt-2 space-x-4 text-xs text-green-600">
-                          <span>🎪 {event?.event_type || 'Event'}</span>
-                          <span>👥 {event?.guest_count || 0} guests</span>
-                          <span>💰 {event?.budget ? `$${event.budget.toLocaleString()}` : 'Budget TBD'}</span>
-                          <span>📍 {event?.location || 'Location TBD'}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-green-600" />
-                  </div>
-                </button>
-                
                 <button
                   onClick={() => setShowVenueSelection(true)}
-                  className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center">
                     <Building className="h-5 w-5 text-gray-400 mr-3" />
@@ -345,7 +315,7 @@ const EventDashboard = () => {
                   </div>
                 </button>
                 
-                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center">
                     <Users className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
@@ -354,12 +324,13 @@ const EventDashboard = () => {
                     </div>
                   </div>
                 </button>
-                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                
+                <button className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex items-center">
                     <CreditCard className="h-5 w-5 text-gray-400 mr-3" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Set Up Budget Tracker</p>
-                      <p className="text-xs text-gray-500">Plan your expenses</p>
+                      <p className="text-sm font-medium text-gray-900">Budget Tracker</p>
+                      <p className="text-xs text-gray-500">Monitor your expenses</p>
                     </div>
                   </div>
                 </button>
