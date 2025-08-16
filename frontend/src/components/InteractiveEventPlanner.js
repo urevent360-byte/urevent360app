@@ -823,6 +823,21 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
                 <Edit3 className="h-4 w-4" />
               </button>
             </div>
+
+            {/* Special message for venue-free planning */}
+            {!shouldIncludeVenueStep() && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center">
+                  <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                  <span className="text-green-800 font-medium">
+                    {currentEvent?.preferred_venue_type === 'My Own Private Space' 
+                      ? "Perfect! We'll focus on services for your private space." 
+                      : "Great! Since you already have a venue, we'll focus on the services you need."}
+                  </span>
+                </div>
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="bg-white p-4 rounded-lg border border-purple-100 relative group">
                 <div className="flex items-center justify-between">
