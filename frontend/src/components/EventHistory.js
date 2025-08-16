@@ -249,7 +249,9 @@ const EventHistory = () => {
         estimated_guests: event.guests
       };
 
-      const response = await axios.post(`${API}/events/duplicate`, duplicateData);
+      const response = await axios.post(`${API}/events/duplicate`, duplicateData, {
+        headers: getAuthHeaders()
+      });
       
       setMessage('Event duplicated successfully! Redirecting to event planning...');
       
