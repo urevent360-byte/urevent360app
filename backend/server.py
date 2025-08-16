@@ -332,6 +332,101 @@ class Message(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     read: bool = False
 
+# Appointment & Calendar Models
+class VendorAvailability(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    vendor_id: str
+    day_of_week: int  # 0=Monday, 6=Sunday
+    start_time: str  # HH:MM format (e.g., "09:00")
+    end_time: str    # HH:MM format (e.g., "17:00")
+    appointment_types: List[str]  # ["in_person", "phone", "virtual"]
+    location: Optional[str] = None  # For in-person meetings
+    timezone: str = "UTC"
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class Appointment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    client_id: str
+    vendor_id: str
+    event_id: Optional[str] = None
+    appointment_type: str  # "in_person", "phone", "virtual"
+    scheduled_datetime: datetime
+    duration_minutes: int = 60
+    status: str = "pending"  # pending, approved, confirmed, declined, cancelled, completed
+    client_notes: Optional[str] = None
+    vendor_notes: Optional[str] = None
+    
+    # Type-specific fields
+    location: Optional[str] = None  # For in-person meetings
+    phone_number: Optional[str] = None  # For phone calls
+    meeting_link: Optional[str] = None  # For virtual meetings
+    
+    # Cart context - what client wants to discuss
+    cart_items: List[Dict[str, Any]] = []
+    estimated_budget: Optional[float] = None
+    
+    # Timestamps
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    approved_at: Optional[datetime] = None
+    confirmed_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+
+class CalendarEvent(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    title: str
+    description: Optional[str] = None
+    event_type: str  # "appointment", "payment_deadline", "reminder", "note"
+    date: datetime
+    all_day: bool = False
+    
+    # Related references
+    appointment_id: Optional[str] = None
+    booking_id: Optional[str] = None
+    vendor_id: Optional[str] = None
+    
+    # Reminder settings
+    reminder_minutes: List[int] = []  # e.g., [1440, 60] for 24h and 1h before
+    
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+# Request Models for Appointment APIs
+class CreateAppointmentRequest(BaseModel):
+    vendor_id: str
+    event_id: Optional[str] = None
+    appointment_type: str  # "in_person", "phone", "virtual"
+    scheduled_datetime: datetime
+    duration_minutes: int = 60
+    client_notes: Optional[str] = None
+    location: Optional[str] = None
+    phone_number: Optional[str] = None
+    cart_items: List[Dict[str, Any]] = []
+    estimated_budget: Optional[float] = None
+
+class VendorAvailabilityRequest(BaseModel):
+    day_of_week: int
+    start_time: str
+    end_time: str
+    appointment_types: List[str]
+    location: Optional[str] = None
+    timezone: str = "UTC"
+
+class AppointmentResponseRequest(BaseModel):
+    status: str  # "approved", "declined"
+    vendor_notes: Optional[str] = None
+    suggested_datetime: Optional[datetime] = None
+    meeting_link: Optional[str] = None
+
+class CalendarEventRequest(BaseModel):
+    title: str
+    description: Optional[str] = None
+    event_type: str = "note"
+    date: datetime
+    all_day: bool = False
+    reminder_minutes: List[int] = []
+
 # Utility Functions
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
