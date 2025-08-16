@@ -109,7 +109,7 @@ const Login = () => {
       const userData = response.data.user;
       
       // Validate that the user role matches the selected role
-      if (selectedRole !== 'user' && userData.role !== selectedRole) {
+      if (selectedRole !== 'client' && userData.role !== selectedRole) {
         setError(`This account is not registered as a ${selectedRole}. Please select the correct account type or contact support.`);
         setLoading(false);
         return;
