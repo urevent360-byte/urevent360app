@@ -1240,6 +1240,141 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
           </div>
         </div>
       </div>
+
+      {/* Edit Event Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Edit Event Details</h3>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {(editingField === 'all' || editingField === 'event_type') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Event Type
+                  </label>
+                  <select
+                    name="event_type"
+                    value={editFormData.event_type}
+                    onChange={handleEditInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  >
+                    <option value="">Select event type</option>
+                    <option value="Wedding">Wedding</option>
+                    <option value="Corporate Event">Corporate Event</option>
+                    <option value="Birthday Party">Birthday Party</option>
+                    <option value="Anniversary">Anniversary</option>
+                    <option value="Quinceañera">Quinceañera</option>
+                    <option value="Sweet 16">Sweet 16</option>
+                    <option value="Bar/Bat Mitzvah">Bar/Bat Mitzvah</option>
+                    <option value="Graduation">Graduation</option>
+                    <option value="Baby Shower">Baby Shower</option>
+                    <option value="Retirement">Retirement</option>
+                  </select>
+                </div>
+              )}
+
+              {(editingField === 'all' || editingField === 'guest_count') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Guest Count
+                  </label>
+                  <input
+                    type="number"
+                    name="guest_count"
+                    value={editFormData.guest_count}
+                    onChange={handleEditInputChange}
+                    placeholder="Number of guests"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              )}
+
+              {(editingField === 'all' || editingField === 'budget') && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Budget ($)
+                  </label>
+                  <input
+                    type="number"
+                    name="budget"
+                    value={editFormData.budget}
+                    onChange={handleEditInputChange}
+                    placeholder="Total budget"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              )}
+
+              {(editingField === 'all' || editingField === 'location') && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Location/City
+                    </label>
+                    <input
+                      type="text"
+                      name="location"
+                      value={editFormData.location}
+                      onChange={handleEditInputChange}
+                      placeholder="City or area"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Zipcode
+                    </label>
+                    <input
+                      type="text"
+                      name="zipcode"
+                      value={editFormData.zipcode}
+                      onChange={handleEditInputChange}
+                      placeholder="12345"
+                      maxLength="5"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveEventData}
+                disabled={loading}
+                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
