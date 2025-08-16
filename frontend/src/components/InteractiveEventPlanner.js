@@ -108,7 +108,12 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
   // Fetch user's most recent event or create a default one
   useEffect(() => {
     const fetchEventData = async () => {
+      console.log('🔍 DEBUG: InteractiveEventPlanner useEffect');
+      console.log('🔍 currentEvent prop:', currentEvent);
+      console.log('🔍 eventId prop:', eventId);
+      
       if (currentEvent) {
+        console.log('✅ Using currentEvent data:', currentEvent);
         setEventData(currentEvent);
         setBudgetData({
           set: currentEvent.budget || 0,
@@ -121,7 +126,10 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
       setLoading(true);
       try {
         const headers = getAuthHeaders();
+        console.log('🔍 Auth headers:', headers);
+        
         if (!headers.Authorization) {
+          console.log('❌ No auth token - using sample data');
           // No authentication token, set default sample data
           setEventData({
             name: 'My Event',
