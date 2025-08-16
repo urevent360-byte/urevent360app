@@ -67,12 +67,9 @@ const Login = () => {
   ];
 
   const handleRoleSelect = (role) => {
-    console.log('🔥 handleRoleSelect called with role:', role);
     setSelectedRole(role);
-    console.log('🔥 Setting step to login-form...');
     setStep('login-form');
     setError('');
-    console.log('🔥 Step should now be login-form');
     
     // Pre-fill demo credentials based on role
     if (role === 'admin') {
