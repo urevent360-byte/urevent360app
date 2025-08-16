@@ -13,6 +13,9 @@ const VenueBrowser = () => {
   const [favorites, setFavorites] = useState([]);
   const [filters, setFilters] = useState({
     location: '',
+    zipcode: '',
+    search_radius: 25,
+    only_exact_location: false,
     venue_type: '',
     min_capacity: '',
     max_price: '',
