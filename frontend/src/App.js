@@ -77,7 +77,7 @@ function App() {
   const fetchUserProfile = async () => {
     try {
       const response = await axios.get(`${API}/users/profile`);
-      setUser(response.data.user);
+      setUser(response.data); // Profile API returns user data directly, not wrapped in .user
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
       logout();
