@@ -193,7 +193,15 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     fetchEventData();
   }, [currentEvent]);
 
-  const plannerSteps = [
+  // Check if venue step should be included based on venue type selection
+  const shouldIncludeVenueStep = () => {
+    const venueType = currentEvent?.preferred_venue_type || eventData?.preferred_venue_type;
+    const skipVenueTypes = ['My Own Private Space', 'I Already Have a Venue'];
+    return !skipVenueTypes.includes(venueType);
+  };
+
+  // Define all possible steps
+  const allPlannerSteps = [
     {
       id: 'planning',
       title: 'Start Planning',
@@ -205,26 +213,26 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     },
     {
       id: 'venue',
-      title: 'Select Venue',
-      subtitle: 'Choose the perfect location for your event',
+      title: 'Venue',
+      subtitle: 'Find the perfect location for your event',
       icon: MapPin,
       color: 'bg-blue-500',
       searchable: true,
-      required: false
+      required: true
     },
     {
       id: 'decoration',
-      title: 'Event Decoration',
+      title: 'Decoration',
       subtitle: 'Transform your space with beautiful decorations',
       icon: Sparkles,
-      color: 'bg-purple-500',
+      color: 'bg-pink-500',
       searchable: true,
       required: false
     },
     {
       id: 'catering',
-      title: 'Catering Services',
-      subtitle: 'Delight your guests with amazing food',
+      title: 'Catering',
+      subtitle: 'Delicious food and beverages for your guests',
       icon: Utensils,
       color: 'bg-green-500',
       searchable: true,
@@ -232,68 +240,84 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     },
     {
       id: 'bar',
-      title: 'Bar Services',
-      subtitle: 'Professional bar and beverage service',
+      title: 'Bar Service',
+      subtitle: 'Professional bartending and drink service',
       icon: Wine,
-      color: 'bg-amber-500',
+      color: 'bg-red-500',
       searchable: true,
       required: false
     },
     {
       id: 'planner',
       title: 'Event Planner',
-      subtitle: 'Professional event planning and coordination',
-      icon: Calendar,
-      color: 'bg-teal-500',
+      subtitle: 'Professional coordination and management',
+      icon: UserCheck,
+      color: 'bg-indigo-500',
       searchable: true,
       required: false
     },
     {
       id: 'photography',
-      title: 'Photography & Video',
+      title: 'Photography',
       subtitle: 'Capture every precious moment',
       icon: Camera,
-      color: 'bg-indigo-500',
+      color: 'bg-yellow-500',
       searchable: true,
       required: false
     },
     {
       id: 'dj',
       title: 'DJ & Music',
-      subtitle: 'Set the perfect mood with music',
+      subtitle: 'Keep the party going with great music',
       icon: Music,
-      color: 'bg-red-500',
+      color: 'bg-purple-500',
       searchable: true,
       required: false
     },
     {
       id: 'staffing',
-      title: 'Waitstaff Service',
-      subtitle: 'Professional staff for seamless service',
-      icon: UserCheck,
-      color: 'bg-orange-500',
+      title: 'Waitstaff',
+      subtitle: 'Professional service staff for your event',
+      icon: User,
+      color: 'bg-teal-500',
       searchable: true,
       required: false
     },
     {
       id: 'entertainment',
       title: 'Entertainment',
-      subtitle: 'Additional entertainment for your guests',
+      subtitle: 'Special performances and activities',
       icon: Zap,
-      color: 'bg-pink-500',
+      color: 'bg-orange-500',
       searchable: true,
       required: false
     },
     {
       id: 'review',
-      title: 'Review & Confirm',
-      subtitle: 'Review your selections and finalize your event plan',
+      title: 'Review',
+      subtitle: 'Review and finalize your event plan',
       icon: CheckCircle,
-      color: 'bg-emerald-500',
+      color: 'bg-green-600',
       searchable: false,
-      required: false
+      required: true
     }
   ];
+
+  // Filter steps based on venue type and services needed
+  const plannerSteps = allPlannerSteps.filter(step => {
+    // Always include planning and review steps
+    if (step.id === 'planning' || step.id === 'review') {
+      return true;
+    }
+    
+    // Conditionally include venue step
+    if (step.id === 'venue') {
+      return shouldIncludeVenueStep();
+    }
+    
+    // For service steps, check if they're needed
+    return true; // We'll handle filtering in the step content instead
+  });
 
   useEffect(() => {
     // Load saved plan and cart from backend when component mounts
