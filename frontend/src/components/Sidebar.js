@@ -22,6 +22,7 @@ const Sidebar = ({ open, setOpen, className = "" }) => {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Create Event', href: '/events/create', icon: Calendar },
+    { name: 'Calendar & Appointments', href: '/calendar', icon: CalendarDays },
     { name: 'Venues', href: '/venues', icon: MapPin },
     { name: 'Vendors', href: '/vendors', icon: Users },
     { name: 'Preferred Vendors', href: '/preferred-vendors', icon: Heart },
