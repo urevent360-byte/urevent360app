@@ -291,7 +291,7 @@ const EventCreation = () => {
     
     switch (step) {
       case 1:
-        return eventData.name.trim() !== '';
+        return eventData.name.trim() !== '' && eventData.zipcode.trim() !== '' && eventData.zipcode.length === 5;
       case 2:
         return eventData.event_type !== '' && eventData.date !== '';
       case 3:
