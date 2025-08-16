@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-Event History API Testing for Urevent 360 Platform
-Focus: Testing Event History API functionality to identify any backend issues.
+Calendar & Appointment Integration Backend Testing for Urevent 360 Platform
+Focus: Testing newly implemented Calendar & Appointment Integration backend system.
 
-SPECIFIC TESTING FOCUS:
-1. Event History API: Test GET /api/users/event-history endpoint
-2. Mock Data Verification: Verify it returns proper mock data when no real events exist
-3. Response Format: Check the response format matches what the frontend expects
-4. Authentication: Verify JWT token generation for client login (sarah.johnson@email.com/SecurePass123)
-5. Event History Endpoint Authentication: Test that the event-history endpoint works with proper authentication
-6. Data Structure: Check the event history data structure to ensure it matches what the EventHistory.js component expects
-7. Backend Error Identification: Identify any backend errors that might be causing frontend runtime issues
+PRIORITY TESTING FOCUS (as per review request):
+1. Authentication Test: JWT token authentication for all appointment endpoints
+2. Vendor Availability Management: POST/GET availability endpoints  
+3. Appointment Workflow: Create, get, respond, confirm appointments
+4. Calendar Integration: GET/POST calendar events with appointments
+5. Pre-Booking Validation: finalize endpoint with appointment validation
+6. Payment Deadline Automation: automatic payment deadlines and calendar integration
+
+Test all three appointment types: in_person, phone, and virtual
 """
 
 import requests
