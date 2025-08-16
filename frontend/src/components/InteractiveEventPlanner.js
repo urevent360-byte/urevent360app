@@ -431,6 +431,56 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     });
   };
 
+  const loadPlanningProgress = async () => {
+    try {
+      // Get existing cart to show selected vendors
+      const cartResponse = await axios.get(`${API}/events/${eventId}/cart`, getAuthHeaders());
+      const existingCart = cartResponse.data.cart || [];
+      
+      // Calculate progress
+      const completedSteps = existingCart.length;
+      
+      // Define all service types
+      const allServices = [
+        { id: 'venue', name: '🏛️ Venue Selection', icon: '🏛️' },
+        { id: 'decoration', name: '🎨 Decoration & Design', icon: '🎨' },
+        { id: 'catering', name: '🍽️ Catering Services', icon: '🍽️' },
+        { id: 'bar', name: '🍸 Bar & Beverages', icon: '🍸' },
+        { id: 'planner', name: '📋 Event Coordinator', icon: '📋' },
+        { id: 'photography', name: '📸 Photography', icon: '📸' },
+        { id: 'dj', name: '🎵 DJ & Music', icon: '🎵' },
+        { id: 'staffing', name: '👥 Event Staffing', icon: '👥' },
+        { id: 'entertainment', name: '🎭 Entertainment', icon: '🎭' },
+        { id: 'review', name: '📋 Final Review', icon: '📋' }
+      ];
+      
+      // Find pending services
+      const selectedServiceTypes = existingCart.map(item => item.service_type);
+      const pendingServices = allServices.filter(service => 
+        !selectedServiceTypes.includes(service.id) && service.id !== 'review'
+      );
+      
+      setPlanningProgress({
+        selectedVendors: existingCart,
+        completedSteps,
+        pendingServices,
+        totalServices: allServices.length - 1 // Exclude review step
+      });
+      
+      // Set the cart state
+      setCart(existingCart);
+      
+    } catch (err) {
+      console.error('Error loading planning progress:', err);
+      setPlanningProgress({
+        selectedVendors: [],
+        completedSteps: 0,
+        pendingServices: [],
+        totalServices: 9
+      });
+    }
+  };
+
   const searchVendors = async (stepId, searchTerm = '') => {
     try {
       setLoading(true);
