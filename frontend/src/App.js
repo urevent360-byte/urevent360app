@@ -21,6 +21,20 @@ import PostEvent from './components/PostEvent';
 import Profile from './components/Profile';
 import Messages from './components/Messages';
 
+// Settings Components
+import ProfileSettings from './components/settings/ProfileSettings';
+import EditProfile from './components/settings/EditProfile';
+import ChangePassword from './components/settings/ChangePassword';
+import LanguageSettings from './components/settings/LanguageSettings';
+import TwoFactorAuth from './components/settings/TwoFactorAuth';
+import AccountSettings from './components/settings/AccountSettings';
+import SecuritySettings from './components/settings/SecuritySettings';
+import NotificationSettings from './components/settings/NotificationSettings';
+import PrivacySettings from './components/settings/PrivacySettings';
+import IntegrationsSettings from './components/settings/IntegrationsSettings';
+import BillingSettings from './components/settings/BillingSettings';
+import HelpSupport from './components/settings/HelpSupport';
+
 // Admin Components
 import AdminLayout from './components/admin/AdminLayout';
 
