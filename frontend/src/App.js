@@ -28,6 +28,7 @@ import ChangePassword from './components/settings/ChangePassword';
 import LanguageSettings from './components/settings/LanguageSettings';
 import TwoFactorAuth from './components/settings/TwoFactorAuth';
 import AccountSettings from './components/settings/AccountSettings';
+import EnhancedAccountSettings from './components/settings/EnhancedAccountSettings';
 import SecuritySettings from './components/settings/SecuritySettings';
 import NotificationSettings from './components/settings/NotificationSettings';
 import PrivacySettings from './components/settings/PrivacySettings';
