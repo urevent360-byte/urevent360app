@@ -566,79 +566,34 @@ const EventCreation = () => {
         // If not wedding, fall through to requirements
 
       case culturalStyleStepNumber:
-        // Cultural Style Step (shown for applicable event types)
-        const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
-        const showCulturalStep = selectedEventType?.hasCulturalStyles && eventData.event_type !== 'bat_mitzvah';
-        
-        // For weddings, only show if sub_event_type is selected
-        const showForWedding = eventData.event_type === 'wedding' && eventData.sub_event_type;
-        
-        if (showCulturalStep && (eventData.event_type !== 'wedding' || showForWedding)) {
-          const getEventTypeTitle = () => {
-            switch (eventData.event_type) {
-              case 'wedding': return 'Wedding Cultural Style';
-              case 'quinceanera': return 'Quinceañera Cultural Style';
-              case 'sweet_16': return 'Sweet 16 Cultural Style';
-              case 'corporate': return 'Corporate Event Cultural Style';
-              case 'birthday': return 'Birthday Party Cultural Style';
-              case 'anniversary': return 'Anniversary Cultural Style';
-              case 'graduation': return 'Graduation Cultural Style';
-              case 'baby_shower': return 'Baby Shower Cultural Style';
-              case 'retirement': return 'Retirement Party Cultural Style';
-              default: return 'Event Cultural Style';
-            }
-          };
-
-          const getEventTypeDescription = () => {
-            switch (eventData.event_type) {
-              case 'wedding': 
-                return 'Choose the cultural style that best represents your wedding traditions. This will help us match you with vendors who specialize in your cultural preferences:';
-              case 'quinceanera': 
-                return 'Select the cultural style for your Quinceañera celebration. We\'ll connect you with vendors who understand your traditions:';
-              case 'sweet_16': 
-                return 'Choose your preferred cultural style for your Sweet 16 celebration. This helps us find vendors familiar with your traditions:';
-              case 'corporate': 
-                return 'Select a cultural style that reflects your company culture or target audience. This helps match you with appropriate vendors:';
-              case 'birthday': 
-                return 'Choose the cultural style that best fits your birthday celebration. This helps us recommend suitable vendors:';
-              case 'anniversary': 
-                return 'Select the cultural style for your anniversary celebration. We\'ll find vendors who can honor your traditions:';
-              case 'graduation': 
-                return 'Choose your preferred cultural style for your graduation celebration. This helps us match you with appropriate vendors:';
-              case 'baby_shower': 
-                return 'Select the cultural style for your baby shower. We\'ll connect you with vendors who understand your preferences:';
-              case 'retirement': 
-                return 'Choose the cultural style for your retirement celebration. This helps us find vendors who can create the perfect atmosphere:';
-              default: 
-                return 'Choose the cultural style that best represents your event. This will help us match you with vendors who specialize in your cultural preferences:';
-            }
-          };
-
+        // Handle both Cultural Style and Corporate Event Types
+        if (eventData.event_type === 'corporate') {
+          // Corporate Event Types Step
           return (
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-4">
-                  {getEventTypeTitle()} *
+                  Corporate Event Types *
                 </label>
                 <p className="text-sm text-gray-600 mb-6">
-                  {getEventTypeDescription()}
+                  Select the type(s) of corporate event you're planning. This helps us match you with vendors who specialize in business events and understand your professional requirements:
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {culturalStyles.map((style) => (
+                  {corporateEventTypes.map((type) => (
                     <div
-                      key={style.id}
-                      onClick={() => handleInputChange({ target: { name: 'cultural_style', value: style.id } })}
+                      key={type.id}
+                      onClick={() => handleInputChange({ target: { name: 'cultural_style', value: type.id } })}
                       className={`p-5 border rounded-lg cursor-pointer transition-all ${
-                        eventData.cultural_style === style.id
+                        eventData.cultural_style === type.id
                           ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
-                          : `border-gray-300 hover:border-gray-400 ${style.color}`
+                          : `border-gray-300 hover:border-gray-400 ${type.color}`
                       }`}
                     >
                       <div className="flex items-start space-x-4">
-                        <div className="text-2xl">{style.icon}</div>
+                        <div className="text-2xl">{type.icon}</div>
                         <div>
-                          <h3 className="font-medium text-gray-900 text-base">{style.name}</h3>
-                          <p className="text-sm text-gray-600 mt-1">{style.desc}</p>
+                          <h3 className="font-medium text-gray-900 text-base">{type.name}</h3>
+                          <p className="text-sm text-gray-600 mt-1">{type.desc}</p>
                         </div>
                       </div>
                     </div>
@@ -646,11 +601,11 @@ const EventCreation = () => {
                 </div>
                 <div className="mt-6 bg-blue-50 p-4 rounded-lg">
                   <div className="flex items-start space-x-3">
-                    <div className="text-blue-600">ℹ️</div>
+                    <div className="text-blue-600">💼</div>
                     <div>
-                      <h4 className="font-medium text-blue-900">Cultural Vendor Matching</h4>
+                      <h4 className="font-medium text-blue-900">Professional Vendor Matching</h4>
                       <p className="text-sm text-blue-700 mt-1">
-                        Based on your selection, we'll prioritize vendors who specialize in your cultural traditions, including appropriate decorations, cuisine, music, and service expertise.
+                        Based on your selection, we'll prioritize business-focused vendors who understand corporate requirements, including professional catering, AV equipment, formal venue setups, and executive service standards.
                       </p>
                     </div>
                   </div>
@@ -658,6 +613,97 @@ const EventCreation = () => {
               </div>
             </div>
           );
+        } else {
+          // Cultural Style Step (shown for applicable event types)
+          const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
+          const showCulturalStep = selectedEventType?.hasCulturalStyles && eventData.event_type !== 'bat_mitzvah';
+          
+          // For weddings, only show if sub_event_type is selected
+          const showForWedding = eventData.event_type === 'wedding' && eventData.sub_event_type;
+          
+          if (showCulturalStep && (eventData.event_type !== 'wedding' || showForWedding)) {
+            const getEventTypeTitle = () => {
+              switch (eventData.event_type) {
+                case 'wedding': return 'Wedding Cultural Style';
+                case 'quinceanera': return 'Quinceañera Cultural Style';
+                case 'sweet_16': return 'Sweet 16 Cultural Style';
+                case 'birthday': return 'Birthday Party Cultural Style';
+                case 'anniversary': return 'Anniversary Cultural Style';
+                case 'graduation': return 'Graduation Cultural Style';
+                case 'baby_shower': return 'Baby Shower Cultural Style';
+                case 'retirement': return 'Retirement Party Cultural Style';
+                default: return 'Event Cultural Style';
+              }
+            };
+
+            const getEventTypeDescription = () => {
+              switch (eventData.event_type) {
+                case 'wedding': 
+                  return 'Choose the cultural style that best represents your wedding traditions. This will help us match you with vendors who specialize in your cultural preferences:';
+                case 'quinceanera': 
+                  return 'Select the cultural style for your Quinceañera celebration. We\'ll connect you with vendors who understand your traditions:';
+                case 'sweet_16': 
+                  return 'Choose your preferred cultural style for your Sweet 16 celebration. This helps us find vendors familiar with your traditions:';
+                case 'birthday': 
+                  return 'Choose the cultural style that best fits your birthday celebration. This helps us recommend suitable vendors:';
+                case 'anniversary': 
+                  return 'Select the cultural style for your anniversary celebration. We\'ll find vendors who can honor your traditions:';
+                case 'graduation': 
+                  return 'Choose your preferred cultural style for your graduation celebration. This helps us match you with appropriate vendors:';
+                case 'baby_shower': 
+                  return 'Select the cultural style for your baby shower. We\'ll connect you with vendors who understand your preferences:';
+                case 'retirement': 
+                  return 'Choose the cultural style for your retirement celebration. This helps us find vendors who can create the perfect atmosphere:';
+                default: 
+                  return 'Choose the cultural style that best represents your event. This will help us match you with vendors who specialize in your cultural preferences:';
+              }
+            };
+
+            return (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-4">
+                    {getEventTypeTitle()} *
+                  </label>
+                  <p className="text-sm text-gray-600 mb-6">
+                    {getEventTypeDescription()}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {culturalStyles.map((style) => (
+                      <div
+                        key={style.id}
+                        onClick={() => handleInputChange({ target: { name: 'cultural_style', value: style.id } })}
+                        className={`p-5 border rounded-lg cursor-pointer transition-all ${
+                          eventData.cultural_style === style.id
+                            ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
+                            : `border-gray-300 hover:border-gray-400 ${style.color}`
+                        }`}
+                      >
+                        <div className="flex items-start space-x-4">
+                          <div className="text-2xl">{style.icon}</div>
+                          <div>
+                            <h3 className="font-medium text-gray-900 text-base">{style.name}</h3>
+                            <p className="text-sm text-gray-600 mt-1">{style.desc}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-6 bg-blue-50 p-4 rounded-lg">
+                    <div className="flex items-start space-x-3">
+                      <div className="text-blue-600">ℹ️</div>
+                      <div>
+                        <h4 className="font-medium text-blue-900">Cultural Vendor Matching</h4>
+                        <p className="text-sm text-blue-700 mt-1">
+                          Based on your selection, we'll prioritize vendors who specialize in your cultural traditions, including appropriate decorations, cuisine, music, and service expertise.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          }
         }
         // If not applicable for cultural step, fall through to requirements
         
