@@ -39,7 +39,7 @@ const Register = () => {
 
     try {
       const { confirmPassword, ...submitData } = formData;
-      const response = await axios.post(`${API}/auth/register`, submitData);
+      const response = await axios.post(`${API}/register`, submitData);
       login(response.data.access_token, response.data.user);
     } catch (err) {
       setError(err.response?.data?.detail || 'Registration failed. Please try again.');
