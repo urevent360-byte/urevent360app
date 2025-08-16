@@ -1271,6 +1271,211 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     );
   };
 
+  // Render different interfaces based on mode
+  if (mode === 'continue') {
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div className="relative top-4 mx-auto p-0 border w-full max-w-7xl shadow-lg rounded-lg bg-white mb-8">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-green-50 to-emerald-50">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                <Play className="h-6 w-6 text-green-600 mr-2" />
+                Continue Event Planning
+              </h2>
+              <p className="text-sm text-gray-600">{eventData?.name || 'My Event'}</p>
+            </div>
+            <button 
+              onClick={handleClose} 
+              className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
+              title="Close planner"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Continue Planning Content */}
+          <div className="p-6">
+            {/* Progress Overview */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              {/* Progress Summary */}
+              <div className="lg:col-span-1">
+                <div className="bg-green-50 rounded-lg p-6 border border-green-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Progress</h3>
+                  
+                  <div className="space-y-4">
+                    {/* Progress Bar */}
+                    <div>
+                      <div className="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Completed Services</span>
+                        <span>{planningProgress.completedSteps}/{planningProgress.totalServices || 9}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3">
+                        <div 
+                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-300" 
+                          style={{width: `${((planningProgress.completedSteps || 0) / (planningProgress.totalServices || 9)) * 100}%`}}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* Budget Overview */}
+                    <div className="border-t pt-4">
+                      <h4 className="font-medium text-gray-900 mb-2">Budget Status</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Total Budget:</span>
+                          <span className="font-medium">${eventData?.budget?.toLocaleString() || '0'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Selected:</span>
+                          <span className="font-medium text-green-600">${budgetData.selected?.toLocaleString() || '0'}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Remaining:</span>
+                          <span className={`font-medium ${budgetData.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            ${budgetData.remaining?.toLocaleString() || '0'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Selected Vendors */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-lg border border-gray-200">
+                  <div className="p-4 border-b">
+                    <h3 className="text-lg font-semibold text-gray-900">Selected Vendors</h3>
+                  </div>
+                  <div className="p-4">
+                    {planningProgress.selectedVendors && planningProgress.selectedVendors.length > 0 ? (
+                      <div className="space-y-3">
+                        {planningProgress.selectedVendors.map((vendor, index) => (
+                          <div key={index} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                              <div>
+                                <p className="font-medium text-gray-900">
+                                  {vendor.service_type === 'venue' && '🏛️'}
+                                  {vendor.service_type === 'catering' && '🍽️'}
+                                  {vendor.service_type === 'photography' && '📸'}
+                                  {vendor.service_type === 'decoration' && '🎨'}
+                                  {vendor.service_type === 'dj' && '🎵'}
+                                  {vendor.service_type === 'bar' && '🍸'}
+                                  {vendor.service_type === 'planner' && '📋'}
+                                  {vendor.service_type === 'staffing' && '👥'}
+                                  {vendor.service_type === 'entertainment' && '🎭'}
+                                  {!['venue', 'catering', 'photography', 'decoration', 'dj', 'bar', 'planner', 'staffing', 'entertainment'].includes(vendor.service_type) && '🔧'}
+                                  {' '}{vendor.vendor_name}
+                                </p>
+                                <p className="text-sm text-gray-600 capitalize">{vendor.service_type}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="font-semibold text-green-600">${vendor.price?.toLocaleString()}</span>
+                              <button 
+                                onClick={() => removeFromCart(vendor.id || index)}
+                                className="text-red-500 hover:text-red-700 p-1"
+                                title="Remove vendor"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="text-gray-400 mb-2">
+                          <Users className="h-12 w-12 mx-auto" />
+                        </div>
+                        <p className="text-gray-600">No vendors selected yet</p>
+                        <p className="text-sm text-gray-500">Start by selecting services below</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Next Steps - Pending Services */}
+            <div className="bg-white rounded-lg border border-gray-200 mb-6">
+              <div className="p-4 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">Next Steps</h3>
+              </div>
+              <div className="p-4">
+                {planningProgress.pendingServices && planningProgress.pendingServices.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {planningProgress.pendingServices.map((service, index) => (
+                      <div key={service.id} className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors cursor-pointer">
+                        <div className="text-center">
+                          <div className="text-2xl mb-2">{service.icon}</div>
+                          <h4 className="font-medium text-gray-900 mb-1">{service.name}</h4>
+                          <button 
+                            onClick={() => {
+                              // Find the step index and navigate to it
+                              const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
+                              if (stepIndex !== -1) {
+                                setCurrentStep(stepIndex);
+                                // Switch to normal mode to continue with step-by-step
+                                // This allows seamless transition from continue mode to step-by-step
+                              }
+                            }}
+                            className="mt-2 px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors"
+                          >
+                            Select Now
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
+                    <p className="text-gray-900 font-medium">All Services Complete!</p>
+                    <p className="text-sm text-gray-500">Your event planning is ready for final review</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between">
+              <button
+                onClick={handleClose}
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              >
+                Close
+              </button>
+              <div className="space-x-3">
+                <button
+                  onClick={() => {
+                    // Switch to step-by-step mode for detailed planning
+                    setCurrentStep(planningProgress.completedSteps || 0);
+                  }}
+                  className="px-6 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50"
+                >
+                  Step-by-Step Mode
+                </button>
+                {planningProgress.selectedVendors && planningProgress.selectedVendors.length > 0 && (
+                  <button
+                    onClick={finalizePlan}
+                    disabled={saving}
+                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                  >
+                    {saving ? 'Finalizing...' : 'Finalize Plan'}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Default mode (new planning) - original interface
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-4 mx-auto p-0 border w-full max-w-7xl shadow-lg rounded-lg bg-white mb-8">
