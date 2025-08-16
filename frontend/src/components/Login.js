@@ -32,7 +32,7 @@ const Login = () => {
 
   const roleOptions = [
     {
-      id: 'user',
+      id: 'client',
       title: 'Client',
       description: 'Plan and manage your events',
       icon: User,
