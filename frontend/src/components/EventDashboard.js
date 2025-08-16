@@ -4,7 +4,7 @@ import axios from 'axios';
 import { 
   Calendar, MapPin, Users, DollarSign, Edit3, Save, X, Plus, 
   CheckCircle, AlertCircle, Clock, Building, Phone, Mail, Globe,
-  ArrowRight, Settings, CreditCard, Receipt, History, Wand2
+  ArrowRight, Settings, CreditCard, Receipt, History, Wand2, Play, ChevronRight
 } from 'lucide-react';
 import BudgetTracker from './BudgetTracker';
 import PaymentHistory from './PaymentHistory';
