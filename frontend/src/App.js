@@ -20,6 +20,8 @@ import LiveEvent from './components/LiveEvent';
 import PostEvent from './components/PostEvent';
 import Profile from './components/Profile';
 import Messages from './components/Messages';
+import PreferredVendors from './components/PreferredVendors';
+import EventHistory from './components/EventHistory';
 
 // Settings Components
 import ProfileSettings from './components/settings/ProfileSettings';
