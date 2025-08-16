@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
   Calendar, 
+  CalendarDays,
   MapPin, 
   Users, 
   CreditCard, 
