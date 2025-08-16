@@ -34,6 +34,7 @@ const EventDashboard = () => {
 
   useEffect(() => {
     fetchEvent();
+    fetchPlanningProgress();
   }, [eventId]);
 
   const fetchEvent = async () => {
@@ -50,6 +51,36 @@ const EventDashboard = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPlanningProgress = async () => {
+    try {
+      // Fetch planning state and cart to show progress
+      const [stateResponse, cartResponse] = await Promise.all([
+        axios.get(`${API}/events/${eventId}/planner/state`),
+        axios.get(`${API}/events/${eventId}/cart`)
+      ]);
+
+      const cart = cartResponse.data.cart || [];
+      const completedSteps = cart.length > 0 ? Math.min(cart.length + 1, 10) : 0;
+      const totalSpent = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+
+      setPlanningProgress({
+        selectedVendors: cart,
+        completedSteps,
+        totalSteps: 10,
+        totalSpent
+      });
+    } catch (err) {
+      console.error('Planning progress fetch error:', err);
+      // Set default values if fetch fails
+      setPlanningProgress({
+        selectedVendors: [],
+        completedSteps: 0,
+        totalSteps: 10,
+        totalSpent: 0
+      });
     }
   };
 
