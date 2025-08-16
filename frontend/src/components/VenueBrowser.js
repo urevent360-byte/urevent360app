@@ -320,6 +320,7 @@ const VenueBrowser = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Results */}
