@@ -105,7 +105,7 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${API}/auth/login`, formData);
+      const response = await axios.post(`${API}/login`, formData);
       const userData = response.data.user;
       
       // Validate that the user role matches the selected role
