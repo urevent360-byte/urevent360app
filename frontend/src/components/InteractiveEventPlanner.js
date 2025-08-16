@@ -638,7 +638,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
                   <Calendar className="h-5 w-5 text-purple-600" />
                   <div>
                     <p className="text-sm text-gray-600">Event Type</p>
-                    <p className="font-medium text-gray-900">{currentEvent?.event_type || 'Not specified'}</p>
+                    <p className="font-medium text-gray-900">{eventData?.event_type || 'Not specified'}</p>
                   </div>
                 </div>
               </div>
@@ -648,7 +648,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
                   <Users className="h-5 w-5 text-purple-600" />
                   <div>
                     <p className="text-sm text-gray-600">Guest Count</p>
-                    <p className="font-medium text-gray-900">{currentEvent?.guest_count || 'Not specified'}</p>
+                    <p className="font-medium text-gray-900">{eventData?.guest_count || 'Not specified'}</p>
                   </div>
                 </div>
               </div>
@@ -658,7 +658,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
                   <DollarSign className="h-5 w-5 text-purple-600" />
                   <div>
                     <p className="text-sm text-gray-600">Budget</p>
-                    <p className="font-medium text-gray-900">{currentEvent?.budget ? formatCurrency(currentEvent.budget) : 'Not set'}</p>
+                    <p className="font-medium text-gray-900">{eventData?.budget ? formatCurrency(eventData.budget) : 'Not set'}</p>
                   </div>
                 </div>
               </div>
@@ -668,7 +668,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
                   <MapPin className="h-5 w-5 text-purple-600" />
                   <div>
                     <p className="text-sm text-gray-600">Location</p>
-                    <p className="font-medium text-gray-900">{currentEvent?.location || 'Not specified'}</p>
+                    <p className="font-medium text-gray-900">{eventData?.location || eventData?.zipcode || 'Not specified'}</p>
                   </div>
                 </div>
               </div>
