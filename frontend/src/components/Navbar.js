@@ -116,72 +116,88 @@ const Navbar = ({ setSidebarOpen }) => {
                   </div>
                 </div>
 
-                {/* Profile Menu Section */}
+                {/* Profile Section - Collapsible */}
                 <div className="py-2">
-                  <div className="px-3 py-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Profile</p>
-                  </div>
-                  
-                  <Link
-                    to="/profile"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  <button
+                    onClick={(e) => toggleSection('profile', e)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <User className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">View Profile</span>
-                    <ChevronRight className="h-3 w-3 text-gray-400" />
-                  </Link>
+                    <div className="flex items-center">
+                      <User className="mr-3 h-4 w-4 text-purple-600" />
+                      <span>Profile</span>
+                    </div>
+                    {expandedSections.profile ? (
+                      <ChevronDown className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                    )}
+                  </button>
 
-                  <Link
-                    to="/profile/edit"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Edit className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Edit Profile</span>
-                    <Camera className="h-3 w-3 text-gray-400" />
-                  </Link>
+                  {/* Profile Sub-menu */}
+                  {expandedSections.profile && (
+                    <div className="bg-gray-50 border-l-2 border-purple-200 ml-4 mr-2 rounded-r-lg">
+                      <Link
+                        to="/profile"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <User className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">View Profile</span>
+                        <ChevronRight className="h-3 w-3 text-gray-400" />
+                      </Link>
 
-                  <Link
-                    to="/profile/change-password"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Lock className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Change Password</span>
-                  </Link>
+                      <Link
+                        to="/profile/edit"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <Edit className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Edit Profile</span>
+                        <Camera className="h-3 w-3 text-gray-400" />
+                      </Link>
 
-                  <Link
-                    to="/profile/language"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Globe className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Language Settings</span>
-                    <span className="text-xs text-gray-400">English</span>
-                  </Link>
+                      <Link
+                        to="/profile/change-password"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <Lock className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Change Password</span>
+                      </Link>
 
-                  <Link
-                    to="/profile/security"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Shield className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Security & Two-Factor Auth</span>
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      Active
-                    </span>
-                  </Link>
+                      <Link
+                        to="/profile/language"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <Globe className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Language Settings</span>
+                        <span className="text-xs text-gray-400">English</span>
+                      </Link>
 
-                  <Link
-                    to="/help"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <HelpCircle className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Help & Support</span>
-                    <ChevronRight className="h-3 w-3 text-gray-400" />
-                  </Link>
+                      <Link
+                        to="/profile/security"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <Shield className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Security & Two-Factor Auth</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          Active
+                        </span>
+                      </Link>
+
+                      <Link
+                        to="/help"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <HelpCircle className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Help & Support</span>
+                        <ChevronRight className="h-3 w-3 text-gray-400" />
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 {/* Divider */}
