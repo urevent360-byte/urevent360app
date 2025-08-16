@@ -1,7 +1,7 @@
 import requests
 import json
 
-BASE_URL = 'https://event-wizard.preview.emergentagent.com/api'
+BASE_URL = 'https://event-planner-21.preview.emergentagent.com/api'
 
 # Get client token
 response = requests.post(f'{BASE_URL}/auth/login', json={'email': 'sarah.johnson@email.com', 'password': 'SecurePass123'})
