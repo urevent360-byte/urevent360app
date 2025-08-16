@@ -108,7 +108,12 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
   // Fetch user's most recent event or create a default one
   useEffect(() => {
     const fetchEventData = async () => {
+      console.log('🔍 InteractiveEventPlanner useEffect triggered');
+      console.log('🔍 currentEvent prop:', currentEvent);
+      console.log('🔍 eventId prop:', eventId);
+      
       if (currentEvent) {
+        console.log('✅ Using currentEvent data:', currentEvent);
         setEventData(currentEvent);
         setBudgetData({
           set: currentEvent.budget || 0,
