@@ -35,8 +35,21 @@ const Navbar = ({ setSidebarOpen }) => {
     setDropdownOpen(!dropdownOpen);
   };
 
+  const toggleSection = (section, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const closeDropdown = () => {
     setDropdownOpen(false);
+    setExpandedSections({
+      profile: false,
+      settings: false
+    });
   };
 
   return (
