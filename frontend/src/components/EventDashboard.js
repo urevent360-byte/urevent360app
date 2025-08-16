@@ -257,14 +257,8 @@ const EventDashboard = () => {
               <div className="space-y-3">
                 <button 
                   onClick={() => {
-                    console.log('🔍 Start Planning clicked');
-                    console.log('🔍 Current event data:', event);
-                    console.log('🔍 Loading state:', loading);
-                    
                     if (!loading && event) {
                       setShowInteractivePlanner(true);
-                    } else {
-                      console.log('⚠️ Event data not ready yet, waiting...');
                     }
                   }}
                   disabled={loading || !event}
