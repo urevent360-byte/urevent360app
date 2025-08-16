@@ -1278,13 +1278,29 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
         <div className="relative top-4 mx-auto p-0 border w-full max-w-7xl shadow-lg rounded-lg bg-white mb-8">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-green-50 to-emerald-50">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-                <Play className="h-6 w-6 text-green-600 mr-2" />
-                Continue Event Planning
-              </h2>
-              <p className="text-sm text-gray-600">{eventData?.name || 'My Event'}</p>
+            <div className="flex items-center space-x-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                  <Play className="h-6 w-6 text-green-600 mr-2" />
+                  Continue Event Planning
+                </h2>
+                <p className="text-sm text-gray-600">{eventData?.name || 'My Event'}</p>
+              </div>
+              
+              {/* Step-by-Step Mode Button - Moved to Header */}
+              <button
+                onClick={() => {
+                  // Switch to step-by-step mode for detailed planning with shopping cart
+                  setCurrentStep(planningProgress.completedSteps || 0);
+                }}
+                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
+                title="Switch to detailed step-by-step planning with shopping cart"
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Step-by-Step Mode
+              </button>
             </div>
+            
             <button 
               onClick={handleClose} 
               className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
