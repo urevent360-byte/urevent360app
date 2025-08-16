@@ -239,6 +239,49 @@ const EventDashboard = () => {
               </div>
             </div>
 
+            {/* Continue Planning - Moved to Top for Better UX */}
+            <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-green-500">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <Play className="h-5 w-5 text-green-600 mr-2" />
+                  Continue Planning
+                </h3>
+                <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
+                  Ready to Continue
+                </span>
+              </div>
+              
+              {/* Continue Working Button - Uses EXACT event data */}
+              <button 
+                onClick={() => {
+                  if (!loading && event) {
+                    setShowInteractivePlanner(true);
+                  }
+                }}
+                disabled={loading || !event}
+                className={`w-full text-left p-4 border-2 border-green-200 rounded-lg hover:bg-green-50 bg-gradient-to-r from-green-50 to-emerald-50 hover:shadow-md transition-all duration-200 ${loading || !event ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
+                      <Play className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold text-green-900">Continue Your Event Planning</p>
+                      <p className="text-sm text-green-700">Pick up where you left off with your event details</p>
+                      <div className="flex items-center mt-2 space-x-4 text-xs text-green-600">
+                        <span>🎪 {event?.event_type || 'Event'}</span>
+                        <span>👥 {event?.guest_count || 0} guests</span>
+                        <span>💰 {event?.budget ? `$${event.budget.toLocaleString()}` : 'Budget TBD'}</span>
+                        <span>📍 {event?.location || 'Location TBD'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-6 w-6 text-green-600" />
+                </div>
+              </button>
+            </div>
+
             {/* Editable Event Details */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-6">Event Details</h3>
