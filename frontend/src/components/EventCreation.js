@@ -222,10 +222,14 @@ const EventCreation = () => {
     { id: 3, name: 'Wedding Details', desc: 'Ceremony preferences', condition: () => eventData.event_type === 'wedding' },
     { 
       id: 4, 
-      name: 'Cultural Style', 
-      desc: 'Cultural preferences', 
+      name: eventData.event_type === 'corporate' ? 'Corporate Event Types' : 'Cultural Style', 
+      desc: eventData.event_type === 'corporate' ? 'Business event categories' : 'Cultural preferences', 
       condition: () => {
         const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
+        // For corporate events, show corporate types selection
+        if (eventData.event_type === 'corporate') {
+          return true;
+        }
         // For weddings, show after sub_event_type is selected
         if (eventData.event_type === 'wedding') {
           return eventData.sub_event_type;
