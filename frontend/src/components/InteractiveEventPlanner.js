@@ -400,7 +400,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
 
       let response;
       if (stepId === 'venue') {
-        // Use venue search API
+        // Enhanced venue filtering based on event's preferred venue type
         if (currentEvent?.location) {
           params.append('city', currentEvent.location);
         }
@@ -408,8 +408,31 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
           params.append('capacity_min', Math.floor(currentEvent.guest_count * 0.8));
           params.append('capacity_max', Math.ceil(currentEvent.guest_count * 1.2));
         }
+        
+        // FILTERING: Only show venues matching preferred venue type
+        if (currentEvent?.preferred_venue_type) {
+          params.append('preferred_venue_type', currentEvent.preferred_venue_type);
+        }
+        
         response = await axios.get(`${API}/venues/search?${params}`);
       } else {
+        // Enhanced service filtering based on event's services needed
+        const isServiceNeeded = checkIfServiceNeeded(stepId, currentEvent?.services_needed || []);
+        
+        if (!isServiceNeeded) {
+          // Service not in original selection - show "sparkle your event" suggestion
+          setVendors(prev => ({
+            ...prev,
+            [stepId]: []
+          }));
+          return;
+        }
+        
+        // Add services needed parameter for filtering
+        if (currentEvent?.services_needed?.length > 0) {
+          params.append('services_needed', currentEvent.services_needed.join(','));
+        }
+        
         // Use the new Interactive Event Planner vendor endpoint
         response = await axios.get(`${API}/events/${eventId}/planner/vendors/${stepId}?${params}`);
       }
@@ -423,6 +446,34 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to check if a service is needed based on event's initial selection
+  const checkIfServiceNeeded = (stepId, servicesNeeded) => {
+    if (!servicesNeeded || servicesNeeded.length === 0) {
+      return true; // If no services specified, show all
+    }
+    
+    // Map planner step IDs to service names
+    const serviceMapping = {
+      'decoration': ['decoration', 'decor'],
+      'catering': ['catering', 'food'],
+      'photography': ['photography', 'photo'],
+      'music': ['music/dj', 'dj', 'music'],
+      'entertainment': ['entertainment', 'performer'],
+      'bar': ['bar', 'drinks'],
+      'planner': ['planner', 'coordinator'],
+      'staffing': ['staffing', 'waitstaff', 'service'],
+      'dj': ['music/dj', 'dj', 'music']
+    };
+    
+    const eventServicesLower = servicesNeeded.map(s => s.toLowerCase());
+    const stepMatches = serviceMapping[stepId] || [stepId];
+    
+    // Check if this step's service is in the needed services
+    return stepMatches.some(match => 
+      eventServicesLower.some(needed => needed.includes(match.toLowerCase()))
+    );
   };
 
   const getAuthHeaders = () => ({
