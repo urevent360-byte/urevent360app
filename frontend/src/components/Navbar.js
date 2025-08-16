@@ -4,7 +4,7 @@ import { AuthContext } from '../App';
 import { 
   Bell, Menu, Search, User, Settings, LogOut, Edit, Lock, 
   Globe, Shield, HelpCircle, Smartphone, Eye, Link as LinkIcon,
-  ChevronRight, Camera, Mail, Phone, UserCog, Languages,
+  ChevronRight, ChevronDown, Camera, Mail, Phone, UserCog, Languages,
   CreditCard, MessageCircle
 } from 'lucide-react';
 
