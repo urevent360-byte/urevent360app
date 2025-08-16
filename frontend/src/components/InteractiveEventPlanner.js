@@ -941,14 +941,17 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
             <CheckCircle className="mx-auto h-12 w-12 text-green-600 mb-4" />
             <h4 className="font-semibold text-green-900 mb-2">Ready to Start Planning?</h4>
             <p className="text-green-700 mb-4">
-              Let's begin with finding the perfect venue for your event. We'll match you with venues that fit your guest count, budget, and location preferences.
+              {shouldIncludeVenueStep() 
+                ? "Let's begin with finding the perfect venue for your event. We'll match you with venues that fit your guest count, budget, and location preferences."
+                : "Since your venue is all set, let's focus on the services you need to make your event amazing. We'll help you find the perfect vendors for each service."
+              }
             </p>
             <button
               onClick={() => setCurrentStep(1)}
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
             >
               <Zap className="h-5 w-5 mr-2" />
-              Begin Venue Selection
+              {shouldIncludeVenueStep() ? "Begin Venue Selection" : "Start Service Selection"}
             </button>
           </div>
 
