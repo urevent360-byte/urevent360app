@@ -386,7 +386,11 @@ const EventCreation = () => {
         guest_count: parseInt(eventData.guest_count),
         budget: parseFloat(eventData.budget) || null,
         estimated_budget: estimated_budget,
-        status: 'planning'
+        status: 'planning',
+        // Enhanced filtering fields
+        preferred_venue_type: eventData.requirements.venue_type,
+        services_needed: eventData.requirements.services,
+        requirements: eventData.requirements
       };
 
       const response = await axios.post(`${API}/events`, submitData);
