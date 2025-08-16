@@ -118,6 +118,9 @@ const Login = () => {
       
       // For regular users, allow login regardless of role in database
       login(response.data.access_token, userData);
+      
+      // Navigate to dashboard after successful login
+      navigate('/dashboard');
     } catch (err) {
       if (err.response?.status === 401) {
         setError('Invalid email or password. Please check your credentials and try again.');
