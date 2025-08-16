@@ -3724,66 +3724,17 @@ class APITester:
             print("\n⚠️  OVERALL STATUS: Some critical issues need attention")
 
 def main():
-    """Run comprehensive backend API testing with focus on Event History API"""
-    print("🚀 Starting Urevent 360 Backend API Testing...")
-    print("📚 FOCUS: Event History API Functionality Testing")
+    """Run Calendar & Appointment Integration Backend Testing"""
+    print("🚀 Starting Calendar & Appointment Integration Backend Testing...")
+    print("📅 FOCUS: Calendar & Appointment Integration System Testing")
     print(f"Backend URL: {BACKEND_URL}")
     print(f"API Base URL: {BASE_URL}")
     print("=" * 80)
     
     tester = APITester()
     
-    # Run tests in logical order - prioritizing Event History API testing
-    tester.test_health_check()
-    tester.test_authentication()
-    
-    # MAIN FOCUS: Event History API Testing
-    tester.test_event_history_api()
-    
-    # Additional supporting tests for authentication verification
-    tester.test_user_management()
-    
-    # Print final summary
-    print("\n" + "=" * 80)
-    print("📚 EVENT HISTORY API TESTING SUMMARY")
-    print("=" * 80)
-    
-    total_tests = len(tester.test_results)
-    passed_tests = len([t for t in tester.test_results if t["success"]])
-    failed_tests = len(tester.failed_tests)
-    
-    print(f"Total Tests: {total_tests}")
-    print(f"Passed: {passed_tests}")
-    print(f"Failed: {failed_tests}")
-    print(f"Success Rate: {(passed_tests/total_tests*100):.1f}%")
-    
-    if tester.failed_tests:
-        print(f"\n❌ FAILED TESTS:")
-        for test in tester.failed_tests:
-            print(f"   - {test}")
-    
-    # Specific analysis for Event History API
-    print(f"\n🔍 EVENT HISTORY API ANALYSIS:")
-    event_history_tests = [t for t in tester.test_results if "event history" in t["test"].lower()]
-    
-    api_response_working = any(t["success"] and "event history api response" in t["test"].lower() for t in tester.test_results)
-    data_structure_valid = any(t["success"] and "event history data structure" in t["test"].lower() for t in tester.test_results)
-    authentication_working = any(t["success"] and "event history authentication" in t["test"].lower() for t in tester.test_results)
-    
-    print(f"   Event History API Response: {'✅ YES' if api_response_working else '❌ NO'}")
-    print(f"   Data Structure Valid: {'✅ YES' if data_structure_valid else '❌ NO'}")
-    print(f"   Authentication Working: {'✅ YES' if authentication_working else '❌ NO'}")
-    
-    if api_response_working and data_structure_valid and authentication_working:
-        print(f"   ✅ EVENT HISTORY API WORKING: All functionality operational")
-    elif not api_response_working:
-        print(f"   🚨 CRITICAL ISSUE: Event History API endpoint not responding correctly")
-    elif not data_structure_valid:
-        print(f"   🚨 DATA ISSUE: Event History API returns invalid data structure")
-    elif not authentication_working:
-        print(f"   🚨 AUTH ISSUE: Event History API authentication not working")
-    else:
-        print(f"   ⚠️  PARTIAL ISSUE: Some Event History API functionality not working properly")
+    # Run the comprehensive Calendar & Appointment Integration tests
+    passed_tests, failed_tests = tester.run_calendar_appointment_tests()
     
     return failed_tests == 0
 
