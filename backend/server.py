@@ -43,6 +43,7 @@ class User(BaseModel):
     name: str
     email: str
     password_hash: str
+    mobile: Optional[str] = None
     role: str = "client"
     
     # Admin-specific fields
