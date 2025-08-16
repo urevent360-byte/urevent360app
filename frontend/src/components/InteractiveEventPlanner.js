@@ -28,6 +28,11 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
   });
   const [expandedCard, setExpandedCard] = useState(null);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   // Fetch user's most recent event or create a default one
   useEffect(() => {
     const fetchEventData = async () => {
@@ -85,11 +90,6 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
 
     fetchEventData();
   }, [currentEvent]);
-
-  const getAuthHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
 
   const plannerSteps = [
     {
