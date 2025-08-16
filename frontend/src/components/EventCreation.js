@@ -35,7 +35,7 @@ const EventCreation = () => {
     { id: 'quinceanera', name: 'Quinceañera', desc: 'Celebrate the transition to womanhood', hasCulturalStyles: true },
     { id: 'sweet_16', name: 'Sweet 16', desc: 'Celebrate the milestone birthday', hasCulturalStyles: true },
     { id: 'bat_mitzvah', name: 'Bat Mitzvah', desc: 'Celebrate the coming of age ceremony', hasCulturalStyles: false },
-    { id: 'corporate', name: 'Corporate Event', desc: 'Business meetings and conferences', hasCulturalStyles: true },
+    { id: 'corporate', name: 'Corporate Event', desc: 'Business meetings and conferences', hasCulturalStyles: false, hasCorporateTypes: true },
     { id: 'birthday', name: 'Birthday Party', desc: 'Celebrate another year of life', hasCulturalStyles: true },
     { id: 'anniversary', name: 'Anniversary', desc: 'Commemorate special milestones', hasCulturalStyles: true },
     { id: 'graduation', name: 'Graduation', desc: 'Academic achievement celebrations', hasCulturalStyles: true },
