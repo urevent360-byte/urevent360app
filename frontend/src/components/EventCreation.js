@@ -279,7 +279,7 @@ const EventCreation = () => {
   const getMaxSteps = () => steps.length;
 
   const validateStep = (step) => {
-    const culturalStyleStepNumber = getStepNumber('Cultural Style');
+    const culturalStyleStepNumber = getStepNumber('Cultural Style') || getStepNumber('Corporate Event Types');
     const requirementsStepNumber = getStepNumber('Requirements');
     const budgetStepNumber = getStepNumber('Budget');
     
@@ -294,6 +294,12 @@ const EventCreation = () => {
         }
         return true; // For non-wedding events, step 3 always passes
       case culturalStyleStepNumber:
+        // Handle validation for both cultural styles and corporate event types
+        if (eventData.event_type === 'corporate') {
+          // For corporate events, require corporate event type selection
+          return eventData.cultural_style !== ''; // We'll reuse this field for corporate types
+        }
+        
         // Cultural style step validation for applicable event types
         const selectedEventType = eventTypes.find(type => type.id === eventData.event_type);
         if (selectedEventType?.hasCulturalStyles && eventData.event_type !== 'bat_mitzvah') {
