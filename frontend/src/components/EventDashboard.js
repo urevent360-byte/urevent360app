@@ -606,9 +606,13 @@ const EventDashboard = () => {
         <InteractiveEventPlanner
           eventId={eventId}
           currentEvent={event}
-          onClose={() => setShowInteractivePlanner(false)}
+          onClose={() => {
+            console.log('🔍 Closing InteractiveEventPlanner');
+            setShowInteractivePlanner(false);
+          }}
           onPlanSaved={(bookings) => {
             // Refresh event data after plan is saved
+            console.log('🔍 Plan saved, refreshing event data');
             fetchEvent();
             setShowInteractivePlanner(false);
           }}
