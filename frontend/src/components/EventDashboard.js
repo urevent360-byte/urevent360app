@@ -25,6 +25,12 @@ const EventDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showVenueSelection, setShowVenueSelection] = useState(false);
   const [showInteractivePlanner, setShowInteractivePlanner] = useState(false);
+  const [planningProgress, setPlanningProgress] = useState({
+    selectedVendors: [],
+    completedSteps: 0,
+    totalSteps: 10,
+    totalSpent: 0
+  });
 
   useEffect(() => {
     fetchEvent();
