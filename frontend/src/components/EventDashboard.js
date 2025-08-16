@@ -259,9 +259,16 @@ const EventDashboard = () => {
                   onClick={() => {
                     console.log('🔍 Start Planning clicked');
                     console.log('🔍 Current event data:', event);
-                    setShowInteractivePlanner(true);
+                    console.log('🔍 Loading state:', loading);
+                    
+                    if (!loading && event) {
+                      setShowInteractivePlanner(true);
+                    } else {
+                      console.log('⚠️ Event data not ready yet, waiting...');
+                    }
                   }}
-                  className="w-full text-left p-3 border border-purple-200 rounded-lg hover:bg-purple-50 bg-gradient-to-r from-purple-50 to-blue-50"
+                  disabled={loading || !event}
+                  className={`w-full text-left p-3 border border-purple-200 rounded-lg hover:bg-purple-50 bg-gradient-to-r from-purple-50 to-blue-50 ${loading || !event ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <div className="flex items-center">
                     <Wand2 className="h-5 w-5 text-purple-600 mr-3" />
