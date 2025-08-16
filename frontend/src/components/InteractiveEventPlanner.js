@@ -1292,7 +1292,13 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
               <button
                 onClick={() => {
                   // Switch to step-by-step mode for detailed planning with shopping cart
+                  setCurrentMode('new');
                   setCurrentStep(planningProgress.completedSteps || 0);
+                  // Load vendors for the current step
+                  const stepToLoad = plannerSteps[planningProgress.completedSteps || 0];
+                  if (stepToLoad && stepToLoad.id !== 'review') {
+                    searchVendors(stepToLoad.id);
+                  }
                 }}
                 className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
                 title="Switch to detailed step-by-step planning with shopping cart"
