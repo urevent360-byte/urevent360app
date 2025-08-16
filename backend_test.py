@@ -3723,30 +3723,28 @@ class APITester:
             print("\n⚠️  OVERALL STATUS: Some critical issues need attention")
 
 def main():
-    """Run comprehensive backend API testing with focus on event retrieval"""
+    """Run comprehensive backend API testing with focus on Event History API"""
     print("🚀 Starting Urevent 360 Backend API Testing...")
-    print("🎯 FOCUS: Event Retrieval Functionality Testing")
+    print("📚 FOCUS: Event History API Functionality Testing")
     print(f"Backend URL: {BACKEND_URL}")
     print(f"API Base URL: {BASE_URL}")
     print("=" * 80)
     
     tester = APITester()
     
-    # Run tests in logical order - prioritizing event retrieval testing
+    # Run tests in logical order - prioritizing Event History API testing
     tester.test_health_check()
     tester.test_authentication()
     
-    # MAIN FOCUS: Event Retrieval Functionality Testing
-    tester.test_event_retrieval_functionality()
+    # MAIN FOCUS: Event History API Testing
+    tester.test_event_history_api()
     
-    # Additional supporting tests
+    # Additional supporting tests for authentication verification
     tester.test_user_management()
-    tester.test_event_management()
-    tester.test_enhanced_vendor_system()
     
     # Print final summary
     print("\n" + "=" * 80)
-    print("🎯 EVENT RETRIEVAL TESTING SUMMARY")
+    print("📚 EVENT HISTORY API TESTING SUMMARY")
     print("=" * 80)
     
     total_tests = len(tester.test_results)
@@ -3763,26 +3761,28 @@ def main():
         for test in tester.failed_tests:
             print(f"   - {test}")
     
-    # Specific analysis for event retrieval issues
-    print(f"\n🔍 EVENT RETRIEVAL ANALYSIS:")
-    event_tests = [t for t in tester.test_results if "event" in t["test"].lower() and "retrieval" in t["test"].lower()]
+    # Specific analysis for Event History API
+    print(f"\n🔍 EVENT HISTORY API ANALYSIS:")
+    event_history_tests = [t for t in tester.test_results if "event history" in t["test"].lower()]
     
-    list_events_working = any(t["success"] and "list events" in t["test"].lower() for t in tester.test_results)
-    individual_retrieval_working = any(t["success"] and "individual event retrieval" in t["test"].lower() for t in tester.test_results)
-    manage_button_ready = any(t["success"] and "manage button" in t["test"].lower() for t in tester.test_results)
+    api_response_working = any(t["success"] and "event history api response" in t["test"].lower() for t in tester.test_results)
+    data_structure_valid = any(t["success"] and "event history data structure" in t["test"].lower() for t in tester.test_results)
+    authentication_working = any(t["success"] and "event history authentication" in t["test"].lower() for t in tester.test_results)
     
-    print(f"   List Events API Working: {'✅ YES' if list_events_working else '❌ NO'}")
-    print(f"   Individual Event Retrieval Working: {'✅ YES' if individual_retrieval_working else '❌ NO'}")
-    print(f"   Manage Button Navigation Ready: {'✅ YES' if manage_button_ready else '❌ NO'}")
+    print(f"   Event History API Response: {'✅ YES' if api_response_working else '❌ NO'}")
+    print(f"   Data Structure Valid: {'✅ YES' if data_structure_valid else '❌ NO'}")
+    print(f"   Authentication Working: {'✅ YES' if authentication_working else '❌ NO'}")
     
-    if list_events_working and individual_retrieval_working and manage_button_ready:
-        print(f"   ✅ EVENT RETRIEVAL ISSUE RESOLVED: All event retrieval functionality working correctly")
-    elif list_events_working and not individual_retrieval_working:
-        print(f"   🚨 ISSUE IDENTIFIED: List events works but individual retrieval fails - ID format or routing issue")
-    elif not list_events_working:
-        print(f"   🚨 CRITICAL ISSUE: List events API not working - authentication or endpoint issue")
+    if api_response_working and data_structure_valid and authentication_working:
+        print(f"   ✅ EVENT HISTORY API WORKING: All functionality operational")
+    elif not api_response_working:
+        print(f"   🚨 CRITICAL ISSUE: Event History API endpoint not responding correctly")
+    elif not data_structure_valid:
+        print(f"   🚨 DATA ISSUE: Event History API returns invalid data structure")
+    elif not authentication_working:
+        print(f"   🚨 AUTH ISSUE: Event History API authentication not working")
     else:
-        print(f"   ⚠️  PARTIAL ISSUE: Some event retrieval functionality not working properly")
+        print(f"   ⚠️  PARTIAL ISSUE: Some Event History API functionality not working properly")
     
     return failed_tests == 0
 
