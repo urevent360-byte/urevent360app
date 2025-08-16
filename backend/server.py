@@ -650,6 +650,16 @@ async def get_venue(venue_id: str):
         raise HTTPException(status_code=404, detail="Venue not found")
     return Venue(**venue)
 
+@api_router.post("/venues", response_model=Venue)
+async def create_venue(venue_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create a new venue (admin only for testing)"""
+    venue_dict = venue_data.copy()
+    if "id" not in venue_dict:
+        venue_dict["id"] = str(uuid.uuid4())
+    
+    await db.venues.insert_one(venue_dict)
+    return Venue(**venue_dict)
+
 # Enhanced Vendor Routes with Filtering
 @api_router.get("/vendors/search")
 async def search_vendors(
