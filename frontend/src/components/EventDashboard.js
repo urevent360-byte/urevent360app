@@ -257,6 +257,17 @@ const EventDashboard = () => {
               <div className="space-y-3">
                 <button 
                   onClick={() => {
+                    console.log('🔥 DEBUGGING: Start Planning clicked');
+                    console.log('🔥 Event data being passed:', {
+                      id: event?.id,
+                      name: event?.name,
+                      event_type: event?.event_type,
+                      guest_count: event?.guest_count,
+                      budget: event?.budget,
+                      location: event?.location
+                    });
+                    console.log('🔥 Full event object:', event);
+                    
                     if (!loading && event) {
                       setShowInteractivePlanner(true);
                     }
