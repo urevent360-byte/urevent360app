@@ -5,7 +5,7 @@ import { AuthContext } from '../App';
 import { 
   History, Calendar, MapPin, Users, DollarSign, Star, 
   Search, Filter, Eye, Copy, Download, Clock, Award,
-  TrendingUp, BarChart3, Plus, ChevronRight, ChevronDown
+  TrendingUp, BarChart3, Plus, ChevronRight, ChevronDown, ChevronUp
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
