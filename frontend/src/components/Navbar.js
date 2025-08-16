@@ -201,7 +201,7 @@ const Navbar = ({ setSidebarOpen }) => {
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-gray-100 my-1"></div>
+                <div className="border-t border-gray-100 my-2"></div>
 
                 {/* Settings Section - Collapsible */}
                 <div className="py-2">
