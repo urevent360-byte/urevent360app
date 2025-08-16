@@ -184,25 +184,82 @@ const EventDashboard = () => {
                 </span>
               </div>
               
-              {!event.venue_id && (
-                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-6 mb-6 text-center">
-                  <div className="flex flex-col items-center">
-                    <div className="h-16 w-16 rounded-full bg-white bg-opacity-20 flex items-center justify-center mb-4">
-                      <Calendar className="h-8 w-8 text-white" />
+              {/* Enhanced Side-by-Side Planning Options */}
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">Interactive Event Planning</h3>
+                
+                {/* Responsive grid that ensures boxes are always next to each other on larger screens */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+                  {/* Left Box: Start New Planning - Purple Theme */}
+                  <div className="border-2 border-purple-200 rounded-lg p-6 hover:border-purple-300 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-purple-50 to-indigo-50 h-full">
+                    <div className="text-center h-full flex flex-col justify-between">
+                      <div>
+                        <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mb-4 shadow-lg">
+                          <Wand2 className="h-8 w-8 text-white" />
+                        </div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2">Start New Planning</h4>
+                        <p className="text-gray-600 mb-6 text-sm leading-relaxed">Create different scenarios and explore various options for your event</p>
+                      </div>
+                      
+                      <Link
+                        to="/interactive-planner"
+                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+                      >
+                        <Wand2 className="h-5 w-5 mr-2" />
+                        Start Planning
+                      </Link>
                     </div>
-                    <h4 className="text-xl font-semibold text-white mb-4">
-                      Interactive Event Planner
-                    </h4>
-                    <Link
-                      to="/interactive-planner"
-                      className="inline-flex items-center px-8 py-3 bg-white text-purple-700 font-semibold rounded-lg hover:bg-gray-50 transform hover:scale-105 transition-all duration-200 shadow-lg"
-                    >
-                      <Calendar className="h-5 w-5 mr-2" />
-                      Start Planning
-                    </Link>
+                  </div>
+
+                  {/* Right Box: Continue Planning - Enhanced Green Theme */}
+                  <div className="border-2 border-green-200 rounded-lg p-6 hover:border-green-300 transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-green-50 to-emerald-50 h-full">
+                    <div className="text-center h-full flex flex-col justify-between">
+                      <div>
+                        <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center mb-4 shadow-lg">
+                          <Play className="h-8 w-8 text-white" />
+                        </div>
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2">Continue Your Event Planning</h4>
+                        <p className="text-gray-600 mb-4 text-sm leading-relaxed">Pick up where you left off with your event details</p>
+                        
+                        {/* Enhanced Event Preview */}
+                        <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg p-4 mb-4 border border-green-200">
+                          <div className="grid grid-cols-2 gap-2 text-xs text-green-800">
+                            <div className="flex items-center justify-center space-x-1">
+                              <span className="text-base">🎪</span>
+                              <span className="font-medium">{event?.event_type || 'Event Type'}</span>
+                            </div>
+                            <div className="flex items-center justify-center space-x-1">
+                              <span className="text-base">👥</span>
+                              <span className="font-medium">{event?.guest_count || 0} guests</span>
+                            </div>
+                            <div className="flex items-center justify-center space-x-1">
+                              <span className="text-base">💰</span>
+                              <span className="font-medium">{event?.budget ? `$${event.budget.toLocaleString()}` : 'Budget TBD'}</span>
+                            </div>
+                            <div className="flex items-center justify-center space-x-1">
+                              <span className="text-base">📍</span>
+                              <span className="font-medium truncate">{event?.location || 'Location TBD'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={() => {
+                          if (!loading && event) {
+                            setShowInteractivePlanner(true);
+                          }
+                        }}
+                        disabled={loading || !event}
+                        className={`inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl ${loading || !event ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        <Play className="h-5 w-5 mr-2" />
+                        Continue Planning
+                      </button>
+                    </div>
                   </div>
                 </div>
-              )}
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
