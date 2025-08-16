@@ -29,6 +29,15 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
 
   const plannerSteps = [
     {
+      id: 'planning',
+      title: 'Start Planning',
+      subtitle: 'Review your event details and begin the planning process',
+      icon: Calendar,
+      color: 'bg-purple-500',
+      searchable: false,
+      required: false
+    },
+    {
       id: 'venue',
       title: 'Select Venue',
       subtitle: 'Choose the perfect location for your event',
