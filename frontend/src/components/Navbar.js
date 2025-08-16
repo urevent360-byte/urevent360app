@@ -203,97 +203,117 @@ const Navbar = ({ setSidebarOpen }) => {
                 {/* Divider */}
                 <div className="border-t border-gray-100 my-1"></div>
 
-                {/* Settings Menu Section */}
+                {/* Settings Section - Collapsible */}
                 <div className="py-2">
-                  <div className="px-3 py-1">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Settings</p>
-                  </div>
-
-                  <Link
-                    to="/settings/account"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  <button
+                    onClick={(e) => toggleSection('settings', e)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <UserCog className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Account Settings</span>
-                    <div className="flex items-center space-x-1">
-                      <Mail className="h-3 w-3 text-gray-300" />
-                      <Phone className="h-3 w-3 text-gray-300" />
+                    <div className="flex items-center">
+                      <Settings className="mr-3 h-4 w-4 text-blue-600" />
+                      <span>Settings</span>
                     </div>
-                  </Link>
+                    {expandedSections.settings ? (
+                      <ChevronDown className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                    )}
+                  </button>
 
-                  <Link
-                    to="/settings/security"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Shield className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Security Settings</span>
-                    <Smartphone className="h-3 w-3 text-gray-400" />
-                  </Link>
+                  {/* Settings Sub-menu */}
+                  {expandedSections.settings && (
+                    <div className="bg-gray-50 border-l-2 border-blue-200 ml-4 mr-2 rounded-r-lg">
+                      <Link
+                        to="/settings/account"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <UserCog className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Account Settings</span>
+                        <div className="flex items-center space-x-1">
+                          <Mail className="h-3 w-3 text-gray-300" />
+                          <Phone className="h-3 w-3 text-gray-300" />
+                        </div>
+                      </Link>
 
-                  <Link
-                    to="/settings/notifications"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Bell className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Notification Preferences</span>
-                    <span className="flex items-center">
-                      <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                    </span>
-                  </Link>
+                      <Link
+                        to="/settings/security"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <Shield className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Security Settings</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          2FA Enabled
+                        </span>
+                      </Link>
 
-                  <Link
-                    to="/settings/language"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Languages className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Language Preferences</span>
-                    <span className="text-xs text-gray-400">🇺🇸 EN</span>
-                  </Link>
+                      <Link
+                        to="/settings/notifications"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <Bell className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Notification Preferences</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                          <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>
+                          On
+                        </span>
+                      </Link>
 
-                  <Link
-                    to="/settings/privacy"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <Eye className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Privacy Settings</span>
-                  </Link>
+                      <Link
+                        to="/settings/language"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <Languages className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Language Preferences</span>
+                        <span className="text-xs text-gray-400">🇺🇸 EN</span>
+                      </Link>
 
-                  <Link
-                    to="/settings/integrations"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <LinkIcon className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Linked Accounts & Integrations</span>
-                    <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">3</span>
-                  </Link>
+                      <Link
+                        to="/settings/privacy"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <Eye className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Privacy Settings</span>
+                      </Link>
 
-                  <Link
-                    to="/settings/billing"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <CreditCard className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Billing & Payments</span>
-                    <ChevronRight className="h-3 w-3 text-gray-400" />
-                  </Link>
+                      <Link
+                        to="/settings/integrations"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <LinkIcon className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Linked Accounts & Integrations</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          3 Connected
+                        </span>
+                      </Link>
 
-                  <Link
-                    to="/help/support"
-                    onClick={closeDropdown}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    <MessageCircle className="mr-3 h-4 w-4 text-gray-400" />
-                    <span className="flex-1">Help & Support Center</span>
-                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      24/7
-                    </span>
-                  </Link>
+                      <Link
+                        to="/settings/billing"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <CreditCard className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Billing & Payments</span>
+                      </Link>
+
+                      <Link
+                        to="/help/support"
+                        onClick={closeDropdown}
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-white rounded-r-lg transition-colors"
+                      >
+                        <MessageCircle className="mr-3 h-4 w-4 text-gray-400" />
+                        <span className="flex-1">Help & Support Center</span>
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                          24/7
+                        </span>
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 {/* Divider */}
