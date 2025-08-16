@@ -3231,6 +3231,9 @@ class APITester:
         self.test_user_management()
         self.test_event_management()
         
+        # NEW: User Settings & Profile Management Testing (PRIORITY for this review)
+        self.test_user_settings_profile_management()
+        
         # NEW: Interactive Event Planner System Testing (PRIORITY for this review)
         self.test_interactive_event_planner_system()
         
