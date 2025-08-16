@@ -382,89 +382,76 @@ const EventDashboard = () => {
       case 'venue':
         return (
           <div className="space-y-6">
-            {event.venue_id ? (
-              /* Venue Selected */
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium text-gray-900">Selected Venue</h3>
-                  <button
-                    onClick={() => setShowVenueSelection(true)}
-                    className="px-4 py-2 text-sm font-medium text-purple-600 bg-purple-100 rounded-lg hover:bg-purple-200"
-                  >
-                    Change Venue
-                  </button>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">{event.venue_name}</h4>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      {event.venue_address && (
-                        <div className="flex items-start">
-                          <MapPin className="h-4 w-4 mr-2 mt-0.5" />
-                          <span>{event.venue_address}</span>
-                        </div>
-                      )}
-                      {event.venue_contact?.phone && (
-                        <div className="flex items-center">
-                          <Phone className="h-4 w-4 mr-2" />
-                          <span>{event.venue_contact.phone}</span>
-                        </div>
-                      )}
-                      {event.venue_contact?.email && (
-                        <div className="flex items-center">
-                          <Mail className="h-4 w-4 mr-2" />
-                          <span>{event.venue_contact.email}</span>
-                        </div>
-                      )}
-                      {event.venue_contact?.website && (
-                        <div className="flex items-center">
-                          <Globe className="h-4 w-4 mr-2" />
-                          <a href={event.venue_contact.website} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:text-purple-800">
-                            {event.venue_contact.website}
-                          </a>
-                        </div>
-                      )}
+            {/* Two Side-by-Side Planning Options */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">Interactive Event Planning</h3>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Box: Start New Planning */}
+                <div className="border-2 border-purple-200 rounded-lg p-6 hover:border-purple-300 transition-colors">
+                  <div className="text-center">
+                    <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mb-4">
+                      <Wand2 className="h-8 w-8 text-white" />
                     </div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Start New Planning</h4>
+                    <p className="text-gray-600 mb-6 text-sm">Create different scenarios and explore various options for your event</p>
+                    
+                    <Link
+                      to="/interactive-planner"
+                      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                    >
+                      <Wand2 className="h-5 w-5 mr-2" />
+                      New Scenario
+                    </Link>
                   </div>
-                  
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h5 className="font-medium text-gray-900 mb-2">Venue Details</h5>
-                    <p className="text-sm text-gray-600">
-                      Contact the venue directly for detailed information about their services, 
-                      availability, and pricing for your event date.
-                    </p>
+                </div>
+
+                {/* Right Box: Continue Planning */}
+                <div className="border-2 border-green-200 rounded-lg p-6 hover:border-green-300 transition-colors">
+                  <div className="text-center">
+                    <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center mb-4">
+                      <Play className="h-8 w-8 text-white" />
+                    </div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">Continue Planning</h4>
+                    <p className="text-gray-600 mb-4 text-sm">Pick up where you left off with your event details</p>
+                    
+                    {/* Event Preview */}
+                    <div className="bg-green-50 rounded-lg p-3 mb-4">
+                      <div className="flex items-center justify-center space-x-4 text-xs text-green-700">
+                        <span>🎪 {event?.event_type || 'Event'}</span>
+                        <span>👥 {event?.guest_count || 0} guests</span>
+                        <span>💰 {event?.budget ? `$${event.budget.toLocaleString()}` : 'Budget TBD'}</span>
+                        <span>📍 {event?.location || 'Location TBD'}</span>
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        if (!loading && event) {
+                          setShowInteractivePlanner(true);
+                        }
+                      }}
+                      disabled={loading || !event}
+                      className={`inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg ${loading || !event ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <Play className="h-5 w-5 mr-2" />
+                      Continue Planning
+                    </button>
                   </div>
                 </div>
               </div>
-            ) : (
-              /* No Venue Selected */
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="text-center py-8">
-                  <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mb-6">
-                    <Wand2 className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">Create New Planning Scenario</h3>
-                  <p className="text-gray-600 mb-6">Explore different options and create multiple planning scenarios for your event</p>
-                  
-                  <Link
-                    to="/interactive-planner"
-                    className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg mr-4"
-                  >
-                    <Wand2 className="h-5 w-5 mr-2" />
-                    New Scenario
-                  </Link>
-                  
-                  <button
-                    onClick={() => setShowVenueSelection(true)}
-                    className="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <Building className="h-4 w-4 mr-2" />
-                    Quick Venue Only
-                  </button>
-                </div>
+              
+              {/* Quick Venue Selection Option */}
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => setShowVenueSelection(true)}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                >
+                  <Building className="h-4 w-4 mr-2" />
+                  {event.venue_id ? 'Change Venue' : 'Quick Venue Search Only'}
+                </button>
               </div>
-            )}
+            </div>
           </div>
         );
 
