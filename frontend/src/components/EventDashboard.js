@@ -601,7 +601,7 @@ const EventDashboard = () => {
       )}
 
       {/* Interactive Event Planner Modal */}
-      {showInteractivePlanner && (
+      {showInteractivePlanner && event && (
         <InteractiveEventPlanner
           eventId={eventId}
           currentEvent={event}
