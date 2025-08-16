@@ -140,34 +140,48 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
           return;
         }
 
-        const response = await axios.get(`${API}/events`, {
-          headers
-        });
-        
-        if (response.data.events && response.data.events.length > 0) {
-          // Get the most recent event
-          const recentEvent = response.data.events[0];
-          setEventData(recentEvent);
+        // If eventId is provided, fetch that specific event
+        if (eventId) {
+          const response = await axios.get(`${API}/events/${eventId}`, {
+            headers
+          });
+          setEventData(response.data);
           setBudgetData({
-            set: recentEvent.budget || 0,
+            set: response.data.budget || 0,
             selected: 0,
-            remaining: recentEvent.budget || 0
+            remaining: response.data.budget || 0
           });
         } else {
-          // No events found, set nice default data for demonstration
-          setEventData({
-            name: 'My Event',
-            event_type: 'Wedding',
-            guest_count: 150,
-            budget: 25000,
-            location: 'Los Angeles',
-            zipcode: '90210'
+          // No specific eventId, get user's events and use the first one
+          const response = await axios.get(`${API}/events`, {
+            headers
           });
-          setBudgetData({
-            set: 25000,
-            selected: 0,
-            remaining: 25000
-          });
+          
+          if (response.data.events && response.data.events.length > 0) {
+            // Get the most recent event
+            const recentEvent = response.data.events[0];
+            setEventData(recentEvent);
+            setBudgetData({
+              set: recentEvent.budget || 0,
+              selected: 0,
+              remaining: recentEvent.budget || 0
+            });
+          } else {
+            // No events found, set nice default data for demonstration
+            setEventData({
+              name: 'My Event',
+              event_type: 'Wedding',
+              guest_count: 150,
+              budget: 25000,
+              location: 'Los Angeles',
+              zipcode: '90210'
+            });
+            setBudgetData({
+              set: 25000,
+              selected: 0,
+              remaining: 25000
+            });
+          }
         }
       } catch (error) {
         console.error('Failed to fetch event data:', error);
