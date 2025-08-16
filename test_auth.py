@@ -8,7 +8,7 @@ import json
 import os
 
 # Configuration
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://corporate-events.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://eventforge-4.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
