@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Event Retrieval Functionality Testing for Urevent 360 Platform
-Focus: Testing event retrieval functionality to ensure the "manage" button navigation issue is resolved.
+Event History API Testing for Urevent 360 Platform
+Focus: Testing Event History API functionality to identify any backend issues.
 
 SPECIFIC TESTING FOCUS:
-1. List Events API: Test GET /api/events to retrieve all events
-2. Individual Event Retrieval: Test GET /api/events/{event_id} for existing events
-3. Event ID Validation: Verify event IDs are properly formatted (UUIDs)
-4. Authentication on Event Routes: Verify both endpoints work with authentication
-5. Event data structure includes all required fields for dashboard display
-6. No 404 errors when trying to access individual events
-7. Authentication consistency across event-related endpoints
+1. Event History API: Test GET /api/users/event-history endpoint
+2. Mock Data Verification: Verify it returns proper mock data when no real events exist
+3. Response Format: Check the response format matches what the frontend expects
+4. Authentication: Verify JWT token generation for client login (sarah.johnson@email.com/SecurePass123)
+5. Event History Endpoint Authentication: Test that the event-history endpoint works with proper authentication
+6. Data Structure: Check the event history data structure to ensure it matches what the EventHistory.js component expects
+7. Backend Error Identification: Identify any backend errors that might be causing frontend runtime issues
 """
 
 import requests
