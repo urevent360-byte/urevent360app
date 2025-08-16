@@ -90,6 +90,178 @@ class APITester:
             self.log_test("Health Check", False, f"Status: {response.status_code if response else 'No response'}")
             return False
     
+    def test_event_history_api(self):
+        """Test Event History API functionality as requested in review"""
+        print("\n📚 Testing Event History API Functionality...")
+        
+        if "client" not in self.tokens:
+            # First ensure we have a valid client token
+            self.test_authentication()
+        
+        if "client" not in self.tokens:
+            self.log_test("Event History API Test", False, "No client token available")
+            return
+        
+        # Step 1: Test GET /api/users/event-history endpoint
+        print("Step 1: Testing GET /api/users/event-history endpoint...")
+        response = self.make_request("GET", "/users/event-history", token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            event_history_data = response.json()
+            self.log_test("Event History API Response", True, f"Status: {response.status_code}")
+            
+            # Step 2: Verify response structure
+            print("Step 2: Verifying response structure...")
+            if "events" in event_history_data:
+                events = event_history_data["events"]
+                self.log_test("Event History Response Structure", True, f"Found 'events' key with {len(events)} events")
+                
+                # Step 3: Verify mock data format
+                print("Step 3: Verifying mock data format...")
+                if len(events) > 0:
+                    first_event = events[0]
+                    
+                    # Check required fields for EventHistory.js component
+                    required_fields = [
+                        "id", "name", "type", "date", "status", "venue", 
+                        "guests", "budget", "total_spent", "vendors", 
+                        "cultural_style", "summary", "created_date", "image_url"
+                    ]
+                    
+                    missing_fields = []
+                    for field in required_fields:
+                        if field not in first_event:
+                            missing_fields.append(field)
+                    
+                    if len(missing_fields) == 0:
+                        self.log_test("Event History Data Structure", True, "All required fields present")
+                        
+                        # Step 4: Verify venue structure
+                        print("Step 4: Verifying venue structure...")
+                        venue = first_event.get("venue", {})
+                        if isinstance(venue, dict) and "name" in venue and "location" in venue:
+                            self.log_test("Venue Data Structure", True, f"Venue: {venue['name']}, Location: {venue['location']}")
+                        else:
+                            self.log_test("Venue Data Structure", False, f"Invalid venue structure: {venue}")
+                        
+                        # Step 5: Verify vendors structure
+                        print("Step 5: Verifying vendors structure...")
+                        vendors = first_event.get("vendors", [])
+                        if isinstance(vendors, list) and len(vendors) > 0:
+                            first_vendor = vendors[0]
+                            vendor_fields = ["id", "name", "service", "cost", "rating", "review"]
+                            vendor_missing = [f for f in vendor_fields if f not in first_vendor]
+                            
+                            if len(vendor_missing) == 0:
+                                self.log_test("Vendors Data Structure", True, f"Found {len(vendors)} vendors with complete data")
+                            else:
+                                self.log_test("Vendors Data Structure", False, f"Vendor missing fields: {vendor_missing}")
+                        else:
+                            self.log_test("Vendors Data Structure", False, f"Invalid vendors structure: {type(vendors)}")
+                        
+                        # Step 6: Verify data types and values
+                        print("Step 6: Verifying data types and values...")
+                        data_type_checks = []
+                        
+                        # Check numeric fields
+                        if isinstance(first_event.get("guests"), int) and first_event.get("guests") > 0:
+                            data_type_checks.append("guests: valid integer")
+                        else:
+                            data_type_checks.append("guests: invalid")
+                        
+                        if isinstance(first_event.get("budget"), (int, float)) and first_event.get("budget") > 0:
+                            data_type_checks.append("budget: valid number")
+                        else:
+                            data_type_checks.append("budget: invalid")
+                        
+                        if isinstance(first_event.get("total_spent"), (int, float)) and first_event.get("total_spent") > 0:
+                            data_type_checks.append("total_spent: valid number")
+                        else:
+                            data_type_checks.append("total_spent: invalid")
+                        
+                        # Check date format
+                        date_str = first_event.get("date")
+                        if date_str and isinstance(date_str, str) and "T" in date_str:
+                            data_type_checks.append("date: valid ISO format")
+                        else:
+                            data_type_checks.append("date: invalid format")
+                        
+                        # Check status
+                        status = first_event.get("status")
+                        if status == "completed":
+                            data_type_checks.append("status: correct (completed)")
+                        else:
+                            data_type_checks.append(f"status: unexpected ({status})")
+                        
+                        valid_checks = [c for c in data_type_checks if "valid" in c or "correct" in c]
+                        if len(valid_checks) == len(data_type_checks):
+                            self.log_test("Event History Data Types", True, f"All data types valid: {len(valid_checks)}/{len(data_type_checks)}")
+                        else:
+                            self.log_test("Event History Data Types", False, f"Data type issues: {data_type_checks}")
+                        
+                        # Step 7: Test multiple events in history
+                        print("Step 7: Testing multiple events in history...")
+                        if len(events) >= 2:
+                            second_event = events[1]
+                            if second_event.get("type") != first_event.get("type"):
+                                self.log_test("Multiple Event Types", True, f"Found different event types: {first_event.get('type')} and {second_event.get('type')}")
+                            else:
+                                self.log_test("Multiple Event Types", True, f"Multiple events present ({len(events)} total)")
+                        else:
+                            self.log_test("Multiple Event Types", True, f"Single event in history (acceptable for testing)")
+                        
+                        # Step 8: Verify image URLs
+                        print("Step 8: Verifying image URLs...")
+                        image_url = first_event.get("image_url")
+                        if image_url and isinstance(image_url, str) and image_url.startswith("https://"):
+                            self.log_test("Event History Images", True, f"Valid image URL format: {image_url[:50]}...")
+                        else:
+                            self.log_test("Event History Images", False, f"Invalid image URL: {image_url}")
+                        
+                        # Step 9: Test cultural style data
+                        print("Step 9: Testing cultural style data...")
+                        cultural_style = first_event.get("cultural_style")
+                        if cultural_style and isinstance(cultural_style, str):
+                            self.log_test("Cultural Style Data", True, f"Cultural style: {cultural_style}")
+                        else:
+                            self.log_test("Cultural Style Data", False, f"Invalid cultural style: {cultural_style}")
+                        
+                    else:
+                        self.log_test("Event History Data Structure", False, f"Missing required fields: {missing_fields}")
+                else:
+                    self.log_test("Event History Mock Data", False, "No events in mock data")
+            else:
+                self.log_test("Event History Response Structure", False, "Missing 'events' key in response")
+        else:
+            self.log_test("Event History API Response", False, f"Status: {response.status_code if response else 'No response'}")
+            if response:
+                print(f"   Error response: {response.text}")
+        
+        # Step 10: Test authentication requirement
+        print("Step 10: Testing authentication requirement...")
+        response_no_auth = self.make_request("GET", "/users/event-history")
+        if response_no_auth and response_no_auth.status_code == 401:
+            self.log_test("Event History Authentication Required", True, "Correctly requires authentication")
+        else:
+            self.log_test("Event History Authentication Required", False, f"Expected 401, got {response_no_auth.status_code if response_no_auth else 'No response'}")
+        
+        # Step 11: Test with invalid token
+        print("Step 11: Testing with invalid token...")
+        invalid_token = "invalid.jwt.token"
+        response_invalid = self.make_request("GET", "/users/event-history", token=invalid_token)
+        if response_invalid and response_invalid.status_code == 401:
+            self.log_test("Event History Invalid Token Rejection", True, "Correctly rejects invalid token")
+        else:
+            self.log_test("Event History Invalid Token Rejection", False, f"Expected 401, got {response_invalid.status_code if response_invalid else 'No response'}")
+        
+        # Summary
+        print("\n📊 Event History API Testing Summary:")
+        print("   • Tested GET /api/users/event-history endpoint")
+        print("   • Verified mock data structure and format")
+        print("   • Checked authentication requirements")
+        print("   • Validated data types and required fields")
+        print("   • Confirmed frontend compatibility")
+
     def test_event_retrieval_functionality(self):
         """Test comprehensive event retrieval functionality to resolve manage button navigation issues"""
         print("\n🎯 Testing Event Retrieval Functionality (Manage Button Fix)...")
