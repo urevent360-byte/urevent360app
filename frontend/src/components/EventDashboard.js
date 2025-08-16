@@ -614,7 +614,7 @@ const EventDashboard = () => {
       case 'venue':
         return <VenueSelection eventId={eventId} onVenueSelected={(venue) => {
           // Refresh event data after venue selection
-          fetchEventData();
+          fetchEvent();
         }} />;
 
       case 'budget':
