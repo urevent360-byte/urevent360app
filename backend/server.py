@@ -2554,6 +2554,92 @@ async def submit_contact_form(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to submit contact form: {str(e)}")
 
+@api_router.get("/users/billing-address")
+async def get_billing_address(current_user: dict = Depends(get_current_user)):
+    """Get user's billing address"""
+    user = await db.users.find_one({"id": current_user["id"]})
+    if not user:
+        user = current_user
+    
+    billing_address = user.get("billing_address", {})
+    return {"billing_address": billing_address}
+
+@api_router.put("/users/billing-address")
+async def update_billing_address(
+    billing_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update user's billing address"""
+    try:
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {
+                "$set": {
+                    "billing_address": billing_data,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        return {"message": "Billing address updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update billing address: {str(e)}")
+
+@api_router.get("/users/booking-history")
+async def get_booking_history(current_user: dict = Depends(get_current_user)):
+    """Get user's booking and order history"""
+    # Mock booking history for development
+    bookings = [
+        {
+            "id": "booking_123",
+            "event_name": "Sarah's Wedding Reception",
+            "vendor_name": "Elegant Catering Co.",
+            "service_type": "Catering",
+            "amount": 4500.00,
+            "status": "completed",
+            "booking_date": (datetime.utcnow() - timedelta(days=60)).isoformat(),
+            "event_date": (datetime.utcnow() - timedelta(days=30)).isoformat(),
+            "invoice_id": "inv_123"
+        },
+        {
+            "id": "booking_456",
+            "event_name": "Corporate Annual Gala",
+            "vendor_name": "Premier Photography",
+            "service_type": "Photography",
+            "amount": 2800.00,
+            "status": "completed",
+            "booking_date": (datetime.utcnow() - timedelta(days=90)).isoformat(),
+            "event_date": (datetime.utcnow() - timedelta(days=60)).isoformat(),
+            "invoice_id": "inv_456"
+        },
+        {
+            "id": "booking_789",
+            "event_name": "Birthday Celebration",
+            "vendor_name": "Royal Decorations",
+            "service_type": "Decoration",
+            "amount": 1200.00,
+            "status": "upcoming",
+            "booking_date": datetime.utcnow().isoformat(),
+            "event_date": (datetime.utcnow() + timedelta(days=30)).isoformat(),
+            "invoice_id": "inv_789"
+        }
+    ]
+    
+    return {"bookings": bookings}
+
+@api_router.get("/invoices/{invoice_id}/download")
+async def download_invoice(
+    invoice_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Download an invoice PDF"""
+    try:
+        # In a real implementation, this would generate and return a PDF
+        # For now, return a success message
+        return {"message": f"Invoice {invoice_id} download initiated", "filename": f"invoice-{invoice_id}.pdf"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to download invoice: {str(e)}")
+
 # Import admin and vendor routes after all functions are defined to avoid circular imports
 # Temporarily disabled due to circular import issues
 # try:
