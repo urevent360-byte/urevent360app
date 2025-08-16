@@ -188,7 +188,6 @@ const Login = () => {
               return (
                 <div
                   key={role.id}
-                  onClick={() => handleRoleSelect(role.id)}
                   className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 cursor-pointer group hover:scale-105 transform border border-white/20"
                 >
                   <div className="p-8">
