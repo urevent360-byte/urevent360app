@@ -2640,6 +2640,233 @@ async def download_invoice(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to download invoice: {str(e)}")
 
+@api_router.get("/users/preferred-vendors")
+async def get_preferred_vendors(current_user: dict = Depends(get_current_user)):
+    """Get user's preferred vendors"""
+    # Mock preferred vendors data
+    preferred_vendors = [
+        {
+            "id": "vendor_123",
+            "name": "Elegant Catering Co.",
+            "service_type": "Catering",
+            "rating": 4.9,
+            "events_count": 5,
+            "total_spent": 12500,
+            "last_hired": (datetime.utcnow() - timedelta(days=30)).isoformat(),
+            "contact": {
+                "phone": "+1-555-0123",
+                "email": "info@elegantcatering.com",
+                "location": "New York, NY"
+            },
+            "specialties": ["Wedding Catering", "Corporate Events", "Fine Dining"],
+            "notes": "Excellent service, professional staff, amazing food quality.",
+            "added_date": (datetime.utcnow() - timedelta(days=300)).isoformat(),
+            "average_cost": 2500,
+            "image_url": "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=300&h=200&fit=crop"
+        },
+        {
+            "id": "vendor_456",
+            "name": "Premier Photography",
+            "service_type": "Photography",
+            "rating": 4.8,
+            "events_count": 3,
+            "total_spent": 4200,
+            "last_hired": (datetime.utcnow() - timedelta(days=45)).isoformat(),
+            "contact": {
+                "phone": "+1-555-0456",
+                "email": "contact@premierphotography.com",
+                "location": "Brooklyn, NY"
+            },
+            "specialties": ["Wedding Photography", "Event Coverage", "Portrait Photography"],
+            "notes": "Creative shots, punctual, great to work with.",
+            "added_date": (datetime.utcnow() - timedelta(days=240)).isoformat(),
+            "average_cost": 1400,
+            "image_url": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=300&h=200&fit=crop"
+        }
+    ]
+    
+    return {"vendors": preferred_vendors}
+
+@api_router.delete("/users/preferred-vendors/{vendor_id}")
+async def remove_preferred_vendor(
+    vendor_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Remove a vendor from user's preferred list"""
+    try:
+        # In a real implementation, this would remove from database
+        return {"message": "Vendor removed from preferred list successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to remove preferred vendor: {str(e)}")
+
+@api_router.get("/users/blocked-vendors")
+async def get_blocked_vendors(current_user: dict = Depends(get_current_user)):
+    """Get user's blocked vendors"""
+    # Mock blocked vendors data
+    blocked_vendors = [
+        {
+            "id": "vendor_999",
+            "name": "Unreliable Vendors Inc.",
+            "service_type": "DJ & Music",
+            "rating": 2.1,
+            "blocked_date": (datetime.utcnow() - timedelta(days=60)).isoformat(),
+            "reason": "Poor service quality, arrived late, unprofessional behavior",
+            "events_count": 1
+        }
+    ]
+    
+    return {"vendors": blocked_vendors}
+
+@api_router.post("/users/blocked-vendors")
+async def block_vendor(
+    block_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Block a vendor for the user"""
+    try:
+        vendor_id = block_data["vendor_id"]
+        reason = block_data["reason"]
+        
+        # In a real implementation, this would add to blocked vendors collection
+        blocked_vendor = {
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["id"],
+            "vendor_id": vendor_id,
+            "reason": reason,
+            "blocked_date": datetime.utcnow().isoformat()
+        }
+        
+        return {"message": "Vendor blocked successfully", "blocked_vendor": blocked_vendor}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to block vendor: {str(e)}")
+
+@api_router.delete("/users/blocked-vendors/{vendor_id}")
+async def unblock_vendor(
+    vendor_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Unblock a vendor for the user"""
+    try:
+        # In a real implementation, this would remove from blocked vendors collection
+        return {"message": "Vendor unblocked successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to unblock vendor: {str(e)}")
+
+@api_router.get("/users/event-history")
+async def get_event_history(current_user: dict = Depends(get_current_user)):
+    """Get user's event history"""
+    # Mock event history data
+    event_history = [
+        {
+            "id": "event_123",
+            "name": "Sarah's Wedding Reception",
+            "type": "Wedding",
+            "sub_type": "Reception Only",
+            "date": (datetime.utcnow() - timedelta(days=90)).isoformat(),
+            "status": "completed",
+            "venue": {
+                "name": "Grand Ballroom Plaza",
+                "location": "New York, NY"
+            },
+            "guests": 150,
+            "budget": 25000,
+            "total_spent": 23800,
+            "vendors": [
+                {
+                    "id": "v1",
+                    "name": "Elegant Catering Co.",
+                    "service": "Catering",
+                    "cost": 12500,
+                    "rating": 5,
+                    "review": "Outstanding service, delicious food, professional staff"
+                },
+                {
+                    "id": "v2",
+                    "name": "Premier Photography",
+                    "service": "Photography",
+                    "cost": 2800,
+                    "rating": 5,
+                    "review": "Amazing shots, captured every moment perfectly"
+                }
+            ],
+            "cultural_style": "American",
+            "summary": "A beautiful wedding reception celebrating Sarah and John's special day.",
+            "created_date": (datetime.utcnow() - timedelta(days=120)).isoformat(),
+            "image_url": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=250&fit=crop"
+        },
+        {
+            "id": "event_456",
+            "name": "Corporate Annual Gala",
+            "type": "Corporate",
+            "date": (datetime.utcnow() - timedelta(days=180)).isoformat(),
+            "status": "completed",
+            "venue": {
+                "name": "Manhattan Conference Center",
+                "location": "Manhattan, NY"
+            },
+            "guests": 200,
+            "budget": 15000,
+            "total_spent": 14200,
+            "vendors": [
+                {
+                    "id": "v5",
+                    "name": "Business Catering Plus",
+                    "service": "Catering",
+                    "cost": 8000,
+                    "rating": 4,
+                    "review": "Professional service, good food quality"
+                }
+            ],
+            "cultural_style": "American",
+            "summary": "Successful corporate gala celebrating company achievements.",
+            "created_date": (datetime.utcnow() - timedelta(days=210)).isoformat(),
+            "image_url": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=250&fit=crop"
+        }
+    ]
+    
+    return {"events": event_history}
+
+@api_router.post("/events/duplicate")
+async def duplicate_event(
+    duplicate_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Duplicate an existing event for reuse"""
+    try:
+        # Create new event based on existing event data
+        new_event = {
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["id"],
+            "name": duplicate_data["name"],
+            "type": duplicate_data["type"],
+            "sub_type": duplicate_data.get("sub_type"),
+            "cultural_style": duplicate_data.get("cultural_style"),
+            "venue_preferences": duplicate_data.get("venue_preferences"),
+            "vendor_selections": duplicate_data.get("vendor_selections", []),
+            "estimated_budget": duplicate_data.get("estimated_budget"),
+            "estimated_guests": duplicate_data.get("estimated_guests"),
+            "status": "planning",
+            "created_at": datetime.utcnow().isoformat()
+        }
+        
+        # In a real implementation, this would be saved to database
+        
+        return {"message": "Event duplicated successfully", "event_id": new_event["id"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to duplicate event: {str(e)}")
+
+@api_router.get("/events/{event_id}/summary-pdf")
+async def download_event_summary(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Download event summary as PDF"""
+    try:
+        # In a real implementation, this would generate a PDF summary
+        return {"message": f"Event summary PDF for {event_id} would be generated here"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate event summary: {str(e)}")
+
 # Import admin and vendor routes after all functions are defined to avoid circular imports
 # Temporarily disabled due to circular import issues
 # try:
