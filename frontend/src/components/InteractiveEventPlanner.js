@@ -552,6 +552,130 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
   const renderStepContent = () => {
     const step = plannerSteps[currentStep];
     
+    if (step.id === 'planning') {
+      return (
+        <div className="space-y-8">
+          {/* Welcome Section */}
+          <div className="text-center">
+            <div className="mx-auto h-20 w-20 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mb-6">
+              <Calendar className="h-10 w-10 text-white" />
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-2">Let's Plan Your Perfect Event!</h3>
+            <p className="text-gray-600 max-w-2xl mx-auto">
+              Welcome to your personalized event planning journey. We'll guide you through each step to create an unforgettable experience 
+              that matches your vision, budget, and style preferences.
+            </p>
+          </div>
+
+          {/* Event Summary Card */}
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl border border-purple-200">
+            <h4 className="font-semibold text-purple-900 mb-4 flex items-center">
+              <Sparkles className="h-5 w-5 mr-2" />
+              Your Event Overview
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-lg border border-purple-100">
+                <div className="flex items-center space-x-3">
+                  <Calendar className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Event Type</p>
+                    <p className="font-medium text-gray-900">{currentEvent?.event_type || 'Not specified'}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-purple-100">
+                <div className="flex items-center space-x-3">
+                  <Users className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Guest Count</p>
+                    <p className="font-medium text-gray-900">{currentEvent?.guest_count || 'Not specified'}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-purple-100">
+                <div className="flex items-center space-x-3">
+                  <DollarSign className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Budget</p>
+                    <p className="font-medium text-gray-900">{currentEvent?.budget ? formatCurrency(currentEvent.budget) : 'Not set'}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg border border-purple-100">
+                <div className="flex items-center space-x-3">
+                  <MapPin className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Location</p>
+                    <p className="font-medium text-gray-900">{currentEvent?.location || 'Not specified'}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Planning Steps Preview */}
+          <div>
+            <h4 className="font-semibold text-gray-900 mb-4 text-center">Your Planning Journey</h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {plannerSteps.slice(1).map((step, index) => {
+                const Icon = step.icon;
+                return (
+                  <div key={step.id} className="text-center p-4 bg-white rounded-lg border border-gray-200 hover:border-purple-200 transition-colors">
+                    <div className={`mx-auto h-12 w-12 rounded-full ${step.color} flex items-center justify-center mb-3`}>
+                      <Icon className="h-6 w-6 text-white" />
+                    </div>
+                    <h5 className="font-medium text-gray-900 text-sm">{step.title}</h5>
+                    <p className="text-xs text-gray-600 mt-1">{step.subtitle}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Next Steps */}
+          <div className="bg-green-50 p-6 rounded-xl border border-green-200 text-center">
+            <CheckCircle className="mx-auto h-12 w-12 text-green-600 mb-4" />
+            <h4 className="font-semibold text-green-900 mb-2">Ready to Start Planning?</h4>
+            <p className="text-green-700 mb-4">
+              Let's begin with finding the perfect venue for your event. We'll match you with venues that fit your guest count, budget, and location preferences.
+            </p>
+            <button
+              onClick={() => setCurrentStep(1)}
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
+            >
+              <Zap className="h-5 w-5 mr-2" />
+              Begin Venue Selection
+            </button>
+          </div>
+
+          {/* Budget Recommendation */}
+          {currentEvent?.budget && (
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div className="flex items-start space-x-3">
+                <DollarSign className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <h5 className="font-medium text-blue-900">Smart Budget Allocation</h5>
+                  <p className="text-sm text-blue-700 mt-1">
+                    Based on your ${formatCurrency(currentEvent.budget)} budget, we recommend allocating approximately:
+                  </p>
+                  <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                    <span>• Venue: {formatCurrency(currentEvent.budget * 0.4)} (40%)</span>
+                    <span>• Catering: {formatCurrency(currentEvent.budget * 0.3)} (30%)</span>
+                    <span>• Decoration: {formatCurrency(currentEvent.budget * 0.15)} (15%)</span>
+                    <span>• Entertainment: {formatCurrency(currentEvent.budget * 0.1)} (10%)</span>
+                    <span>• Other: {formatCurrency(currentEvent.budget * 0.05)} (5%)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    
     if (step.id === 'review') {
       return (
         <div className="space-y-6">
