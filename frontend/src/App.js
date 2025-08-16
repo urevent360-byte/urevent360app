@@ -24,6 +24,7 @@ import PreferredVendors from './components/PreferredVendors';
 import EventHistory from './components/EventHistory';
 import CalendarComponent from './components/Calendar';
 import AppointmentBooking from './components/AppointmentBooking';
+import InteractiveEventPlanner from './components/InteractiveEventPlanner';
 
 // Settings Components
 import ProfileSettings from './components/settings/ProfileSettings';
