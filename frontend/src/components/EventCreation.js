@@ -21,6 +21,12 @@ const EventCreation = () => {
     date: '',
     time: '',
     location: '',
+    zipcode: '',
+    location_preferences: {
+      search_radius: 25, // Default 25 miles
+      only_exact_location: false,
+      preferred_areas: []
+    },
     guest_count: '',
     budget: '',
     requirements: {
