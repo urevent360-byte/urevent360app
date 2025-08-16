@@ -14,18 +14,82 @@ const API = `${BACKEND_URL}/api`;
 const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }) => {
   const { token } = useContext(AuthContext);
   const [currentStep, setCurrentStep] = useState(0);
+  const [eventData, setEventData] = useState(currentEvent || null);
+  const [loading, setLoading] = useState(false);
   const [searchTerms, setSearchTerms] = useState({});
   const [vendors, setVendors] = useState({});
   const [selectedServices, setSelectedServices] = useState({});
   const [cart, setCart] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [budgetData, setBudgetData] = useState({
-    set: currentEvent?.budget || 0,
+    set: 0,
     selected: 0,
-    remaining: currentEvent?.budget || 0
+    remaining: 0
   });
   const [expandedCard, setExpandedCard] = useState(null);
+
+  // Fetch user's most recent event or create a default one
+  useEffect(() => {
+    const fetchEventData = async () => {
+      if (currentEvent) {
+        setEventData(currentEvent);
+        setBudgetData({
+          set: currentEvent.budget || 0,
+          selected: 0,
+          remaining: currentEvent.budget || 0
+        });
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const response = await axios.get(`${API}/events`, {
+          headers: getAuthHeaders()
+        });
+        
+        if (response.data.events && response.data.events.length > 0) {
+          // Get the most recent event
+          const recentEvent = response.data.events[0];
+          setEventData(recentEvent);
+          setBudgetData({
+            set: recentEvent.budget || 0,
+            selected: 0,
+            remaining: recentEvent.budget || 0
+          });
+        } else {
+          // Set default empty event data
+          setEventData({
+            name: 'New Event',
+            event_type: 'Not specified',
+            guest_count: null,
+            budget: null,
+            location: 'Not specified',
+            zipcode: null
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch event data:', error);
+        // Set default empty event data on error
+        setEventData({
+          name: 'New Event',
+          event_type: 'Not specified', 
+          guest_count: null,
+          budget: null,
+          location: 'Not specified',
+          zipcode: null
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEventData();
+  }, [currentEvent]);
+
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
   const plannerSteps = [
     {
