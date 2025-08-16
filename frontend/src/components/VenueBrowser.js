@@ -123,7 +123,43 @@ const VenueBrowser = () => {
       );
     }
 
-    if (filters.location) {
+    // Location-based filtering
+    if (filters.zipcode && filters.zipcode.length === 5) {
+      if (filters.only_exact_location) {
+        // Exact location match - filter by zipcode or city name
+        filtered = filtered.filter(venue => {
+          const venueLocation = venue.location.toLowerCase();
+          const userLocation = filters.location.toLowerCase();
+          return venueLocation.includes(filters.zipcode) || 
+                 (userLocation && venueLocation.includes(userLocation));
+        });
+      } else {
+        // Range-based filtering - in a real app this would use actual distance calculation
+        // For now, we'll simulate it based on location text matching with some flexibility
+        const searchRadius = filters.search_radius;
+        filtered = filtered.filter(venue => {
+          const venueLocation = venue.location.toLowerCase();
+          const userLocation = filters.location.toLowerCase();
+          
+          // Simple mock distance logic based on location text
+          // In production, this would use actual latitude/longitude calculations
+          if (venueLocation.includes(filters.zipcode) || 
+              (userLocation && venueLocation.includes(userLocation))) {
+            return true; // Exact match
+          }
+          
+          // For demo purposes, include venues in same state/region for larger radius
+          if (searchRadius > 25) {
+            const userState = extractState(filters.location);
+            const venueState = extractState(venue.location);
+            return userState && venueState && userState === venueState;
+          }
+          
+          return false;
+        });
+      }
+    } else if (filters.location) {
+      // Fallback to simple location matching if no zipcode
       filtered = filtered.filter(venue =>
         venue.location.toLowerCase().includes(filters.location.toLowerCase())
       );
