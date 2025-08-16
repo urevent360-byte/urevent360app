@@ -597,14 +597,25 @@ const EventDashboard = () => {
                 </div>
               </div>
               
-              {/* Quick Venue Selection Option */}
+              {/* Direct Step-by-Step Mode Access */}
               <div className="mt-6 text-center">
+                <button
+                  onClick={() => {
+                    setShowInteractivePlanner(true);
+                    // This will open the modal with mode="continue", and then user can click Step-by-Step Mode
+                  }}
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg mr-4"
+                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  Open Progress Dashboard
+                </button>
+                
                 <button
                   onClick={() => setShowVenueSelection(true)}
                   className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                 >
                   <Building className="h-4 w-4 mr-2" />
-                  {event.venue_id ? 'Change Venue' : 'Quick Venue Search Only'}
+                  {event.venue_id ? 'Change Venue' : 'Quick Venue Search'}
                 </button>
               </div>
             </div>
