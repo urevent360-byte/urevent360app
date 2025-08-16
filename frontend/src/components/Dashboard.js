@@ -296,6 +296,100 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Interactive Event Planner - Prominent Call-to-Action */}
+      <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-700 shadow-xl rounded-xl overflow-hidden">
+        <div className="px-6 py-8 sm:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="flex-shrink-0">
+                  <div className="h-12 w-12 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                    <Calendar className="h-7 w-7 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Interactive Event Planner</h3>
+                  <p className="text-purple-200 text-sm">Your Complete Event Planning Solution</p>
+                </div>
+              </div>
+              
+              <p className="text-white text-base mb-6 max-w-2xl">
+                🎯 <strong>Plan your entire event step-by-step</strong> with our intelligent planner. Get personalized recommendations, 
+                manage budgets, book vendors, and handle all event details in one seamless experience.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="h-2 w-2 rounded-full bg-white bg-opacity-80"></div>
+                  <span className="text-sm">10-Step Guided Process</span>
+                </div>
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="h-2 w-2 rounded-full bg-white bg-opacity-80"></div>
+                  <span className="text-sm">Cultural Intelligence</span>
+                </div>
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="h-2 w-2 rounded-full bg-white bg-opacity-80"></div>
+                  <span className="text-sm">Budget Management</span>
+                </div>
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="h-2 w-2 rounded-full bg-white bg-opacity-80"></div>
+                  <span className="text-sm">Venue & Vendor Matching</span>
+                </div>
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="h-2 w-2 rounded-full bg-white bg-opacity-80"></div>
+                  <span className="text-sm">Real-time Collaboration</span>
+                </div>
+                <div className="flex items-center space-x-2 text-white">
+                  <div className="h-2 w-2 rounded-full bg-white bg-opacity-80"></div>
+                  <span className="text-sm">Booking Management</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="hidden lg:block">
+              <div className="relative">
+                <div className="absolute -top-4 -right-4 h-20 w-20 rounded-full bg-white bg-opacity-10 animate-pulse"></div>
+                <div className="absolute -bottom-2 -left-2 h-16 w-16 rounded-full bg-white bg-opacity-10 animate-pulse" style={{ animationDelay: '1s' }}></div>
+                <div className="relative h-24 w-24 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                  <TrendingUp className="h-12 w-12 text-white" />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+            <div className="flex items-center space-x-4">
+              <div className="text-white">
+                <p className="text-sm opacity-90">Start planning in</p>
+                <p className="text-2xl font-bold">Less than 2 minutes</p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <Link
+                to="/events/create"
+                className="inline-flex items-center px-4 py-2 border border-white border-opacity-30 rounded-lg text-white hover:bg-white hover:bg-opacity-10 transition-all duration-200 text-sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create New Event
+              </Link>
+              
+              <Link
+                to="/interactive-planner"
+                className="inline-flex items-center px-6 py-3 bg-white text-purple-700 font-semibold rounded-lg hover:bg-gray-50 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              >
+                <Calendar className="h-5 w-5 mr-2" />
+                Start Planning Now
+                <span className="ml-2 text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">Popular</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+        {/* Bottom accent bar */}
+        <div className="h-1 bg-gradient-to-r from-yellow-400 via-pink-500 to-red-500"></div>
+      </div>
+
       {/* Quick Actions */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
