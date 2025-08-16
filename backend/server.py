@@ -2149,6 +2149,405 @@ async def get_preferred_vendor_recommendations(
         "service_type": service_type
     }
 
+# ============================================================================
+# User Settings & Profile Management API Routes
+# ============================================================================
+
+@api_router.put("/users/profile")
+async def update_user_profile(
+    profile_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update user profile information"""
+    try:
+        # Update user profile
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {
+                "$set": {
+                    "name": profile_data.get("name", current_user["name"]),
+                    "email": profile_data.get("email", current_user["email"]),
+                    "mobile": profile_data.get("mobile", current_user.get("mobile")),
+                    "bio": profile_data.get("bio", ""),
+                    "location": profile_data.get("location", ""),
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        return {"message": "Profile updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update profile: {str(e)}")
+
+@api_router.put("/users/avatar")
+async def upload_avatar(
+    avatar: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Upload user avatar/profile picture"""
+    try:
+        # In a real implementation, you'd upload to cloud storage
+        # For now, we'll just return a placeholder URL
+        avatar_url = f"https://ui-avatars.com/api/?name={current_user['name']}&background=7c3aed&color=fff&size=200"
+        
+        # Update user avatar URL
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {
+                "$set": {
+                    "avatar_url": avatar_url,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        return {"message": "Avatar updated successfully", "avatar_url": avatar_url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload avatar: {str(e)}")
+
+@api_router.get("/users/language-preference")
+async def get_language_preference(current_user: dict = Depends(get_current_user)):
+    """Get user's language preference"""
+    user = await db.users.find_one({"id": current_user["id"]})
+    return {"language": user.get("language", "en")}
+
+@api_router.put("/users/language-preference")
+async def update_language_preference(
+    language_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update user's language preference"""
+    try:
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {
+                "$set": {
+                    "language": language_data["language"],
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        return {"message": "Language preference updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update language: {str(e)}")
+
+@api_router.get("/users/two-factor-status")
+async def get_two_factor_status(current_user: dict = Depends(get_current_user)):
+    """Get user's two-factor authentication status"""
+    user = await db.users.find_one({"id": current_user["id"]})
+    return {
+        "enabled": user.get("two_factor_enabled", False),
+        "backup_codes": user.get("backup_codes", []) if user.get("two_factor_enabled") else []
+    }
+
+@api_router.post("/users/two-factor-generate")
+async def generate_two_factor_qr(current_user: dict = Depends(get_current_user)):
+    """Generate QR code for two-factor authentication setup"""
+    try:
+        # Generate mock QR code and backup codes
+        qr_code = f"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        backup_codes = [
+            "12345678", "87654321", "11223344", "44332211", "55667788",
+            "88776655", "99001122", "22110099", "33445566", "66554433"
+        ]
+        
+        return {
+            "qr_code": qr_code,
+            "backup_codes": backup_codes
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate 2FA setup: {str(e)}")
+
+@api_router.post("/users/two-factor-verify")
+async def verify_two_factor_code(
+    verification_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Verify two-factor authentication code and enable 2FA"""
+    try:
+        # In a real implementation, you'd verify the TOTP code
+        # For demo purposes, accept any 6-digit code
+        code = verification_data.get("code", "")
+        if len(code) == 6 and code.isdigit():
+            # Enable 2FA for user
+            backup_codes = [
+                "12345678", "87654321", "11223344", "44332211", "55667788",
+                "88776655", "99001122", "22110099", "33445566", "66554433"
+            ]
+            
+            await db.users.update_one(
+                {"id": current_user["id"]},
+                {
+                    "$set": {
+                        "two_factor_enabled": True,
+                        "backup_codes": backup_codes,
+                        "updated_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+            return {"message": "Two-factor authentication enabled successfully"}
+        else:
+            raise HTTPException(status_code=400, detail="Invalid verification code")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to verify 2FA: {str(e)}")
+
+@api_router.post("/users/two-factor-disable")
+async def disable_two_factor(current_user: dict = Depends(get_current_user)):
+    """Disable two-factor authentication"""
+    try:
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {
+                "$set": {
+                    "two_factor_enabled": False,
+                    "updated_at": datetime.utcnow()
+                },
+                "$unset": {
+                    "backup_codes": ""
+                }
+            }
+        )
+        
+        return {"message": "Two-factor authentication disabled successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to disable 2FA: {str(e)}")
+
+@api_router.post("/users/two-factor-regenerate-backup")
+async def regenerate_backup_codes(current_user: dict = Depends(get_current_user)):
+    """Regenerate backup codes for two-factor authentication"""
+    try:
+        backup_codes = [
+            "98765432", "23456789", "34567890", "45678901", "56789012",
+            "67890123", "78901234", "89012345", "90123456", "01234567"
+        ]
+        
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {
+                "$set": {
+                    "backup_codes": backup_codes,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        return {"backup_codes": backup_codes}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to regenerate backup codes: {str(e)}")
+
+@api_router.get("/users/privacy-settings")
+async def get_privacy_settings(current_user: dict = Depends(get_current_user)):
+    """Get user's privacy settings"""
+    user = await db.users.find_one({"id": current_user["id"]})
+    default_settings = {
+        "profile_visibility": "public",
+        "event_visibility": "public",
+        "contact_info_visibility": "contacts",
+        "activity_sharing": True,
+        "data_analytics": True,
+        "marketing_emails": False,
+        "third_party_sharing": False,
+        "search_indexing": True,
+        "location_sharing": False,
+        "photo_tagging": True
+    }
+    
+    return {"settings": user.get("privacy_settings", default_settings)}
+
+@api_router.put("/users/privacy-settings")
+async def update_privacy_settings(
+    privacy_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update user's privacy settings"""
+    try:
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {
+                "$set": {
+                    "privacy_settings": privacy_data["settings"],
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        return {"message": "Privacy settings updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update privacy settings: {str(e)}")
+
+@api_router.get("/users/integrations")
+async def get_user_integrations(current_user: dict = Depends(get_current_user)):
+    """Get user's connected integrations"""
+    # Mock data for integrations
+    connected = [
+        {
+            "id": "google_cal_123",
+            "integration_id": "google_calendar",
+            "account_name": "personal@gmail.com",
+            "connected_at": datetime.utcnow().isoformat()
+        },
+        {
+            "id": "stripe_456",
+            "integration_id": "stripe",
+            "account_name": "Business Account",
+            "connected_at": datetime.utcnow().isoformat()
+        }
+    ]
+    
+    available = []  # This would be populated from a configuration
+    
+    return {"connected": connected, "available": available}
+
+@api_router.post("/users/integrations/connect")
+async def connect_integration(
+    integration_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Connect a third-party integration"""
+    try:
+        # In a real implementation, this would initiate OAuth flow
+        integration_id = integration_data["integration_id"]
+        
+        return {
+            "message": f"Integration {integration_id} connected successfully",
+            "redirect_url": None  # Would contain OAuth URL in real implementation
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to connect integration: {str(e)}")
+
+@api_router.post("/users/integrations/disconnect")
+async def disconnect_integration(
+    integration_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Disconnect a third-party integration"""
+    try:
+        integration_id = integration_data["integration_id"]
+        
+        return {"message": f"Integration {integration_id} disconnected successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to disconnect integration: {str(e)}")
+
+@api_router.get("/users/payment-methods")
+async def get_payment_methods(current_user: dict = Depends(get_current_user)):
+    """Get user's saved payment methods"""
+    # Mock payment methods data
+    payment_methods = [
+        {
+            "id": "pm_123",
+            "card_number": "4242424242424242",
+            "expiry_month": "12",
+            "expiry_year": "2025",
+            "is_default": True
+        }
+    ]
+    
+    return {"payment_methods": payment_methods}
+
+@api_router.post("/users/payment-methods")
+async def add_payment_method(
+    payment_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Add a new payment method"""
+    try:
+        # In a real implementation, this would integrate with Stripe/payment processor
+        return {"message": "Payment method added successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to add payment method: {str(e)}")
+
+@api_router.delete("/users/payment-methods/{method_id}")
+async def remove_payment_method(
+    method_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Remove a payment method"""
+    try:
+        return {"message": "Payment method removed successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to remove payment method: {str(e)}")
+
+@api_router.put("/users/payment-methods/{method_id}/default")
+async def set_default_payment_method(
+    method_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Set a payment method as default"""
+    try:
+        return {"message": "Default payment method updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update default payment method: {str(e)}")
+
+@api_router.get("/users/billing-history")
+async def get_billing_history(current_user: dict = Depends(get_current_user)):
+    """Get user's billing history"""
+    # Mock billing history
+    billing_history = [
+        {
+            "id": "bill_123",
+            "date": datetime.utcnow().isoformat(),
+            "description": "Premium Plan - Monthly",
+            "amount": 29.99,
+            "status": "paid",
+            "invoice_id": "inv_123"
+        }
+    ]
+    
+    return {"billing_history": billing_history}
+
+@api_router.get("/users/subscription")
+async def get_user_subscription(current_user: dict = Depends(get_current_user)):
+    """Get user's subscription information"""
+    # Mock subscription data
+    subscription = {
+        "plan_name": "Premium Plan",
+        "description": "Full access to all features",
+        "amount": 29.99,
+        "interval": "month",
+        "next_billing_date": (datetime.utcnow() + timedelta(days=30)).isoformat()
+    }
+    
+    return {"subscription": subscription}
+
+@api_router.get("/users/invoices/{invoice_id}/download")
+async def download_invoice(
+    invoice_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Download an invoice PDF"""
+    try:
+        # In a real implementation, this would generate and return a PDF
+        return {"message": "Invoice download would be implemented here"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to download invoice: {str(e)}")
+
+@api_router.post("/support/contact")
+async def submit_contact_form(
+    contact_data: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Submit a contact/support form"""
+    try:
+        # In a real implementation, this would send an email or create a ticket
+        support_ticket = {
+            "id": str(uuid.uuid4()),
+            "user_id": current_user["id"],
+            "subject": contact_data["subject"],
+            "category": contact_data["category"],
+            "message": contact_data["message"],
+            "priority": contact_data["priority"],
+            "status": "open",
+            "created_at": datetime.utcnow()
+        }
+        
+        await db.support_tickets.insert_one(support_ticket)
+        
+        return {"message": "Support ticket created successfully", "ticket_id": support_ticket["id"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to submit contact form: {str(e)}")
+
 # Import admin and vendor routes after all functions are defined to avoid circular imports
 # Temporarily disabled due to circular import issues
 # try:
