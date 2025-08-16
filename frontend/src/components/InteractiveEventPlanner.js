@@ -29,6 +29,9 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
     remaining: 0
   });
   const [expandedCard, setExpandedCard] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingField, setEditingField] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
 
   // Handle close/exit functionality
   const handleClose = () => {
