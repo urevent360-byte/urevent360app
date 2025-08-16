@@ -794,6 +794,18 @@ async def get_vendor(vendor_id: str):
         raise HTTPException(status_code=404, detail="Vendor not found")
     return Vendor(**vendor)
 
+@api_router.post("/vendors", response_model=Vendor)
+async def create_vendor(vendor_data: dict, current_user: dict = Depends(get_current_user)):
+    """Create a new vendor (admin only for testing)"""
+    vendor_dict = vendor_data.copy()
+    if "id" not in vendor_dict:
+        vendor_dict["id"] = str(uuid.uuid4())
+    if "created_at" not in vendor_dict:
+        vendor_dict["created_at"] = datetime.utcnow()
+    
+    await db.vendors.insert_one(vendor_dict)
+    return Vendor(**vendor_dict)
+
 # Vendor Favorites Routes
 @api_router.post("/vendors/{vendor_id}/favorite")
 async def toggle_vendor_favorite(vendor_id: str, current_user: dict = Depends(get_current_user)):
