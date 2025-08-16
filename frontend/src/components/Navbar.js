@@ -317,7 +317,7 @@ const Navbar = ({ setSidebarOpen }) => {
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-gray-100 my-1"></div>
+                <div className="border-t border-gray-100 my-2"></div>
 
                 {/* Sign Out */}
                 <div className="py-1">
