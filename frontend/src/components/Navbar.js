@@ -11,6 +11,10 @@ import {
 const Navbar = ({ setSidebarOpen }) => {
   const { user, logout } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    profile: false,
+    settings: false
+  });
   const dropdownRef = useRef(null);
 
   // Close dropdown when clicking outside
