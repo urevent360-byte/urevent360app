@@ -1112,12 +1112,8 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved }
                       if (!updatedServices.includes(step.title)) {
                         updatedServices.push(step.title);
                       }
-                      // Update the event data
-                      setCurrentEvent(prev => ({
-                        ...prev,
-                        services_needed: updatedServices
-                      }));
-                      // Search for vendors
+                      // Update the event data via API call (we don't modify state directly since this is a prop)
+                      // For now, just search for vendors as if the service was needed
                       searchVendors(step.id, '');
                     }}
                     className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
