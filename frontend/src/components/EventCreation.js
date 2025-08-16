@@ -206,6 +206,8 @@ const EventCreation = () => {
     'Beach/Waterfront',
     'Private Residence',
     'Church/Religious Venue',
+    'My Own Private Space',
+    'I Already Have a Venue',
     'Other'
   ];
 
