@@ -347,10 +347,10 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     loadCartFromBackend();
     
     // If in continue mode, load planning progress
-    if (mode === 'continue') {
+    if (currentMode === 'continue') {
       loadPlanningProgress();
     }
-  }, [eventId, mode]);
+  }, [eventId, currentMode]);
 
   useEffect(() => {
     // Update budget calculations when cart changes
