@@ -26,10 +26,17 @@ const EventHistory = () => {
     fetchEventHistory();
   }, []);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   const fetchEventHistory = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API}/users/event-history`);
+      const response = await axios.get(`${API}/users/event-history`, {
+        headers: getAuthHeaders()
+      });
       setEvents(response.data.events || mockEventHistory);
     } catch (error) {
       console.error('Failed to fetch event history:', error);
