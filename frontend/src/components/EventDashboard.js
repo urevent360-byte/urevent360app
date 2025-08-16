@@ -161,7 +161,8 @@ const EventDashboard = () => {
         </div>
         <button
           onClick={() => handleEdit(field, value)}
-          className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-gray-600 transition-opacity"
+          className="opacity-70 group-hover:opacity-100 p-2 text-purple-500 hover:text-purple-700 transition-opacity"
+          title="Click to edit"
         >
           <Edit3 className="h-4 w-4" />
         </button>
