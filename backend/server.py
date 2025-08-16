@@ -420,10 +420,7 @@ async def create_event(event_data: EventCreate, current_user: dict = Depends(get
     event_dict["user_id"] = current_user["id"]
     event_dict["id"] = str(uuid.uuid4())
     
-    # Extract preferred filters from requirements if they exist
-    if event_data.requirements:
-        event_dict["preferred_venue_type"] = event_data.requirements.get("venue_type")
-        event_dict["services_needed"] = event_data.requirements.get("services", [])
+    # Enhanced filtering fields are already in EventCreate model, no need to extract from requirements
     
     await db.events.insert_one(event_dict)
     return Event(**event_dict)
