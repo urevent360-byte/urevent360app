@@ -1465,15 +1465,6 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                 Close
               </button>
               <div className="space-x-3">
-                <button
-                  onClick={() => {
-                    // Switch to step-by-step mode for detailed planning
-                    setCurrentStep(planningProgress.completedSteps || 0);
-                  }}
-                  className="px-6 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50"
-                >
-                  Step-by-Step Mode
-                </button>
                 {planningProgress.selectedVendors && planningProgress.selectedVendors.length > 0 && (
                   <button
                     onClick={finalizeEventPlan}
