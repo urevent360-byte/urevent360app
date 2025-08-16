@@ -2209,6 +2209,8 @@ async def upload_avatar(
 async def get_language_preference(current_user: dict = Depends(get_current_user)):
     """Get user's language preference"""
     user = await db.users.find_one({"id": current_user["id"]})
+    if not user:
+        user = current_user  # Fallback to current_user data
     return {"language": user.get("language", "en")}
 
 @api_router.put("/users/language-preference")
