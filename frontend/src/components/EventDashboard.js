@@ -256,7 +256,11 @@ const EventDashboard = () => {
               <h3 className="text-lg font-medium text-gray-900 mb-4">Next Steps</h3>
               <div className="space-y-3">
                 <button 
-                  onClick={() => setShowInteractivePlanner(true)}
+                  onClick={() => {
+                    console.log('🔍 Start Planning clicked');
+                    console.log('🔍 Current event data:', event);
+                    setShowInteractivePlanner(true);
+                  }}
                   className="w-full text-left p-3 border border-purple-200 rounded-lg hover:bg-purple-50 bg-gradient-to-r from-purple-50 to-blue-50"
                 >
                   <div className="flex items-center">
