@@ -38,6 +38,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     pendingServices: []
   });
   const [currentMode, setCurrentMode] = useState(mode);
+  const [selectedVendorForDetails, setSelectedVendorForDetails] = useState(null);
 
   // Handle close/exit functionality
   const handleClose = () => {
