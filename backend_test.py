@@ -4845,19 +4845,62 @@ class APITester:
             print("\n⚠️  OVERALL STATUS: Some critical issues need attention")
 
 def main():
-    """Run Calendar & Appointment Integration Backend Testing"""
-    print("🚀 Starting Calendar & Appointment Integration Backend Testing...")
-    print("📅 FOCUS: Calendar & Appointment Integration System Testing")
+    """Run Step-by-Step Mode Consolidation & Vendor Icons Backend Testing"""
+    print("🚀 Starting Step-by-Step Mode Consolidation & Vendor Icons Backend Testing...")
+    print("🎯 FOCUS: Backend APIs supporting Step-by-Step Mode and Enhanced Vendor Icons")
     print(f"Backend URL: {BACKEND_URL}")
     print(f"API Base URL: {BASE_URL}")
     print("=" * 80)
     
     tester = APITester()
     
-    # Run the comprehensive Calendar & Appointment Integration tests
-    passed_tests, failed_tests = tester.run_calendar_appointment_tests()
-    
-    return failed_tests == 0
+    # Run the comprehensive Step-by-Step Mode and Vendor Icons backend tests
+    try:
+        # Test authentication first
+        tester.test_authentication()
+        
+        # Run Step-by-Step Mode backend API tests
+        tester.test_step_by_step_mode_backend_apis()
+        
+        # Run Enhanced Vendor Icons backend API tests
+        tester.test_enhanced_vendor_icons_backend_apis()
+        
+        # Run Vendor Selection Data Flow tests
+        tester.test_vendor_selection_data_flow()
+        
+        # Print final summary
+        print("\n" + "=" * 80)
+        print("🎯 STEP-BY-STEP MODE & VENDOR ICONS BACKEND TESTING SUMMARY")
+        print("=" * 80)
+        
+        total_tests = len(tester.test_results)
+        passed_tests = len([t for t in tester.test_results if t["success"]])
+        failed_tests = len(tester.failed_tests)
+        
+        print(f"📊 Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        
+        if failed_tests > 0:
+            print(f"\n❌ Failed Tests:")
+            for test_name in tester.failed_tests:
+                print(f"   • {test_name}")
+        
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        print(f"\n📈 Success Rate: {success_rate:.1f}%")
+        
+        if success_rate >= 80:
+            print("🎉 BACKEND TESTING COMPLETED SUCCESSFULLY!")
+            print("✅ Backend APIs supporting Step-by-Step Mode and Vendor Icons are functional")
+        else:
+            print("⚠️  BACKEND TESTING COMPLETED WITH ISSUES")
+            print("❌ Some backend APIs need attention")
+        
+        return failed_tests == 0
+        
+    except Exception as e:
+        print(f"❌ Testing failed with error: {e}")
+        return False
 
 if __name__ == "__main__":
     main()
