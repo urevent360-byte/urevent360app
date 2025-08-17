@@ -29,7 +29,6 @@ const EventDashboard = () => {
   const [showQuickEdit, setShowQuickEdit] = useState(false);
   const [quickEditData, setQuickEditData] = useState({});
   const [showNewPlanningConfirm, setShowNewPlanningConfirm] = useState(false);
-  const [showStepByStepView, setShowStepByStepView] = useState(false);
   const [planningProgress, setPlanningProgress] = useState({
     selectedVendors: [],
     completedSteps: 0,
