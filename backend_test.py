@@ -1253,7 +1253,7 @@ class APITester:
             "password": "SecurePass123"
         }
         
-        response = self.make_request("POST", "/auth/register", client_data)
+        response = self.make_request("POST", "/register", client_data)
         if response and response.status_code in [200, 400]:  # 400 if already exists
             self.log_test("Client Registration", True, "Registration successful or user exists")
         else:
@@ -1261,7 +1261,7 @@ class APITester:
         
         # Test login for all user types
         for role, credentials in TEST_CREDENTIALS.items():
-            response = self.make_request("POST", "/auth/login", credentials)
+            response = self.make_request("POST", "/login", credentials)
             
             if response and response.status_code == 200:
                 data = response.json()
