@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Calendar & Appointment Integration Backend Testing for Urevent 360 Platform
-Focus: Testing newly implemented Calendar & Appointment Integration backend system.
+Step-by-Step Mode Consolidation & Vendor Icons Backend Testing for Urevent 360 Platform
+Focus: Testing backend APIs that support the Step-by-Step Mode Consolidation & Vendor Icons frontend features.
 
 PRIORITY TESTING FOCUS (as per review request):
-1. Authentication Test: JWT token authentication for all appointment endpoints
-2. Vendor Availability Management: POST/GET availability endpoints  
-3. Appointment Workflow: Create, get, respond, confirm appointments
-4. Calendar Integration: GET/POST calendar events with appointments
-5. Pre-Booking Validation: finalize endpoint with appointment validation
-6. Payment Deadline Automation: automatic payment deadlines and calendar integration
+1. Event Planner State Management: APIs for progress tracking and step completion
+2. Vendor Search & Selection: APIs providing vendor data with images/details for icons
+3. Progress Continuation: APIs that highlight next pending services and progress indicators
+4. Vendor Details: APIs providing comprehensive vendor information for modals
+5. Data Flow: APIs ensuring selected vendors display correctly with images/names/prices
+6. Change/Remove Functionality: APIs supporting vendor selection/replacement
 
-Test all three appointment types: in_person, phone, and virtual
+Backend APIs supporting frontend Step-by-Step Mode and Enhanced Vendor Icons functionality.
 """
 
 import requests
