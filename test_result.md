@@ -638,6 +638,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Quote Creation System Backend"
     - "Admin Routes Integration"
     - "Enhanced Vendor Marketplace"
     - "Discrete Admin Access Icon"
