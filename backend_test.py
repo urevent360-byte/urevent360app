@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 """
-Step-by-Step Mode Consolidation & Vendor Icons Backend Testing for Urevent 360 Platform
-Focus: Testing backend APIs that support the Step-by-Step Mode Consolidation & Vendor Icons frontend features.
+Budget & Step-by-Step Mode Consolidation Backend Testing for Urevent 360 Platform
+Focus: Testing backend APIs after resolving compilation errors and consolidation fixes.
 
 PRIORITY TESTING FOCUS (as per review request):
-1. Event Planner State Management: APIs for progress tracking and step completion
-2. Vendor Search & Selection: APIs providing vendor data with images/details for icons
-3. Progress Continuation: APIs that highlight next pending services and progress indicators
-4. Vendor Details: APIs providing comprehensive vendor information for modals
-5. Data Flow: APIs ensuring selected vendors display correctly with images/names/prices
-6. Change/Remove Functionality: APIs supporting vendor selection/replacement
+1. Compilation Fix Verification: Ensure React frontend compiles without JSX syntax errors
+2. Budget Status Consolidation: Test detailed Budget Status with category breakdown and progress bars
+3. Enhanced Vendor Selection: Verify Step-by-Step Mode shows 9 service category tiles with functional vendor selection
+4. API Integration: Test all relevant backend APIs for event planning state management, budget tracking, shopping cart operations, and vendor selection workflows
 
-Backend APIs supporting frontend Step-by-Step Mode and Enhanced Vendor Icons functionality.
+Testing backend APIs that support the Budget & Step-by-Step Mode Consolidation frontend features.
 """
 
 import requests
