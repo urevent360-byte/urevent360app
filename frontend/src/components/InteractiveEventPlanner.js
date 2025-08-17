@@ -2014,7 +2014,6 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                 </div>
               </div>
             </div>
-          </div>
 
           {/* Action Buttons */}
           <div className="flex justify-between items-center pt-6 border-t">
