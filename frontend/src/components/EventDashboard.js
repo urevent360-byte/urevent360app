@@ -171,6 +171,67 @@ const EventDashboard = () => {
     return Math.round((planningProgress.completedSteps / planningProgress.totalSteps) * 100);
   };
 
+  // Fetch quotes for this event
+  const fetchEventQuotes = async () => {
+    if (!event?.id) return;
+    
+    setLoadingQuotes(true);
+    try {
+      const response = await axios.get(`${API}/events/${event.id}/quotes`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setEventQuotes(response.data || []);
+    } catch (error) {
+      console.error('Error fetching quotes:', error);
+      setEventQuotes([]);
+    } finally {
+      setLoadingQuotes(false);
+    }
+  };
+
+  // Create a new quote and launch Step-by-Step Mode
+  const handleCreateNewQuote = async () => {
+    if (!event?.id) return;
+
+    try {
+      // Create a new quote
+      const quoteData = {
+        event_id: event.id,
+        name: `Quote ${eventQuotes.length + 1}`,
+        status: 'in_progress',
+        event_type: event.event_type || 'general',
+        event_date: event.date,
+        budget: event.budget || 0,
+        guest_count: event.guest_count || 0,
+        location: event.location || '',
+        services_needed: event.services_needed || [],
+        created_at: new Date().toISOString()
+      };
+
+      const response = await axios.post(`${API}/events/${event.id}/quotes`, quoteData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      const newQuote = response.data;
+
+      // Update local quotes list
+      setEventQuotes(prev => [...prev, newQuote]);
+
+      // Launch Step-by-Step Mode with the new quote
+      setShowInteractivePlanner(true);
+      
+    } catch (error) {
+      console.error('Error creating quote:', error);
+      alert('Failed to create new quote. Please try again.');
+    }
+  };
+
+  // Resume an existing quote
+  const handleResumeQuote = (quote) => {
+    // Set the active quote context and launch Step-by-Step Mode
+    setShowInteractivePlanner(true);
+  };
+
   const formatCurrency = (amount) => {
     if (!amount) return 'Not set';
     return new Intl.NumberFormat('en-US', {
