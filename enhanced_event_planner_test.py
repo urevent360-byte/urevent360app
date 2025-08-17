@@ -32,7 +32,7 @@ HEADERS = {"Content-Type": "application/json"}
 # Test credentials from review request
 TEST_CREDENTIALS = {
     "admin": {"email": "admin@urevent360.com", "password": "admin123"},
-    "client": {"email": "sarah.johnson@email.com", "password": "SecurePass123"},
+    "client": {"email": "test@example.com", "password": "test123"},  # Using working test user
     "vendor": {"email": "vendor@example.com", "password": "vendor123"}
 }
 
