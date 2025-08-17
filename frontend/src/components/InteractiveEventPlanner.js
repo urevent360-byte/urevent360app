@@ -1849,6 +1849,29 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                 <span>Ready to Book</span>
               </div>
             </div>
+            
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center pt-6 border-t mt-8">
+              <button
+                onClick={() => setCurrentMode('continue')}
+                className="inline-flex items-center px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Back to Progress View
+              </button>
+              
+              <div className="flex space-x-3">
+                <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                  Export Summary
+                </button>
+                <button 
+                  onClick={handleClose}
+                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  Close Dashboard
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Right Side Panel - Shopping Cart */}
