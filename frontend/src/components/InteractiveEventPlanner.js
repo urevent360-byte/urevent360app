@@ -2048,6 +2048,206 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           </div>
         </div>
       )}
+
+      {/* Vendor Details Modal */}
+      {selectedVendorForDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-60">
+          <div className="relative top-20 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                <Users className="h-6 w-6 text-purple-600 mr-2" />
+                Vendor Details
+              </h3>
+              <button 
+                onClick={() => setSelectedVendorForDetails(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Vendor Header */}
+              <div className="flex items-start space-x-4">
+                {selectedVendorForDetails.image ? (
+                  <img 
+                    src={selectedVendorForDetails.image} 
+                    alt={selectedVendorForDetails.vendor_name}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-purple-300"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className={`w-20 h-20 bg-purple-100 rounded-full ${selectedVendorForDetails.image ? 'hidden' : 'flex'} items-center justify-center text-2xl`}>
+                  {selectedVendorForDetails.service_type === 'venue' && '🏛️'}
+                  {selectedVendorForDetails.service_type === 'catering' && '🍽️'}
+                  {selectedVendorForDetails.service_type === 'photography' && '📸'}
+                  {selectedVendorForDetails.service_type === 'decoration' && '🎨'}
+                  {selectedVendorForDetails.service_type === 'dj' && '🎵'}
+                  {selectedVendorForDetails.service_type === 'bar' && '🍸'}
+                  {selectedVendorForDetails.service_type === 'planner' && '📋'}
+                  {selectedVendorForDetails.service_type === 'staffing' && '👥'}
+                  {selectedVendorForDetails.service_type === 'entertainment' && '🎭'}
+                  {!['venue', 'catering', 'photography', 'decoration', 'dj', 'bar', 'planner', 'staffing', 'entertainment'].includes(selectedVendorForDetails.service_type) && '🔧'}
+                </div>
+                
+                <div className="flex-1">
+                  <h4 className="text-xl font-semibold text-gray-900">{selectedVendorForDetails.vendor_name}</h4>
+                  <p className="text-purple-600 capitalize font-medium">{selectedVendorForDetails.service_type}</p>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <span className="text-2xl font-bold text-green-600">
+                      ${selectedVendorForDetails.price?.toLocaleString()}
+                    </span>
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                      Selected
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Vendor Description */}
+              {selectedVendorForDetails.description && (
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">About</h5>
+                  <p className="text-gray-600">{selectedVendorForDetails.description}</p>
+                </div>
+              )}
+              
+              {/* Contact Information */}
+              {selectedVendorForDetails.contact_info && (
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Contact Information</h5>
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                    {selectedVendorForDetails.contact_info.phone && (
+                      <div className="flex items-center space-x-2">
+                        <Phone className="h-4 w-4 text-gray-500" />
+                        <span className="text-gray-700">{selectedVendorForDetails.contact_info.phone}</span>
+                      </div>
+                    )}
+                    {selectedVendorForDetails.contact_info.email && (
+                      <div className="flex items-center space-x-2">
+                        <Mail className="h-4 w-4 text-gray-500" />
+                        <span className="text-gray-700">{selectedVendorForDetails.contact_info.email}</span>
+                      </div>
+                    )}
+                    {selectedVendorForDetails.location && (
+                      <div className="flex items-center space-x-2">
+                        <MapPin className="h-4 w-4 text-gray-500" />
+                        <span className="text-gray-700">{selectedVendorForDetails.location}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Specialties */}
+              {selectedVendorForDetails.specialties && selectedVendorForDetails.specialties.length > 0 && (
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Specialties</h5>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedVendorForDetails.specialties.map((specialty, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full">
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Cultural Specializations */}
+              {selectedVendorForDetails.cultural_specializations && selectedVendorForDetails.cultural_specializations.length > 0 && (
+                <div>
+                  <h5 className="font-medium text-gray-900 mb-2">Cultural Specializations</h5>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedVendorForDetails.cultural_specializations.map((culture, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
+                        {culture.replace('_', ' ')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Service Details */}
+              <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                <h5 className="font-medium text-purple-900 mb-2">Service Details</h5>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-purple-700 font-medium">Service Type:</span>
+                    <p className="text-purple-600 capitalize">{selectedVendorForDetails.service_type}</p>
+                  </div>
+                  <div>
+                    <span className="text-purple-700 font-medium">Price:</span>
+                    <p className="text-purple-600">${selectedVendorForDetails.price?.toLocaleString()}</p>
+                  </div>
+                  {selectedVendorForDetails.quantity && (
+                    <div>
+                      <span className="text-purple-700 font-medium">Quantity:</span>
+                      <p className="text-purple-600">{selectedVendorForDetails.quantity}</p>
+                    </div>
+                  )}
+                  {selectedVendorForDetails.notes && (
+                    <div className="col-span-2">
+                      <span className="text-purple-700 font-medium">Notes:</span>
+                      <p className="text-purple-600">{selectedVendorForDetails.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 pt-4 border-t">
+                <button
+                  onClick={() => {
+                    // Navigate to vendor selection to replace this vendor
+                    const serviceMapping = {
+                      'venue': 'venue',
+                      'catering': 'catering', 
+                      'photography': 'photography',
+                      'decoration': 'decoration',
+                      'dj': 'dj',
+                      'bar': 'bar',
+                      'planner': 'planner',
+                      'staffing': 'staffing',
+                      'entertainment': 'entertainment'
+                    };
+                    
+                    const serviceId = serviceMapping[selectedVendorForDetails.service_type];
+                    const stepIndex = plannerSteps.findIndex(step => step.id === serviceId);
+                    if (stepIndex !== -1) {
+                      setCurrentStep(stepIndex);
+                      setCurrentMode('new');
+                      searchVendors(selectedVendorForDetails.service_type);
+                      setSelectedVendorForDetails(null);
+                    }
+                  }}
+                  className="px-4 py-2 border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 transition-colors"
+                >
+                  Replace Vendor
+                </button>
+                <button
+                  onClick={() => {
+                    // Remove this vendor from cart
+                    removeFromCart(selectedVendorForDetails.id);
+                    setSelectedVendorForDetails(null);
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Remove Vendor
+                </button>
+                <button
+                  onClick={() => setSelectedVendorForDetails(null)}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
