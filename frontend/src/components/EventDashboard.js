@@ -497,6 +497,150 @@ const EventDashboard = () => {
               </div>
             </div>
 
+            {/* Quotes Section - Event Profile Integration */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                  <Receipt className="h-5 w-5 text-purple-600 mr-2" />
+                  Event Quotes
+                </h3>
+                <div className="flex items-center space-x-2">
+                  {loadingQuotes && (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                  )}
+                  <span className="text-sm text-gray-500">
+                    {eventQuotes.length} quote{eventQuotes.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              </div>
+
+              {eventQuotes.length === 0 ? (
+                /* No Quotes State */
+                <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <Receipt className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                  <p className="text-gray-600 font-medium mb-1">No quotes created yet</p>
+                  <p className="text-sm text-gray-500 mb-4">Start planning to create your first quote with vendor selections</p>
+                  <button
+                    onClick={handleCreateNewQuote}
+                    className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    <Wand2 className="h-4 w-4 mr-2" />
+                    Create First Quote
+                  </button>
+                </div>
+              ) : (
+                /* Quotes List */
+                <div className="space-y-4">
+                  {eventQuotes.map((quote, index) => (
+                    <div key={quote.id || index} className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors bg-gradient-to-r from-gray-50 to-purple-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h4 className="font-semibold text-gray-900">{quote.name || `Quote ${index + 1}`}</h4>
+                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                              quote.status === 'completed' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {quote.status === 'completed' ? '✅ Completed' : '⏳ In Progress'}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="h-4 w-4 text-gray-500" />
+                              <span className="text-gray-600">
+                                {quote.event_date ? new Date(quote.event_date).toLocaleDateString() : 'Date TBD'}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">🎪</span>
+                              <span className="text-gray-600 capitalize">{quote.event_type || 'General'}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <DollarSign className="h-4 w-4 text-green-600" />
+                              <span className="text-gray-900 font-semibold">
+                                ${quote.total_budget ? quote.total_budget.toLocaleString() : '0'}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Users className="h-4 w-4 text-blue-600" />
+                              <span className="text-gray-600">
+                                {quote.vendor_count || 0} vendor{(quote.vendor_count || 0) !== 1 ? 's' : ''}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {/* Quote Summary */}
+                          <div className="mt-3 flex items-center justify-between">
+                            <div className="text-xs text-gray-500">
+                              Created: {quote.created_at ? new Date(quote.created_at).toLocaleDateString() : 'Recently'}
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              {quote.vendor_count > 0 && (
+                                <div className="flex -space-x-1">
+                                  {Array.from({length: Math.min(quote.vendor_count, 5)}).map((_, i) => (
+                                    <div key={i} className="w-5 h-5 bg-purple-200 rounded-full border border-white flex items-center justify-center text-xs">
+                                      {i + 1}
+                                    </div>
+                                  ))}
+                                  {quote.vendor_count > 5 && (
+                                    <div className="w-5 h-5 bg-gray-200 rounded-full border border-white flex items-center justify-center text-xs">
+                                      +{quote.vendor_count - 5}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Quote Actions */}
+                        <div className="flex items-center space-x-2 ml-4">
+                          <button
+                            onClick={() => handleResumeQuote(quote)}
+                            className="px-3 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                          >
+                            <Play className="h-3 w-3 mr-1" />
+                            {quote.status === 'completed' ? 'View' : 'Resume'}
+                          </button>
+                          <button
+                            onClick={() => {
+                              // Add edit functionality here
+                              console.log('Edit quote:', quote);
+                            }}
+                            className="px-3 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+                          >
+                            <Edit3 className="h-3 w-3 mr-1" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => {
+                              // Add view details functionality here
+                              console.log('View quote details:', quote);
+                            }}
+                            className="px-3 py-2 text-sm border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 transition-colors flex items-center"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Add New Quote Button */}
+                  <button
+                    onClick={handleCreateNewQuote}
+                    className="w-full p-4 border-2 border-dashed border-purple-300 rounded-lg text-purple-700 hover:border-purple-400 hover:bg-purple-50 transition-colors flex items-center justify-center"
+                  >
+                    <Plus className="h-5 w-5 mr-2" />
+                    Create New Quote
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Quick Actions */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
