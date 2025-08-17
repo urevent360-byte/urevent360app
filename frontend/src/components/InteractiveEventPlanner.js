@@ -1702,184 +1702,242 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           </button>
         </div>
 
-        {/* Step-by-Step Mode: Read-Only Progress Dashboard */}
-        <div className="p-6">
-          {/* Progress Timeline */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-              <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
-              Planning Progress Timeline
-            </h3>
-            
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              {/* Current Phase Banner */}
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 mb-6 border border-purple-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-semibold text-purple-900">Current Phase: Vendor Selection</h4>
-                    <p className="text-sm text-purple-700">Select vendors for your remaining services</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-sm text-purple-600">Next Deadline:</span>
-                    <p className="font-medium text-purple-900">Contract Review - Sep 15</p>
-                  </div>
-                </div>
-              </div>
+        {/* Step-by-Step Mode: Vendor Selection Focus */}
+        <div className="flex h-full">
+          {/* Main Content - Vendor Selection */}
+          <div className="flex-1 p-6 pr-3">
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center">
+                <Users className="h-6 w-6 text-purple-600 mr-2" />
+                Select Your Vendors
+              </h3>
+              <p className="text-gray-600">Choose vendors for each service category. Click on selected vendors to view details or make changes.</p>
+            </div>
 
-              {/* Progress Steps */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {[
-                  { name: 'Event Planning', status: 'Completed', icon: CheckCircle, color: 'text-green-600 bg-green-50' },
-                  { name: 'Vendor Selection', status: 'In Progress', icon: Users, color: 'text-purple-600 bg-purple-50' },
-                  { name: 'Contract Review', status: 'Pending', icon: Eye, color: 'text-gray-400 bg-gray-50' },
-                  { name: 'Payments', status: 'Pending', icon: DollarSign, color: 'text-gray-400 bg-gray-50' },
-                  { name: 'Final Checklist', status: 'Pending', icon: Calendar, color: 'text-gray-400 bg-gray-50' }
-                ].map((step, index) => {
-                  const Icon = step.icon;
-                  return (
-                    <div key={step.name} className="text-center">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 ${step.color}`}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <p className="text-sm font-medium text-gray-900">{step.name}</p>
-                      <p className="text-xs text-gray-600">{step.status}</p>
+            {/* Vendor Selection Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[
+                { id: 'venue', name: 'Venue', icon: '🏛️', category: 'venue', color: 'from-blue-500 to-blue-600' },
+                { id: 'decoration', name: 'Decoration & Design', icon: '🎨', category: 'decoration', color: 'from-pink-500 to-pink-600' },
+                { id: 'catering', name: 'Catering', icon: '🍽️', category: 'catering', color: 'from-green-500 to-green-600' },
+                { id: 'bar', name: 'Bar Service', icon: '🍸', category: 'bar', color: 'from-red-500 to-red-600' },
+                { id: 'planner', name: 'Coordinator', icon: '📋', category: 'planner', color: 'from-indigo-500 to-indigo-600' },
+                { id: 'photography', name: 'Photography', icon: '📸', category: 'photography', color: 'from-yellow-500 to-yellow-600' },
+                { id: 'dj', name: 'DJ/Music', icon: '🎵', category: 'dj', color: 'from-purple-500 to-purple-600' },
+                { id: 'staffing', name: 'Staff', icon: '👥', category: 'staffing', color: 'from-teal-500 to-teal-600' },
+                { id: 'entertainment', name: 'Entertainment', icon: '🎭', category: 'entertainment', color: 'from-orange-500 to-orange-600' }
+              ].map((service) => {
+                // Find if this service has a selected vendor
+                const selectedVendor = cart.find(item => item.service_type === service.category);
+                const isSelected = !!selectedVendor;
+                
+                return (
+                  <div 
+                    key={service.id} 
+                    className={`relative rounded-xl p-6 transition-all duration-200 cursor-pointer hover:shadow-lg transform hover:scale-105 ${
+                      isSelected 
+                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 shadow-md' 
+                        : `bg-gradient-to-br ${service.color} text-white shadow-md hover:shadow-xl`
+                    }`}
+                    onClick={() => {
+                      if (isSelected) {
+                        // Show vendor details modal
+                        setSelectedVendorForDetails(selectedVendor);
+                      } else {
+                        // Find the step index and navigate to vendor selection
+                        const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
+                        if (stepIndex !== -1) {
+                          setCurrentStep(stepIndex);
+                          searchVendors(service.category);
+                        }
+                      }
+                    }}
+                  >
+                    {/* Status Badge */}
+                    <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg ${
+                      isSelected 
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-gray-200 text-gray-600'
+                    }`}>
+                      {isSelected ? '✓' : '○'}
                     </div>
-                  );
-                })}
+                    
+                    {/* Vendor Image or Service Icon */}
+                    <div className="text-center mb-4">
+                      {isSelected && selectedVendor.image ? (
+                        <div className="relative">
+                          <img 
+                            src={selectedVendor.image} 
+                            alt={selectedVendor.vendor_name}
+                            className="w-16 h-16 rounded-full mx-auto object-cover border-3 border-white shadow-lg"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'block';
+                            }}
+                          />
+                          <div className="text-4xl hidden">{service.icon}</div>
+                        </div>
+                      ) : (
+                        <div className="text-4xl mb-2">{service.icon}</div>
+                      )}
+                    </div>
+                    
+                    {/* Service Name */}
+                    <h4 className={`font-semibold text-center mb-3 ${
+                      isSelected ? 'text-green-900' : 'text-white'
+                    }`}>
+                      {service.name}
+                    </h4>
+                    
+                    {/* Status/Action */}
+                    <div className="text-center">
+                      {isSelected ? (
+                        <div>
+                          <p className="text-sm font-medium text-green-700 mb-1 truncate">
+                            {selectedVendor.vendor_name}
+                          </p>
+                          <p className="text-sm text-green-600 font-semibold mb-3">
+                            ${selectedVendor.price?.toLocaleString()}
+                          </p>
+                          <div className="flex space-x-1">
+                            <button className="flex-1 px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
+                              View Details
+                            </button>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Navigate to vendor selection to replace
+                                const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
+                                if (stepIndex !== -1) {
+                                  setCurrentStep(stepIndex);
+                                  searchVendors(service.category);
+                                }
+                              }}
+                              className="flex-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                            >
+                              Change
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button className="w-full px-4 py-2 bg-white bg-opacity-20 text-white font-medium rounded-lg hover:bg-opacity-30 transition-colors backdrop-blur-sm">
+                          Select Now
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Progress Indicator */}
+            <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold text-gray-900">Selection Progress</h4>
+                <span className="text-sm text-gray-600">
+                  {cart.length} of 9 services selected
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-gradient-to-r from-purple-500 to-green-500 h-3 rounded-full transition-all duration-300" 
+                  style={{width: `${(cart.length / 9) * 100}%`}}
+                ></div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-2">
+                <span>Getting Started</span>
+                <span>Ready to Book</span>
               </div>
             </div>
           </div>
 
-          {/* Budget & Cart Overview Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Budget Overview */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <DollarSign className="h-5 w-5 text-green-600 mr-2" />
-                Budget Overview
-              </h4>
-              
-              <div className="space-y-4">
-                {/* Budget Summary */}
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <p className="text-sm text-gray-600">Target Budget</p>
-                      <p className="text-lg font-semibold text-gray-900">${eventData?.budget?.toLocaleString() || '0'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Committed</p>
-                      <p className="text-lg font-semibold text-green-600">${budgetData.selected?.toLocaleString() || '0'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Remaining</p>
-                      <p className={`text-lg font-semibold ${budgetData.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        ${budgetData.remaining?.toLocaleString() || '0'}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-300" 
-                      style={{width: `${budgetData.set > 0 ? Math.min((budgetData.selected / budgetData.set) * 100, 100) : 0}%`}}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Category Breakdown */}
-                <div>
-                  <h5 className="font-medium text-gray-900 mb-3">Category Breakdown</h5>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'Venue', committed: 0, color: 'bg-blue-500' },
-                      { name: 'Catering', committed: 0, color: 'bg-green-500' },
-                      { name: 'Photography', committed: 0, color: 'bg-purple-500' },
-                      { name: 'Decoration', committed: 0, color: 'bg-pink-500' }
-                    ].map(category => (
-                      <div key={category.name} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center">
-                          <div className={`w-3 h-3 rounded ${category.color} mr-2`}></div>
-                          <span className="text-gray-700">{category.name}</span>
-                        </div>
-                        <span className="font-medium text-gray-900">${category.committed.toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Edit Budget Button */}
-                <button className="w-full px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50 text-sm">
-                  Edit Budget Settings
-                </button>
-              </div>
-            </div>
-
-            {/* Shopping Cart Summary */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+          {/* Right Side Panel - Shopping Cart */}
+          <div className="w-80 bg-gray-50 border-l border-gray-200 p-6">
+            <div className="sticky top-0">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <ShoppingCart className="h-5 w-5 text-purple-600 mr-2" />
-                Shopping Cart ({cart.length} items)
+                Shopping Cart
               </h4>
               
               {cart.length === 0 ? (
                 /* Empty State */
                 <div className="text-center py-8">
                   <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-                  <p className="text-gray-600 mb-4">No vendors selected yet</p>
-                  <button className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                    Browse Vendors
-                  </button>
+                  <p className="text-gray-600 mb-2">No vendors selected</p>
+                  <p className="text-sm text-gray-500">Start selecting services to see them here</p>
                 </div>
               ) : (
                 /* Cart Items */
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {cart.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900 text-sm">{item.vendor_name}</p>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded capitalize">
-                            {item.service_type}
-                          </span>
-                          <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
-                            Approved
+                <div className="space-y-3">
+                  <div className="max-h-80 overflow-y-auto space-y-3">
+                    {cart.map((item, index) => (
+                      <div key={index} className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 text-sm leading-tight">{item.vendor_name}</p>
+                            <p className="text-xs text-gray-600 capitalize mt-1">{item.service_type}</p>
+                          </div>
+                          <button 
+                            onClick={() => removeFromCart(item.id || index)}
+                            className="text-red-500 hover:text-red-700 p-1 ml-2"
+                            title="Remove"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-sm font-semibold text-purple-600">${item.price?.toLocaleString()}</span>
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                            Selected
                           </span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-gray-900">${item.price?.toLocaleString()}</p>
-                        <button className="text-purple-600 hover:text-purple-800 text-xs mt-1">
-                          Edit
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Cart Total */}
-                  <div className="border-t pt-3 mt-4">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-gray-900">Total:</span>
-                      <span className="font-bold text-lg text-purple-600">
-                        ${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()}
-                      </span>
-                    </div>
+                    ))}
                   </div>
                   
-                  {/* Cart Actions */}
-                  <div className="flex space-x-2 mt-4">
-                    <button className="flex-1 px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 text-sm">
-                      Edit Cart
-                    </button>
-                    <button className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">
-                      Checkout
-                    </button>
+                  {/* Cart Summary */}
+                  <div className="border-t pt-4 mt-4">
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Subtotal:</span>
+                        <span className="font-medium">${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Tax & Fees:</span>
+                        <span className="font-medium">${Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 0.1).toLocaleString()}</span>
+                      </div>
+                      <div className="border-t pt-2">
+                        <div className="flex justify-between">
+                          <span className="font-semibold text-gray-900">Total:</span>
+                          <span className="font-bold text-lg text-purple-600">
+                            ${Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 1.1).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Cart Actions */}
+                    <div className="space-y-2 mt-4">
+                      <button 
+                        onClick={finalizeEventPlan}
+                        disabled={saving || cart.length === 0}
+                        className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                      >
+                        {saving ? 'Processing...' : 'Finalize & Book All'}
+                      </button>
+                      <button 
+                        onClick={() => setCart([])}
+                        className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm transition-colors"
+                      >
+                        Clear Cart
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           </div>
+        </div>
 
           {/* Appointments & Deadlines */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
