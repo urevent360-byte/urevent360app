@@ -22,7 +22,7 @@ import uuid
 
 # Configuration - Use environment variable for backend URL
 import os
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://eventplanner-hub-1.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://6bb978b3-be6e-44f6-b36f-184977a452f9.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
