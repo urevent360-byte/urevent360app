@@ -524,6 +524,117 @@ async def delete_event(event_id: str, current_user: dict = Depends(get_current_u
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting event: {str(e)}")
 
+# Quote Management Routes - Start Planning → Quote Creation Flow
+@api_router.post("/events/{event_id}/quotes", response_model=Quote)
+async def create_quote(event_id: str, quote_data: QuoteCreate, current_user: dict = Depends(get_current_user)):
+    """Create a new quote for an event"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    try:
+        # Create quote document
+        quote_dict = quote_data.dict()
+        quote_dict["id"] = str(uuid.uuid4())
+        quote_dict["created_at"] = datetime.utcnow()
+        quote_dict["updated_at"] = datetime.utcnow()
+        
+        # Insert into database
+        await db.quotes.insert_one(quote_dict)
+        
+        return Quote(**quote_dict)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating quote: {str(e)}")
+
+@api_router.get("/events/{event_id}/quotes", response_model=List[Quote])
+async def get_event_quotes(event_id: str, current_user: dict = Depends(get_current_user)):
+    """Get all quotes for an event"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    try:
+        quotes = await db.quotes.find({"event_id": event_id}).to_list(1000)
+        return [Quote(**quote) for quote in quotes]
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching quotes: {str(e)}")
+
+@api_router.get("/events/{event_id}/quotes/{quote_id}", response_model=Quote)
+async def get_quote(event_id: str, quote_id: str, current_user: dict = Depends(get_current_user)):
+    """Get a specific quote"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    quote = await db.quotes.find_one({"id": quote_id, "event_id": event_id})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    return Quote(**quote)
+
+@api_router.put("/events/{event_id}/quotes/{quote_id}", response_model=Quote)
+async def update_quote(event_id: str, quote_id: str, quote_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update a quote with vendor selections and budget"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Verify quote exists
+    quote = await db.quotes.find_one({"id": quote_id, "event_id": event_id})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    try:
+        # Update quote data
+        update_data = quote_data.copy()
+        update_data["updated_at"] = datetime.utcnow()
+        
+        # Calculate vendor count and total budget from selected vendors
+        if "selected_vendors" in update_data:
+            selected_vendors = update_data["selected_vendors"]
+            update_data["vendor_count"] = len(selected_vendors)
+            update_data["total_budget"] = sum(vendor.get("price", 0) for vendor in selected_vendors)
+        
+        result = await db.quotes.update_one(
+            {"id": quote_id, "event_id": event_id},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Quote not found or no changes made")
+        
+        # Get updated quote
+        updated_quote = await db.quotes.find_one({"id": quote_id, "event_id": event_id})
+        return Quote(**updated_quote)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating quote: {str(e)}")
+
+@api_router.delete("/events/{event_id}/quotes/{quote_id}")
+async def delete_quote(event_id: str, quote_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a quote"""
+    # Verify event belongs to user
+    event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    try:
+        result = await db.quotes.delete_one({"id": quote_id, "event_id": event_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Quote not found")
+        
+        return {"message": "Quote deleted successfully", "deleted_count": result.deleted_count}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting quote: {str(e)}")
+
 @api_router.get("/venues/search")
 async def search_venues(
     zip_code: Optional[str] = None,
