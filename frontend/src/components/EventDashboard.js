@@ -358,7 +358,7 @@ const EventDashboard = () => {
                     {/* Tooltip */}
                     <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
                       <div className="bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                        Start a brand new event scenario. Your current progress will remain saved.
+                        Create a new quote with interactive vendor selection and live budget tracking.
                         <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                       </div>
                     </div>
@@ -372,14 +372,14 @@ const EventDashboard = () => {
                           Start New Planning
                           <Info className="h-4 w-4 text-purple-600 ml-2" />
                         </h4>
-                        <p className="text-gray-600 mb-4 text-sm leading-relaxed">Create different scenarios and explore various options for your event</p>
+                        <p className="text-gray-600 mb-4 text-sm leading-relaxed">Create a new quote using interactive vendor selection with real-time budget tracking</p>
                         <div className="text-xs text-purple-700 bg-purple-100 rounded-full px-3 py-1 inline-block mb-4">
-                          ✨ Exploration Mode
+                          💼 New Quote Creation
                         </div>
                       </div>
                       
                       <button
-                        onClick={handleStartNewPlanning}
+                        onClick={handleCreateNewQuote}
                         className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
                       >
                         <Wand2 className="h-5 w-5 mr-2" />
