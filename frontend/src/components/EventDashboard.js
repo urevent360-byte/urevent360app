@@ -143,6 +143,36 @@ const EventDashboard = () => {
     setEditValues({});
   };
 
+  // New Planning Confirmation Handler
+  const handleStartNewPlanning = () => {
+    // Check if user has active planning progress
+    if (planningProgress.selectedVendors.length > 0 || planningProgress.completedSteps > 0) {
+      setShowNewPlanningConfirm(true);
+    } else {
+      // No active progress, proceed directly
+      window.location.href = '/interactive-planner';
+    }
+  };
+
+  const handleConfirmNewPlanning = () => {
+    setShowNewPlanningConfirm(false);
+    window.location.href = '/interactive-planner';
+  };
+
+  const handleCancelNewPlanning = () => {
+    setShowNewPlanningConfirm(false);
+  };
+
+  // Step-by-Step View Handler
+  const handleViewStepByStep = () => {
+    setShowStepByStepView(true);
+  };
+
+  // Calculate progress percentage
+  const getProgressPercentage = () => {
+    return Math.round((planningProgress.completedSteps / planningProgress.totalSteps) * 100);
+  };
+
   const formatCurrency = (amount) => {
     if (!amount) return 'Not set';
     return new Intl.NumberFormat('en-US', {
