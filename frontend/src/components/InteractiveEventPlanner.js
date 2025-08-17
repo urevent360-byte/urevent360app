@@ -1422,44 +1422,173 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
               </div>
             </div>
 
-            {/* Next Steps - Pending Services */}
+            {/* Enhanced Service Selection Icons */}
             <div className="bg-white rounded-lg border border-gray-200 mb-6">
               <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold text-gray-900">Next Steps</h3>
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <Users className="h-5 w-5 text-purple-600 mr-2" />
+                  Vendor Selection Status
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">Track your progress and select vendors for each service category</p>
               </div>
-              <div className="p-4">
-                {planningProgress.pendingServices && planningProgress.pendingServices.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {planningProgress.pendingServices.map((service, index) => (
-                      <div key={service.id} className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors cursor-pointer">
-                        <div className="text-center">
-                          <div className="text-2xl mb-2">{service.icon}</div>
-                          <h4 className="font-medium text-gray-900 mb-1">{service.name}</h4>
-                          <button 
-                            onClick={() => {
-                              // Find the step index and navigate to it
-                              const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
-                              if (stepIndex !== -1) {
-                                setCurrentStep(stepIndex);
-                                // Switch to normal mode to continue with step-by-step
-                                // This allows seamless transition from continue mode to step-by-step
-                              }
-                            }}
-                            className="mt-2 px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors"
-                          >
-                            Select Now
-                          </button>
+              <div className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  {[
+                    { id: 'venue', name: 'Venue', icon: '🏛️', category: 'venue' },
+                    { id: 'decoration', name: 'Decoration', icon: '🎨', category: 'decoration' },
+                    { id: 'catering', name: 'Catering', icon: '🍽️', category: 'catering' },
+                    { id: 'bar', name: 'Bar Service', icon: '🍸', category: 'bar' },
+                    { id: 'planner', name: 'Coordinator', icon: '📋', category: 'planner' },
+                    { id: 'photography', name: 'Photography', icon: '📸', category: 'photography' },
+                    { id: 'dj', name: 'DJ/Music', icon: '🎵', category: 'dj' },
+                    { id: 'staffing', name: 'Staff', icon: '👥', category: 'staffing' },
+                    { id: 'entertainment', name: 'Entertainment', icon: '🎭', category: 'entertainment' }
+                  ].map((service) => {
+                    // Find if this service has a selected vendor
+                    const selectedVendor = planningProgress.selectedVendors?.find(
+                      vendor => vendor.service_type === service.category
+                    );
+                    
+                    const isSelected = !!selectedVendor;
+                    const isPending = planningProgress.pendingServices?.some(
+                      pending => pending.id === service.id
+                    );
+                    
+                    return (
+                      <div 
+                        key={service.id} 
+                        className={`relative border-2 rounded-xl p-4 transition-all duration-200 cursor-pointer hover:shadow-lg ${
+                          isSelected 
+                            ? 'border-green-300 bg-gradient-to-br from-green-50 to-emerald-50' 
+                            : isPending 
+                              ? 'border-purple-300 bg-gradient-to-br from-purple-50 to-indigo-50 hover:border-purple-400' 
+                              : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                        }`}
+                        onClick={() => {
+                          if (isSelected) {
+                            // Show vendor details modal
+                            setSelectedVendorForDetails(selectedVendor);
+                          } else {
+                            // Navigate to vendor selection for this category
+                            const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
+                            if (stepIndex !== -1) {
+                              setCurrentStep(stepIndex);
+                              setCurrentMode('new'); // Switch to step-by-step mode
+                              searchVendors(service.category);
+                            }
+                          }
+                        }}
+                      >
+                        {/* Status Badge */}
+                        <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          isSelected 
+                            ? 'bg-green-500 text-white' 
+                            : isPending 
+                              ? 'bg-purple-500 text-white' 
+                              : 'bg-gray-300 text-gray-600'
+                        }`}>
+                          {isSelected ? '✓' : isPending ? '!' : '○'}
                         </div>
+                        
+                        {/* Vendor Image or Icon */}
+                        <div className="text-center mb-3">
+                          {isSelected && selectedVendor.image ? (
+                            <div className="relative">
+                              <img 
+                                src={selectedVendor.image} 
+                                alt={selectedVendor.vendor_name}
+                                className="w-12 h-12 rounded-full mx-auto object-cover border-2 border-green-300"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'block';
+                                }}
+                              />
+                              <div className="text-3xl hidden">{service.icon}</div>
+                            </div>
+                          ) : (
+                            <div className="text-3xl">{service.icon}</div>
+                          )}
+                        </div>
+                        
+                        {/* Service Name */}
+                        <h4 className={`font-medium text-center mb-2 ${
+                          isSelected ? 'text-green-900' : isPending ? 'text-purple-900' : 'text-gray-700'
+                        }`}>
+                          {service.name}
+                        </h4>
+                        
+                        {/* Status/Action */}
+                        <div className="text-center">
+                          {isSelected ? (
+                            <div>
+                              <p className="text-xs font-medium text-green-700 mb-1">
+                                {selectedVendor.vendor_name}
+                              </p>
+                              <p className="text-xs text-green-600 mb-2">
+                                ${selectedVendor.price?.toLocaleString()}
+                              </p>
+                              <div className="flex space-x-1">
+                                <button className="flex-1 px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
+                                  View
+                                </button>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Navigate to vendor selection to replace
+                                    const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
+                                    if (stepIndex !== -1) {
+                                      setCurrentStep(stepIndex);
+                                      setCurrentMode('new');
+                                      searchVendors(service.category);
+                                    }
+                                  }}
+                                  className="flex-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                                >
+                                  Change
+                                </button>
+                              </div>
+                            </div>
+                          ) : isPending ? (
+                            <button className="w-full px-3 py-2 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                              Select Now
+                            </button>
+                          ) : (
+                            <button className="w-full px-3 py-2 bg-gray-400 text-white text-xs font-medium rounded-lg cursor-not-allowed">
+                              Complete Previous
+                            </button>
+                          )}
+                        </div>
+                        
+                        {/* Priority Indicator for Next Step */}
+                        {isPending && planningProgress.pendingServices?.findIndex(pending => pending.id === service.id) === 0 && (
+                          <div className="absolute -top-1 -left-1 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+                            NEXT
+                          </div>
+                        )}
                       </div>
-                    ))}
+                    );
+                  })}
+                </div>
+                
+                {/* Progress Indicator */}
+                <div className="mt-6 bg-gray-100 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700">Vendor Selection Progress</span>
+                    <span className="text-sm text-gray-600">
+                      {planningProgress.selectedVendors?.length || 0} of 9 selected
+                    </span>
                   </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-2" />
-                    <p className="text-gray-900 font-medium">All Services Complete!</p>
-                    <p className="text-sm text-gray-500">Your event planning is ready for final review</p>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-purple-500 to-green-500 h-2 rounded-full transition-all duration-300" 
+                      style={{width: `${((planningProgress.selectedVendors?.length || 0) / 9) * 100}%`}}
+                    ></div>
                   </div>
-                )}
+                  <div className="flex justify-between text-xs text-gray-500 mt-2">
+                    <span>Just Started</span>
+                    <span>Ready to Book</span>
+                  </div>
+                </div>
               </div>
             </div>
 
