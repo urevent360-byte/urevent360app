@@ -229,6 +229,35 @@ class PlannerScenario(BaseModel):
     total_cost: float = 0.0
     saved_at: datetime = Field(default_factory=datetime.utcnow)
 
+# Quote Models for Start Planning → Quote Creation Flow
+class QuoteCreate(BaseModel):
+    event_id: str
+    name: str
+    status: str = "in_progress"  # in_progress, completed
+    event_type: str
+    event_date: Optional[str] = None
+    budget: float = 0.0
+    guest_count: int = 0
+    location: Optional[str] = None
+    services_needed: List[str] = []
+
+class Quote(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    name: str
+    status: str = "in_progress"  # in_progress, completed
+    event_type: str
+    event_date: Optional[str] = None
+    budget: float = 0.0
+    guest_count: int = 0
+    location: Optional[str] = None
+    services_needed: List[str] = []
+    vendor_count: int = 0
+    total_budget: float = 0.0
+    selected_vendors: List[Dict[str, Any]] = []
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
+
 # Calendar and Appointment Models
 class VendorAvailability(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
