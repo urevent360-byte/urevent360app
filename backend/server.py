@@ -508,11 +508,12 @@ async def delete_event(event_id: str, current_user: dict = Depends(get_current_u
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Event not found or already deleted")
         
-        # Delete associated data (vendor bookings, payments, etc.)
+        # Delete associated data (vendor bookings, payments, quotes, etc.)
         await db.vendor_bookings.delete_many({"event_id": event_id})
         await db.payments.delete_many({"event_id": event_id})
         await db.event_planner_states.delete_many({"event_id": event_id})
         await db.planner_scenarios.delete_many({"event_id": event_id})
+        await db.quotes.delete_many({"event_id": event_id})
         await db.appointments.delete_many({"event_id": event_id})
         await db.calendar_events.delete_many({"related_id": event_id})
         
