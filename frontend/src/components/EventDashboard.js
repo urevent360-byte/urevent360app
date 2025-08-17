@@ -162,10 +162,7 @@ const EventDashboard = () => {
     setShowNewPlanningConfirm(false);
   };
 
-  // Step-by-Step View Handler
-  const handleViewStepByStep = () => {
-    setShowStepByStepView(true);
-  };
+
 
   // Calculate progress percentage
   const getProgressPercentage = () => {
