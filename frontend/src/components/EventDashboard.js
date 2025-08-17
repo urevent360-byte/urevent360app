@@ -43,6 +43,13 @@ const EventDashboard = () => {
     fetchPlanningProgress();
   }, [eventId]);
 
+  useEffect(() => {
+    if (event) {
+      fetchPlanningProgress();
+      fetchEventQuotes();
+    }
+  }, [event]);
+
   const fetchEvent = async () => {
     try {
       setLoading(true);
