@@ -2040,7 +2040,15 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           </div>
         </div>
       </div>
+    </div>
+  );
+};
 
+const InteractiveEventPlannerComponent = () => {
+  // The rest would be component logic, but this section seems to be part of a different return
+  // Let me check what should be here
+  return (
+    <div>
       {/* Edit Event Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
