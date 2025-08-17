@@ -641,13 +641,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Quote Creation System Backend"
     - "Admin Routes Integration"
     - "Enhanced Vendor Marketplace"
     - "Discrete Admin Access Icon"
     - "Employee Portal Module"
     - "Discrete Employee Portal Access"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Calendar & Appointment Integration Backend"
   test_all: false
   test_priority: "high_first"
   venue_testing_completed: true
