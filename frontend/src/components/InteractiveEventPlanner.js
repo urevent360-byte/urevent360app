@@ -1922,59 +1922,115 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
             </div>
           </div>
 
-          {/* Right Side Panel - Shopping Cart */}
-          <div className="w-80 bg-gray-50 border-l border-gray-200 p-6">
+          {/* Right Side Panel - Live Shopping Cart */}
+          <div className="w-80 bg-gradient-to-b from-purple-50 to-indigo-50 border-l-2 border-purple-200 p-6">
             <div className="sticky top-0">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <ShoppingCart className="h-5 w-5 text-purple-600 mr-2" />
-                Shopping Cart
-              </h4>
+              {/* Cart Header with Progress */}
+              <div className="mb-4">
+                <h4 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+                  <ShoppingCart className="h-5 w-5 text-purple-600 mr-2" />
+                  Live Shopping Cart
+                  <span className="ml-2 text-sm bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                    {cart.length}/9
+                  </span>
+                </h4>
+                
+                {/* Real-time Progress Bar */}
+                <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-gray-600">Selection Progress</span>
+                    <span className="font-medium text-purple-600">
+                      {Math.round((cart.length / 9) * 100)}% Complete
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-purple-500 to-green-500 h-2 rounded-full transition-all duration-500" 
+                      style={{width: `${(cart.length / 9) * 100}%`}}
+                    ></div>
+                  </div>
+                </div>
+              </div>
               
               {cart.length === 0 ? (
-                /* Empty State */
-                <div className="text-center py-8">
-                  <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-                  <p className="text-gray-600 mb-2">No vendors selected</p>
-                  <p className="text-sm text-gray-500">Start selecting services to see them here</p>
+                /* Enhanced Empty State */
+                <div className="text-center py-8 bg-white rounded-lg border border-purple-200 shadow-sm">
+                  <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-purple-400" />
+                  <p className="text-gray-700 font-medium mb-1">Ready to Start</p>
+                  <p className="text-sm text-gray-500 mb-4">Click on service categories to add vendors</p>
+                  <div className="text-xs text-purple-600 bg-purple-100 px-3 py-1 rounded-full inline-block">
+                    ✨ Real-time updates
+                  </div>
                 </div>
               ) : (
-                /* Cart Items */
+                /* Enhanced Cart Items */
                 <div className="space-y-3">
                   <div className="max-h-80 overflow-y-auto space-y-3">
                     {cart.map((item, index) => (
-                      <div key={index} className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                      <div key={index} className="bg-white rounded-lg p-4 border border-purple-200 shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-900 text-sm leading-tight">{item.vendor_name}</p>
-                            <p className="text-xs text-gray-600 capitalize mt-1">{item.service_type}</p>
+                          <div className="flex items-start space-x-3 flex-1">
+                            {/* Service Icon */}
+                            <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-sm">
+                              {item.service_type === 'venue' && '🏛️'}
+                              {item.service_type === 'catering' && '🍽️'}
+                              {item.service_type === 'photography' && '📸'}
+                              {item.service_type === 'decoration' && '🎨'}
+                              {item.service_type === 'dj' && '🎵'}
+                              {item.service_type === 'bar' && '🍸'}
+                              {item.service_type === 'planner' && '📋'}
+                              {item.service_type === 'staffing' && '👥'}
+                              {item.service_type === 'entertainment' && '🎭'}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 text-sm leading-tight truncate">{item.vendor_name}</p>
+                              <p className="text-xs text-gray-600 capitalize mt-1">{item.service_type}</p>
+                            </div>
                           </div>
                           <button 
-                            onClick={() => removeFromCart(item.id || index)}
-                            className="text-red-500 hover:text-red-700 p-1 ml-2"
-                            title="Remove"
+                            onClick={() => {
+                              removeFromCart(item.id || index);
+                              // Show feedback
+                              const serviceName = item.service_type.charAt(0).toUpperCase() + item.service_type.slice(1);
+                              // You could add a toast notification here
+                            }}
+                            className="text-red-500 hover:text-red-700 p-1 ml-2 hover:bg-red-50 rounded transition-colors"
+                            title="Remove vendor"
                           >
                             <X className="h-4 w-4" />
                           </button>
                         </div>
-                        <div className="mt-2 flex items-center justify-between">
+                        <div className="mt-3 flex items-center justify-between">
                           <span className="text-sm font-semibold text-purple-600">${item.price?.toLocaleString()}</span>
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                            Selected
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                              ✓ Added
+                            </span>
+                            <button 
+                              onClick={() => setSelectedVendorForDetails(item)}
+                              className="text-xs text-purple-600 hover:text-purple-800"
+                            >
+                              Details
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
                   
-                  {/* Cart Summary */}
-                  <div className="border-t pt-4 mt-4">
+                  {/* Enhanced Cart Summary */}
+                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200 shadow-sm">
+                    <h5 className="font-semibold text-gray-900 mb-3 flex items-center">
+                      <DollarSign className="h-4 w-4 text-green-600 mr-1" />
+                      Budget Impact
+                    </h5>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Subtotal:</span>
+                        <span className="text-gray-600">Subtotal ({cart.length} items):</span>
                         <span className="font-medium">${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Tax & Fees:</span>
+                        <span className="text-gray-600">Tax & Fees (10%):</span>
                         <span className="font-medium">${Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 0.1).toLocaleString()}</span>
                       </div>
                       <div className="border-t pt-2">
@@ -1985,23 +2041,63 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                           </span>
                         </div>
                       </div>
+                      
+                      {/* Budget Status */}
+                      {eventData?.budget && (
+                        <div className="mt-3 p-2 bg-gray-50 rounded">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-gray-600">Budget Remaining:</span>
+                            <span className={`font-medium ${
+                              (eventData.budget - Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 1.1)) >= 0 
+                                ? 'text-green-600' 
+                                : 'text-red-600'
+                            }`}>
+                              ${(eventData.budget - Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 1.1)).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     
-                    {/* Cart Actions */}
+                    {/* Enhanced Cart Actions */}
                     <div className="space-y-2 mt-4">
+                      {cart.length < 9 && (
+                        <div className="text-center p-2 bg-yellow-50 rounded border border-yellow-200">
+                          <p className="text-xs text-yellow-700 font-medium">
+                            {9 - cart.length} more services to complete your event
+                          </p>
+                        </div>
+                      )}
+                      
                       <button 
                         onClick={finalizeEventPlan}
                         disabled={saving || cart.length === 0}
-                        className="w-full px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                        className={`w-full px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                          cart.length === 9 
+                            ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg transform hover:scale-105' 
+                            : 'bg-purple-600 hover:bg-purple-700 text-white'
+                        } disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
                       >
-                        {saving ? 'Processing...' : 'Finalize & Book All'}
+                        {saving 
+                          ? 'Processing...' 
+                          : cart.length === 9 
+                            ? '🎉 Complete & Book All Services' 
+                            : `Book ${cart.length} Selected Services`
+                        }
                       </button>
-                      <button 
-                        onClick={() => setCart([])}
-                        className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm transition-colors"
-                      >
-                        Clear Cart
-                      </button>
+                      
+                      {cart.length > 0 && (
+                        <button 
+                          onClick={() => {
+                            if (window.confirm('Clear all selected vendors from cart?')) {
+                              setCart([]);
+                            }
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm transition-colors"
+                        >
+                          Clear Cart ({cart.length} items)
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
