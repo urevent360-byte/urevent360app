@@ -415,31 +415,19 @@ const EventDashboard = () => {
                         )}
                       </div>
 
-                      {/* Action Buttons */}
-                      <div className="space-y-3">
-                        {/* Continue Planning Button */}
-                        <button
-                          onClick={() => {
-                            if (!loading && event) {
-                              setShowInteractivePlanner(true);
-                            }
-                          }}
-                          disabled={loading || !event}
-                          className={`w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl ${loading || !event ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          Resume Planning
-                        </button>
-                        
-                        {/* View Step-by-Step Mode Button */}
-                        <button
-                          onClick={handleViewStepByStep}
-                          className="w-full inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                        >
-                          <BarChart3 className="h-4 w-4 mr-2" />
-                          View Step-by-Step Mode
-                        </button>
-                      </div>
+                      {/* Action Button */}
+                      <button
+                        onClick={() => {
+                          if (!loading && event) {
+                            setShowInteractivePlanner(true);
+                          }
+                        }}
+                        disabled={loading || !event}
+                        className={`w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl ${loading || !event ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        Resume Planning
+                      </button>
                     </div>
                   </div>
                 </div>
