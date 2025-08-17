@@ -942,6 +942,244 @@ const EventDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* New Planning Confirmation Modal */}
+      {showNewPlanningConfirm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100">
+                <AlertTriangle className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">Start New Planning Session?</h3>
+              <div className="mt-2 px-7 py-3">
+                <p className="text-sm text-gray-500">
+                  You have active planning progress for this event. Starting a new planning session will create a separate scenario while keeping your current progress saved.
+                </p>
+                <div className="mt-4 bg-purple-50 rounded-lg p-3">
+                  <div className="flex items-center text-xs text-purple-700">
+                    <Target className="h-4 w-4 mr-2" />
+                    <span className="font-medium">Current Progress: {getProgressPercentage()}% complete</span>
+                  </div>
+                  <div className="flex items-center text-xs text-purple-700 mt-1">
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    <span>{planningProgress.selectedVendors.length} vendors selected</span>
+                  </div>
+                </div>
+              </div>
+              <div className="items-center px-4 py-3">
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleCancelNewPlanning}
+                    className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                  >
+                    Keep Current Progress
+                  </button>
+                  <button
+                    onClick={handleConfirmNewPlanning}
+                    className="px-4 py-2 bg-purple-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  >
+                    Start New Scenario
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step-by-Step Dashboard View Modal */}
+      {showStepByStepView && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-full max-w-4xl shadow-lg rounded-md bg-white my-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                <BarChart3 className="h-6 w-6 text-blue-600 mr-2" />
+                Step-by-Step Progress Dashboard
+              </h3>
+              <button 
+                onClick={() => setShowStepByStepView(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+            
+            {/* Enhanced Dashboard Content */}
+            <div className="space-y-6">
+              {/* Progress Timeline */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
+                <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+                  <Clock className="h-5 w-5 text-blue-600 mr-2" />
+                  Planning Timeline Progress
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  {/* Event Planning Phase */}
+                  <div className="text-center">
+                    <div className="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div className="text-xs font-medium text-green-600">Event Planning</div>
+                    <div className="text-xs text-gray-500">Completed ✅</div>
+                  </div>
+                  
+                  {/* Vendor Selection Phase */}
+                  <div className="text-center">
+                    <div className={`mx-auto w-12 h-12 ${planningProgress.selectedVendors.length > 0 ? 'bg-yellow-100' : 'bg-gray-100'} rounded-full flex items-center justify-center mb-2`}>
+                      <Users className={`h-6 w-6 ${planningProgress.selectedVendors.length > 0 ? 'text-yellow-600' : 'text-gray-400'}`} />
+                    </div>
+                    <div className={`text-xs font-medium ${planningProgress.selectedVendors.length > 0 ? 'text-yellow-600' : 'text-gray-500'}`}>Vendor Selection</div>
+                    <div className="text-xs text-gray-500">
+                      {planningProgress.selectedVendors.length > 0 ? 'In Progress 🔄' : 'Pending ⏳'}
+                    </div>
+                  </div>
+                  
+                  {/* Contract Review Phase */}
+                  <div className="text-center">
+                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                      <Receipt className="h-6 w-6 text-gray-400" />
+                    </div>
+                    <div className="text-xs font-medium text-gray-500">Contract Review</div>
+                    <div className="text-xs text-gray-500">Pending ⏳</div>
+                  </div>
+                  
+                  {/* Payments Phase */}
+                  <div className="text-center">
+                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                      <CreditCard className="h-6 w-6 text-gray-400" />
+                    </div>
+                    <div className="text-xs font-medium text-gray-500">Payments</div>
+                    <div className="text-xs text-gray-500">Pending ⏳</div>
+                  </div>
+                  
+                  {/* Final Checklist Phase */}
+                  <div className="text-center">
+                    <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                      <CheckCircle className="h-6 w-6 text-gray-400" />
+                    </div>
+                    <div className="text-xs font-medium text-gray-500">Final Checklist</div>
+                    <div className="text-xs text-gray-500">Pending ⏳</div>
+                  </div>
+                </div>
+                
+                {/* Overall Progress Bar */}
+                <div className="mt-6">
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>Overall Progress</span>
+                    <span>{getProgressPercentage()}% Complete</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500" 
+                      style={{width: `${getProgressPercentage()}%`}}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Budget Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <DollarSign className="h-8 w-8 text-green-600" />
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-500">Target Budget</div>
+                      <div className="text-lg font-semibold text-gray-900">
+                        {event?.budget ? `$${event.budget.toLocaleString()}` : 'Not Set'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <Target className="h-8 w-8 text-blue-600" />
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-500">Committed</div>
+                      <div className="text-lg font-semibold text-gray-900">
+                        ${planningProgress.totalSpent.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <ArrowRight className="h-8 w-8 text-purple-600" />
+                    <div className="ml-3">
+                      <div className="text-sm font-medium text-gray-500">Remaining</div>
+                      <div className={`text-lg font-semibold ${event?.budget && (event.budget - planningProgress.totalSpent) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {event?.budget ? `$${(event.budget - planningProgress.totalSpent).toLocaleString()}` : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Shopping Cart Summary */}
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+                  <ShoppingCart className="h-5 w-5 text-purple-600 mr-2" />
+                  Shopping Cart Summary
+                </h4>
+                
+                {planningProgress.selectedVendors.length > 0 ? (
+                  <div className="space-y-3">
+                    {planningProgress.selectedVendors.map((vendor, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          <span className="font-medium text-gray-900">{vendor.vendor_name}</span>
+                          <span className="text-sm text-gray-500">({vendor.service_type})</span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-green-600 font-semibold">${vendor.price?.toLocaleString()}</span>
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Selected</span>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    <div className="border-t pt-3">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-gray-900">Total Selected:</span>
+                        <span className="text-xl font-bold text-green-600">${planningProgress.totalSpent.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <ShoppingCart className="mx-auto h-12 w-12 text-gray-300 mb-3" />
+                    <p>No vendors selected yet</p>
+                    <p className="text-sm">Start planning to add vendors to your cart</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex justify-center space-x-4 pt-4 border-t">
+                <button
+                  onClick={() => {
+                    setShowStepByStepView(false);
+                    setShowInteractivePlanner(true);
+                  }}
+                  className="px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all duration-200 shadow-lg flex items-center"
+                >
+                  <Play className="h-5 w-5 mr-2" />
+                  Continue Interactive Planning
+                </button>
+                
+                <button
+                  onClick={() => setShowStepByStepView(false)}
+                  className="px-6 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-700 transition-all duration-200 shadow-lg"
+                >
+                  Close Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
