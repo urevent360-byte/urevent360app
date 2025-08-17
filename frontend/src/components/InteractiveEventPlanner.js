@@ -1343,24 +1343,69 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                       </div>
                     </div>
 
-                    {/* Budget Overview */}
+                    {/* Detailed Budget Overview - Moved from Step-by-Step Mode */}
                     <div className="border-t pt-4">
-                      <h4 className="font-medium text-gray-900 mb-2">Budget Status</h4>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Total Budget:</span>
-                          <span className="font-medium">${eventData?.budget?.toLocaleString() || '0'}</span>
+                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                        <DollarSign className="h-5 w-5 text-green-600 mr-2" />
+                        Budget Overview
+                      </h4>
+                      
+                      <div className="space-y-4">
+                        {/* Budget Summary */}
+                        <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                          <div className="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                              <p className="text-sm text-gray-600">Target Budget</p>
+                              <p className="text-lg font-semibold text-gray-900">${eventData?.budget?.toLocaleString() || '0'}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">Committed</p>
+                              <p className="text-lg font-semibold text-green-600">${budgetData.selected?.toLocaleString() || '0'}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">Remaining</p>
+                              <p className={`text-lg font-semibold ${budgetData.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                ${budgetData.remaining?.toLocaleString() || '0'}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          {/* Progress Bar */}
+                          <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+                            <div 
+                              className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-300" 
+                              style={{width: `${budgetData.set > 0 ? Math.min((budgetData.selected / budgetData.set) * 100, 100) : 0}%`}}
+                            ></div>
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Selected:</span>
-                          <span className="font-medium text-green-600">${budgetData.selected?.toLocaleString() || '0'}</span>
+
+                        {/* Category Breakdown */}
+                        <div>
+                          <h5 className="font-medium text-gray-900 mb-3">Category Breakdown</h5>
+                          <div className="space-y-2">
+                            {[
+                              { name: 'Venue', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'venue')?.price || 0, color: 'bg-blue-500' },
+                              { name: 'Catering', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'catering')?.price || 0, color: 'bg-green-500' },
+                              { name: 'Photography', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'photography')?.price || 0, color: 'bg-purple-500' },
+                              { name: 'Decoration', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'decoration')?.price || 0, color: 'bg-pink-500' },
+                              { name: 'DJ/Music', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'dj')?.price || 0, color: 'bg-indigo-500' },
+                              { name: 'Bar Service', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'bar')?.price || 0, color: 'bg-red-500' }
+                            ].map(category => (
+                              <div key={category.name} className="flex items-center justify-between text-sm">
+                                <div className="flex items-center">
+                                  <div className={`w-3 h-3 rounded ${category.color} mr-2`}></div>
+                                  <span className="text-gray-700">{category.name}</span>
+                                </div>
+                                <span className="font-medium text-gray-900">${category.committed.toLocaleString()}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Remaining:</span>
-                          <span className={`font-medium ${budgetData.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            ${budgetData.remaining?.toLocaleString() || '0'}
-                          </span>
-                        </div>
+
+                        {/* Edit Budget Settings Button */}
+                        <button className="w-full px-4 py-2 border-2 border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition-colors text-sm font-medium">
+                          Edit Budget Settings
+                        </button>
                       </div>
                     </div>
                   </div>
