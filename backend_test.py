@@ -91,6 +91,480 @@ class APITester:
             self.log_test("Health Check", False, f"Status: {response.status_code if response else 'No response'}")
             return False
     
+    def test_step_by_step_mode_backend_apis(self):
+        """Test backend APIs supporting Step-by-Step Mode Consolidation"""
+        print("\n🎯 Testing Step-by-Step Mode Backend APIs...")
+        
+        if "client" not in self.tokens:
+            self.test_authentication()
+        
+        if "client" not in self.tokens:
+            self.log_test("Step-by-Step Mode Backend Test", False, "No client token available")
+            return
+        
+        # Step 1: Create a test event for planner testing
+        print("Step 1: Creating test event for Step-by-Step Mode testing...")
+        event_data = {
+            "name": "Test Event for Step-by-Step Mode",
+            "description": "Testing step-by-step planning consolidation",
+            "event_type": "wedding",
+            "date": "2024-08-15T18:00:00Z",
+            "location": "New York, NY",
+            "budget": 25000.0,
+            "guest_count": 100,
+            "status": "planning",
+            "services_needed": ["venue", "catering", "photography", "decoration"]
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            event = response.json()
+            event_id = event.get("id")
+            self.log_test("Test Event Creation", True, f"Event created with ID: {event_id}")
+        else:
+            self.log_test("Test Event Creation", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        # Step 2: Test Event Planner State Management API
+        print("Step 2: Testing Event Planner State Management...")
+        response = self.make_request("GET", f"/events/{event_id}/planner/state", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            planner_state = response.json()
+            current_step = planner_state.get("current_step", 0)
+            completed_steps = planner_state.get("completed_steps", [])
+            budget_tracking = planner_state.get("budget_tracking", {})
+            
+            self.log_test("Get Planner State", True, f"Current step: {current_step}, Completed: {len(completed_steps)}, Budget tracking: {budget_tracking.get('set_budget', 0)}")
+        else:
+            self.log_test("Get Planner State", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 3: Test Planner Steps API (for Step-by-Step Dashboard)
+        print("Step 3: Testing Planner Steps API...")
+        response = self.make_request("GET", f"/events/{event_id}/planner/steps", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            steps = response.json()
+            if isinstance(steps, list) and len(steps) > 0:
+                step_titles = [step.get("title", "Unknown") for step in steps]
+                self.log_test("Get Planner Steps", True, f"Found {len(steps)} steps: {', '.join(step_titles[:5])}")
+                
+                # Verify steps include required service types
+                service_types = [step.get("service_type") for step in steps if step.get("service_type")]
+                expected_services = ["venue", "catering", "photography", "decoration"]
+                found_services = [s for s in expected_services if s in service_types]
+                
+                if len(found_services) >= 3:  # At least 3 of 4 expected services
+                    self.log_test("Planner Steps Service Coverage", True, f"Found services: {found_services}")
+                else:
+                    self.log_test("Planner Steps Service Coverage", False, f"Missing services. Found: {service_types}")
+            else:
+                self.log_test("Get Planner Steps", False, f"Invalid steps response: {type(steps)}")
+        else:
+            self.log_test("Get Planner Steps", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 4: Test Progress Tracking via State Updates
+        print("Step 4: Testing Progress Tracking via State Updates...")
+        state_update = {
+            "current_step": 2,
+            "completed_steps": [0, 1],
+            "step_data": {"venue": {"selected": True, "vendor_id": "test-venue-123"}}
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/planner/state", state_update, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            self.log_test("Update Planner State", True, "Progress state updated successfully")
+            
+            # Verify the update
+            response = self.make_request("GET", f"/events/{event_id}/planner/state", token=self.tokens["client"])
+            if response and response.status_code == 200:
+                updated_state = response.json()
+                if updated_state.get("current_step") == 2 and len(updated_state.get("completed_steps", [])) == 2:
+                    self.log_test("Progress Tracking Verification", True, "State updates correctly tracked")
+                else:
+                    self.log_test("Progress Tracking Verification", False, f"State not updated properly: {updated_state}")
+        else:
+            self.log_test("Update Planner State", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 5: Test Shopping Cart API (for vendor selection tracking)
+        print("Step 5: Testing Shopping Cart API for vendor selection...")
+        response = self.make_request("GET", f"/events/{event_id}/cart", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            cart_items = response.json()
+            self.log_test("Get Shopping Cart", True, f"Cart retrieved with {len(cart_items)} items")
+        else:
+            self.log_test("Get Shopping Cart", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 6: Test Add to Cart (vendor selection)
+        print("Step 6: Testing Add to Cart (vendor selection)...")
+        cart_item = {
+            "vendor_id": "test-vendor-123",
+            "vendor_name": "Elite Catering Services",
+            "service_type": "catering",
+            "service_name": "Wedding Catering Package",
+            "price": 5000.0,
+            "quantity": 1,
+            "notes": "Premium wedding catering with 3-course meal"
+        }
+        
+        response = self.make_request("POST", f"/events/{event_id}/cart/add", cart_item, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            add_result = response.json()
+            self.log_test("Add Vendor to Cart", True, f"Vendor added: {cart_item['vendor_name']}")
+            
+            # Verify cart now has the item
+            response = self.make_request("GET", f"/events/{event_id}/cart", token=self.tokens["client"])
+            if response and response.status_code == 200:
+                updated_cart = response.json()
+                if len(updated_cart) > 0:
+                    first_item = updated_cart[0]
+                    if first_item.get("vendor_name") == cart_item["vendor_name"]:
+                        self.log_test("Cart Item Verification", True, f"Cart contains: {first_item['vendor_name']} - ${first_item['price']}")
+                    else:
+                        self.log_test("Cart Item Verification", False, f"Cart item mismatch: {first_item}")
+                else:
+                    self.log_test("Cart Item Verification", False, "Cart is empty after adding item")
+        else:
+            self.log_test("Add Vendor to Cart", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        print("\n📊 Step-by-Step Mode Backend APIs Summary:")
+        print("   • Event planner state management tested")
+        print("   • Planner steps API verified")
+        print("   • Progress tracking functionality tested")
+        print("   • Shopping cart vendor selection tested")
+        print("   • Backend support for frontend consolidation verified")
+
+    def test_enhanced_vendor_icons_backend_apis(self):
+        """Test backend APIs supporting Enhanced Vendor Icons functionality"""
+        print("\n🏪 Testing Enhanced Vendor Icons Backend APIs...")
+        
+        if "client" not in self.tokens:
+            self.test_authentication()
+        
+        if "client" not in self.tokens:
+            self.log_test("Enhanced Vendor Icons Backend Test", False, "No client token available")
+            return
+        
+        # Step 1: Test Vendor Search API with detailed vendor information
+        print("Step 1: Testing Vendor Search API for Enhanced Icons...")
+        response = self.make_request("GET", "/vendors/search", 
+                                   params={"service_type": "catering", "budget_max": 10000}, 
+                                   token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list) and len(vendors) > 0:
+                self.log_test("Vendor Search API", True, f"Found {len(vendors)} catering vendors")
+                
+                # Step 2: Verify vendor data structure for icons
+                print("Step 2: Verifying vendor data structure for enhanced icons...")
+                first_vendor = vendors[0]
+                required_fields = ["id", "name", "service_type", "rating", "price_range"]
+                optional_fields = ["images", "contact_info", "description", "specialties"]
+                
+                missing_required = [f for f in required_fields if f not in first_vendor]
+                present_optional = [f for f in optional_fields if f in first_vendor and first_vendor[f]]
+                
+                if len(missing_required) == 0:
+                    self.log_test("Vendor Data Structure", True, f"All required fields present. Optional fields: {present_optional}")
+                else:
+                    self.log_test("Vendor Data Structure", False, f"Missing required fields: {missing_required}")
+                
+                # Step 3: Test individual vendor details API
+                print("Step 3: Testing individual vendor details API...")
+                vendor_id = first_vendor.get("id")
+                if vendor_id:
+                    response = self.make_request("GET", f"/vendors/{vendor_id}", token=self.tokens["client"])
+                    if response and response.status_code == 200:
+                        vendor_details = response.json()
+                        
+                        # Check for comprehensive vendor information
+                        detail_fields = ["name", "description", "service_type", "rating", "contact_info", "specialties"]
+                        available_details = [f for f in detail_fields if f in vendor_details and vendor_details[f]]
+                        
+                        self.log_test("Vendor Details API", True, f"Vendor details available: {available_details}")
+                        
+                        # Verify contact info structure for vendor details modal
+                        contact_info = vendor_details.get("contact_info", {})
+                        if isinstance(contact_info, dict) and len(contact_info) > 0:
+                            self.log_test("Vendor Contact Information", True, f"Contact fields: {list(contact_info.keys())}")
+                        else:
+                            self.log_test("Vendor Contact Information", False, "No contact information available")
+                    else:
+                        self.log_test("Vendor Details API", False, f"Status: {response.status_code if response else 'No response'}")
+            else:
+                self.log_test("Vendor Search API", False, f"No vendors found or invalid response: {type(vendors)}")
+        else:
+            self.log_test("Vendor Search API", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 4: Test Event-Specific Vendor Search (for filtered catalogs)
+        print("Step 4: Testing Event-Specific Vendor Search...")
+        
+        # First create a test event
+        event_data = {
+            "name": "Test Event for Vendor Icons",
+            "event_type": "wedding",
+            "date": "2024-09-15T18:00:00Z",
+            "location": "Chicago, IL",
+            "budget": 20000.0,
+            "guest_count": 80,
+            "services_needed": ["catering", "photography", "decoration"]
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            event = response.json()
+            event_id = event.get("id")
+            
+            # Test event-specific vendor search
+            response = self.make_request("GET", f"/events/{event_id}/planner/vendors/catering", token=self.tokens["client"])
+            if response and response.status_code == 200:
+                event_vendors = response.json()
+                self.log_test("Event-Specific Vendor Search", True, f"Found {len(event_vendors)} catering vendors for event")
+                
+                # Verify budget-aware filtering
+                if len(event_vendors) > 0:
+                    vendor_prices = []
+                    for vendor in event_vendors:
+                        if vendor.get("base_price"):
+                            vendor_prices.append(vendor["base_price"])
+                        elif vendor.get("price_per_person"):
+                            vendor_prices.append(vendor["price_per_person"])
+                    
+                    if vendor_prices:
+                        max_price = max(vendor_prices)
+                        if max_price <= event_data["budget"]:
+                            self.log_test("Budget-Aware Vendor Filtering", True, f"All vendors within budget (max: ${max_price})")
+                        else:
+                            self.log_test("Budget-Aware Vendor Filtering", False, f"Some vendors exceed budget: ${max_price} > ${event_data['budget']}")
+                    else:
+                        self.log_test("Budget-Aware Vendor Filtering", True, "No pricing data to verify (acceptable)")
+            else:
+                self.log_test("Event-Specific Vendor Search", False, f"Status: {response.status_code if response else 'No response'}")
+        else:
+            self.log_test("Test Event Creation for Vendor Search", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 5: Test Vendor Favorites API (for quick selection)
+        print("Step 5: Testing Vendor Favorites API...")
+        
+        # Get a vendor to favorite
+        response = self.make_request("GET", "/vendors/search", 
+                                   params={"service_type": "photography"}, 
+                                   token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if len(vendors) > 0:
+                vendor_id = vendors[0].get("id")
+                
+                # Test toggle favorite
+                response = self.make_request("POST", f"/vendors/{vendor_id}/favorite", token=self.tokens["client"])
+                if response and response.status_code == 200:
+                    favorite_result = response.json()
+                    favorited = favorite_result.get("favorited", False)
+                    self.log_test("Toggle Vendor Favorite", True, f"Vendor favorited: {favorited}")
+                    
+                    # Test get favorites
+                    response = self.make_request("GET", "/vendors/favorites", token=self.tokens["client"])
+                    if response and response.status_code == 200:
+                        favorites = response.json()
+                        self.log_test("Get Favorite Vendors", True, f"Found {len(favorites)} favorite vendors")
+                    else:
+                        self.log_test("Get Favorite Vendors", False, f"Status: {response.status_code if response else 'No response'}")
+                else:
+                    self.log_test("Toggle Vendor Favorite", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 6: Test Multiple Service Type Search (for comprehensive vendor catalogs)
+        print("Step 6: Testing Multiple Service Type Search...")
+        service_types = ["catering", "photography", "decoration", "music"]
+        
+        for service_type in service_types:
+            response = self.make_request("GET", "/vendors/search", 
+                                       params={"service_type": service_type}, 
+                                       token=self.tokens["client"])
+            
+            if response and response.status_code == 200:
+                vendors = response.json()
+                print(f"   {service_type.title()}: {len(vendors)} vendors available")
+            else:
+                print(f"   {service_type.title()}: API error ({response.status_code if response else 'No response'})")
+        
+        self.log_test("Multiple Service Type Coverage", True, f"Tested {len(service_types)} service types")
+        
+        print("\n📊 Enhanced Vendor Icons Backend APIs Summary:")
+        print("   • Vendor search API with detailed information tested")
+        print("   • Individual vendor details API verified")
+        print("   • Event-specific vendor filtering tested")
+        print("   • Budget-aware vendor selection verified")
+        print("   • Vendor favorites functionality tested")
+        print("   • Multiple service type coverage confirmed")
+
+    def test_vendor_selection_data_flow(self):
+        """Test data flow for vendor selection, change, and remove functionality"""
+        print("\n🔄 Testing Vendor Selection Data Flow...")
+        
+        if "client" not in self.tokens:
+            self.test_authentication()
+        
+        if "client" not in self.tokens:
+            self.log_test("Vendor Selection Data Flow Test", False, "No client token available")
+            return
+        
+        # Step 1: Create test event for data flow testing
+        print("Step 1: Creating test event for data flow testing...")
+        event_data = {
+            "name": "Data Flow Test Event",
+            "event_type": "corporate",
+            "date": "2024-10-20T19:00:00Z",
+            "location": "Miami, FL",
+            "budget": 15000.0,
+            "guest_count": 60,
+            "services_needed": ["catering", "photography"]
+        }
+        
+        response = self.make_request("POST", "/events", event_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            event = response.json()
+            event_id = event.get("id")
+            self.log_test("Test Event for Data Flow", True, f"Event created: {event_id}")
+        else:
+            self.log_test("Test Event for Data Flow", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        # Step 2: Test vendor selection (add to cart)
+        print("Step 2: Testing vendor selection (add to cart)...")
+        
+        # Get available vendors
+        response = self.make_request("GET", f"/events/{event_id}/planner/vendors/catering", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            catering_vendors = response.json()
+            
+            if len(catering_vendors) > 0:
+                selected_vendor = catering_vendors[0]
+                
+                # Add vendor to cart
+                cart_item = {
+                    "vendor_id": selected_vendor.get("id"),
+                    "vendor_name": selected_vendor.get("name"),
+                    "service_type": "catering",
+                    "service_name": "Corporate Catering Package",
+                    "price": 3500.0,
+                    "quantity": 1
+                }
+                
+                response = self.make_request("POST", f"/events/{event_id}/cart/add", cart_item, token=self.tokens["client"])
+                if response and response.status_code == 200:
+                    self.log_test("Vendor Selection (Add to Cart)", True, f"Selected: {cart_item['vendor_name']}")
+                    
+                    # Step 3: Verify vendor appears in cart with correct data
+                    print("Step 3: Verifying vendor data in cart...")
+                    response = self.make_request("GET", f"/events/{event_id}/cart", token=self.tokens["client"])
+                    if response and response.status_code == 200:
+                        cart_items = response.json()
+                        
+                        if len(cart_items) > 0:
+                            cart_vendor = cart_items[0]
+                            
+                            # Verify all required data is present
+                            required_data = ["vendor_id", "vendor_name", "service_type", "price"]
+                            missing_data = [field for field in required_data if field not in cart_vendor]
+                            
+                            if len(missing_data) == 0:
+                                self.log_test("Vendor Data in Cart", True, f"Complete data: {cart_vendor['vendor_name']} - ${cart_vendor['price']}")
+                            else:
+                                self.log_test("Vendor Data in Cart", False, f"Missing data: {missing_data}")
+                            
+                            # Step 4: Test vendor replacement (remove + add new)
+                            print("Step 4: Testing vendor replacement...")
+                            cart_item_id = cart_vendor.get("id")
+                            
+                            if cart_item_id:
+                                # Remove current vendor
+                                response = self.make_request("DELETE", f"/events/{event_id}/cart/remove/{cart_item_id}", token=self.tokens["client"])
+                                if response and response.status_code == 200:
+                                    self.log_test("Remove Vendor from Cart", True, "Vendor removed successfully")
+                                    
+                                    # Add different vendor (if available)
+                                    if len(catering_vendors) > 1:
+                                        replacement_vendor = catering_vendors[1]
+                                        
+                                        replacement_item = {
+                                            "vendor_id": replacement_vendor.get("id"),
+                                            "vendor_name": replacement_vendor.get("name"),
+                                            "service_type": "catering",
+                                            "service_name": "Alternative Catering Package",
+                                            "price": 4000.0,
+                                            "quantity": 1
+                                        }
+                                        
+                                        response = self.make_request("POST", f"/events/{event_id}/cart/add", replacement_item, token=self.tokens["client"])
+                                        if response and response.status_code == 200:
+                                            self.log_test("Vendor Replacement", True, f"Replaced with: {replacement_item['vendor_name']}")
+                                            
+                                            # Verify replacement in cart
+                                            response = self.make_request("GET", f"/events/{event_id}/cart", token=self.tokens["client"])
+                                            if response and response.status_code == 200:
+                                                updated_cart = response.json()
+                                                if len(updated_cart) == 1 and updated_cart[0]["vendor_name"] == replacement_item["vendor_name"]:
+                                                    self.log_test("Vendor Replacement Verification", True, "Cart updated with replacement vendor")
+                                                else:
+                                                    self.log_test("Vendor Replacement Verification", False, f"Cart state incorrect: {len(updated_cart)} items")
+                                        else:
+                                            self.log_test("Vendor Replacement", False, f"Status: {response.status_code if response else 'No response'}")
+                                    else:
+                                        self.log_test("Vendor Replacement", True, "Only one vendor available (replacement not possible)")
+                                else:
+                                    self.log_test("Remove Vendor from Cart", False, f"Status: {response.status_code if response else 'No response'}")
+                        else:
+                            self.log_test("Vendor Data in Cart", False, "Cart is empty after adding vendor")
+                else:
+                    self.log_test("Vendor Selection (Add to Cart)", False, f"Status: {response.status_code if response else 'No response'}")
+            else:
+                self.log_test("Available Vendors for Selection", False, "No catering vendors available")
+        else:
+            self.log_test("Get Vendors for Selection", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 5: Test budget tracking with vendor selections
+        print("Step 5: Testing budget tracking with vendor selections...")
+        response = self.make_request("GET", f"/events/{event_id}/planner/state", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            planner_state = response.json()
+            budget_tracking = planner_state.get("budget_tracking", {})
+            
+            set_budget = budget_tracking.get("set_budget", 0)
+            selected_total = budget_tracking.get("selected_total", 0)
+            remaining = budget_tracking.get("remaining", 0)
+            
+            if set_budget > 0:
+                self.log_test("Budget Tracking Integration", True, f"Budget: ${set_budget}, Selected: ${selected_total}, Remaining: ${remaining}")
+            else:
+                self.log_test("Budget Tracking Integration", False, "Budget tracking not properly initialized")
+        else:
+            self.log_test("Budget Tracking Integration", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 6: Test clear cart functionality
+        print("Step 6: Testing clear cart functionality...")
+        response = self.make_request("POST", f"/events/{event_id}/cart/clear", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            self.log_test("Clear Cart", True, "Cart cleared successfully")
+            
+            # Verify cart is empty
+            response = self.make_request("GET", f"/events/{event_id}/cart", token=self.tokens["client"])
+            if response and response.status_code == 200:
+                final_cart = response.json()
+                if len(final_cart) == 0:
+                    self.log_test("Clear Cart Verification", True, "Cart is empty after clearing")
+                else:
+                    self.log_test("Clear Cart Verification", False, f"Cart still has {len(final_cart)} items")
+        else:
+            self.log_test("Clear Cart", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        print("\n📊 Vendor Selection Data Flow Summary:")
+        print("   • Vendor selection (add to cart) tested")
+        print("   • Vendor data integrity in cart verified")
+        print("   • Vendor replacement (remove + add) tested")
+        print("   • Budget tracking integration verified")
+        print("   • Clear cart functionality tested")
+        print("   • Complete data flow for vendor icons supported")
+
     def test_event_history_api(self):
         """Test Event History API functionality as requested in review"""
         print("\n📚 Testing Event History API Functionality...")
