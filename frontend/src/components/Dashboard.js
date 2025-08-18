@@ -133,10 +133,18 @@ const Dashboard = () => {
         </div>
         <Link
           to="/events/create"
-          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+          aria-label="Create a new event"
+          className="mt-4 sm:mt-0 inline-flex items-center gap-2 rounded-full px-5 py-3 font-semibold text-white shadow-md transition-all duration-200 bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-400"
+          data-analytics="CreateEventClick"
         >
-          <Plus className="mr-2 h-4 w-4" />
-          Create Event
+          {/* Calendar-plus icon */}
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" className="flex-shrink-0">
+            <path 
+              fill="currentColor" 
+              d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 7H5v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9ZM12 12a1 1 0 0 1 1 1v2h2a1 1 0 1 1 0 2h-2v2a1 1 0 1 1-2 0v-2H9a1 1 0 1 1 0-2h2v-2a1 1 0 0 1 1-1Z"
+            />
+          </svg>
+          <span>Create Event</span>
         </Link>
       </div>
 
