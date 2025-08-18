@@ -1,0 +1,515 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import axios from 'axios';
+import { 
+  MapPin, 
+  Users, 
+  Calendar, 
+  DollarSign, 
+  Star,
+  FileText,
+  MessageSquare,
+  CreditCard,
+  Filter,
+  Search,
+  ArrowLeft
+} from 'lucide-react';
+import { EVENT_FLOW_CONFIG, shouldShowCulturalStyles, getVendorTags } from '../config/eventFlowConfig';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+const StepByStepMode = () => {
+  const { eventId } = useParams();
+  const navigate = useNavigate();
+  const { getAuthHeaders } = useAuth();
+  
+  const [event, setEvent] = useState(null);
+  const [activeSection, setActiveSection] = useState('venues');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  // Data for each section
+  const [venues, setVenues] = useState([]);
+  const [vendors, setVendors] = useState([]);
+  const [loadingVenues, setLoadingVenues] = useState(false);
+  const [loadingVendors, setLoadingVendors] = useState(false);
+
+  const sections = [
+    { id: 'venues', name: 'Venue Matching', icon: MapPin, desc: 'Find the perfect venue' },
+    { id: 'core-vendors', name: 'Core Vendors', icon: Users, desc: 'Essential services' },
+    { id: 'add-ons', name: 'Add-Ons (Extras)', icon: Star, desc: 'Special enhancements' },
+    { id: 'timeline', name: 'Timeline', icon: Calendar, desc: 'Schedule & dates' },
+    { id: 'budget', name: 'Budget', icon: DollarSign, desc: 'Financial planning' },
+    { id: 'files', name: 'Files', icon: FileText, desc: 'Documents & media' },
+    { id: 'notes', name: 'Notes', icon: MessageSquare, desc: 'Ideas & reminders' },
+    { id: 'contracts', name: 'Contracts/Payments', icon: CreditCard, desc: 'Agreements & billing' }
+  ];
+
+  useEffect(() => {
+    if (eventId) {
+      fetchEvent();
+    }
+  }, [eventId]);
+
+  useEffect(() => {
+    if (event) {
+      // Auto-sync data when event is loaded
+      if (activeSection === 'venues') {
+        fetchVenues();
+      } else if (activeSection === 'core-vendors' || activeSection === 'add-ons') {
+        fetchVendors();
+      }
+    }
+  }, [event, activeSection]);
+
+  const fetchEvent = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/events/${eventId}`, {
+        headers: getAuthHeaders()
+      });
+      setEvent(response.data);
+    } catch (error) {
+      console.error('Failed to fetch event:', error);
+      setError('Failed to load event details');
+      // Redirect to dashboard if event not found
+      if (error.response?.status === 404) {
+        navigate('/');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchVenues = async () => {
+    if (!event) return;
+    
+    try {
+      setLoadingVenues(true);
+      const params = new URLSearchParams({
+        type: event.event_type,
+        city: event.location,
+        date: event.date,
+        guestCount: event.guest_count.toString()
+      });
+
+      if (event.preferred_venue_types?.length > 0) {
+        params.append('preferredTypes', event.preferred_venue_types.join(','));
+      }
+
+      const response = await axios.get(`${API}/match/venues?${params}`, {
+        headers: getAuthHeaders()
+      });
+      setVenues(response.data.venues || []);
+    } catch (error) {
+      console.error('Failed to fetch venues:', error);
+      // Use mock data for development
+      setVenues(getMockVenues());
+    } finally {
+      setLoadingVenues(false);
+    }
+  };
+
+  const fetchVendors = async () => {
+    if (!event) return;
+    
+    try {
+      setLoadingVendors(true);
+      const config = EVENT_FLOW_CONFIG[event.event_type];
+      const tags = config ? getVendorTags(event.event_type) : ['general'];
+      
+      const params = new URLSearchParams({
+        type: event.event_type,
+        city: event.location,
+        date: event.date,
+        tags: tags.join(',')
+      });
+
+      if (event.needed_core_services?.length > 0) {
+        params.append('core', event.needed_core_services.join(','));
+      }
+
+      if (event.needed_extras?.length > 0) {
+        params.append('extras', event.needed_extras.join(','));
+      }
+
+      if (event.category_specific?.culturalStyle?.length > 0) {
+        params.append('cultural', event.category_specific.culturalStyle.join(','));
+      }
+
+      if (event.category_specific?.themeOrFormat?.length > 0) {
+        params.append('theme', event.category_specific.themeOrFormat.join(','));
+      }
+
+      const response = await axios.get(`${API}/match/vendors?${params}`, {
+        headers: getAuthHeaders()
+      });
+      setVendors(response.data.vendors || []);
+    } catch (error) {
+      console.error('Failed to fetch vendors:', error);
+      // Use mock data for development
+      setVendors(getMockVendors());
+    } finally {
+      setLoadingVendors(false);
+    }
+  };
+
+  const getMockVenues = () => [
+    {
+      id: 1,
+      name: 'Grand Palace Banquet Hall',
+      venueTypes: ['Hotel/Banquet Hall'],
+      city: 'New York',
+      capacity: 200,
+      rating: 4.8,
+      price_per_person: 85,
+      image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=300',
+      available: true
+    },
+    {
+      id: 2,
+      name: 'Riverside Garden Venue',
+      venueTypes: ['Outdoor/Garden'],
+      city: 'New York',
+      capacity: 150,
+      rating: 4.6,
+      price_per_person: 65,
+      image: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=300',
+      available: true
+    }
+  ];
+
+  const getMockVendors = () => [
+    {
+      id: 1,
+      name: 'Elite Catering Co.',
+      services: ['Catering'],
+      culturalStyles: ['American', 'Italian'],
+      cities: ['New York'],
+      rating: 4.9,
+      price_range: '$50-$100 per person',
+      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300'
+    },
+    {
+      id: 2,
+      name: 'Elegant Decorations',
+      services: ['Decoration'],
+      culturalStyles: ['American', 'Modern'],
+      cities: ['New York'],
+      rating: 4.7,
+      price_range: '$2,000-$8,000',
+      image: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=300'
+    }
+  ];
+
+  const renderEventHeader = () => (
+    <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-6 rounded-lg mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center text-white/80 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5 mr-2" />
+          Back to Dashboard
+        </button>
+        <div className="text-right">
+          <span className="bg-white/20 px-3 py-1 rounded-full text-sm">Step-by-Step Mode</span>
+        </div>
+      </div>
+      
+      <h1 className="text-2xl font-bold mb-2">{event?.name}</h1>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <span className="text-white/80">Type:</span>
+          <div className="font-semibold">{EVENT_FLOW_CONFIG[event?.event_type]?.displayName || event?.event_type}</div>
+        </div>
+        <div>
+          <span className="text-white/80">Date:</span>
+          <div className="font-semibold">{event?.date ? new Date(event.date).toLocaleDateString() : 'TBD'}</div>
+        </div>
+        <div>
+          <span className="text-white/80">Guests:</span>
+          <div className="font-semibold">{event?.guest_count || 'TBD'}</div>
+        </div>
+        <div>
+          <span className="text-white/80">Location:</span>
+          <div className="font-semibold">{event?.location || 'TBD'}</div>
+        </div>
+      </div>
+
+      {/* Preferences Summary */}
+      {event && (
+        <div className="mt-4 bg-white/10 rounded-lg p-4">
+          <h3 className="font-semibold mb-2">Your Preferences:</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            {event.preferred_venue_types?.length > 0 && (
+              <div>
+                <span className="text-white/80">Venue Types:</span>
+                <div>{event.preferred_venue_types.join(', ')}</div>
+              </div>
+            )}
+            {event.needed_core_services?.length > 0 && (
+              <div>
+                <span className="text-white/80">Core Services:</span>
+                <div>{event.needed_core_services.join(', ')}</div>
+              </div>
+            )}
+            {event.needed_extras?.length > 0 && (
+              <div>
+                <span className="text-white/80">Add-Ons:</span>
+                <div>{event.needed_extras.join(', ')}</div>
+              </div>
+            )}
+            {event.category_specific?.culturalStyle?.length > 0 && (
+              <div>
+                <span className="text-white/80">Cultural Style:</span>
+                <div>{event.category_specific.culturalStyle.join(', ')}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderSectionTabs = () => (
+    <div className="mb-6">
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex flex-wrap">
+          {sections.map((section) => {
+            const Icon = section.icon;
+            return (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`
+                  flex items-center py-4 px-6 border-b-2 font-medium text-sm transition-colors
+                  ${activeSection === section.id
+                    ? 'border-purple-500 text-purple-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }
+                `}
+              >
+                <Icon className="h-5 w-5 mr-2" />
+                <div className="text-left">
+                  <div>{section.name}</div>
+                  <div className="text-xs text-gray-400">{section.desc}</div>
+                </div>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+    </div>
+  );
+
+  const renderVenuesSection = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold text-gray-900">Venue Matching</h2>
+        <div className="flex space-x-3">
+          <button className="flex items-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </button>
+          <button className="flex items-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <Search className="h-4 w-4 mr-2" />
+            Search More
+          </button>
+        </div>
+      </div>
+
+      {loadingVenues ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Finding perfect venues for you...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {venues.map((venue) => (
+            <div key={venue.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <img 
+                src={venue.image} 
+                alt={venue.name}
+                className="w-full h-48 object-cover"
+              />
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold text-gray-900">{venue.name}</h3>
+                  <div className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                    <span className="text-sm text-gray-600 ml-1">{venue.rating}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">{venue.venueTypes.join(', ')}</p>
+                <p className="text-sm text-gray-600 mb-2">
+                  <MapPin className="h-4 w-4 inline mr-1" />
+                  {venue.city} • Capacity: {venue.capacity}
+                </p>
+                <div className="flex justify-between items-center mt-4">
+                  <span className="text-lg font-semibold text-green-600">
+                    ${venue.price_per_person}/person
+                  </span>
+                  <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                    Select Venue
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderVendorsSection = (type) => {
+    const isCore = type === 'core';
+    const title = isCore ? 'Core Vendors' : 'Add-Ons (Extras)';
+    const description = isCore 
+      ? 'Essential services for your event'
+      : 'Special enhancements and entertainment options';
+
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+            <p className="text-gray-600">{description}</p>
+          </div>
+          <div className="flex space-x-3">
+            {shouldShowCulturalStyles(event?.event_type) && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Cultural Style:</span>
+                <select className="border border-gray-300 rounded px-3 py-1 text-sm">
+                  <option>All Styles</option>
+                  <option>American</option>
+                  <option>Hispanic/Latino</option>
+                  <option>Indian</option>
+                </select>
+              </div>
+            )}
+            <button className="flex items-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+              <Filter className="h-4 w-4 mr-2" />
+              More Filters
+            </button>
+          </div>
+        </div>
+
+        {loadingVendors ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Finding specialized vendors...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {vendors.map((vendor) => (
+              <div key={vendor.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                <img 
+                  src={vendor.image} 
+                  alt={vendor.name}
+                  className="w-full h-48 object-cover"
+                />
+                <div className="p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-gray-900">{vendor.name}</h3>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <span className="text-sm text-gray-600 ml-1">{vendor.rating}</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">{vendor.services.join(', ')}</p>
+                  {vendor.culturalStyles && (
+                    <p className="text-xs text-blue-600 mb-2">
+                      Specializes in: {vendor.culturalStyles.join(', ')}
+                    </p>
+                  )}
+                  <div className="flex justify-between items-center mt-4">
+                    <span className="text-sm font-medium text-green-600">
+                      {vendor.price_range}
+                    </span>
+                    <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                      Get Quote
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderPlaceholderSection = (title, description) => (
+    <div className="text-center py-12">
+      <div className="mx-auto h-24 w-24 text-gray-400">
+        <Calendar className="h-full w-full" />
+      </div>
+      <h3 className="mt-4 text-lg font-medium text-gray-900">{title}</h3>
+      <p className="mt-2 text-sm text-gray-500">{description}</p>
+      <div className="mt-6">
+        <button className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+          Coming Soon
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderSectionContent = () => {
+    switch (activeSection) {
+      case 'venues':
+        return renderVenuesSection();
+      case 'core-vendors':
+        return renderVendorsSection('core');
+      case 'add-ons':
+        return renderVendorsSection('extras');
+      case 'timeline':
+        return renderPlaceholderSection('Timeline Management', 'Schedule and coordinate all your event activities');
+      case 'budget':
+        return renderPlaceholderSection('Budget Tracking', 'Monitor expenses and manage your event budget');
+      case 'files':
+        return renderPlaceholderSection('File Management', 'Store contracts, photos, and important documents');
+      case 'notes':
+        return renderPlaceholderSection('Notes & Ideas', 'Keep track of ideas and important reminders');
+      case 'contracts':
+        return renderPlaceholderSection('Contracts & Payments', 'Manage agreements and payment schedules');
+      default:
+        return renderVenuesSection();
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !event) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Event Not Found</h2>
+        <p className="text-gray-600 mb-4">{error || 'The event you are looking for does not exist.'}</p>
+        <button
+          onClick={() => navigate('/')}
+          className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+        >
+          Return to Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {renderEventHeader()}
+      {renderSectionTabs()}
+      {renderSectionContent()}
+    </div>
+  );
+};
+
+export default StepByStepMode;
