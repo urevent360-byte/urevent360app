@@ -411,7 +411,23 @@ async def get_current_user_enhanced(credentials: HTTPAuthorizationCredentials = 
     """
     Enhanced current user dependency with better error handling and role management
     """
-    return await get_enhanced_current_user(credentials, auth_service)
+    try:
+        token = credentials.credentials
+        payload = auth_service.verify_token(token, "access")
+        
+        user = await auth_service.db.users.find_one({"email": payload["sub"]})
+        if user is None:
+            raise HTTPException(status_code=401, detail="User not found. Please login again.")
+        
+        # Add available roles to user object
+        user["available_roles"] = await auth_service.get_user_roles(user["id"])
+        user["_id"] = str(user["_id"])  # Convert ObjectId to string
+        
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Authentication failed. Please login again.")
 
 # Export the enhanced auth service for use in other modules
 __all__ = ["enhanced_auth_router", "auth_service", "get_current_user_enhanced"]
