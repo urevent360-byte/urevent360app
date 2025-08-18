@@ -265,7 +265,7 @@ const Login = () => {
               <Shield className="w-5 h-5 mr-2" />
               Demo Access Available
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="text-white/90 bg-white/10 rounded-lg p-3">
                 <strong>Client Portal:</strong><br/>
                 Register with any email or use existing account
@@ -273,6 +273,10 @@ const Login = () => {
               <div className="text-white/90 bg-white/10 rounded-lg p-3">
                 <strong>Vendor Access:</strong><br/>
                 vendor@example.com / vendor123
+              </div>
+              <div className="text-red-200 bg-red-500/10 rounded-lg p-3 border border-red-400/30">
+                <strong>🔐 CEO Console:</strong><br/>
+                darwin@urevent360.com (Executive Access)
               </div>
             </div>
           </div>
