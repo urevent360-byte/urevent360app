@@ -481,10 +481,11 @@ class GoogleOAuthTester:
         # Test that both traditional and Google OAuth systems can coexist
         
         # 1. Test traditional login still works
-        traditional_login_works = self.test_basic_authentication_first()
+        traditional_login_works = "client" in self.tokens
         
-        # 2. Test Google OAuth endpoints are available
-        google_oauth_available = self.test_google_oauth_config()
+        # 2. Test Google OAuth endpoints are available (even if not configured)
+        config_response = self.make_request("GET", "/auth/google/config")
+        google_oauth_available = config_response and config_response.status_code == 200
         
         # 3. Test that traditional tokens work with Google OAuth status endpoint
         if "client" in self.tokens:
@@ -499,7 +500,7 @@ class GoogleOAuthTester:
                         "Traditional login and Google OAuth systems work together")
         elif traditional_login_works and google_oauth_available:
             self.log_test("Dual Authentication Integration", True, 
-                        "Both systems available (minor integration issues)")
+                        "Both systems available (Google OAuth needs configuration for full functionality)")
         elif traditional_login_works:
             self.log_test("Dual Authentication Integration", False, 
                         "Only traditional authentication working")
@@ -507,7 +508,7 @@ class GoogleOAuthTester:
             self.log_test("Dual Authentication Integration", False, 
                         "Neither authentication system working properly")
         
-        return traditional_login_works or google_oauth_available
+        return traditional_login_works and google_oauth_available
     
     def run_comprehensive_google_oauth_tests(self):
         """Run comprehensive Google OAuth authentication system tests"""
