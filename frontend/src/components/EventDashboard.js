@@ -1169,43 +1169,59 @@ const EventDashboard = () => {
         </div>
       )}
 
-      {/* New Planning Confirmation Modal */}
+      {/* Draft Selection Modal */}
       {showNewPlanningConfirm && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3 text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100">
-                <AlertTriangle className="h-6 w-6 text-purple-600" />
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                <Receipt className="h-6 w-6 text-green-600" />
               </div>
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">Start New Planning Session?</h3>
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mt-4">Pick up where you left off?</h3>
               <div className="mt-2 px-7 py-3">
                 <p className="text-sm text-gray-500">
-                  You have active planning progress for this event. Starting a new planning session will create a separate scenario while keeping your current progress saved.
+                  You have a quote in progress. Continue that draft or start a new quote.
                 </p>
-                <div className="mt-4 bg-purple-50 rounded-lg p-3">
-                  <div className="flex items-center text-xs text-purple-700">
-                    <Target className="h-4 w-4 mr-2" />
-                    <span className="font-medium">Current Progress: {getProgressPercentage()}% complete</span>
-                  </div>
-                  <div className="flex items-center text-xs text-purple-700 mt-1">
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    <span>{planningProgress.selectedVendors.length} vendors selected</span>
-                  </div>
-                </div>
+                {(() => {
+                  const existingDrafts = eventQuotes.filter(quote => quote.status === 'in_progress');
+                  const latestDraft = existingDrafts[0];
+                  
+                  if (latestDraft) {
+                    return (
+                      <div className="mt-4 bg-green-50 rounded-lg p-3 border border-green-200">
+                        <div className="text-center mb-2">
+                          <h4 className="font-medium text-green-900 text-sm">{latestDraft.name}</h4>
+                          <p className="text-xs text-green-700 mt-1">
+                            {latestDraft.vendor_count || 0} vendor{(latestDraft.vendor_count || 0) !== 1 ? 's' : ''} selected
+                          </p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="bg-white rounded p-2 text-center border border-green-200">
+                            <div className="text-green-800 font-semibold">💰 ${latestDraft.total_budget?.toLocaleString() || '0'}</div>
+                          </div>
+                          <div className="bg-white rounded p-2 text-center border border-green-200">
+                            <div className="text-green-800 font-semibold">📅 {latestDraft.created_at ? new Date(latestDraft.created_at).toLocaleDateString() : 'Recent'}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
               <div className="items-center px-4 py-3">
                 <div className="flex space-x-3">
                   <button
-                    onClick={handleCancelNewPlanning}
-                    className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                    onClick={handleContinueDraft}
+                    className="px-4 py-2 bg-green-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    Keep Current Progress
+                    Continue Draft
                   </button>
                   <button
                     onClick={handleConfirmNewPlanning}
                     className="px-4 py-2 bg-purple-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    Start New Scenario
+                    Start New Quote
                   </button>
                 </div>
               </div>
