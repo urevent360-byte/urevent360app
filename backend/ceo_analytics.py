@@ -177,12 +177,12 @@ class CEOAnalyticsEngine:
         return KPIMetrics(
             period_start=start_date,
             period_end=end_date,
-            gmv=booking_data["total_revenue"],
-            net_revenue=booking_data["total_revenue"] * 0.85,  # Assuming 15% platform fee
-            bookings=booking_data["total_bookings"],
+            gmv=booking_data["total_revenue"] or 0,
+            net_revenue=(booking_data["total_revenue"] or 0) * 0.85,  # Assuming 15% platform fee
+            bookings=booking_data["total_bookings"] or 0,
             active_quotes=quote_data["total_quotes"] - quote_data["approved_quotes"],
             conversion_rate=conversion_rate,
-            average_order_value=booking_data["avg_booking_value"],
+            average_order_value=booking_data["avg_booking_value"] or 0,
             churn_rate=churn_rate,
             growth_rate=growth_rate
         )
