@@ -744,6 +744,220 @@ const EventDashboard = () => {
               </div>
             </div>
 
+            {/* Edit Event Information - Questionnaire Fields */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                  <Settings className="h-5 w-5 text-orange-600 mr-2" />
+                  Event Information
+                </h3>
+                <button
+                  onClick={() => setEditingEventInfo(!editingEventInfo)}
+                  className={`inline-flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
+                    editingEventInfo 
+                      ? 'bg-red-100 text-red-700 hover:bg-red-200' 
+                      : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                  }`}
+                >
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  {editingEventInfo ? 'Cancel Editing' : 'Edit Event Info'}
+                </button>
+              </div>
+
+              {editingEventInfo ? (
+                /* Editing Mode - Full Questionnaire */
+                <div className="space-y-6">
+                  {/* Event Type & Date */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Event Type <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={editValues.event_type}
+                        onChange={(e) => setEditValues({ ...editValues, event_type: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      >
+                        <option value="">Select Event Type</option>
+                        <option value="wedding">Wedding</option>
+                        <option value="quinceanera">Quinceañera</option>
+                        <option value="sweet_16">Sweet 16</option>
+                        <option value="bat_mitzvah">Bat Mitzvah</option>
+                        <option value="corporate">Corporate Event</option>
+                        <option value="birthday">Birthday Party</option>
+                        <option value="anniversary">Anniversary</option>
+                        <option value="graduation">Graduation</option>
+                        <option value="baby_shower">Baby Shower</option>
+                        <option value="retirement">Retirement Party</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Event Date <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={editValues.date}
+                        onChange={(e) => setEditValues({ ...editValues, date: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Cultural Style */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cultural Style
+                    </label>
+                    <select
+                      value={editValues.cultural_style}
+                      onChange={(e) => setEditValues({ ...editValues, cultural_style: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="">Select Cultural Style (Optional)</option>
+                      <option value="american">American</option>
+                      <option value="indian">Indian</option>
+                      <option value="hispanic">Hispanic</option>
+                      <option value="jewish">Jewish</option>
+                      <option value="african">African</option>
+                      <option value="asian">Asian</option>
+                      <option value="middle_eastern">Middle Eastern</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  {/* Preferred Venue Type */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Preferred Venue Type <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={editValues.preferred_venue_type}
+                      onChange={(e) => setEditValues({ ...editValues, preferred_venue_type: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="">Select Venue Type</option>
+                      <option value="indoor">Indoor Venue</option>
+                      <option value="outdoor">Outdoor Venue</option>
+                      <option value="hotel">Hotel/Banquet Hall</option>
+                      <option value="restaurant">Restaurant</option>
+                      <option value="at_home">At-Home/Private Residence</option>
+                      <option value="my_own_private_space">My Own Private Space</option>
+                      <option value="i_already_have_a_venue">I Already Have a Venue</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  {/* Services Needed */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Services Needed <span className="text-red-500">*</span>
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      {[
+                        'catering', 'decoration', 'photography', 'music_dj', 
+                        'transportation', 'lighting', 'security', 'videography',
+                        'flowers', 'entertainment'
+                      ].map((service) => (
+                        <label key={service} className="flex items-center space-x-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editValues.services_needed?.includes(service) || false}
+                            onChange={(e) => {
+                              const currentServices = editValues.services_needed || [];
+                              if (e.target.checked) {
+                                setEditValues({
+                                  ...editValues,
+                                  services_needed: [...currentServices, service]
+                                });
+                              } else {
+                                setEditValues({
+                                  ...editValues,
+                                  services_needed: currentServices.filter(s => s !== service)
+                                });
+                              }
+                            }}
+                            className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                          />
+                          <span className="text-sm text-gray-700 capitalize">
+                            {service.replace('_', ' / ')}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                    <button
+                      onClick={() => setEditingEventInfo(false)}
+                      className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveEventInfo}
+                      disabled={savingEventInfo}
+                      className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
+                    >
+                      {savingEventInfo ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                          <span>Saving...</span>
+                        </div>
+                      ) : (
+                        'Save Event Info'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Display Mode - Current Event Information */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-sm font-medium text-gray-500 mb-1">Event Type</div>
+                      <div className="text-lg text-gray-900 capitalize">
+                        {event.event_type?.replace('_', ' ') || 'Not specified'}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500 mb-1">Cultural Style</div>
+                      <div className="text-lg text-gray-900 capitalize">
+                        {event.cultural_style?.replace('_', ' ') || 'Not specified'}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-500 mb-1">Preferred Venue Type</div>
+                      <div className="text-lg text-gray-900 capitalize">
+                        {event.preferred_venue_type?.replace('_', ' ') || 'Not specified'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="text-sm font-medium text-gray-500 mb-1">Services Needed</div>
+                      <div className="flex flex-wrap gap-2">
+                        {event.services_needed && event.services_needed.length > 0 ? (
+                          event.services_needed.map((service, index) => (
+                            <span
+                              key={index}
+                              className="inline-flex px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full capitalize"
+                            >
+                              {service.replace('_', ' / ')}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400 italic">No services specified</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Quotes Section - Event Profile Integration */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
