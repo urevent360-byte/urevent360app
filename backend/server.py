@@ -89,9 +89,14 @@ class EventCreate(BaseModel):
     estimated_budget: Optional[float] = None
     guest_count: Optional[int] = None
     status: str = "planning"  # planning, booked, completed, cancelled
-    # Enhanced filtering fields
+    # Enhanced filtering fields (legacy)
     preferred_venue_type: Optional[str] = None
     services_needed: Optional[List[str]] = None
+    # Two-Flow Architecture fields
+    preferred_venue_types: Optional[List[str]] = None
+    needed_core_services: Optional[List[str]] = None
+    needed_extras: Optional[List[str]] = None
+    category_specific: Optional[Dict[str, Any]] = None
 
 class Event(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
