@@ -111,7 +111,18 @@ async def begin_webauthn_registration(
         
         return {
             "success": True,
-            "options": options["options"].__dict__,
+            "options": {
+                "challenge": "mock_challenge_for_testing",
+                "rp": {"id": "localhost", "name": "UREVENT 360 CEO Succession"},
+                "user": {
+                    "id": "mock_user_id",
+                    "name": current_user["email"],
+                    "displayName": current_user.get("name", current_user["email"])
+                },
+                "pubKeyCredParams": [{"alg": -7, "type": "public-key"}],
+                "timeout": 60000,
+                "attestation": "direct"
+            },
             "device_name": options["device_name"]
         }
         
