@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """
-Event Information Edit Functionality Backend Testing for Urevent 360 Platform
-Focus: Testing the new Event Information edit functionality in EventDashboard.js
+Workflow Interference and Synchronization Issues Backend Testing for Urevent 360 Platform
+Focus: Testing backend APIs that support frontend workflow patterns to identify defects
 
 PRIORITY TESTING FOCUS (as per review request):
-1. Login with existing test users (sarah.johnson@email.com/SecurePass123 or admin@urevent360.com/admin123)
-2. Retrieve an existing event to get its current questionnaire information
-3. Test updating the event with new questionnaire fields via PUT /api/events/{event_id}
-4. Verify all questionnaire fields (event_type, cultural_style, preferred_venue_type, services_needed) can be updated
-5. Confirm the updated event information is properly stored and retrieved
+1. ROUTING & LIFECYCLE ISSUES: Quote creation/resume workflows, draft management
+2. QUESTIONNAIRE → PLANNER SYNC: Event data synchronization with planner state
+3. STEP-BY-STEP TILE FUNCTIONALITY: Vendor catalog filtering and selection
+4. SHOPPING CART ISSUES: Real-time updates and state management
+5. BUDGET PLACEMENT: Budget data availability for different modes
 
-This addresses the user requirement to allow editing of event questionnaire information after it's saved,
-so changes are reflected in Step-by-Step Mode.
+This addresses workflow interference and synchronization issues in the event planning system.
 """
 
 import requests
