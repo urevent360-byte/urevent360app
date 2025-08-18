@@ -1998,6 +1998,84 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
               })()}
             </div>
 
+            {/* Sparkle Your Event - Optional Upsells */}
+            {(() => {
+              // Define services NOT selected in questionnaire
+              const allOptionalServices = [
+                { id: 'flowers', name: 'Floral Arrangements', icon: '💐', category: 'flowers', color: 'from-rose-400 to-pink-500' },
+                { id: 'lighting', name: 'Special Lighting', icon: '💡', category: 'lighting', color: 'from-yellow-400 to-amber-500' },
+                { id: 'photo_booth', name: 'Photo Booth', icon: '📷', category: 'photo_booth', color: 'from-blue-400 to-indigo-500' },
+                { id: 'live_music', name: 'Live Music', icon: '🎼', category: 'live_music', color: 'from-purple-400 to-violet-500' },
+                { id: 'dessert_bar', name: 'Dessert Bar', icon: '🍰', category: 'dessert_bar', color: 'from-pink-400 to-rose-500' },
+                { id: 'cocktail_hour', name: 'Cocktail Hour', icon: '🍸', category: 'cocktail_hour', color: 'from-emerald-400 to-teal-500' }
+              ];
+
+              // Filter out services already selected in questionnaire
+              const upsellServices = allOptionalServices.filter(service => 
+                !availableServices.includes(service.category) && 
+                !availableServices.includes(service.id) &&
+                !cart.some(item => item.service_type === service.category)
+              );
+
+              if (upsellServices.length === 0) return null;
+
+              return (
+                <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
+                  <div className="text-center mb-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center justify-center">
+                      <Sparkles className="h-6 w-6 text-purple-600 mr-2" />
+                      ✨ Sparkle Your Event
+                    </h3>
+                    <p className="text-gray-600">Popular add-ons to make your event extra special</p>
+                    <div className="text-xs text-purple-700 bg-purple-100 rounded-full px-3 py-1 inline-block mt-2">
+                      Optional Enhancements
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    {upsellServices.slice(0, 6).map((service) => (
+                      <div 
+                        key={service.id} 
+                        className={`relative rounded-lg p-4 transition-all duration-300 cursor-pointer transform hover:scale-105 bg-gradient-to-br ${service.color} text-white shadow-md hover:shadow-lg border-2 border-transparent hover:border-white`}
+                        onClick={() => {
+                          // Add this service to available services and search vendors
+                          setAvailableServices(prev => [...prev, service.category]);
+                          searchVendorsWithFilters(service.category);
+                        }}
+                      >
+                        {/* Popular Badge */}
+                        <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-xs font-bold px-1 py-0.5 rounded-full shadow-sm">
+                          HOT
+                        </div>
+                        
+                        {/* Service Icon */}
+                        <div className="text-center mb-2">
+                          <div className="text-2xl mb-1">{service.icon}</div>
+                        </div>
+                        
+                        {/* Service Name */}
+                        <h5 className="font-medium text-center text-xs text-white leading-tight">
+                          {service.name}
+                        </h5>
+                        
+                        {/* Add Button */}
+                        <button className="w-full mt-2 px-2 py-1 bg-white bg-opacity-20 text-white text-xs font-medium rounded hover:bg-opacity-30 transition-colors backdrop-blur-sm">
+                          + Add
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Sparkle Footer */}
+                  <div className="text-center mt-4">
+                    <p className="text-xs text-purple-600">
+                      💫 These suggestions are based on popular trends and similar events
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Progress Indicator */}
             <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-4">
