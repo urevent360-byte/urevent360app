@@ -595,11 +595,16 @@ class CEOAnalyticsEngine:
         trending_insights = await self.get_trending_insights(start_date, end_date)
         
         # Calculate health scores
+        vendor_health_score = (
+            len([v for v in vendor_performance if v.risk_score < 0.3]) / len(vendor_performance) * 100 
+            if vendor_performance and len(vendor_performance) > 0 else 50
+        )
+        
         business_health = min(100, max(0, 
             (kpis.conversion_rate * 100) + 
             (kpis.growth_rate) + 
             (100 - kpis.churn_rate) + 
-            (len([v for v in vendor_performance if v.risk_score < 0.3]) / len(vendor_performance) * 100 if vendor_performance else 50)
+            vendor_health_score
         ) / 4)
         
         return {
