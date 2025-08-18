@@ -392,6 +392,32 @@ except ImportError as e:
     print(f"⚠️ Google OAuth Authentication not available: {e}")
     GOOGLE_AUTH_AVAILABLE = False
 
+# Add CEO Dashboard System
+try:
+    from ceo_dashboard_routes import ceo_dashboard_router
+    
+    # Include CEO dashboard routes
+    app.include_router(ceo_dashboard_router)
+    
+    print("✅ CEO Growth Intelligence Dashboard loaded successfully")
+    CEO_DASHBOARD_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ CEO Dashboard not available: {e}")
+    CEO_DASHBOARD_AVAILABLE = False
+
+# Add CEO Succession System
+try:
+    from ceo_succession_routes import ceo_succession_router
+    
+    # Include CEO succession routes
+    app.include_router(ceo_succession_router)
+    
+    print("✅ CEO Succession Security System loaded successfully")
+    CEO_SUCCESSION_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ CEO Succession System not available: {e}")
+    CEO_SUCCESSION_AVAILABLE = False
+
 # API Router
 from fastapi import APIRouter
 api_router = APIRouter(prefix="/api")
