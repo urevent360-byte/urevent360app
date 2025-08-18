@@ -184,6 +184,8 @@ const CEOLayout = () => {
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 lg:p-6">
           <Routes>
             <Route path="/" element={<CEODashboard />} />
+            <Route path="/ai-copilot" element={<AICopilot />} />
+            <Route path="/intelligence" element={<AIIntelligenceCenter />} />
             <Route path="/analytics" element={<CEOAnalytics />} />
             <Route path="/succession" element={<CEOSuccession />} />
             <Route path="/security" element={<CEOSecurity />} />
