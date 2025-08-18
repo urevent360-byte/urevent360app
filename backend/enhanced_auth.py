@@ -124,14 +124,21 @@ class EnhancedAuthService:
         return jwt.encode(payload, REFRESH_SECRET_KEY, algorithm=JWT_ALGORITHM)
     
     def verify_token(self, token: str, token_type: str = "access") -> dict:
-        """Verify and decode JWT token"""
+        """Verify and decode JWT token - Compatible with basic auth system"""
         try:
+            # Use the same secret key and algorithm as the basic auth system
             secret_key = REFRESH_SECRET_KEY if token_type == "refresh" else SECRET_KEY
             payload = jwt.decode(token, secret_key, algorithms=[JWT_ALGORITHM])
             
-            if payload.get("type") != token_type:
-                raise jwt.InvalidTokenError("Invalid token type")
-                
+            # Handle both enhanced and basic token formats
+            if token_type == "refresh" and payload.get("type") != "refresh":
+                raise jwt.InvalidTokenError("Invalid refresh token")
+            
+            # For access tokens, be flexible about the "type" field for compatibility
+            if token_type == "access" and "type" in payload and payload.get("type") != "access":
+                # If type is specified but wrong, reject
+                raise jwt.InvalidTokenError("Invalid access token type")
+            
             return payload
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Token has expired. Please login again.")
