@@ -49,6 +49,14 @@ const Login = () => {
       features: ['Manage Services', 'View Bookings', 'Client Communication', 'Business Analytics']
     },
     {
+      id: 'ROLE_CEO',
+      title: 'Chief Executive Officer',
+      description: 'Executive control center',
+      icon: Shield,
+      color: 'from-red-500 to-red-600',
+      features: ['Executive Dashboard', 'Succession Management', 'Advanced Analytics', 'Security Center']
+    },
+    {
       id: 'admin',
       title: 'Administrator',
       description: 'Manage platform operations',
