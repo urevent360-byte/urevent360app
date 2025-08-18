@@ -478,9 +478,16 @@ const EventDashboard = () => {
 
   // Initialize edit values when entering edit mode
   const initializeEditValues = () => {
+    // Format date for datetime-local input
+    const formatDateForInput = (dateString) => {
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+    };
+
     setEditValues({
       event_type: event?.event_type || '',
-      date: event?.date || '',
+      date: formatDateForInput(event?.date),
       cultural_style: event?.cultural_style || '',
       preferred_venue_type: event?.preferred_venue_type || '',
       services_needed: event?.services_needed || []
