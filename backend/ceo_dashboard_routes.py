@@ -612,13 +612,20 @@ async def get_ceo_audit_logs(
         "timestamp": {"$gte": since}
     }).sort("timestamp", -1).limit(limit).to_list(limit)
     
+    # Convert ObjectId to string for JSON serialization
+    serialized_logs = []
+    for log in logs:
+        if "_id" in log:
+            log["_id"] = str(log["_id"])
+        serialized_logs.append(log)
+    
     return {
         "success": True,
         "data": {
-            "logs": logs,
-            "total_logs": len(logs),
+            "logs": serialized_logs,
+            "total_logs": len(serialized_logs),
             "time_range": f"Last {hours} hours",
-            "high_risk_count": len([log for log in logs if log.get("risk_score", 0) > 0.7])
+            "high_risk_count": len([log for log in serialized_logs if log.get("risk_score", 0) > 0.7])
         }
     }
 
