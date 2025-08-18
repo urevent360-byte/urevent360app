@@ -24,7 +24,7 @@ import time
 
 # Configuration - Use environment variable for backend URL
 import os
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://event-intelligence.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://strategic-ai-2.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
