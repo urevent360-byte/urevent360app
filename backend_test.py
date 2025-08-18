@@ -6716,5 +6716,114 @@ def main():
     print("\n" + "="*80)
     return success_rate >= 80
 
+    def test_authentication(self):
+        """Test authentication with existing test users"""
+        print("\n🔐 Testing Authentication...")
+        
+        # Test with client credentials
+        client_credentials = {"email": "sarah.johnson@email.com", "password": "SecurePass123"}
+        response = self.make_request("POST", "/login", client_credentials)
+        
+        if response and response.status_code == 200:
+            login_data = response.json()
+            client_token = login_data.get("access_token")
+            if client_token:
+                self.tokens["client"] = client_token
+                self.log_test("Client Authentication", True, f"Successfully logged in as {client_credentials['email']}")
+            else:
+                self.log_test("Client Authentication", False, "No access token in response")
+        else:
+            self.log_test("Client Authentication", False, f"Login failed: {response.status_code if response else 'No response'}")
+
+    def run_workflow_tests(self):
+        """Run all workflow interference and synchronization tests"""
+        print("🚀 Starting Workflow Interference and Synchronization Testing...")
+        print(f"Backend URL: {BASE_URL}")
+        print("=" * 80)
+        
+        # Test basic connectivity first
+        if not self.test_health_check():
+            print("❌ Health check failed. Stopping tests.")
+            return
+        
+        # Run authentication
+        self.test_authentication()
+        
+        if "client" not in self.tokens:
+            print("❌ Authentication failed. Stopping tests.")
+            return
+        
+        # Run workflow interference tests
+        self.test_workflow_interference_patterns()
+        
+        # Print summary
+        self.print_test_summary()
+    
+    def print_test_summary(self):
+        """Print comprehensive test summary"""
+        print("\n" + "=" * 80)
+        print("🎯 WORKFLOW INTERFERENCE & SYNCHRONIZATION TEST SUMMARY")
+        print("=" * 80)
+        
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        failed_tests = total_tests - passed_tests
+        success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+        
+        print(f"📊 OVERALL RESULTS:")
+        print(f"   Total Tests: {total_tests}")
+        print(f"   Passed: {passed_tests} ✅")
+        print(f"   Failed: {failed_tests} ❌")
+        print(f"   Success Rate: {success_rate:.1f}%")
+        
+        if self.failed_tests:
+            print(f"\n❌ FAILED TESTS ({len(self.failed_tests)}):")
+            for i, test_name in enumerate(self.failed_tests, 1):
+                print(f"   {i}. {test_name}")
+        
+        # Categorize results by workflow area
+        workflow_categories = {
+            "ROUTING & LIFECYCLE": ["Start Planning", "Resume Quote", "Duplicate Quote", "Race Condition"],
+            "QUESTIONNAIRE → PLANNER SYNC": ["Budget Sync", "Venue Filtering", "At-Home Venue", "Services Needed", "Event Info Changes"],
+            "STEP-BY-STEP TILE FUNCTIONALITY": ["Tile Opens", "Vendor Selection", "Tile Shows", "Auto-Highlighting", "Select Now"],
+            "SHOPPING CART ISSUES": ["Cart Visibility", "Live Updates", "Totals Calculation", "Badge State"],
+            "BUDGET PLACEMENT": ["Budget Block", "No Detailed Budget", "Budget Data Separation", "Budget Visibility"]
+        }
+        
+        print(f"\n📋 RESULTS BY WORKFLOW AREA:")
+        for category, keywords in workflow_categories.items():
+            category_tests = [result for result in self.test_results 
+                            if any(keyword.lower() in result["test"].lower() for keyword in keywords)]
+            if category_tests:
+                category_passed = sum(1 for test in category_tests if test["success"])
+                category_total = len(category_tests)
+                category_rate = (category_passed / category_total * 100) if category_total > 0 else 0
+                status = "✅" if category_rate >= 80 else "⚠️" if category_rate >= 60 else "❌"
+                print(f"   {status} {category}: {category_passed}/{category_total} ({category_rate:.1f}%)")
+        
+        print(f"\n🔍 CRITICAL ISSUES IDENTIFIED:")
+        critical_failures = [result for result in self.test_results 
+                           if not result["success"] and any(keyword in result["test"].lower() 
+                           for keyword in ["race condition", "sync", "live updates", "duplicate"])]
+        
+        if critical_failures:
+            for failure in critical_failures:
+                print(f"   ❌ {failure['test']}: {failure['details']}")
+        else:
+            print("   ✅ No critical workflow interference issues detected")
+        
+        print(f"\n📈 RECOMMENDATIONS:")
+        if success_rate >= 90:
+            print("   ✅ Excellent: Workflow synchronization is working well")
+        elif success_rate >= 75:
+            print("   ⚠️  Good: Minor workflow issues need attention")
+        elif success_rate >= 60:
+            print("   ⚠️  Fair: Several workflow synchronization issues detected")
+        else:
+            print("   ❌ Poor: Major workflow interference issues require immediate attention")
+        
+        print("=" * 80)
+
 if __name__ == "__main__":
-    main()
+    tester = APITester()
+    tester.run_workflow_tests()
