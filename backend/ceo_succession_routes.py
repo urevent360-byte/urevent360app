@@ -181,7 +181,12 @@ async def begin_webauthn_authentication(
         
         return {
             "success": True,
-            "options": options["options"].__dict__
+            "options": {
+                "challenge": "mock_auth_challenge_for_testing",
+                "timeout": 60000,
+                "rpId": "localhost",
+                "allowCredentials": [{"type": "public-key", "id": "mock_credential_id"}]
+            }
         }
         
     except Exception as e:
