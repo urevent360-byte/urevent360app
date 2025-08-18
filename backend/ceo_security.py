@@ -78,7 +78,7 @@ class CEOSecurityService:
         return (
             user.get("email") == CEO_EMAIL and 
             user.get("role") == CEO_ROLE and
-            user.get("status") == "active"
+            user.get("status", "active") in ["active", None]  # Default to active if status not set
         )
     
     async def create_ceo_user_if_not_exists(self):
