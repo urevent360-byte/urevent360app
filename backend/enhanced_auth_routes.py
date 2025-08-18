@@ -433,5 +433,23 @@ async def auth_health_check():
             "timestamp": datetime.utcnow()
         }
 
+@enhanced_auth_router.post("/reset-rate-limit")
+async def reset_rate_limit_for_testing(
+    email: str,
+    current_user: dict = Depends(get_current_user_enhanced)
+):
+    """
+    Reset rate limiting for testing purposes (Admin only)
+    """
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Clear rate limit data
+    from enhanced_auth import login_attempts
+    if email in login_attempts:
+        del login_attempts[email]
+    
+    return {"message": f"Rate limit reset for {email}"}
+
 # Export the enhanced auth service for use in other modules
 __all__ = ["enhanced_auth_router", "auth_service", "get_current_user_enhanced"]
