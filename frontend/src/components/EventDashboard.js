@@ -151,24 +151,38 @@ const EventDashboard = () => {
     setEditValues({});
   };
 
-  // New Planning Confirmation Handler
+  // Start Planning - Direct Route to Step-by-Step
   const handleStartNewPlanning = () => {
-    // Check if user has active planning progress
-    if (planningProgress.selectedVendors.length > 0 || planningProgress.completedSteps > 0) {
+    // Check if there are existing in-progress drafts
+    const existingDrafts = eventQuotes.filter(quote => quote.status === 'in_progress');
+    
+    if (existingDrafts.length > 0) {
+      // Show continue vs start new prompt  
       setShowNewPlanningConfirm(true);
     } else {
-      // No active progress, proceed directly
-      window.location.href = '/interactive-planner';
+      // No existing drafts, create new and route directly
+      createNewDraftAndRoute();
     }
   };
 
   const handleConfirmNewPlanning = () => {
+    // User chose "Start New Quote"
     setShowNewPlanningConfirm(false);
-    window.location.href = '/interactive-planner';
+    createNewDraftAndRoute();
   };
 
   const handleCancelNewPlanning = () => {
     setShowNewPlanningConfirm(false);
+  };
+
+  const handleContinueDraft = () => {
+    // User chose "Continue Draft" 
+    setShowNewPlanningConfirm(false);
+    const latestDraft = eventQuotes.filter(quote => quote.status === 'in_progress')[0];
+    if (latestDraft) {
+      // Route directly to Step-by-Step with existing draft
+      routeToStepByStep(latestDraft);
+    }
   };
 
 
