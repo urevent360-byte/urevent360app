@@ -56,6 +56,30 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
   const [availableServices, setAvailableServices] = useState([]);
   const [activeQuoteId, setActiveQuoteId] = useState(null);
 
+  // Sync questionnaire data from event
+  const syncQuestionnaireFilters = (event) => {
+    if (!event) return;
+    
+    const filters = {
+      preferred_venue_type: event.preferred_venue_type || '',
+      services_needed: event.services_needed || [],
+      guest_count: event.guest_count || 0,
+      event_type: event.event_type || '',
+      cultural_style: event.cultural_style || '',
+      budget: event.budget || 0,
+      location: event.location || '',
+      date: event.date || ''
+    };
+    
+    setQuestionnaireFilters(filters);
+    setIsAtHome(filters.preferred_venue_type === 'at_home' || filters.preferred_venue_type === 'my_own_private_space');
+    setAvailableServices(filters.services_needed);
+    
+    console.log('🔄 Synced questionnaire filters:', filters);
+    console.log('🏠 At-home event:', filters.preferred_venue_type === 'at_home');
+    console.log('📋 Available services:', filters.services_needed);
+  };
+
   // Handle close/exit functionality
   const handleClose = () => {
     if (onClose) {
