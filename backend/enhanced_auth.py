@@ -204,10 +204,34 @@ class EnhancedAuthService:
             qr_code=f"data:image/png;base64,{qr_code_base64}"
         )
     
-    def verify_two_factor(self, secret: str, code: str) -> bool:
-        """Verify 2FA code"""
-        totp = pyotp.TOTP(secret)
-        return totp.verify(code, valid_window=1)  # Allow 1 window of tolerance
+    async def get_user_by_token(self, token: str) -> dict:
+        """Get user by token - Compatible with both basic and enhanced auth"""
+        try:
+            # First try to verify as enhanced token
+            payload = self.verify_token(token, "access")
+            
+            # Get user from database
+            user = await self.db.users.find_one({"email": payload["sub"]})
+            if not user:
+                raise HTTPException(status_code=401, detail="User not found. Please login again.")
+            
+            return user
+            
+        except Exception as e:
+            # If enhanced verification fails, try basic verification
+            try:
+                import jwt as basic_jwt
+                payload = basic_jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
+                
+                user = await self.db.users.find_one({"email": payload["sub"]})
+                if not user:
+                    raise HTTPException(status_code=401, detail="User not found. Please login again.")
+                
+                return user
+                
+            except Exception:
+                # If both fail, re-raise the original enhanced auth exception
+                raise e
     
     async def centralized_login(self, login_data: EnhancedUserLogin, ip_address: str) -> AuthResponse:
         """
