@@ -13,7 +13,9 @@ import {
   LogOut,
   Lock,
   History,
-  AlertTriangle
+  AlertTriangle,
+  Brain,
+  Zap
 } from 'lucide-react';
 
 // CEO Components
