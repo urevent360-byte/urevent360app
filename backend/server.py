@@ -418,6 +418,19 @@ except ImportError as e:
     print(f"⚠️ CEO Succession System not available: {e}")
     CEO_SUCCESSION_AVAILABLE = False
 
+# Add AI Intelligence System
+try:
+    from ai_intelligence_routes import ai_intelligence_router
+    
+    # Include AI intelligence routes
+    app.include_router(ai_intelligence_router)
+    
+    print("✅ AI Intelligence Co-Pilot System loaded successfully")
+    AI_INTELLIGENCE_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ AI Intelligence System not available: {e}")
+    AI_INTELLIGENCE_AVAILABLE = False
+
 # API Router
 from fastapi import APIRouter
 api_router = APIRouter(prefix="/api")
