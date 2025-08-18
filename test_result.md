@@ -758,7 +758,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Enhanced Authentication System"
+    - "Step-by-Step Mode Primary CTA"
   stuck_tasks:
     - "Enhanced Authentication System"
     - "Calendar & Appointment Integration Backend"
