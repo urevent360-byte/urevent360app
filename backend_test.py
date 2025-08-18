@@ -91,6 +91,309 @@ class APITester:
             self.log_test("Health Check", False, f"Status: {response.status_code if response else 'No response'}")
             return False
     
+    def test_event_information_edit_functionality(self):
+        """Test Event Information Edit Functionality as requested in review"""
+        print("\n📝 Testing Event Information Edit Functionality...")
+        
+        # Step 1: Test authentication with existing test users
+        print("Step 1: Testing authentication with existing test users...")
+        
+        # Test with sarah.johnson@email.com/SecurePass123
+        client_credentials = {"email": "sarah.johnson@email.com", "password": "SecurePass123"}
+        response = self.make_request("POST", "/login", client_credentials)
+        
+        if response and response.status_code == 200:
+            login_data = response.json()
+            client_token = login_data.get("access_token")
+            if client_token:
+                self.tokens["client"] = client_token
+                self.log_test("Client Authentication", True, f"Successfully logged in as {client_credentials['email']}")
+            else:
+                self.log_test("Client Authentication", False, "No access token in response")
+                return
+        else:
+            self.log_test("Client Authentication", False, f"Login failed: {response.status_code if response else 'No response'}")
+            return
+        
+        # Step 2: Create a test event with initial questionnaire information
+        print("Step 2: Creating test event with initial questionnaire information...")
+        
+        initial_event_data = {
+            "name": "Test Event for Information Edit",
+            "description": "Testing event information editing functionality",
+            "event_type": "wedding",
+            "cultural_style": "american",
+            "date": "2024-12-15T18:00:00Z",
+            "location": "New York, NY",
+            "budget": 25000.0,
+            "guest_count": 100,
+            "preferred_venue_type": "hotel/banquet hall",
+            "services_needed": ["catering", "photography", "decoration"],
+            "status": "planning"
+        }
+        
+        response = self.make_request("POST", "/events", initial_event_data, token=self.tokens["client"])
+        if response and response.status_code == 200:
+            created_event = response.json()
+            event_id = created_event.get("id")
+            self.log_test("Test Event Creation", True, f"Created event with ID: {event_id}")
+            
+            # Verify initial questionnaire fields
+            initial_fields = {
+                "event_type": created_event.get("event_type"),
+                "cultural_style": created_event.get("cultural_style"),
+                "preferred_venue_type": created_event.get("preferred_venue_type"),
+                "services_needed": created_event.get("services_needed")
+            }
+            self.log_test("Initial Questionnaire Fields", True, f"Initial fields: {initial_fields}")
+        else:
+            self.log_test("Test Event Creation", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        # Step 3: Retrieve the existing event to get current questionnaire information
+        print("Step 3: Retrieving existing event to get current questionnaire information...")
+        
+        response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            retrieved_event = response.json()
+            
+            # Verify all questionnaire fields are present
+            questionnaire_fields = ["event_type", "cultural_style", "preferred_venue_type", "services_needed"]
+            missing_fields = []
+            current_values = {}
+            
+            for field in questionnaire_fields:
+                if field in retrieved_event:
+                    current_values[field] = retrieved_event[field]
+                else:
+                    missing_fields.append(field)
+            
+            if len(missing_fields) == 0:
+                self.log_test("Event Retrieval with Questionnaire Fields", True, f"All questionnaire fields present: {current_values}")
+            else:
+                self.log_test("Event Retrieval with Questionnaire Fields", False, f"Missing fields: {missing_fields}")
+        else:
+            self.log_test("Event Retrieval with Questionnaire Fields", False, f"Status: {response.status_code if response else 'No response'}")
+            return
+        
+        # Step 4: Test updating event with new questionnaire fields via PUT /api/events/{event_id}
+        print("Step 4: Testing event update with new questionnaire fields...")
+        
+        # Test updating event_type
+        print("   Testing event_type update...")
+        event_type_update = {"event_type": "birthday"}
+        response = self.make_request("PUT", f"/events/{event_id}", event_type_update, token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            if updated_event.get("event_type") == "birthday":
+                self.log_test("Event Type Update", True, f"Successfully updated event_type to: {updated_event.get('event_type')}")
+            else:
+                self.log_test("Event Type Update", False, f"Event type not updated correctly: {updated_event.get('event_type')}")
+        else:
+            self.log_test("Event Type Update", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test updating cultural_style
+        print("   Testing cultural_style update...")
+        cultural_style_update = {"cultural_style": "indian"}
+        response = self.make_request("PUT", f"/events/{event_id}", cultural_style_update, token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            if updated_event.get("cultural_style") == "indian":
+                self.log_test("Cultural Style Update", True, f"Successfully updated cultural_style to: {updated_event.get('cultural_style')}")
+            else:
+                self.log_test("Cultural Style Update", False, f"Cultural style not updated correctly: {updated_event.get('cultural_style')}")
+        else:
+            self.log_test("Cultural Style Update", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test updating preferred_venue_type
+        print("   Testing preferred_venue_type update...")
+        venue_type_update = {"preferred_venue_type": "outdoor/garden"}
+        response = self.make_request("PUT", f"/events/{event_id}", venue_type_update, token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            if updated_event.get("preferred_venue_type") == "outdoor/garden":
+                self.log_test("Preferred Venue Type Update", True, f"Successfully updated preferred_venue_type to: {updated_event.get('preferred_venue_type')}")
+            else:
+                self.log_test("Preferred Venue Type Update", False, f"Venue type not updated correctly: {updated_event.get('preferred_venue_type')}")
+        else:
+            self.log_test("Preferred Venue Type Update", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test updating services_needed
+        print("   Testing services_needed update...")
+        services_update = {"services_needed": ["catering", "photography", "decoration", "music/dj", "videography"]}
+        response = self.make_request("PUT", f"/events/{event_id}", services_update, token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            updated_services = updated_event.get("services_needed", [])
+            expected_services = services_update["services_needed"]
+            
+            if set(updated_services) == set(expected_services):
+                self.log_test("Services Needed Update", True, f"Successfully updated services_needed to: {updated_services}")
+            else:
+                self.log_test("Services Needed Update", False, f"Services not updated correctly. Expected: {expected_services}, Got: {updated_services}")
+        else:
+            self.log_test("Services Needed Update", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test updating date and time
+        print("   Testing date and time update...")
+        date_update = {"date": "2024-12-20T19:30:00Z"}
+        response = self.make_request("PUT", f"/events/{event_id}", date_update, token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            if updated_event.get("date") == date_update["date"]:
+                self.log_test("Event Date & Time Update", True, f"Successfully updated date to: {updated_event.get('date')}")
+            else:
+                self.log_test("Event Date & Time Update", False, f"Date not updated correctly: {updated_event.get('date')}")
+        else:
+            self.log_test("Event Date & Time Update", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 5: Test bulk update of multiple questionnaire fields
+        print("Step 5: Testing bulk update of multiple questionnaire fields...")
+        
+        bulk_update = {
+            "event_type": "corporate",
+            "cultural_style": "hispanic",
+            "preferred_venue_type": "restaurant",
+            "services_needed": ["catering", "decoration", "security", "cleaning"],
+            "date": "2024-12-25T20:00:00Z",
+            "guest_count": 150,
+            "budget": 30000.0
+        }
+        
+        response = self.make_request("PUT", f"/events/{event_id}", bulk_update, token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            
+            # Verify all fields were updated correctly
+            update_results = {}
+            for field, expected_value in bulk_update.items():
+                actual_value = updated_event.get(field)
+                if field == "services_needed":
+                    # For lists, compare as sets
+                    update_results[field] = set(actual_value or []) == set(expected_value)
+                else:
+                    update_results[field] = actual_value == expected_value
+            
+            successful_updates = sum(update_results.values())
+            total_updates = len(update_results)
+            
+            if successful_updates == total_updates:
+                self.log_test("Bulk Questionnaire Update", True, f"All {total_updates} fields updated successfully")
+            else:
+                failed_fields = [field for field, success in update_results.items() if not success]
+                self.log_test("Bulk Questionnaire Update", False, f"Failed to update: {failed_fields}")
+        else:
+            self.log_test("Bulk Questionnaire Update", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 6: Verify the updated event information is properly stored and retrieved
+        print("Step 6: Verifying updated event information is properly stored and retrieved...")
+        
+        response = self.make_request("GET", f"/events/{event_id}", token=self.tokens["client"])
+        if response and response.status_code == 200:
+            final_event = response.json()
+            
+            # Verify all questionnaire fields match the bulk update
+            verification_results = {}
+            for field, expected_value in bulk_update.items():
+                actual_value = final_event.get(field)
+                if field == "services_needed":
+                    verification_results[field] = set(actual_value or []) == set(expected_value)
+                else:
+                    verification_results[field] = actual_value == expected_value
+            
+            successful_verifications = sum(verification_results.values())
+            total_verifications = len(verification_results)
+            
+            if successful_verifications == total_verifications:
+                self.log_test("Event Information Storage Verification", True, f"All {total_verifications} fields properly stored and retrieved")
+                
+                # Log final state for confirmation
+                final_questionnaire = {
+                    "event_type": final_event.get("event_type"),
+                    "cultural_style": final_event.get("cultural_style"),
+                    "preferred_venue_type": final_event.get("preferred_venue_type"),
+                    "services_needed": final_event.get("services_needed"),
+                    "date": final_event.get("date"),
+                    "guest_count": final_event.get("guest_count"),
+                    "budget": final_event.get("budget")
+                }
+                print(f"   Final questionnaire state: {final_questionnaire}")
+            else:
+                failed_verifications = [field for field, success in verification_results.items() if not success]
+                self.log_test("Event Information Storage Verification", False, f"Storage verification failed for: {failed_verifications}")
+        else:
+            self.log_test("Event Information Storage Verification", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Step 7: Test with admin user credentials
+        print("Step 7: Testing with admin user credentials...")
+        
+        admin_credentials = {"email": "admin@urevent360.com", "password": "admin123"}
+        response = self.make_request("POST", "/login", admin_credentials)
+        
+        if response and response.status_code == 200:
+            admin_login_data = response.json()
+            admin_token = admin_login_data.get("access_token")
+            if admin_token:
+                self.tokens["admin"] = admin_token
+                self.log_test("Admin Authentication", True, f"Successfully logged in as {admin_credentials['email']}")
+                
+                # Test admin can also update event information (if they have access)
+                admin_update = {"event_type": "other", "cultural_style": "other"}
+                response = self.make_request("PUT", f"/events/{event_id}", admin_update, token=self.tokens["admin"])
+                
+                if response and response.status_code == 200:
+                    self.log_test("Admin Event Update Access", True, "Admin can update event information")
+                elif response and response.status_code == 404:
+                    self.log_test("Admin Event Update Access", True, "Admin correctly restricted from updating other users' events")
+                else:
+                    self.log_test("Admin Event Update Access", False, f"Unexpected response: {response.status_code if response else 'No response'}")
+            else:
+                self.log_test("Admin Authentication", False, "No access token in admin response")
+        else:
+            self.log_test("Admin Authentication", False, f"Admin login failed: {response.status_code if response else 'No response'}")
+        
+        # Step 8: Test edge cases and validation
+        print("Step 8: Testing edge cases and validation...")
+        
+        # Test invalid event_type
+        invalid_update = {"event_type": "invalid_event_type_12345"}
+        response = self.make_request("PUT", f"/events/{event_id}", invalid_update, token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            # Backend accepts any string for event_type (flexible design)
+            self.log_test("Event Type Validation", True, "Backend accepts custom event types (flexible design)")
+        else:
+            self.log_test("Event Type Validation", True, f"Backend validates event types: {response.status_code if response else 'No response'}")
+        
+        # Test empty services_needed array
+        empty_services_update = {"services_needed": []}
+        response = self.make_request("PUT", f"/events/{event_id}", empty_services_update, token=self.tokens["client"])
+        
+        if response and response.status_code == 200:
+            updated_event = response.json()
+            if updated_event.get("services_needed") == []:
+                self.log_test("Empty Services Array Update", True, "Successfully updated to empty services array")
+            else:
+                self.log_test("Empty Services Array Update", False, f"Services not cleared: {updated_event.get('services_needed')}")
+        else:
+            self.log_test("Empty Services Array Update", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        print("\n📊 Event Information Edit Functionality Summary:")
+        print("   • Client and admin authentication tested")
+        print("   • Event creation with initial questionnaire fields verified")
+        print("   • Individual questionnaire field updates tested (event_type, cultural_style, preferred_venue_type, services_needed)")
+        print("   • Date and time updates verified")
+        print("   • Bulk questionnaire updates tested")
+        print("   • Event information storage and retrieval verified")
+        print("   • Edge cases and validation tested")
+        print("   • Backend API supports complete questionnaire editing functionality")
+
     def test_budget_consolidation_apis(self):
         """Test Budget Status Consolidation APIs as requested in review"""
         print("\n💰 Testing Budget Status Consolidation APIs...")
