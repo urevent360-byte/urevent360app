@@ -87,7 +87,7 @@ const Sidebar = ({ open, setOpen, className = "" }) => {
           </h3>
           <div className="mt-3 space-y-1">
             <Link
-              to="/events/create"
+              to="/events/new"
               className="group flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-lg hover:text-purple-700 hover:bg-purple-50"
             >
               <Calendar className="mr-3 h-4 w-4 text-gray-400 group-hover:text-purple-700" />
