@@ -44,14 +44,13 @@ class AuthStatsResponse(BaseModel):
 async def get_current_user_enhanced(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     """
     Enhanced current user dependency with better error handling and role management
+    Compatible with both basic and enhanced auth tokens
     """
     try:
         token = credentials.credentials
-        payload = auth_service.verify_token(token, "access")
         
-        user = await auth_service.db.users.find_one({"email": payload["sub"]})
-        if user is None:
-            raise HTTPException(status_code=401, detail="User not found. Please login again.")
+        # Use the enhanced auth service's compatible token verification
+        user = await auth_service.get_user_by_token(token)
         
         # Add available roles to user object
         user["available_roles"] = await auth_service.get_user_roles(user["id"])
