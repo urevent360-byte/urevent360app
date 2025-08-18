@@ -233,6 +233,11 @@ class EnhancedAuthService:
                 # If both fail, re-raise the original enhanced auth exception
                 raise e
     
+    def verify_two_factor(self, secret: str, code: str) -> bool:
+        """Verify 2FA code"""
+        totp = pyotp.TOTP(secret)
+        return totp.verify(code, valid_window=1)  # Allow 1 window of tolerance
+    
     async def centralized_login(self, login_data: EnhancedUserLogin, ip_address: str) -> AuthResponse:
         """
         Centralized authentication for all user roles
