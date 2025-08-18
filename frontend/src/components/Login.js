@@ -80,10 +80,15 @@ const Login = () => {
     setError('');
     
     // Pre-fill demo credentials based on role
-    if (role === 'admin') {
+    if (role === 'ROLE_CEO') {
+      setFormData({
+        email: 'darwin@urevent360.com',
+        password: 'ceo123456'
+      });
+    } else if (role === 'admin') {
       setFormData({
         email: 'admin@urevent360.com',
-        password: 'admin123'
+        password: 'admin123456'
       });
     } else if (role === 'vendor') {
       setFormData({
