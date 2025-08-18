@@ -196,6 +196,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
             headers
           });
           setEventData(response.data);
+          syncQuestionnaireFilters(response.data); // Sync questionnaire filters
           setBudgetData({
             set: response.data.budget || 0,
             selected: 0,
