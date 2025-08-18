@@ -47,6 +47,17 @@ const CEODashboard = () => {
         headers: getAuthHeaders()
       });
       
+      // Fetch AI dashboard summary
+      try {
+        const aiResponse = await axios.get('/api/ceo/intelligence/dashboard-summary', {
+          headers: getAuthHeaders()
+        });
+        setAISummary(aiResponse.data.data);
+        setRecommendations(aiResponse.data.data.top_recommendations?.slice(0, 3) || []);
+      } catch (aiError) {
+        console.log('AI Intelligence not available:', aiError);
+      }
+      
       // Mock additional CEO metrics (in production, these would come from CEO analytics endpoints)
       const mockStats = {
         succession: successionResponse.data.data,
@@ -60,7 +71,7 @@ const CEODashboard = () => {
       
       setStats(mockStats);
       
-      // Set alerts based on succession readiness
+      // Set alerts based on succession readiness and AI insights
       const newAlerts = [];
       if (!mockStats.succession.succession_ready) {
         newAlerts.push({
@@ -75,6 +86,17 @@ const CEODashboard = () => {
           type: 'info',
           title: 'Active Handover',
           message: `${mockStats.succession.active_handovers} CEO handover(s) in progress.`
+        });
+      }
+
+      // Add AI-generated alerts
+      if (aiSummary?.real_time_alerts?.length > 0) {
+        aiSummary.real_time_alerts.slice(0, 2).forEach(alert => {
+          newAlerts.push({
+            type: 'ai',
+            title: alert.title,
+            message: alert.message
+          });
         });
       }
       
