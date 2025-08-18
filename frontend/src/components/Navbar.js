@@ -110,7 +110,11 @@ const Navbar = ({ setSidebarOpen }) => {
                       <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                       <p className="text-xs text-gray-500">{user?.email}</p>
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-1">
-                        Client Account
+                        {user?.role === 'ROLE_CEO' && 'Chief Executive Officer'}
+                        {user?.role === 'admin' || user?.role === 'ROLE_ADMIN' ? 'Administrator' : ''}
+                        {user?.role === 'vendor' && 'Vendor Partner'}
+                        {user?.role === 'employee' && 'Employee'}
+                        {!['ROLE_CEO', 'admin', 'ROLE_ADMIN', 'vendor', 'employee'].includes(user?.role) && 'Client Account'}
                       </span>
                     </div>
                   </div>
