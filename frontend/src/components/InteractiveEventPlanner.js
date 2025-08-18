@@ -457,6 +457,23 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     updateBudgetCalculations();
   }, [cart]);
 
+  // Listen for event updates from EventDashboard
+  useEffect(() => {
+    const handleEventUpdate = (event) => {
+      console.log('🔄 Received event update in planner:', event.detail);
+      syncQuestionnaireFilters(event.detail);
+      setEventData(event.detail);
+      
+      // If current event is also updated, sync that too
+      if (currentEvent && event.detail.id === currentEvent.id) {
+        setCurrentEvent(event.detail);
+      }
+    };
+
+    window.addEventListener('eventUpdated', handleEventUpdate);
+    return () => window.removeEventListener('eventUpdated', handleEventUpdate);
+  }, [currentEvent]);
+
   const loadSavedPlan = async () => {
     try {
       // Load planner state from backend
