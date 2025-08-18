@@ -54,6 +54,13 @@ const EventDashboard = () => {
     }
   }, [event]);
 
+  // Initialize edit values when event is loaded or updated
+  useEffect(() => {
+    if (event && editingEventInfo) {
+      initializeEditValues();
+    }
+  }, [event]);
+
   const fetchEvent = async () => {
     try {
       setLoading(true);
