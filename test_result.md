@@ -698,12 +698,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Admin Routes Integration"
-    - "Enhanced Vendor Marketplace"
-    - "Discrete Admin Access Icon"
-    - "Employee Portal Module"
-    - "Discrete Employee Portal Access"
+    - "Enhanced Authentication System"
   stuck_tasks:
+    - "Enhanced Authentication System"
     - "Calendar & Appointment Integration Backend"
   test_all: false
   test_priority: "high_first"
