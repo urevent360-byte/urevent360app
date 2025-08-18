@@ -1750,15 +1750,26 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
             <div className="mb-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center">
                 <Wand2 className="h-6 w-6 text-purple-600 mr-2" />
-                Interactive Vendor Selection
+                Questionnaire-Synced Vendor Selection
               </h3>
-              <p className="text-gray-600">Click each category to select vendors. Your progress is saved and the cart updates in real-time.</p>
+              <p className="text-gray-600">Services from your questionnaire. Click to select vendors with auto-applied filters.</p>
+              
+              {/* At-Home Event Banner */}
+              {isAtHome && (
+                <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center">
+                  <div className="text-amber-600 mr-3">🏠</div>
+                  <div>
+                    <p className="text-amber-800 font-medium">At-home event selected — venue disabled</p>
+                    <p className="text-amber-700 text-sm">Your event will be hosted at your own location</p>
+                  </div>
+                </div>
+              )}
               
               {/* Progress Indicator */}
               <div className="mt-4 bg-purple-50 rounded-lg p-3 border border-purple-200">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-purple-700 font-medium">
-                    Progress: {cart.length} of 9 services selected
+                    Progress: {cart.length} of {availableServices.length + (isAtHome ? 0 : 1)} services selected
                   </span>
                   <span className="text-purple-600">
                     ${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()} committed
@@ -1767,156 +1778,167 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                 <div className="w-full bg-purple-200 rounded-full h-2 mt-2">
                   <div 
                     className="bg-gradient-to-r from-purple-500 to-green-500 h-2 rounded-full transition-all duration-500" 
-                    style={{width: `${(cart.length / 9) * 100}%`}}
+                    style={{width: `${(cart.length / (availableServices.length + (isAtHome ? 0 : 1))) * 100}%`}}
                   ></div>
                 </div>
               </div>
             </div>
 
-            {/* Interactive Vendor Selection Grid */}
+            {/* Questionnaire-Synced Vendor Selection Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {[
-                { id: 'venue', name: 'Venue', icon: '🏛️', category: 'venue', color: 'from-blue-500 to-blue-600', order: 1 },
-                { id: 'catering', name: 'Catering', icon: '🍽️', category: 'catering', color: 'from-green-500 to-green-600', order: 2 },
-                { id: 'photography', name: 'Photography', icon: '📸', category: 'photography', color: 'from-yellow-500 to-yellow-600', order: 3 },
-                { id: 'decoration', name: 'Decoration & Design', icon: '🎨', category: 'decoration', color: 'from-pink-500 to-pink-600', order: 4 },
-                { id: 'dj', name: 'DJ/Music', icon: '🎵', category: 'dj', color: 'from-purple-500 to-purple-600', order: 5 },
-                { id: 'bar', name: 'Bar Service', icon: '🍸', category: 'bar', color: 'from-red-500 to-red-600', order: 6 },
-                { id: 'planner', name: 'Coordinator', icon: '📋', category: 'planner', color: 'from-indigo-500 to-indigo-600', order: 7 },
-                { id: 'staffing', name: 'Staff', icon: '👥', category: 'staffing', color: 'from-teal-500 to-teal-600', order: 8 },
-                { id: 'entertainment', name: 'Entertainment', icon: '🎭', category: 'entertainment', color: 'from-orange-500 to-orange-600', order: 9 }
-              ].map((service) => {
-                // Find if this service has a selected vendor
-                const selectedVendor = cart.find(item => item.service_type === service.category);
-                const isSelected = !!selectedVendor;
+              {(() => {
+                // Define all possible services with mapping
+                const allServices = [
+                  { id: 'venue', name: 'Venue', icon: '🏛️', category: 'venue', color: 'from-blue-500 to-blue-600' },
+                  { id: 'catering', name: 'Catering', icon: '🍽️', category: 'catering', color: 'from-green-500 to-green-600' },
+                  { id: 'photography', name: 'Photography', icon: '📸', category: 'photography', color: 'from-yellow-500 to-yellow-600' },
+                  { id: 'videography', name: 'Videography', icon: '🎥', category: 'videography', color: 'from-indigo-500 to-indigo-600' },
+                  { id: 'decoration', name: 'Decoration', icon: '🎨', category: 'decoration', color: 'from-pink-500 to-pink-600' },
+                  { id: 'dj', name: 'DJ/Music', icon: '🎵', category: 'dj', color: 'from-purple-500 to-purple-600' },
+                  { id: 'bar', name: 'Bar Service', icon: '🍸', category: 'bar', color: 'from-red-500 to-red-600' },
+                  { id: 'planner', name: 'Coordinator', icon: '📋', category: 'planner', color: 'from-indigo-500 to-indigo-600' },
+                  { id: 'staffing', name: 'Staff', icon: '👥', category: 'staffing', color: 'from-teal-500 to-teal-600' },
+                  { id: 'entertainment', name: 'Entertainment', icon: '🎭', category: 'entertainment', color: 'from-orange-500 to-orange-600' },
+                  { id: 'transportation', name: 'Transportation', icon: '🚗', category: 'transportation', color: 'from-gray-500 to-gray-600' },
+                  { id: 'security', name: 'Security', icon: '🛡️', category: 'security', color: 'from-slate-500 to-slate-600' }
+                ];
+
+                // Filter services based on questionnaire
+                let servicesToShow = [];
                 
-                // Determine if this is the next step to take
-                const completedServices = cart.map(item => item.service_type);
-                const isNextStep = !isSelected && service.order === (completedServices.length + 1);
-                
-                // Determine priority status
-                const isPending = !isSelected && completedServices.length >= (service.order - 1);
-                const isDisabled = !isSelected && completedServices.length < (service.order - 1);
-                
-                return (
-                  <div 
-                    key={service.id} 
-                    className={`relative rounded-xl p-5 transition-all duration-300 cursor-pointer transform hover:scale-105 ${
-                      isSelected 
-                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 shadow-lg' 
-                        : isNextStep 
-                          ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300 animate-pulse'
-                          : isPending 
-                            ? `bg-gradient-to-br ${service.color} text-white shadow-md hover:shadow-xl border-2 border-transparent`
-                            : 'bg-gray-100 border-2 border-gray-200 cursor-not-allowed opacity-60'
-                    }`}
-                    onClick={() => {
-                      if (isDisabled) return; // Don't allow clicking disabled tiles
-                      
-                      if (isSelected) {
-                        // Show vendor details modal for editing
-                        setSelectedVendorForDetails(selectedVendor);
-                      } else {
-                        // Navigate to vendor selection - ONE CLICK FLOW
-                        const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
-                        if (stepIndex !== -1) {
-                          setCurrentStep(stepIndex);
-                          setCurrentMode('new'); // Switch to vendor selection mode
-                          searchVendors(service.category);
+                // Add venue if not at-home
+                if (!isAtHome) {
+                  const venueService = allServices.find(s => s.category === 'venue');
+                  if (venueService) servicesToShow.push(venueService);
+                }
+
+                // Add services from questionnaire
+                availableServices.forEach(serviceName => {
+                  const service = allServices.find(s => 
+                    s.category === serviceName || 
+                    s.id === serviceName ||
+                    s.name.toLowerCase().includes(serviceName.toLowerCase())
+                  );
+                  if (service && !servicesToShow.find(s => s.id === service.id)) {
+                    servicesToShow.push(service);
+                  }
+                });
+
+                // If no services found, show default set
+                if (servicesToShow.length === 0) {
+                  servicesToShow = allServices.slice(0, 6); // Show first 6 as fallback
+                }
+
+                return servicesToShow.map((service, index) => {
+                  // Find if this service has a selected vendor
+                  const selectedVendor = cart.find(item => item.service_type === service.category);
+                  const isSelected = !!selectedVendor;
+                  
+                  // Determine if this is the next step to take (first unselected)
+                  const completedServices = cart.map(item => item.service_type);
+                  const unselectedServices = servicesToShow.filter(s => !completedServices.includes(s.category));
+                  const isNextStep = !isSelected && unselectedServices[0]?.id === service.id;
+                  
+                  return (
+                    <div 
+                      key={service.id} 
+                      className={`relative rounded-xl p-5 transition-all duration-300 cursor-pointer transform hover:scale-105 ${
+                        isSelected 
+                          ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 shadow-lg' 
+                          : isNextStep 
+                            ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300 animate-pulse'
+                            : `bg-gradient-to-br ${service.color} text-white shadow-md hover:shadow-xl border-2 border-transparent`
+                      }`}
+                      onClick={() => {
+                        if (isSelected) {
+                          // Show vendor details modal for editing
+                          setSelectedVendorForDetails(selectedVendor);
+                        } else {
+                          // ONE CLICK FLOW - Open filtered catalog
+                          searchVendorsWithFilters(service.category);
                         }
-                      }
-                    }}
-                  >
-                    {/* Status Badge with Order Number */}
-                    <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${
-                      isSelected 
-                        ? 'bg-green-500 text-white' 
-                        : isNextStep 
-                          ? 'bg-yellow-500 text-white animate-bounce'
-                          : isPending 
-                            ? 'bg-white text-gray-700 border-2 border-gray-300'
-                            : 'bg-gray-300 text-gray-500'
-                    }`}>
-                      {isSelected ? '✓' : service.order}
-                    </div>
-                    
-                    {/* Next Step Indicator */}
-                    {isNextStep && (
-                      <div className="absolute -top-2 -left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
-                        NEXT
+                      }}
+                    >
+                      {/* Status Badge */}
+                      <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${
+                        isSelected 
+                          ? 'bg-green-500 text-white' 
+                          : isNextStep 
+                            ? 'bg-yellow-500 text-white animate-bounce'
+                            : 'bg-white text-gray-700 border-2 border-gray-300'
+                      }`}>
+                        {isSelected ? '✓' : index + 1}
                       </div>
-                    )}
-                    
-                    {/* Vendor Image or Service Icon */}
-                    <div className="text-center mb-3">
-                      {isSelected && selectedVendor.image ? (
-                        <div className="relative">
-                          <img 
-                            src={selectedVendor.image} 
-                            alt={selectedVendor.vendor_name}
-                            className="w-14 h-14 rounded-full mx-auto object-cover border-3 border-green-300 shadow-lg"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'block';
-                            }}
-                          />
-                          <div className="text-3xl hidden">{service.icon}</div>
-                        </div>
-                      ) : (
-                        <div className={`text-3xl mb-1 ${isDisabled ? 'opacity-50' : ''}`}>{service.icon}</div>
-                      )}
-                    </div>
-                    
-                    {/* Service Name */}
-                    <h4 className={`font-semibold text-center mb-2 text-sm ${
-                      isSelected 
-                        ? 'text-green-900' 
-                        : isNextStep 
-                          ? 'text-orange-800'
-                          : isPending 
-                            ? 'text-white'
-                            : 'text-gray-500'
-                    }`}>
-                      {service.name}
-                    </h4>
-                    
-                    {/* Status/Action */}
-                    <div className="text-center">
-                      {isSelected ? (
-                        <div>
-                          <p className="text-xs font-medium text-green-700 mb-1 truncate">
-                            {selectedVendor.vendor_name}
-                          </p>
-                          <p className="text-xs text-green-600 font-semibold mb-2">
-                            ${selectedVendor.price?.toLocaleString()}
-                          </p>
-                          <button className="w-full px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
-                            ✓ Selected · Click to Edit
-                          </button>
-                        </div>
-                      ) : isNextStep ? (
-                        <div>
-                          <button className="w-full px-3 py-2 bg-yellow-500 text-white font-medium rounded-lg hover:bg-yellow-600 transition-colors shadow-md text-sm">
-                            Select Now
-                          </button>
-                          <p className="text-xs text-orange-700 mt-1 font-medium">Next Step</p>
-                        </div>
-                      ) : isPending ? (
-                        <button className="w-full px-3 py-2 bg-white bg-opacity-20 text-white font-medium rounded-lg hover:bg-opacity-30 transition-colors backdrop-blur-sm text-sm">
-                          Click to Choose
-                        </button>
-                      ) : (
-                        <div>
-                          <button className="w-full px-3 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-sm">
-                            Complete Previous
-                          </button>
-                          <p className="text-xs text-gray-400 mt-1">Step {service.order}</p>
+                      
+                      {/* Next Step Indicator */}
+                      {isNextStep && (
+                        <div className="absolute -top-2 -left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
+                          NEXT
                         </div>
                       )}
+                      
+                      {/* Vendor Image or Service Icon */}
+                      <div className="text-center mb-3">
+                        {isSelected && selectedVendor.image ? (
+                          <div className="relative">
+                            <img 
+                              src={selectedVendor.image} 
+                              alt={selectedVendor.vendor_name}
+                              className="w-14 h-14 rounded-full mx-auto object-cover border-3 border-green-300 shadow-lg"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'block';
+                              }}
+                            />
+                            <div className="text-3xl hidden">{service.icon}</div>
+                          </div>
+                        ) : (
+                          <div className="text-3xl mb-1">{service.icon}</div>
+                        )}
+                      </div>
+                      
+                      {/* Service Name */}
+                      <h4 className={`font-semibold text-center mb-2 text-sm ${
+                        isSelected 
+                          ? 'text-green-900' 
+                          : isNextStep 
+                            ? 'text-orange-800'
+                            : 'text-white'
+                      }`}>
+                        {service.name}
+                      </h4>
+                      
+                      {/* Status/Action */}
+                      <div className="text-center">
+                        {isSelected ? (
+                          <div>
+                            <p className="text-xs font-medium text-green-700 mb-1 truncate">
+                              {selectedVendor.vendor_name}
+                            </p>
+                            <p className="text-xs text-green-600 font-semibold mb-2">
+                              ${selectedVendor.price?.toLocaleString()}
+                            </p>
+                            <button className="w-full px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
+                              ✓ Selected · Click for Details
+                            </button>
+                          </div>
+                        ) : isNextStep ? (
+                          <div>
+                            <button className="w-full px-3 py-2 bg-yellow-500 text-white font-medium rounded-lg hover:bg-yellow-600 transition-colors shadow-md text-sm">
+                              Select Now
+                            </button>
+                            <p className="text-xs text-orange-700 mt-1 font-medium">Next Step</p>
+                          </div>
+                        ) : (
+                          <button className="w-full px-3 py-2 bg-white bg-opacity-20 text-white font-medium rounded-lg hover:bg-opacity-30 transition-colors backdrop-blur-sm text-sm">
+                            Click to Choose
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                });
+              })()}
             </div>
 
             {/* Progress Indicator */}
