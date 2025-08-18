@@ -366,6 +366,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add Enhanced Authentication System
+try:
+    from enhanced_auth_routes import enhanced_auth_router, auth_service, get_current_user_enhanced
+    
+    # Include enhanced authentication routes
+    app.include_router(enhanced_auth_router)
+    
+    print("✅ Enhanced Authentication System loaded successfully")
+    ENHANCED_AUTH_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Enhanced Authentication not available: {e}")
+    ENHANCED_AUTH_AVAILABLE = False
+
 # API Router
 from fastapi import APIRouter
 api_router = APIRouter(prefix="/api")
