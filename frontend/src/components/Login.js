@@ -326,15 +326,25 @@ const Login = () => {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Admin Access Icon - Top Right (only show if not already on admin login) */}
-      {selectedRole !== 'admin' && (
-        <button
-          onClick={() => handleRoleSelect('admin')}
-          className="absolute top-6 right-6 z-20 p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all duration-200 group"
-          title="Administrator Access"
-        >
-          <Shield className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-        </button>
+      {/* Admin Access Icon - Top Right (only show if not already on admin/CEO login) */}
+      {!['admin', 'ROLE_CEO'].includes(selectedRole) && (
+        <>
+          <button
+            onClick={() => handleRoleSelect('admin')}
+            className="absolute top-6 right-6 z-20 p-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+            title="Administrator Access"
+          >
+            <Shield className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+          </button>
+          
+          <button
+            onClick={() => handleRoleSelect('ROLE_CEO')}
+            className="absolute top-6 right-20 z-20 p-3 bg-red-500/20 backdrop-blur-md rounded-full border border-red-400/30 hover:bg-red-500/30 transition-all duration-200 group"
+            title="CEO Executive Access"
+          >
+            <Shield className="w-5 h-5 text-red-200 group-hover:scale-110 transition-transform group-hover:text-red-100" />
+          </button>
+        </>
       )}
 
       {/* Elegant overlay */}
