@@ -1,5 +1,5 @@
 """
-Enhanced Authentication Routes for UREVENT 360
+Enhanced Authentication Routes for UREVENT 360 - Fixed Version
 Implementing all the recommended login improvements
 """
 
@@ -17,7 +17,6 @@ from enhanced_auth import (
     RefreshTokenRequest, 
     AuthResponse, 
     TwoFactorSetup,
-    get_enhanced_current_user,
     get_client_ip
 )
 
@@ -40,6 +39,29 @@ class RoleSwitchRequest(BaseModel):
 class AuthStatsResponse(BaseModel):
     success: bool
     data: Dict[str, Any]
+
+# Enhanced dependency function that can be used in routes
+async def get_current_user_enhanced(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    """
+    Enhanced current user dependency with better error handling and role management
+    """
+    try:
+        token = credentials.credentials
+        payload = auth_service.verify_token(token, "access")
+        
+        user = await auth_service.db.users.find_one({"email": payload["sub"]})
+        if user is None:
+            raise HTTPException(status_code=401, detail="User not found. Please login again.")
+        
+        # Add available roles to user object
+        user["available_roles"] = await auth_service.get_user_roles(user["id"])
+        user["_id"] = str(user["_id"])  # Convert ObjectId to string
+        
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Authentication failed. Please login again.")
 
 # === CENTRALIZED AUTHENTICATION ENDPOINTS ===
 
@@ -116,7 +138,7 @@ async def refresh_token(
 @enhanced_auth_router.post("/logout")
 async def enhanced_logout(
     refresh_token: Optional[str] = None,
-    current_user: dict = Depends(get_enhanced_current_user),
+    current_user: dict = Depends(get_current_user_enhanced),
     background_tasks: BackgroundTasks = BackgroundTasks()
 ):
     """
@@ -137,7 +159,7 @@ async def enhanced_logout(
 @enhanced_auth_router.post("/switch-role", response_model=AuthResponse)
 async def switch_user_role(
     role_data: RoleSwitchRequest,
-    current_user: dict = Depends(get_enhanced_current_user),
+    current_user: dict = Depends(get_current_user_enhanced),
     background_tasks: BackgroundTasks = BackgroundTasks()
 ):
     """
@@ -160,7 +182,7 @@ async def switch_user_role(
     return auth_result
 
 @enhanced_auth_router.get("/user/roles")
-async def get_available_roles(current_user: dict = Depends(get_enhanced_current_user)):
+async def get_available_roles(current_user: dict = Depends(get_current_user_enhanced)):
     """
     Get all available roles for the current user
     Enables role switcher UI functionality
@@ -179,7 +201,7 @@ async def get_available_roles(current_user: dict = Depends(get_enhanced_current_
 # === TWO-FACTOR AUTHENTICATION ENDPOINTS ===
 
 @enhanced_auth_router.post("/2fa/setup", response_model=TwoFactorSetup)
-async def setup_two_factor_auth(current_user: dict = Depends(get_enhanced_current_user)):
+async def setup_two_factor_auth(current_user: dict = Depends(get_current_user_enhanced)):
     """
     Setup 2FA for enhanced security (Admins & Vendors)
     Returns QR code for authenticator app setup
@@ -196,7 +218,7 @@ async def setup_two_factor_auth(current_user: dict = Depends(get_enhanced_curren
 @enhanced_auth_router.post("/2fa/enable")
 async def enable_two_factor_auth(
     verification_code: str,
-    current_user: dict = Depends(get_enhanced_current_user),
+    current_user: dict = Depends(get_current_user_enhanced),
     background_tasks: BackgroundTasks = BackgroundTasks()
 ):
     """
@@ -227,7 +249,7 @@ async def enable_two_factor_auth(
 @enhanced_auth_router.post("/2fa/disable")
 async def disable_two_factor_auth(
     current_password: str,
-    current_user: dict = Depends(get_enhanced_current_user),
+    current_user: dict = Depends(get_current_user_enhanced),
     background_tasks: BackgroundTasks = BackgroundTasks()
 ):
     """
@@ -259,7 +281,7 @@ async def disable_two_factor_auth(
 @enhanced_auth_router.get("/stats", response_model=AuthStatsResponse)
 async def get_authentication_stats(
     hours: int = 24,
-    current_user: dict = Depends(get_enhanced_current_user)
+    current_user: dict = Depends(get_current_user_enhanced)
 ):
     """
     Get authentication statistics for monitoring
@@ -276,7 +298,7 @@ async def get_authentication_stats(
     )
 
 @enhanced_auth_router.get("/security/sessions")
-async def get_active_sessions(current_user: dict = Depends(get_enhanced_current_user)):
+async def get_active_sessions(current_user: dict = Depends(get_current_user_enhanced)):
     """
     Get active sessions for current user
     Allows users to see and manage their active sessions
@@ -289,7 +311,10 @@ async def get_active_sessions(current_user: dict = Depends(get_enhanced_current_
     session_data = []
     for session in sessions:
         session_data.append({
-            "id": session["id"],
+            "session_id": session["id"],
+            "device": "Unknown Device",  # Would need user agent parsing
+            "location": session.get("ip_address", "unknown"),
+            "last_active": session["created_at"],
             "created_at": session["created_at"],
             "expires_at": session["expires_at"],
             "ip_address": session.get("ip_address", "unknown"),
@@ -299,19 +324,22 @@ async def get_active_sessions(current_user: dict = Depends(get_enhanced_current_
     return {
         "success": True,
         "data": {
-            "active_sessions": len(session_data),
             "sessions": session_data
         }
     }
 
-@enhanced_auth_router.delete("/security/sessions/{session_id}")
+@enhanced_auth_router.post("/security/sessions/revoke")
 async def revoke_session(
-    session_id: str,
-    current_user: dict = Depends(get_enhanced_current_user)
+    session_data: dict,
+    current_user: dict = Depends(get_current_user_enhanced)
 ):
     """
     Revoke specific session (logout from specific device)
     """
+    session_id = session_data.get("session_id")
+    if not session_id:
+        raise HTTPException(status_code=400, detail="Session ID required")
+    
     result = await db.refresh_tokens.delete_one({
         "id": session_id,
         "user_id": current_user["id"]
@@ -323,7 +351,7 @@ async def revoke_session(
     return {"message": "Session revoked successfully"}
 
 @enhanced_auth_router.delete("/security/sessions")
-async def revoke_all_sessions(current_user: dict = Depends(get_enhanced_current_user)):
+async def revoke_all_sessions(current_user: dict = Depends(get_current_user_enhanced)):
     """
     Revoke all sessions except current (logout from all other devices)
     """
@@ -334,7 +362,7 @@ async def revoke_all_sessions(current_user: dict = Depends(get_enhanced_current_
 # === ENHANCED USER PROFILE ENDPOINTS ===
 
 @enhanced_auth_router.get("/profile/enhanced")
-async def get_enhanced_user_profile(current_user: dict = Depends(get_enhanced_current_user)):
+async def get_enhanced_user_profile(current_user: dict = Depends(get_current_user_enhanced)):
     """
     Get enhanced user profile with role information and security settings
     """
@@ -405,29 +433,6 @@ async def auth_health_check():
             "error": str(e),
             "timestamp": datetime.utcnow()
         }
-
-# Enhanced dependency function that can be used in routes
-async def get_current_user_enhanced(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    """
-    Enhanced current user dependency with better error handling and role management
-    """
-    try:
-        token = credentials.credentials
-        payload = auth_service.verify_token(token, "access")
-        
-        user = await auth_service.db.users.find_one({"email": payload["sub"]})
-        if user is None:
-            raise HTTPException(status_code=401, detail="User not found. Please login again.")
-        
-        # Add available roles to user object
-        user["available_roles"] = await auth_service.get_user_roles(user["id"])
-        user["_id"] = str(user["_id"])  # Convert ObjectId to string
-        
-        return user
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=401, detail="Authentication failed. Please login again.")
 
 # Export the enhanced auth service for use in other modules
 __all__ = ["enhanced_auth_router", "auth_service", "get_current_user_enhanced"]
