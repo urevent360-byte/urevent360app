@@ -396,13 +396,22 @@ class CEOSecurityService:
 # CEO Authentication Dependencies
 async def get_ceo_user(
     credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
-    request: Request = None,
-    ceo_security: CEOSecurityService = None
+    request: Request = None
 ) -> dict:
     """Enhanced CEO user dependency with strict security checks"""
     
-    if not ceo_security:
-        raise HTTPException(status_code=500, detail="CEO security service not available")
+    # Import here to avoid circular imports
+    from enhanced_auth_routes import auth_service
+    from motor.motor_asyncio import AsyncIOMotorClient
+    
+    # Initialize database connection
+    DATABASE_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
+    DATABASE_NAME = "urevent_db"
+    client = AsyncIOMotorClient(DATABASE_URL)
+    db = client[DATABASE_NAME]
+    
+    # Create CEO security service instance
+    ceo_security = CEOSecurityService(db, auth_service)
     
     try:
         # Verify JWT token
