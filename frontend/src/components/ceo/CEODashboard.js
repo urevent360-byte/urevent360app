@@ -28,6 +28,8 @@ const CEODashboard = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [alerts, setAlerts] = useState([]);
+  const [aiSummary, setAISummary] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
 
   useEffect(() => {
     fetchCEOStats();
