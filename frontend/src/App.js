@@ -117,7 +117,13 @@ function App() {
         <div className="min-h-screen bg-gray-50">
           {user ? (
             // Check user role and show appropriate layout
-            user.role === 'admin' ? (
+            user.role === 'ROLE_CEO' ? (
+              // CEO Console Layout
+              <Routes>
+                <Route path="/ceo/*" element={<CEOLayout />} />
+                <Route path="*" element={<Navigate to="/ceo" />} />
+              </Routes>
+            ) : user.role === 'admin' || user.role === 'ROLE_ADMIN' ? (
               // Admin Layout
               <Routes>
                 <Route path="/admin/*" element={<AdminLayout />} />
