@@ -2565,31 +2565,41 @@ async def match_vendors(
         # Filter vendors based on criteria
         filtered_vendors = []
         for vendor in mock_vendors:
+            vendor_score = 0
+            max_score = 0
+            
             # Check if vendor categories overlap with vendor tags
             if vendor_tags:
+                max_score += 1
                 category_match = any(tag in vendor["categories"] for tag in vendor_tags)
-                if not category_match:
-                    continue
+                if category_match:
+                    vendor_score += 1
                     
             # Check if vendor provides needed core services
             if core_services:
+                max_score += 1
                 service_match = any(service in vendor["services"] for service in core_services)
-                if not service_match:
-                    continue
+                if service_match:
+                    vendor_score += 1
                     
             # Check if vendor provides needed extra services
             if extra_services:
+                max_score += 1
                 extras_match = any(extra in vendor["services"] for extra in extra_services)
-                if not extras_match:
-                    continue
+                if extras_match:
+                    vendor_score += 1
                     
             # Check cultural style support
             if cultural_styles:
+                max_score += 1
                 cultural_match = any(style in vendor.get("culturalStyles", []) for style in cultural_styles)
-                if not cultural_match:
-                    continue
-                    
-            filtered_vendors.append(vendor)
+                if cultural_match:
+                    vendor_score += 1
+            
+            # Include vendor if they match at least one criteria (or if no criteria specified)
+            if max_score == 0 or vendor_score > 0:
+                vendor["match_score"] = vendor_score
+                filtered_vendors.append(vendor)
         
         # Sort by rating (best first)
         filtered_vendors.sort(key=lambda x: x["rating"], reverse=True)
