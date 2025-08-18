@@ -38,6 +38,8 @@ const CEOLayout = () => {
 
   const navigation = [
     { name: 'CEO Dashboard', href: '/ceo', icon: LayoutDashboard, exact: true },
+    { name: 'AI Co-Pilot', href: '/ceo/ai-copilot', icon: Brain },
+    { name: 'Intelligence Center', href: '/ceo/intelligence', icon: Zap },
     { name: 'Executive Analytics', href: '/ceo/analytics', icon: BarChart3 },
     { name: 'Succession Management', href: '/ceo/succession', icon: Shield },
     { name: 'Security Center', href: '/ceo/security', icon: Lock },
