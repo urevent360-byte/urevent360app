@@ -547,50 +547,200 @@ const EventDashboard = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="text-center p-4 bg-purple-50 rounded-lg">
-                  <Calendar className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <div className="text-sm font-medium text-gray-500">Event Date</div>
-                  <div className="text-lg font-semibold text-gray-900">
+              {/* Unified Event Details - Visual + Editable */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {/* Event Name */}
+                <div className="bg-indigo-50 rounded-lg p-4 hover:bg-indigo-100 transition-colors group">
+                  <div className="flex items-center justify-between mb-2">
+                    <User className="h-6 w-6 text-indigo-600" />
+                    <button
+                      onClick={() => handleEdit('name', event.name)}
+                      className="opacity-0 group-hover:opacity-100 p-1 text-indigo-500 hover:text-indigo-700 transition-all duration-200"
+                      title="Click to edit"
+                    >
+                      <Edit3 className="h-3 w-3" />
+                    </button>
+                  </div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Event Name</div>
+                  {editingField === 'name' ? (
+                    <div className="flex items-center space-x-1">
+                      <input
+                        type="text"
+                        value={editValues.name}
+                        onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                        className="flex-1 text-sm px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                      <button onClick={() => handleSave('name')} className="p-1 text-green-600 hover:text-green-800">
+                        <Save className="h-3 w-3" />
+                      </button>
+                      <button onClick={handleCancel} className="p-1 text-red-600 hover:text-red-800">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-sm font-semibold text-gray-900 truncate">
+                      {event.name || 'Not set'}
+                    </div>
+                  )}
+                </div>
+
+                {/* Event Date */}
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="flex items-center mb-2">
+                    <Calendar className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Event Date</div>
+                  <div className="text-sm font-semibold text-gray-900">
                     {formatDate(event.date)}
                   </div>
                 </div>
                 
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-sm font-medium text-gray-500">Guest Count</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {event.guest_count || 'TBD'}
+                {/* Guest Count */}
+                <div className="bg-blue-50 rounded-lg p-4 hover:bg-blue-100 transition-colors group">
+                  <div className="flex items-center justify-between mb-2">
+                    <Users className="h-6 w-6 text-blue-600" />
+                    <button
+                      onClick={() => handleEdit('guest_count', event.guest_count)}
+                      className="opacity-0 group-hover:opacity-100 p-1 text-blue-500 hover:text-blue-700 transition-all duration-200"
+                      title="Click to edit"
+                    >
+                      <Edit3 className="h-3 w-3" />
+                    </button>
                   </div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Guest Count</div>
+                  {editingField === 'guest_count' ? (
+                    <div className="flex items-center space-x-1">
+                      <input
+                        type="number"
+                        value={editValues.guest_count}
+                        onChange={(e) => setEditValues({ ...editValues, guest_count: e.target.value })}
+                        className="flex-1 text-sm px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      />
+                      <button onClick={() => handleSave('guest_count')} className="p-1 text-green-600 hover:text-green-800">
+                        <Save className="h-3 w-3" />
+                      </button>
+                      <button onClick={handleCancel} className="p-1 text-red-600 hover:text-red-800">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-sm font-semibold text-gray-900">
+                      {event.guest_count || 'TBD'}
+                    </div>
+                  )}
                 </div>
                 
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <DollarSign className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <div className="text-sm font-medium text-gray-500">Budget</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {formatCurrency(event.budget)}
+                {/* Budget */}
+                <div className="bg-green-50 rounded-lg p-4 hover:bg-green-100 transition-colors group">
+                  <div className="flex items-center justify-between mb-2">
+                    <DollarSign className="h-6 w-6 text-green-600" />
+                    <button
+                      onClick={() => handleEdit('budget', event.budget)}
+                      className="opacity-0 group-hover:opacity-100 p-1 text-green-500 hover:text-green-700 transition-all duration-200"
+                      title="Click to edit"
+                    >
+                      <Edit3 className="h-3 w-3" />
+                    </button>
                   </div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Budget</div>
+                  {editingField === 'budget' ? (
+                    <div className="flex items-center space-x-1">
+                      <input
+                        type="number"
+                        value={editValues.budget}
+                        onChange={(e) => setEditValues({ ...editValues, budget: e.target.value })}
+                        className="flex-1 text-sm px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                      />
+                      <button onClick={() => handleSave('budget')} className="p-1 text-green-600 hover:text-green-800">
+                        <Save className="h-3 w-3" />
+                      </button>
+                      <button onClick={handleCancel} className="p-1 text-red-600 hover:text-red-800">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-sm font-semibold text-gray-900">
+                      {formatCurrency(event.budget)}
+                    </div>
+                  )}
                 </div>
                 
-                <div className="text-center p-4 bg-orange-50 rounded-lg">
-                  <MapPin className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                  <div className="text-sm font-medium text-gray-500">Location</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    {event.location || 'TBD'}
+                {/* Location */}
+                <div className="bg-orange-50 rounded-lg p-4 hover:bg-orange-100 transition-colors group">
+                  <div className="flex items-center justify-between mb-2">
+                    <MapPin className="h-6 w-6 text-orange-600" />
+                    <button
+                      onClick={() => handleEdit('location', event.location)}
+                      className="opacity-0 group-hover:opacity-100 p-1 text-orange-500 hover:text-orange-700 transition-all duration-200"
+                      title="Click to edit"
+                    >
+                      <Edit3 className="h-3 w-3" />
+                    </button>
                   </div>
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Location</div>
+                  {editingField === 'location' ? (
+                    <div className="flex items-center space-x-1">
+                      <input
+                        type="text"
+                        value={editValues.location}
+                        onChange={(e) => setEditValues({ ...editValues, location: e.target.value })}
+                        className="flex-1 text-sm px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-500"
+                      />
+                      <button onClick={() => handleSave('location')} className="p-1 text-green-600 hover:text-green-800">
+                        <Save className="h-3 w-3" />
+                      </button>
+                      <button onClick={handleCancel} className="p-1 text-red-600 hover:text-red-800">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-sm font-semibold text-gray-900 truncate">
+                      {event.location || 'TBD'}
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
 
-            {/* Editable Event Details */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-6">Event Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {renderEditableField('name', 'Event Name', event.name)}
-                {renderEditableField('description', 'Description', event.description, 'text', true)}
-                {renderEditableField('budget', 'Budget', event.budget, 'number')}
-                {renderEditableField('guest_count', 'Guest Count', event.guest_count, 'number')}
-                {renderEditableField('location', 'Location', event.location)}
+              {/* Description Section - Expanded */}
+              <div className="bg-white rounded-lg shadow-sm p-6 mt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                    <FileText className="h-5 w-5 text-purple-600 mr-2" />
+                    Event Description
+                  </h3>
+                  <button
+                    onClick={() => handleEdit('description', event.description)}
+                    className="p-2 text-purple-500 hover:text-purple-700 transition-colors"
+                    title="Click to edit description"
+                  >
+                    <Edit3 className="h-4 w-4" />
+                  </button>
+                </div>
+                {editingField === 'description' ? (
+                  <div className="flex items-start space-x-2">
+                    <textarea
+                      value={editValues.description}
+                      onChange={(e) => setEditValues({ ...editValues, description: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      rows={3}
+                      placeholder="Add event description..."
+                    />
+                    <div className="flex flex-col space-y-1">
+                      <button onClick={() => handleSave('description')} className="p-2 text-green-600 hover:text-green-800">
+                        <Save className="h-4 w-4" />
+                      </button>
+                      <button onClick={handleCancel} className="p-2 text-red-600 hover:text-red-800">
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-700 bg-gray-50 rounded-lg p-4 min-h-16">
+                    {event.description || (
+                      <span className="text-gray-400 italic">No description added yet. Click the edit button to add one.</span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
