@@ -177,6 +177,15 @@ const Login = () => {
           <Shield className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
         </button>
 
+        {/* CEO Access Icon - Top Right (Secondary Position) */}
+        <button
+          onClick={() => handleRoleSelect('ROLE_CEO')}
+          className="absolute top-6 right-20 z-20 p-3 bg-red-500/20 backdrop-blur-md rounded-full border border-red-400/30 hover:bg-red-500/30 transition-all duration-200 group"
+          title="CEO Executive Access"
+        >
+          <Shield className="w-5 h-5 text-red-200 group-hover:scale-110 transition-transform group-hover:text-red-100" />
+        </button>
+
         {/* Elegant overlay pattern */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20"></div>
         
