@@ -623,7 +623,7 @@ const EventHistory = () => {
               }
             </p>
             <Link
-              to="/events/create"
+              to="/events/new"
               className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
               <Plus className="h-4 w-4 mr-2" />
