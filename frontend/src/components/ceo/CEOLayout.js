@@ -21,6 +21,8 @@ import CEODashboard from './CEODashboard';
 import CEOSuccession from '../CEOSuccession';
 import CEOAnalytics from './CEOAnalytics';
 import CEOSecurity from './CEOSecurity';
+import AICopilot from './AICopilot';
+import AIIntelligenceCenter from './AIIntelligenceCenter';
 
 const CEOLayout = () => {
   const { user, logout } = useContext(AuthContext);
