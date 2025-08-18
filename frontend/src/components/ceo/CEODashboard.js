@@ -213,7 +213,60 @@ const CEODashboard = () => {
       </div>
 
       {/* CEO Action Center */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* AI Intelligence */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5 text-purple-600" />
+              AI Intelligence Co-Pilot
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    {aiSummary ? (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-yellow-600" />
+                    )}
+                    <span className="font-medium">AI System Status</span>
+                  </div>
+                </div>
+                <Badge className={aiSummary ? 'bg-green-500' : 'bg-yellow-500'}>
+                  {aiSummary ? 'Active' : 'Initializing'}
+                </Badge>
+              </div>
+
+              {aiSummary && (
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-900">
+                      {aiSummary.intelligence_summary?.business_health_score || 85}%
+                    </div>
+                    <div className="text-sm text-blue-700">Business Health</div>
+                  </div>
+                  <div className="p-3 bg-orange-50 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-900">
+                      {aiSummary.intelligence_summary?.critical_actions || 0}
+                    </div>
+                    <div className="text-sm text-orange-700">Critical Actions</div>
+                  </div>
+                </div>
+              )}
+
+              <Link to="/ceo/ai-copilot">
+                <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                  <Brain className="h-4 w-4 mr-2" />
+                  Open AI Co-Pilot
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Succession Management */}
         <Card>
           <CardHeader>
@@ -277,10 +330,17 @@ const CEODashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
+              <Link to="/ceo/intelligence">
+                <Button variant="outline" className="w-full justify-start">
+                  <Zap className="h-4 w-4 mr-2" />
+                  Intelligence Center
+                </Button>
+              </Link>
+              
               <Link to="/ceo/analytics">
                 <Button variant="outline" className="w-full justify-start">
                   <BarChart3 className="h-4 w-4 mr-2" />
-                  View Executive Analytics
+                  Executive Analytics
                 </Button>
               </Link>
               
@@ -290,16 +350,62 @@ const CEODashboard = () => {
                   Security Center
                 </Button>
               </Link>
-              
-              <Button variant="outline" className="w-full justify-start" disabled>
-                <Clock className="h-4 w-4 mr-2" />
-                Schedule Board Meeting
-                <Badge className="ml-auto bg-gray-200 text-gray-600">Soon</Badge>
-              </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Recommendations Section */}
+      {recommendations.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target className="h-5 w-5 text-green-600" />
+              AI Strategic Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recommendations.map((rec, index) => (
+                <div key={index} className="p-4 border rounded-lg hover:bg-gray-50">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge className={
+                          rec.priority === 'high' ? 'bg-red-500 text-white' :
+                          rec.priority === 'medium' ? 'bg-yellow-500 text-black' :
+                          'bg-green-500 text-white'
+                        }>
+                          {rec.priority}
+                        </Badge>
+                        <Badge variant="outline">
+                          {rec.category?.replace('_', ' ')}
+                        </Badge>
+                        <Lightbulb className="h-4 w-4 text-yellow-600" />
+                      </div>
+                      <h3 className="font-medium mb-1">{rec.title}</h3>
+                      <p className="text-sm text-gray-600 mb-2">
+                        {rec.description?.substring(0, 150)}...
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <span>Timeline: {rec.timeline_weeks} weeks</span>
+                        <span>Confidence: {Math.round((rec.confidence_score || 0.8) * 100)}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              <Link to="/ceo/ai-copilot?tab=recommendations">
+                <Button variant="outline" className="w-full">
+                  <Target className="h-4 w-4 mr-2" />
+                  View All Recommendations
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Activity */}
       <Card>
