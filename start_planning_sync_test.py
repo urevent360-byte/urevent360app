@@ -783,9 +783,9 @@ class StartPlanningTester:
                 # Find steps that match selected services
                 main_service_steps = []
                 for step in steps:
-                    step_service = step.get("service_type", "")
+                    step_service = step.get("service_type", "") or ""
                     for selected_service in selected_services:
-                        if selected_service.lower() in step_service.lower() or step_service.lower() in selected_service.lower():
+                        if step_service and (selected_service.lower() in step_service.lower() or step_service.lower() in selected_service.lower()):
                             main_service_steps.append(step)
                             break
                 
