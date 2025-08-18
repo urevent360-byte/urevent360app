@@ -170,6 +170,9 @@ const AdminLayout = () => {
             <Route path="/vendors" element={<VendorManagement />} />
             <Route path="/operations" element={<OperationsManagement />} />
             <Route path="/reports" element={<AdminReports />} />
+            {user?.role === 'ROLE_CEO' && (
+              <Route path="/succession" element={<CEOSuccession />} />
+            )}
           </Routes>
         </main>
       </div>
