@@ -80,6 +80,63 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     console.log('📋 Available services:', filters.services_needed);
   };
 
+  // Search vendors with questionnaire filters applied
+  const searchVendorsWithFilters = async (serviceCategory) => {
+    console.log(`🔍 Searching ${serviceCategory} with filters:`, questionnaireFilters);
+    
+    try {
+      setLoading(true);
+      
+      // Build filter object for API
+      const filterParams = {
+        service_type: serviceCategory,
+        guest_count: questionnaireFilters.guest_count,
+        event_type: questionnaireFilters.event_type,
+        location: questionnaireFilters.location,
+        budget_per_service: Math.floor((questionnaireFilters.budget || 0) / (availableServices.length + (isAtHome ? 0 : 1))),
+        preferred_venue_type: serviceCategory === 'venue' ? questionnaireFilters.preferred_venue_type : undefined,
+        cultural_style: questionnaireFilters.cultural_style
+      };
+
+      // Remove undefined values
+      Object.keys(filterParams).forEach(key => {
+        if (filterParams[key] === undefined || filterParams[key] === '') {
+          delete filterParams[key];
+        }
+      });
+
+      const response = await axios.get(`${API}/vendors/search`, {
+        params: filterParams,
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Set vendors for this category
+      setVendors(prev => ({
+        ...prev,
+        [serviceCategory]: response.data || []
+      }));
+
+      // Find the step for this service and navigate to it
+      const stepIndex = plannerSteps.findIndex(step => step.id === serviceCategory);
+      if (stepIndex !== -1) {
+        setCurrentStep(stepIndex);
+        setCurrentMode('new'); // Switch to vendor selection mode
+      }
+
+      console.log(`✅ Found ${response.data?.length || 0} ${serviceCategory} vendors with filters`);
+      
+    } catch (error) {
+      console.error(`❌ Error searching ${serviceCategory} vendors:`, error);
+      // Show empty state or error message
+      setVendors(prev => ({
+        ...prev,
+        [serviceCategory]: []
+      }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Handle close/exit functionality
   const handleClose = () => {
     if (onClose) {
