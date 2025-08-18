@@ -119,9 +119,14 @@ class Event(BaseModel):
     guest_count: Optional[int] = None
     status: str = "planning"  # planning, booked, completed, cancelled
     requirements: Optional[Dict[str, Any]] = None
-    # Enhanced filtering fields
+    # Enhanced filtering fields (legacy)
     preferred_venue_type: Optional[str] = None
     services_needed: Optional[List[str]] = None
+    # Two-Flow Architecture fields
+    preferred_venue_types: Optional[List[str]] = None
+    needed_core_services: Optional[List[str]] = None
+    needed_extras: Optional[List[str]] = None
+    category_specific: Optional[Dict[str, Any]] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = None
 
