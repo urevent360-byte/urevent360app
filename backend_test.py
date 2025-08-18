@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
 Enhanced Authentication System Backend Testing for Urevent 360 Platform
-Focus: Testing the enhanced authentication system with comprehensive security features
+Focus: Testing the FIXED enhanced authentication system with token compatibility
 
 PRIORITY TESTING FOCUS (as per review request):
-1. CENTRALIZED AUTHENTICATION: Single login endpoint for all 4 user roles
-2. RATE LIMITING: Max 5 failed attempts per email/IP, 5-minute lockout
-3. JWT TOKEN MANAGEMENT: Access tokens (30 min) + refresh tokens (7 days)
-4. TWO-FACTOR AUTHENTICATION: 2FA setup for admins & vendors
-5. ROLE MANAGEMENT: Role switching and multi-role support
-6. SESSION MANAGEMENT: View/revoke active sessions
-7. SECURITY MONITORING: Authentication event logging and statistics
+1. **Basic Compatibility**: Test that enhanced auth endpoints work with tokens from basic `/api/login`
+2. **Health Check**: Test `/api/auth/health` to verify system status
+3. **Token Compatibility**: Login via basic auth, then access enhanced endpoints
+4. **Rate Limit Reset**: Test `/api/auth/reset-rate-limit` to clear failed attempts
+5. **Enhanced Login**: Test `/api/auth/login` with existing user credentials
+6. **Role Management**: Test `/api/auth/user/roles` with basic auth tokens
+7. **Session Management**: Test `/api/auth/security/sessions`
+8. **Enhanced Profile**: Test `/api/auth/profile/enhanced`
 
-This tests the enhanced authentication system with advanced security features.
+This tests the FIXED enhanced authentication system with unified token verification.
 """
 
 import requests
@@ -20,6 +21,7 @@ import json
 import sys
 from datetime import datetime
 import uuid
+import time
 
 # Configuration - Use environment variable for backend URL
 import os
