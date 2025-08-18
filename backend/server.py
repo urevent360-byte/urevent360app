@@ -2610,48 +2610,6 @@ async def match_vendors(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to match vendors: {str(e)}")
 
-# Enhanced Event Creation for Two-Flow Architecture
-@api_router.post("/events")
-async def create_event(event: dict, current_user: dict = Depends(get_current_user)):
-    """Enhanced event creation supporting Two-Flow Architecture preferences"""
-    try:
-        # Generate unique event ID
-        event_id = str(uuid.uuid4())
-        
-        # Create event document with Two-Flow Architecture fields
-        event_doc = {
-            "id": event_id,
-            "user_id": current_user["id"],
-            "name": event.get("name", ""),
-            "event_type": event.get("event_type", ""),
-            "date": event.get("date", ""),
-            "location": event.get("location", ""),
-            "guest_count": event.get("guest_count", 0),
-            "status": event.get("status", "planning"),
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
-            
-            # Two-Flow Architecture: Preferences for Step-by-Step Mode
-            "preferred_venue_types": event.get("preferred_venue_types", []),
-            "needed_core_services": event.get("needed_core_services", []),
-            "needed_extras": event.get("needed_extras", []),
-            "category_specific": event.get("category_specific", {
-                "culturalStyle": [],
-                "themeOrFormat": []
-            })
-        }
-        
-        # Insert into database
-        result = await db.events.insert_one(event_doc)
-        
-        if result.inserted_id:
-            return {"id": event_id, "message": "Event created successfully"}
-        else:
-            raise HTTPException(status_code=500, detail="Failed to create event")
-            
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create event: {str(e)}")
-
 # ================================================================================================
 
 # Include the router in the app
