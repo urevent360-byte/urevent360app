@@ -158,6 +158,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       if (currentEvent) {
         // Use the provided currentEvent data (from EventDashboard)
         setEventData(currentEvent);
+        syncQuestionnaireFilters(currentEvent); // Sync questionnaire filters
         setBudgetData({
           set: currentEvent.budget || 0,
           selected: 0,
