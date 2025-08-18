@@ -38,6 +38,10 @@ const EventDashboard = () => {
     totalSpent: 0
   });
 
+  // Event Info Editing State
+  const [editingEventInfo, setEditingEventInfo] = useState(false);
+  const [savingEventInfo, setSavingEventInfo] = useState(false);
+
   useEffect(() => {
     fetchEvent();
     fetchPlanningProgress();
