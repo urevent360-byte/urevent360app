@@ -465,6 +465,15 @@ const EventDashboard = () => {
       setEvent(response.data);
       setEditingEventInfo(false);
       
+      // Propagate changes to active planner if open
+      if (showInteractivePlanner) {
+        // Force planner to re-sync with updated event data
+        window.dispatchEvent(new CustomEvent('eventUpdated', { 
+          detail: response.data 
+        }));
+        console.log('🔄 Event info updated, dispatched sync event to planner');
+      }
+      
       // Show success message
       alert('Event information updated successfully! The changes will be reflected in Step-by-Step Mode.');
       
