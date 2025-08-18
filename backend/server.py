@@ -2320,6 +2320,330 @@ async def get_preferred_vendors(current_user: dict = Depends(get_current_user)):
     # For now, return empty list since this is a new feature
     return []
 
+# ================================================================================================
+# TWO-FLOW ARCHITECTURE: MATCHING APIs FOR STEP-BY-STEP MODE
+# ================================================================================================
+
+# Venue Matching API for Step-by-Step Mode
+@api_router.get("/match/venues")
+async def match_venues(
+    type: str = None,
+    city: str = None,
+    date: str = None,
+    guestCount: int = None,
+    preferredTypes: str = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Auto-sync venue matching for Step-by-Step Mode
+    Ranks venues by: supports event type, availability, capacity, distance, rating
+    """
+    try:
+        # Parse preferred types
+        preferred_venue_types = []
+        if preferredTypes:
+            preferred_venue_types = [t.strip() for t in preferredTypes.split(',')]
+        
+        # For now, return mock data that matches the request
+        mock_venues = [
+            {
+                "id": "venue_1",
+                "name": "Grand Palace Banquet Hall",
+                "supportedTypes": ["wedding", "corporate", "anniversary", "birthday"],
+                "venueTypes": ["Hotel/Banquet Hall"],
+                "city": city or "New York",
+                "capacity": 300,
+                "rating": 4.8,
+                "price_per_person": 85,
+                "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Elegant banquet hall with crystal chandeliers and premium amenities"
+            },
+            {
+                "id": "venue_2", 
+                "name": "Riverside Garden Venue",
+                "supportedTypes": ["wedding", "birthday", "anniversary", "graduation"],
+                "venueTypes": ["Outdoor/Garden"],
+                "city": city or "New York",
+                "capacity": 150,
+                "rating": 4.6,
+                "price_per_person": 65,
+                "image": "https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Beautiful outdoor garden setting with natural lighting"
+            },
+            {
+                "id": "venue_3",
+                "name": "Downtown Conference Center", 
+                "supportedTypes": ["corporate", "wedding", "other"],
+                "venueTypes": ["Community Center"],
+                "city": city or "New York",
+                "capacity": 500,
+                "rating": 4.4,
+                "price_per_person": 45,
+                "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Modern conference facility with state-of-the-art AV equipment"
+            },
+            {
+                "id": "venue_4",
+                "name": "Oceanview Restaurant",
+                "supportedTypes": ["anniversary", "birthday", "corporate", "retirement"],
+                "venueTypes": ["Restaurant", "Beach/Waterfront"],
+                "city": city or "New York", 
+                "capacity": 80,
+                "rating": 4.9,
+                "price_per_person": 120,
+                "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Upscale waterfront dining with panoramic ocean views"
+            }
+        ]
+        
+        # Filter venues based on criteria
+        filtered_venues = []
+        for venue in mock_venues:
+            # Check if venue supports event type
+            if type and type not in venue["supportedTypes"]:
+                continue
+                
+            # Check capacity
+            if guestCount and venue["capacity"] < guestCount:
+                continue
+                
+            # Check preferred venue types
+            if preferred_venue_types:
+                venue_matches = any(pref in venue["venueTypes"] for pref in preferred_venue_types)
+                if not venue_matches:
+                    continue
+                    
+            filtered_venues.append(venue)
+        
+        # Sort by rating (best first)
+        filtered_venues.sort(key=lambda x: x["rating"], reverse=True)
+        
+        return {
+            "venues": filtered_venues,
+            "total": len(filtered_venues),
+            "filters_applied": {
+                "event_type": type,
+                "city": city,
+                "guest_count": guestCount,
+                "preferred_types": preferred_venue_types
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to match venues: {str(e)}")
+
+# Vendor Matching API for Step-by-Step Mode  
+@api_router.get("/match/vendors")
+async def match_vendors(
+    type: str = None,
+    city: str = None, 
+    date: str = None,
+    tags: str = None,
+    core: str = None,
+    extras: str = None,
+    cultural: str = None,
+    theme: str = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Auto-sync vendor matching for Step-by-Step Mode
+    Matches vendors that: list categories overlapping vendorTags, provide selected services,
+    optionally support chosen cultural style/theme
+    """
+    try:
+        # Parse parameters
+        vendor_tags = []
+        if tags:
+            vendor_tags = [t.strip() for t in tags.split(',')]
+            
+        core_services = []
+        if core:
+            core_services = [s.strip() for s in core.split(',')]
+            
+        extra_services = []
+        if extras:
+            extra_services = [s.strip() for s in extras.split(',')]
+            
+        cultural_styles = []
+        if cultural:
+            cultural_styles = [c.strip() for c in cultural.split(',')]
+            
+        theme_formats = []
+        if theme:
+            theme_formats = [t.strip() for t in theme.split(',')]
+        
+        # Mock vendor data with enhanced matching
+        mock_vendors = [
+            {
+                "id": "vendor_1",
+                "name": "Elite Catering Co.",
+                "categories": ["wedding", "corporate", "celebration"],
+                "services": ["Catering"],
+                "culturalStyles": ["American", "Italian", "Hispanic"],
+                "cities": [city or "New York"],
+                "rating": 4.9,
+                "price_range": "$50-$100 per person",
+                "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
+                "description": "Premium catering service specializing in cultural cuisines"
+            },
+            {
+                "id": "vendor_2",
+                "name": "Elegant Decorations",
+                "categories": ["wedding", "birthday", "anniversary"],
+                "services": ["Decoration"],
+                "culturalStyles": ["American", "Modern", "Indian"],
+                "cities": [city or "New York"],
+                "rating": 4.7,
+                "price_range": "$2,000-$8,000",
+                "image": "https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop",
+                "description": "Creative decoration specialists for all cultural celebrations"
+            },
+            {
+                "id": "vendor_3",
+                "name": "Picture Perfect Photography",
+                "categories": ["wedding", "sweet16", "quince", "mitzvah"],
+                "services": ["Photography"],
+                "culturalStyles": ["American", "Hispanic", "Jewish", "Indian"],
+                "cities": [city or "New York"],
+                "rating": 4.8,
+                "price_range": "$1,200-$4,000",
+                "image": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&h=300&fit=crop",
+                "description": "Capturing precious moments with cultural sensitivity"
+            },
+            {
+                "id": "vendor_4",
+                "name": "Harmony Music & DJ Services",
+                "categories": ["wedding", "corporate", "birthday"],
+                "services": ["Music/DJ"],
+                "culturalStyles": ["American", "Hispanic", "African", "Asian"],
+                "cities": [city or "New York"],
+                "rating": 4.6,
+                "price_range": "$800-$2,500",
+                "image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
+                "description": "Diverse music selection for multicultural celebrations"
+            },
+            {
+                "id": "vendor_5",
+                "name": "Premier Lighting Solutions",
+                "categories": ["wedding", "corporate", "graduation"],
+                "services": ["Lighting"],
+                "culturalStyles": ["Modern", "American", "Asian"],
+                "cities": [city or "New York"],
+                "rating": 4.5,
+                "price_range": "$1,000-$5,000",
+                "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
+                "description": "Professional lighting design for memorable ambiance"
+            },
+            {
+                "id": "vendor_6",
+                "name": "Sparkle Entertainment Co.",
+                "categories": ["wedding", "birthday", "sweet16"],
+                "services": ["Photo Booths", "LED Dance Floor", "Cold Spark Machines"],
+                "culturalStyles": ["American", "Modern"],
+                "cities": [city or "New York"],
+                "rating": 4.4,
+                "price_range": "$1,500-$6,000",
+                "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
+                "description": "Interactive entertainment and special effects"
+            }
+        ]
+        
+        # Filter vendors based on criteria
+        filtered_vendors = []
+        for vendor in mock_vendors:
+            # Check if vendor categories overlap with vendor tags
+            if vendor_tags:
+                category_match = any(tag in vendor["categories"] for tag in vendor_tags)
+                if not category_match:
+                    continue
+                    
+            # Check if vendor provides needed core services
+            if core_services:
+                service_match = any(service in vendor["services"] for service in core_services)
+                if not service_match:
+                    continue
+                    
+            # Check if vendor provides needed extra services
+            if extra_services:
+                extras_match = any(extra in vendor["services"] for extra in extra_services)
+                if not extras_match:
+                    continue
+                    
+            # Check cultural style support
+            if cultural_styles:
+                cultural_match = any(style in vendor.get("culturalStyles", []) for style in cultural_styles)
+                if not cultural_match:
+                    continue
+                    
+            filtered_vendors.append(vendor)
+        
+        # Sort by rating (best first)
+        filtered_vendors.sort(key=lambda x: x["rating"], reverse=True)
+        
+        return {
+            "vendors": filtered_vendors,
+            "total": len(filtered_vendors),
+            "filters_applied": {
+                "event_type": type,
+                "vendor_tags": vendor_tags,
+                "core_services": core_services,
+                "extra_services": extra_services,
+                "cultural_styles": cultural_styles,
+                "theme_formats": theme_formats
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to match vendors: {str(e)}")
+
+# Enhanced Event Creation for Two-Flow Architecture
+@api_router.post("/events")
+async def create_event(event: dict, current_user: dict = Depends(get_current_user)):
+    """Enhanced event creation supporting Two-Flow Architecture preferences"""
+    try:
+        # Generate unique event ID
+        event_id = str(uuid.uuid4())
+        
+        # Create event document with Two-Flow Architecture fields
+        event_doc = {
+            "id": event_id,
+            "user_id": current_user["id"],
+            "name": event.get("name", ""),
+            "event_type": event.get("event_type", ""),
+            "date": event.get("date", ""),
+            "location": event.get("location", ""),
+            "guest_count": event.get("guest_count", 0),
+            "status": event.get("status", "planning"),
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat(),
+            
+            # Two-Flow Architecture: Preferences for Step-by-Step Mode
+            "preferred_venue_types": event.get("preferred_venue_types", []),
+            "needed_core_services": event.get("needed_core_services", []),
+            "needed_extras": event.get("needed_extras", []),
+            "category_specific": event.get("category_specific", {
+                "culturalStyle": [],
+                "themeOrFormat": []
+            })
+        }
+        
+        # Insert into database
+        result = await db.events.insert_one(event_doc)
+        
+        if result.inserted_id:
+            return {"id": event_id, "message": "Event created successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create event")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create event: {str(e)}")
+
+# ================================================================================================
+
 # Include the router in the app
 app.include_router(api_router)
 
