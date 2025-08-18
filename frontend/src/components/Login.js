@@ -123,10 +123,14 @@ const Login = () => {
       const userData = response.data.user;
       
       // Validate that the user role matches the selected role
-      if (selectedRole !== 'client' && userData.role !== selectedRole) {
-        setError(`This account is not registered as a ${selectedRole}. Please select the correct account type or contact support.`);
-        setLoading(false);
-        return;
+      if (selectedRole !== 'client' && userData.role !== selectedRole && userData.role !== 'ROLE_ADMIN') {
+        // Allow ROLE_ADMIN to access admin, and ROLE_CEO to access CEO console
+        if (!(selectedRole === 'admin' && userData.role === 'ROLE_ADMIN') && 
+            !(selectedRole === 'ROLE_CEO' && userData.role === 'ROLE_CEO')) {
+          setError(`This account is not registered as a ${selectedRole}. Please select the correct account type or contact support.`);
+          setLoading(false);
+          return;
+        }
       }
       
       // For regular users, allow login regardless of role in database
