@@ -16,6 +16,7 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
 import os
 import asyncio
+import base64
 from motor.motor_asyncio import AsyncIOMotorClient
 from webauthn.helpers.structs import RegistrationCredential, AuthenticationCredential
 
