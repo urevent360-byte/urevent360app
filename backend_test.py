@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """
-Workflow Interference and Synchronization Issues Backend Testing for Urevent 360 Platform
-Focus: Testing backend APIs that support frontend workflow patterns to identify defects
+Enhanced Authentication System Backend Testing for Urevent 360 Platform
+Focus: Testing the enhanced authentication system with comprehensive security features
 
 PRIORITY TESTING FOCUS (as per review request):
-1. ROUTING & LIFECYCLE ISSUES: Quote creation/resume workflows, draft management
-2. QUESTIONNAIRE → PLANNER SYNC: Event data synchronization with planner state
-3. STEP-BY-STEP TILE FUNCTIONALITY: Vendor catalog filtering and selection
-4. SHOPPING CART ISSUES: Real-time updates and state management
-5. BUDGET PLACEMENT: Budget data availability for different modes
+1. CENTRALIZED AUTHENTICATION: Single login endpoint for all 4 user roles
+2. RATE LIMITING: Max 5 failed attempts per email/IP, 5-minute lockout
+3. JWT TOKEN MANAGEMENT: Access tokens (30 min) + refresh tokens (7 days)
+4. TWO-FACTOR AUTHENTICATION: 2FA setup for admins & vendors
+5. ROLE MANAGEMENT: Role switching and multi-role support
+6. SESSION MANAGEMENT: View/revoke active sessions
+7. SECURITY MONITORING: Authentication event logging and statistics
 
-This addresses workflow interference and synchronization issues in the event planning system.
+This tests the enhanced authentication system with advanced security features.
 """
 
 import requests
