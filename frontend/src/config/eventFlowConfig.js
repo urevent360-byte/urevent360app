@@ -72,7 +72,7 @@ export const EVENT_FLOW_CONFIG = {
     vendorTags: ['general', 'custom'],
     displayName: 'Other Event'
   }
-} as const;
+} ;
 
 // Core Services - drives main vendor lists in Step-by-Step Mode
 export const CORE_SERVICES = [
