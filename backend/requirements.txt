@@ -41,3 +41,7 @@ geoip2>=4.7.0
 user-agents>=2.2.0
 plotly>=5.17.0
 kaleido>=0.2.1
+# CEO Succession Security Dependencies  
+webauthn>=2.0.0
+fido2>=1.1.2
+cbor2>=5.4.6
