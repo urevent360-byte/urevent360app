@@ -802,7 +802,12 @@ const EventDashboard = () => {
                   Event Information
                 </h3>
                 <button
-                  onClick={() => setEditingEventInfo(!editingEventInfo)}
+                  onClick={() => {
+                    if (!editingEventInfo) {
+                      initializeEditValues();
+                    }
+                    setEditingEventInfo(!editingEventInfo);
+                  }}
                   className={`inline-flex items-center px-4 py-2 rounded-lg font-medium transition-colors ${
                     editingEventInfo 
                       ? 'bg-red-100 text-red-700 hover:bg-red-200' 
