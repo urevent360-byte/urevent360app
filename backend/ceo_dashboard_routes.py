@@ -117,13 +117,13 @@ async def get_ceo_insights(
         return {
             "success": True,
             "data": {
-                "executive_summary": executive_summary,
-                "kpis": kpis.dict(),
-                "vendor_performance": [v.dict() for v in vendor_performance[:20]],  # Top 20
-                "funnel_analysis": [f.dict() for f in funnel_analysis],
-                "event_mix": [e.dict() for e in event_mix],
-                "ai_recommendations": [r.dict() for r in ai_recommendations[:10]],  # Top 10
-                "trending_insights": trending_insights,
+                "executive_summary": executive_summary or {},
+                "kpis": kpis.dict() if kpis else {},
+                "vendor_performance": [v.dict() for v in (vendor_performance[:20] if vendor_performance else [])],  # Top 20
+                "funnel_analysis": [f.dict() for f in (funnel_analysis if funnel_analysis else [])],
+                "event_mix": [e.dict() for e in (event_mix if event_mix else [])],
+                "ai_recommendations": [r.dict() for r in (ai_recommendations[:10] if ai_recommendations else [])],  # Top 10
+                "trending_insights": trending_insights or {},
                 "generated_at": datetime.utcnow(),
                 "data_freshness": "real-time"
             }
