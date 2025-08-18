@@ -196,12 +196,12 @@ const EventDashboard = () => {
     }
   };
 
-  // Create a new quote and launch Step-by-Step Mode
+  // Create a new quote and launch Step-by-Step Mode directly
   const handleCreateNewQuote = async () => {
     if (!event?.id) return;
 
     try {
-      // Create a new quote
+      // Create a new quote with questionnaire sync
       const quoteData = {
         event_id: event.id,
         name: `Quote ${eventQuotes.length + 1}`,
@@ -212,6 +212,18 @@ const EventDashboard = () => {
         guest_count: event.guest_count || 0,
         location: event.location || '',
         services_needed: event.services_needed || [],
+        preferred_venue_type: event.preferred_venue_type || '',
+        cultural_style: event.cultural_style || '',
+        questionnaire_filters: {
+          preferred_venue_type: event.preferred_venue_type || '',
+          services_needed: event.services_needed || [],
+          guest_count: event.guest_count || 0,
+          event_type: event.event_type || 'general',
+          cultural_style: event.cultural_style || '',
+          budget: event.budget || 0,
+          location: event.location || '',
+          date: event.date || ''
+        },
         created_at: new Date().toISOString()
       };
 
@@ -224,7 +236,7 @@ const EventDashboard = () => {
       // Update local quotes list
       setEventQuotes(prev => [...prev, newQuote]);
 
-      // Launch Step-by-Step Mode with the new quote
+      // Launch Step-by-Step Mode DIRECTLY with synced filters
       setShowInteractivePlanner(true);
       
     } catch (error) {
