@@ -40,6 +40,21 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
   });
   const [currentMode, setCurrentMode] = useState(mode);
   const [selectedVendorForDetails, setSelectedVendorForDetails] = useState(null);
+  
+  // Questionnaire sync and filter state
+  const [questionnaireFilters, setQuestionnaireFilters] = useState({
+    preferred_venue_type: '',
+    services_needed: [],
+    guest_count: 0,
+    event_type: '',
+    cultural_style: '',
+    budget: 0,
+    location: '',
+    date: ''
+  });
+  const [isAtHome, setIsAtHome] = useState(false);
+  const [availableServices, setAvailableServices] = useState([]);
+  const [activeQuoteId, setActiveQuoteId] = useState(null);
 
   // Handle close/exit functionality
   const handleClose = () => {
