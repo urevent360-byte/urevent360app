@@ -319,6 +319,24 @@ const Navbar = ({ setSidebarOpen }) => {
                 {/* Divider */}
                 <div className="border-t border-gray-100 my-2"></div>
 
+                {/* CEO Console - Only show for CEO users */}
+                {user?.role === 'ROLE_CEO' && (
+                  <div className="py-2">
+                    <Link
+                      to="/ceo"
+                      onClick={closeDropdown}
+                      className="flex items-center px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 mx-2 rounded-lg transition-all duration-200 shadow-md"
+                    >
+                      <Shield className="mr-3 h-4 w-4 text-white" />
+                      <span className="flex-1">CEO Console</span>
+                      <ChevronRight className="h-4 w-4 text-white/80" />
+                    </Link>
+                  </div>
+                )}
+
+                {/* Final Divider */}
+                <div className="border-t border-gray-100 my-2"></div>
+
                 {/* Sign Out */}
                 <div className="py-1">
                   <button
