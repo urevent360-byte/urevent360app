@@ -5848,33 +5848,103 @@ class APITester:
             print("\n⚠️  OVERALL STATUS: Some critical issues need attention")
 
 def main():
-    """Run Budget & Step-by-Step Mode Consolidation Backend Testing"""
-    print("🚀 Starting Budget & Step-by-Step Mode Consolidation Backend Testing...")
-    print("🎯 FOCUS: Testing backend APIs after resolving compilation errors and consolidation fixes")
-    print(f"Backend URL: {BACKEND_URL}")
-    print(f"API Base URL: {BASE_URL}")
+    """Main test execution focusing on Event Information Edit Functionality"""
+    print("🚀 Starting Event Information Edit Functionality Backend Testing...")
+    print(f"Backend URL: {BASE_URL}")
     print("=" * 80)
     
     tester = APITester()
     
-    # Run the comprehensive Budget & Step-by-Step Mode Consolidation tests
-    try:
-        success = tester.run_all_tests()
-        
-        if success:
-            print("🎉 BUDGET & STEP-BY-STEP MODE CONSOLIDATION TESTING COMPLETED SUCCESSFULLY!")
-            print("✅ All consolidation fixes are working correctly")
-        else:
-            print("⚠️  BUDGET & STEP-BY-STEP MODE CONSOLIDATION TESTING COMPLETED WITH ISSUES")
-            print("❌ Some functionality may need attention")
-        
-        return success
-        
-    except Exception as e:
-        print(f"❌ Testing failed with error: {e}")
-        import traceback
-        traceback.print_exc()
-        return False
+    # Test sequence focusing on Event Information Edit Functionality
+    test_sequence = [
+        ("Event Information Edit Functionality", tester.test_event_information_edit_functionality),
+        ("Authentication System", tester.test_authentication),
+        ("Health Check", tester.test_health_check),
+    ]
+    
+    # Execute tests
+    for test_name, test_func in test_sequence:
+        print(f"\n{'='*20} {test_name} {'='*20}")
+        try:
+            test_func()
+        except Exception as e:
+            print(f"❌ Test failed with exception: {e}")
+            tester.log_test(test_name, False, f"Exception: {str(e)}")
+    
+    # Print comprehensive summary
+    print("\n" + "="*80)
+    print("🎯 EVENT INFORMATION EDIT FUNCTIONALITY TEST SUMMARY")
+    print("="*80)
+    
+    total_tests = len(tester.test_results)
+    passed_tests = len([t for t in tester.test_results if t["success"]])
+    failed_tests = len(tester.failed_tests)
+    success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
+    
+    print(f"📊 OVERALL RESULTS:")
+    print(f"   • Total Tests: {total_tests}")
+    print(f"   • Passed: {passed_tests}")
+    print(f"   • Failed: {failed_tests}")
+    print(f"   • Success Rate: {success_rate:.1f}%")
+    
+    if failed_tests > 0:
+        print(f"\n❌ FAILED TESTS:")
+        for failed_test in tester.failed_tests:
+            print(f"   • {failed_test}")
+    
+    print(f"\n✅ KEY FUNCTIONALITY VERIFICATION:")
+    key_tests = [
+        "Client Authentication",
+        "Test Event Creation", 
+        "Event Retrieval with Questionnaire Fields",
+        "Event Type Update",
+        "Cultural Style Update", 
+        "Preferred Venue Type Update",
+        "Services Needed Update",
+        "Event Date & Time Update",
+        "Bulk Questionnaire Update",
+        "Event Information Storage Verification"
+    ]
+    
+    key_results = []
+    for test_result in tester.test_results:
+        if test_result["test"] in key_tests:
+            status = "✅" if test_result["success"] else "❌"
+            key_results.append(f"   {status} {test_result['test']}")
+    
+    for result in key_results:
+        print(result)
+    
+    # Determine overall status
+    critical_tests = [
+        "Event Type Update",
+        "Cultural Style Update", 
+        "Preferred Venue Type Update",
+        "Services Needed Update",
+        "Event Information Storage Verification"
+    ]
+    
+    critical_passed = 0
+    for test_result in tester.test_results:
+        if test_result["test"] in critical_tests and test_result["success"]:
+            critical_passed += 1
+    
+    if critical_passed == len(critical_tests):
+        print(f"\n🎉 EVENT INFORMATION EDIT FUNCTIONALITY: FULLY OPERATIONAL")
+        print("   All questionnaire fields (event_type, cultural_style, preferred_venue_type, services_needed)")
+        print("   can be successfully updated via PUT /api/events/{event_id}")
+        print("   Changes are properly stored and retrieved for Step-by-Step Mode integration")
+    elif critical_passed >= len(critical_tests) * 0.8:
+        print(f"\n⚠️  EVENT INFORMATION EDIT FUNCTIONALITY: MOSTLY OPERATIONAL")
+        print(f"   {critical_passed}/{len(critical_tests)} critical features working")
+        print("   Minor issues detected but core functionality available")
+    else:
+        print(f"\n❌ EVENT INFORMATION EDIT FUNCTIONALITY: NEEDS ATTENTION")
+        print(f"   Only {critical_passed}/{len(critical_tests)} critical features working")
+        print("   Significant issues detected requiring fixes")
+    
+    print("\n" + "="*80)
+    return success_rate >= 80
 
 if __name__ == "__main__":
     main()
