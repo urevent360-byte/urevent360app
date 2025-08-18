@@ -376,7 +376,7 @@ const Dashboard = () => {
               
               <div className="flex space-x-3">
                 <Link
-                  to="/events/create"
+                  to="/events/new"
                   className="inline-flex items-center px-4 py-2 border border-white border-opacity-30 rounded-lg text-white hover:bg-white hover:bg-opacity-10 transition-all duration-200 text-sm"
                 >
                   <Plus className="h-4 w-4 mr-2" />
