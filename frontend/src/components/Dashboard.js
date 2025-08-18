@@ -132,7 +132,7 @@ const Dashboard = () => {
           </p>
         </div>
         <Link
-          to="/events/create"
+          to="/events/new"
           aria-label="Create a new event"
           className="mt-4 sm:mt-0 inline-flex items-center gap-2 rounded-full px-5 py-3 font-semibold text-white shadow-md transition-all duration-200 bg-gradient-to-r from-indigo-500 to-fuchsia-500 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-fuchsia-400"
           data-analytics="CreateEventClick"
