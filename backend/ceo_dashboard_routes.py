@@ -91,28 +91,69 @@ async def get_ceo_insights(
             }
         )
         
-        # Generate executive summary
-        executive_summary = await analytics_engine.generate_executive_summary(start_date, end_date)
+        # Generate executive summary with error handling
+        try:
+            executive_summary = await analytics_engine.generate_executive_summary(start_date, end_date)
+        except Exception as e:
+            print(f"Executive summary error: {e}")
+            executive_summary = {"error": "Executive summary generation failed"}
         
-        # Calculate KPIs
-        kpis = await analytics_engine.calculate_kpis(start_date, end_date)
+        # Calculate KPIs with error handling
+        try:
+            kpis = await analytics_engine.calculate_kpis(start_date, end_date)
+        except Exception as e:
+            print(f"KPIs calculation error: {e}")
+            # Return a default KPIs object
+            from ceo_analytics import KPIMetrics
+            kpis = KPIMetrics(
+                period_start=start_date,
+                period_end=end_date,
+                gmv=0.0,
+                net_revenue=0.0,
+                bookings=0,
+                active_quotes=0,
+                conversion_rate=0.0,
+                average_order_value=0.0,
+                churn_rate=0.0,
+                growth_rate=0.0
+            )
         
-        # Get vendor performance
-        vendor_performance = await analytics_engine.analyze_vendor_performance(start_date, end_date)
+        # Get vendor performance with error handling
+        try:
+            vendor_performance = await analytics_engine.analyze_vendor_performance(start_date, end_date)
+        except Exception as e:
+            print(f"Vendor performance error: {e}")
+            vendor_performance = []
         
-        # Get funnel analysis
-        funnel_analysis = await analytics_engine.analyze_funnel_performance(start_date, end_date)
+        # Get funnel analysis with error handling
+        try:
+            funnel_analysis = await analytics_engine.analyze_funnel_performance(start_date, end_date)
+        except Exception as e:
+            print(f"Funnel analysis error: {e}")
+            funnel_analysis = []
         
-        # Get event mix
-        event_mix = await analytics_engine.analyze_event_mix(start_date, end_date)
+        # Get event mix with error handling
+        try:
+            event_mix = await analytics_engine.analyze_event_mix(start_date, end_date)
+        except Exception as e:
+            print(f"Event mix error: {e}")
+            event_mix = []
         
-        # Get AI recommendations
-        ai_recommendations = await analytics_engine.generate_ai_recommendations(
-            kpis, vendor_performance, funnel_analysis, event_mix
-        )
+        # Get AI recommendations with error handling
+        try:
+            ai_recommendations = await analytics_engine.generate_ai_recommendations(
+                kpis, vendor_performance, funnel_analysis, event_mix
+            )
+        except Exception as e:
+            print(f"AI recommendations error: {e}")
+            ai_recommendations = []
         
-        # Get trending insights
-        trending_insights = await analytics_engine.get_trending_insights(start_date, end_date)
+        # Get trending insights with error handling
+        try:
+            trending_insights = await analytics_engine.get_trending_insights(start_date, end_date)
+        except Exception as e:
+            print(f"Trending insights error: {e}")
+            trending_insights = {}
         
         return {
             "success": True,
