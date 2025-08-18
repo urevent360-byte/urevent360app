@@ -12,7 +12,8 @@ import {
   Bell,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Shield
 } from 'lucide-react';
 
 // Admin Components
@@ -23,13 +24,15 @@ import AssociateManagement from './AssociateManagement';
 import VendorManagement from './VendorManagement';
 import OperationsManagement from './OperationsManagement';
 import AdminReports from './AdminReports';
+import CEOSuccession from '../CEOSuccession';
 
 const AdminLayout = () => {
   const { user, logout } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  const navigation = [
+  // Base navigation for all admin users
+  const baseNavigation = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, exact: true },
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Businesses', href: '/admin/businesses', icon: Building },
@@ -38,6 +41,11 @@ const AdminLayout = () => {
     { name: 'Operations', href: '/admin/operations', icon: Settings },
     { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
   ];
+
+  // Add CEO succession for CEO users only
+  const navigation = user?.role === 'ROLE_CEO' 
+    ? [...baseNavigation, { name: 'CEO Succession', href: '/admin/succession', icon: Shield }]
+    : baseNavigation;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
