@@ -2601,8 +2601,8 @@ async def match_vendors(
                 vendor["match_score"] = vendor_score
                 filtered_vendors.append(vendor)
         
-        # Sort by rating (best first)
-        filtered_vendors.sort(key=lambda x: x["rating"], reverse=True)
+        # Sort by match score first, then by rating (best first)
+        filtered_vendors.sort(key=lambda x: (x.get("match_score", 0), x["rating"]), reverse=True)
         
         return {
             "vendors": filtered_vendors,
