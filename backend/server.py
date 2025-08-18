@@ -379,6 +379,19 @@ except ImportError as e:
     print(f"⚠️ Enhanced Authentication not available: {e}")
     ENHANCED_AUTH_AVAILABLE = False
 
+# Add Google OAuth System
+try:
+    from google_oauth_routes import google_oauth_router, google_oauth_service
+    
+    # Include Google OAuth routes
+    app.include_router(google_oauth_router)
+    
+    print("✅ Google OAuth Authentication System loaded successfully")
+    GOOGLE_AUTH_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ Google OAuth Authentication not available: {e}")
+    GOOGLE_AUTH_AVAILABLE = False
+
 # API Router
 from fastapi import APIRouter
 api_router = APIRouter(prefix="/api")
