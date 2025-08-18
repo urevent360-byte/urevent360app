@@ -534,6 +534,18 @@ backend:
         agent: "main"
         comment: "Created discrete employee portal access similar to admin icon style. Small button with user's logo and 'Employee Portal' text positioned at bottom center of login pages. Uses glassmorphism styling, rounded-full design, minimal space usage. Only visible to those who know to look for it, similar to admin shield icon approach."
 
+  - task: "Step-by-Step Mode Primary CTA"
+    implemented: true
+    working: "NA"
+    file: "StepByStepCTA.js, StickyPlanBar.js, EventDashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created StepByStepCTA component with large, prominent button featuring indigo-to-fuchsia gradient. Created StickyPlanBar component for mobile-first sticky bottom CTA. Modified EventDashboard to make Step-by-Step Mode the primary CTA at the top of overview tab. Demoted 'Start Planning' and 'Resume Quote' to secondary options with no gradients and smaller size."
+
   - task: "Google OAuth 2.0 Authentication System"
     implemented: true
     working: true
