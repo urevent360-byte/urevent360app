@@ -434,6 +434,52 @@ const EventDashboard = () => {
     );
   };
 
+  // Handle saving comprehensive event info (questionnaire fields)
+  const handleSaveEventInfo = async () => {
+    if (!event?.id) return;
+    
+    setSavingEventInfo(true);
+    try {
+      // Prepare event update data
+      const updateData = {
+        event_type: editValues.event_type,
+        date: editValues.date,
+        cultural_style: editValues.cultural_style,
+        preferred_venue_type: editValues.preferred_venue_type,
+        services_needed: editValues.services_needed
+      };
+
+      // Update event via API
+      const response = await axios.put(`${API}/events/${event.id}`, updateData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      // Update local state
+      setEvent(response.data);
+      setEditingEventInfo(false);
+      
+      // Show success message
+      alert('Event information updated successfully! The changes will be reflected in Step-by-Step Mode.');
+      
+    } catch (error) {
+      console.error('Error updating event info:', error);
+      alert('Failed to update event information. Please try again.');
+    } finally {
+      setSavingEventInfo(false);
+    }
+  };
+
+  // Initialize edit values when entering edit mode
+  const initializeEditValues = () => {
+    setEditValues({
+      event_type: event?.event_type || '',
+      date: event?.date || '',
+      cultural_style: event?.cultural_style || '',
+      preferred_venue_type: event?.preferred_venue_type || '',
+      services_needed: event?.services_needed || []
+    });
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
