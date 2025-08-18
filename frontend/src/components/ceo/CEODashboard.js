@@ -13,7 +13,11 @@ import {
   Clock,
   Settings,
   BarChart3,
-  Lock
+  Lock,
+  Brain,
+  Zap,
+  Target,
+  Lightbulb
 } from 'lucide-react';
 import { AuthContext } from '../../App';
 import { Link } from 'react-router-dom';
