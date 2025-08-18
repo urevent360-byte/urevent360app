@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
-Budget & Step-by-Step Mode Consolidation Backend Testing for Urevent 360 Platform
-Focus: Testing backend APIs after resolving compilation errors and consolidation fixes.
+Event Information Edit Functionality Backend Testing for Urevent 360 Platform
+Focus: Testing the new Event Information edit functionality in EventDashboard.js
 
 PRIORITY TESTING FOCUS (as per review request):
-1. Compilation Fix Verification: Ensure React frontend compiles without JSX syntax errors
-2. Budget Status Consolidation: Test detailed Budget Status with category breakdown and progress bars
-3. Enhanced Vendor Selection: Verify Step-by-Step Mode shows 9 service category tiles with functional vendor selection
-4. API Integration: Test all relevant backend APIs for event planning state management, budget tracking, shopping cart operations, and vendor selection workflows
+1. Login with existing test users (sarah.johnson@email.com/SecurePass123 or admin@urevent360.com/admin123)
+2. Retrieve an existing event to get its current questionnaire information
+3. Test updating the event with new questionnaire fields via PUT /api/events/{event_id}
+4. Verify all questionnaire fields (event_type, cultural_style, preferred_venue_type, services_needed) can be updated
+5. Confirm the updated event information is properly stored and retrieved
 
-Testing backend APIs that support the Budget & Step-by-Step Mode Consolidation frontend features.
+This addresses the user requirement to allow editing of event questionnaire information after it's saved,
+so changes are reflected in Step-by-Step Mode.
 """
 
 import requests
