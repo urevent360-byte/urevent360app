@@ -185,6 +185,77 @@ const EventDashboard = () => {
     }
   };
 
+  // Create new draft and route directly to Step-by-Step
+  const createNewDraftAndRoute = async () => {
+    if (!event?.id) return;
+
+    try {
+      // Create a new quote draft with questionnaire sync
+      const quoteData = {
+        event_id: event.id,
+        name: `Draft ${eventQuotes.length + 1}`,
+        status: 'in_progress',
+        event_type: event.event_type || 'general',
+        event_date: event.date,
+        budget: event.budget || 0,
+        guest_count: event.guest_count || 0,
+        location: event.location || '',
+        services_needed: event.services_needed || [],
+        preferred_venue_type: event.preferred_venue_type || '',
+        cultural_style: event.cultural_style || '',
+        questionnaire_filters: {
+          preferred_venue_type: event.preferred_venue_type || '',
+          services_needed: event.services_needed || [],
+          guest_count: event.guest_count || 0,
+          event_type: event.event_type || 'general',
+          cultural_style: event.cultural_style || '',
+          budget: event.budget || 0,
+          location: event.location || '',
+          date: event.date || ''
+        },
+        created_at: new Date().toISOString()
+      };
+
+      const response = await axios.post(`${API}/events/${event.id}/quotes`, quoteData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      const newDraft = response.data;
+
+      // Update local quotes list
+      setEventQuotes(prev => [...prev, newDraft]);
+
+      // Route DIRECTLY to Step-by-Step Mode with questionnaire filters
+      routeToStepByStep(newDraft);
+      
+    } catch (error) {
+      console.error('Error creating draft:', error);
+      alert('Failed to create new draft. Please try again.');
+    }
+  };
+
+  // Route to Step-by-Step Mode with draft context
+  const routeToStepByStep = (draft) => {
+    // Store draft context for Step-by-Step Mode
+    sessionStorage.setItem('activeDraft', JSON.stringify({
+      draftId: draft.id,
+      eventId: event.id,
+      questionnaire_filters: draft.questionnaire_filters || {
+        preferred_venue_type: event.preferred_venue_type || '',
+        services_needed: event.services_needed || [],
+        guest_count: event.guest_count || 0,
+        event_type: event.event_type || 'general',
+        cultural_style: event.cultural_style || '',
+        budget: event.budget || 0,
+        location: event.location || '',
+        date: event.date || ''
+      }
+    }));
+
+    // Direct route to Step-by-Step Mode (no intermediate screens)
+    setShowInteractivePlanner(true);
+  };
+
 
 
   // Calculate progress percentage
