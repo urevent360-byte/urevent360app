@@ -44,6 +44,9 @@ import HelpSupport from './components/settings/HelpSupport';
 // Admin Components
 import AdminLayout from './components/admin/AdminLayout';
 
+// CEO Components  
+import CEOLayout from './components/ceo/CEOLayout';
+
 // Vendor Components
 import VendorLayout from './components/vendor/VendorLayout';
 
