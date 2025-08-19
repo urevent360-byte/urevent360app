@@ -67,7 +67,7 @@ const AdminLayout = () => {
             </div>
           </div>
           <button
-            onClick={() => setSidebarOpen(false)}
+            onClick={() => onOpenChange(false)}
             className="lg:hidden p-1 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100"
           >
             <X className="h-5 w-5" />
