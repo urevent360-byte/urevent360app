@@ -587,6 +587,18 @@ backend:
         agent: "testing"
         comment: "✅ DISCRETE EMPLOYEE PORTAL ACCESS WORKING: Employee portal access link is visible at bottom center of login pages with proper styling (glassmorphism, rounded design, company logo). Link is discrete and positioned correctly. Clicking the link properly transitions to employee login form. Visual implementation and UI behavior work as designed. Note: Actual employee login functionality is blocked by broader authentication issues, but the access UI component itself works correctly."
 
+  - task: "Location Radius/ZIP-Only & Budget Wizard Functionality"
+    implemented: true
+    working: "NA"
+    file: "CreateEventWizard.js, VenueSearchControls.js, BudgetStep.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented comprehensive location radius/ZIP-only search and budget functionality in Create New Event wizard using feature flags. Added VenueSearchControls component for location preferences (ZIP code input, ZIP-only toggle, radius slider 5-100 miles). Added BudgetStep component with target budget input and quick budget range buttons. Enhanced event summary to show search area and budget info. Updated backend API to accept location_preferences and budget_preferences. Feature flags: REACT_APP_FEATURE_WIZARD_LOCATION_FILTERS=true, REACT_APP_FEATURE_WIZARD_BUDGET=true."
+
   - task: "Step-by-Step Mode Primary CTA"
     implemented: true
     working: false
