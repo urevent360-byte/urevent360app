@@ -501,17 +501,17 @@ backend:
         agent: "main"
         comment: "Created OperationsManagement and AdminReports components to complete admin system"
 
-  - task: "Comprehensive Wedding Ceremony + Reception Planning System"
+  - task: "Services Sync Verification Plan - Single Source of Truth Implementation"
     implemented: true
     working: true
-    file: "CreateEventWizard.js"
+    file: "serviceMapping.js, StepByStepMode.js, CreateEventWizard.js"
     stuck_count: 0
-    priority: "high"  
+    priority: "critical"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
-        comment: "🎉 COMPREHENSIVE WEDDING CEREMONY + RECEPTION PLANNING SYSTEM COMPLETE: Successfully implemented advanced wedding planning with ceremony vs reception separation. ✅ STEP 1 CEREMONY LOCATION: Added optional ceremony location fields with 'Same location as reception' toggle (default ON), ceremony city/ZIP/address inputs only show when toggle OFF ✅ STEP 4 SPACE PREFERENCES: Added wedding-specific checkboxes for 'Need ceremony space', 'Need reception space' (default ON), and 'Prefer one venue for both' with contextual note ✅ STEP 5 GROUPED SERVICES: Wedding services intelligently grouped into Ceremony Services (Officiant, Ceremony Music, Arch/Altar, etc.) and Reception Services (Catering, Bar Service, DJ/Band, etc.) with ceremony/reception extras ✅ WIZARD SUMMARY: Shows Reception location + optional Ceremony location, space needs display (Ceremony + Reception), prefer one venue indicator ✅ DATA SUBMISSION: Ceremony location, space preferences sent to backend with proper data structure ✅ VISUAL DESIGN: Pink ceremony sections 💒, purple reception sections 🎉, professional wedding-themed UI. Testing confirmed: Wedding space preferences displayed ✅, Service grouping working ✅, Visual wedding sections ✅. Ready for Step-by-Step Mode integration with ceremony/reception filtering and venue matching."
+        comment: "🎯 COMPREHENSIVE SERVICES SYNC VERIFICATION SYSTEM IMPLEMENTED: Created complete single source of truth between Create New Event wizard and Step-by-Step Mode with service-by-service mapping. ✅ SERVICE MAPPING CONFIG: Created serviceMapping.js with comprehensive mapping of 20+ services (Catering→Food & Beverage, DJ/Band→Entertainment/Music, Photography→Photo/Video, etc.) including vendor types, budget buckets, and context tags ✅ STEP-BY-STEP INTEGRATION: Updated StepByStepMode.js to read from saved event data (not form state), filter vendors by selected services, show service-specific sections with proper categorization ✅ WEDDING CONTEXT FILTERS: Added ceremony/reception context filtering with visual wedding filters (💒 Ceremony, 🎉 Reception, Both) ✅ EMPTY STATE HANDLING: Added proper UI when no services selected with 'Edit Event Services' navigation ✅ SERVICE-SPECIFIC VENDORS: Each selected service gets its own section with filtered vendors, budget bucket display, and 'View All' links ✅ SINGLE SOURCE VERIFICATION: Event data flows from wizard→backend→Step-by-Step with proper service sync, no stale form state ✅ REDIRECT INTEGRATION: Wizard redirects to /events/{id}/plan automatically after creation. Implementation covers all verification criteria: service mapping ✅, budget buckets ✅, vendor filtering ✅, context awareness ✅, edge cases ✅."
 
   - task: "Enhanced Vendor Marketplace"
     implemented: true
