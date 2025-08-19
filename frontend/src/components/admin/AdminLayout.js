@@ -127,10 +127,10 @@ const AdminLayout = () => {
       </div>
 
       {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
+      {open && (
         <div 
           className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => onOpenChange(false)}
         />
       )}
 
