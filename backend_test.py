@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 """
-Enhanced Authentication System Backend Testing for Urevent 360 Platform
-Focus: Testing the FIXED enhanced authentication system with token compatibility
+URGENT AUTHENTICATION DEBUGGING - Login/Redirect Issues Backend Testing
+Focus: Testing authentication system to identify why users are getting kicked back to landing page
 
-PRIORITY TESTING FOCUS (as per review request):
-1. **Basic Compatibility**: Test that enhanced auth endpoints work with tokens from basic `/api/login`
-2. **Health Check**: Test `/api/auth/health` to verify system status
-3. **Token Compatibility**: Login via basic auth, then access enhanced endpoints
-4. **Rate Limit Reset**: Test `/api/auth/reset-rate-limit` to clear failed attempts
-5. **Enhanced Login**: Test `/api/auth/login` with existing user credentials
-6. **Role Management**: Test `/api/auth/user/roles` with basic auth tokens
-7. **Session Management**: Test `/api/auth/security/sessions`
-8. **Enhanced Profile**: Test `/api/auth/profile/enhanced`
+CRITICAL TESTS (as per review request):
+1. **Backend Authentication Health Check** - Test /api/auth/health endpoint 
+2. **Login Endpoints Testing** - Test POST /api/login with all user credentials
+3. **Token Validation Testing** - Test GET /api/users/profile with valid JWT tokens
+4. **Session Persistence** - Test if tokens remain valid across requests
+5. **Role-Based Authentication** - Verify each role can login successfully
+6. **JWT Token Analysis** - Check token format and payload
 
-This tests the FIXED enhanced authentication system with unified token verification.
+DEBUG FOCUS: Look for authentication failures, JWT token issues, or database connectivity 
+problems that could cause login redirects.
 """
 
 import requests
