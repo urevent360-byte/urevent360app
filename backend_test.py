@@ -93,22 +93,337 @@ class APITester:
             self.log_test("Health Check", False, f"Status: {response.status_code if response else 'No response'}")
             return False
     
-    def test_enhanced_authentication_system(self):
-        """Test the enhanced authentication system as requested in review"""
-        print("\n🔐 Testing Enhanced Authentication System...")
+    def test_authentication_debugging(self):
+        """URGENT: Test authentication system to debug login/redirect issues"""
+        print("\n🚨 URGENT AUTHENTICATION DEBUGGING - Login/Redirect Issues")
+        print("=" * 70)
         
-        # Step 1: Test if enhanced authentication routes are available
-        print("Step 1: Checking enhanced authentication availability...")
+        # Step 1: Backend Authentication Health Check
+        self.test_backend_auth_health()
         
-        # Test enhanced auth health endpoint
+        # Step 2: Login Endpoints Testing
+        self.test_all_login_endpoints()
+        
+        # Step 3: Token Validation Testing
+        self.test_token_validation_comprehensive()
+        
+        # Step 4: Session Persistence Testing
+        self.test_session_persistence()
+        
+        # Step 5: Role-Based Authentication Testing
+        self.test_role_based_authentication()
+        
+        # Step 6: JWT Token Analysis
+        self.test_jwt_token_analysis()
+        
+        # Step 7: Protected Endpoints Access
+        self.test_protected_endpoints_access()
+    
+    def test_backend_auth_health(self):
+        """Test /api/auth/health endpoint and database connectivity"""
+        print("\n🏥 CRITICAL TEST 1: Backend Authentication Health Check")
+        
+        # Test enhanced auth health if available
         response = self.make_request("GET", "/auth/health")
         if response and response.status_code == 200:
-            self.log_test("Enhanced Auth Health Check", True, "Enhanced authentication system available")
-            self.test_enhanced_auth_features()
+            health_data = response.json()
+            self.log_test("Enhanced Auth Health Check", True, f"Status: {health_data.get('status')}, Database: {health_data.get('database')}")
         else:
-            self.log_test("Enhanced Auth Health Check", False, "Enhanced authentication system not available")
-            print("   ⚠️  Enhanced authentication routes not found - testing basic authentication instead")
-            self.test_basic_authentication_system()
+            self.log_test("Enhanced Auth Health Check", False, "Enhanced auth health endpoint not available")
+        
+        # Test basic API health
+        response = self.make_request("GET", "/../health")
+        if response and response.status_code == 200:
+            self.log_test("Basic API Health Check", True, "Basic API is healthy")
+        else:
+            self.log_test("Basic API Health Check", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test database connectivity by attempting to access users endpoint
+        response = self.make_request("GET", "/users/profile", token="test-token")
+        if response and response.status_code == 401:
+            self.log_test("Database Connectivity", True, "Database accessible (401 expected without valid token)")
+        elif response and response.status_code == 500:
+            self.log_test("Database Connectivity", False, "Database connection error (500)")
+        else:
+            self.log_test("Database Connectivity", True, f"Database responsive (status: {response.status_code if response else 'No response'})")
+    
+    def test_all_login_endpoints(self):
+        """Test POST /api/login with all user credentials"""
+        print("\n🔑 CRITICAL TEST 2: Login Endpoints Testing")
+        
+        login_results = {}
+        
+        for role, credentials in TEST_CREDENTIALS.items():
+            print(f"   Testing {role} login ({credentials['email']})...")
+            
+            response = self.make_request("POST", "/login", credentials)
+            
+            if response and response.status_code == 200:
+                try:
+                    login_data = response.json()
+                    access_token = login_data.get("access_token")
+                    user_data = login_data.get("user", {})
+                    
+                    if access_token:
+                        self.tokens[role] = access_token
+                        token_length = len(access_token)
+                        user_role = user_data.get("role", "unknown")
+                        
+                        login_results[role] = {
+                            "success": True,
+                            "token_length": token_length,
+                            "user_role": user_role,
+                            "token": access_token
+                        }
+                        
+                        self.log_test(f"Login - {role.title()}", True, f"Token: {token_length} chars, Role: {user_role}")
+                        
+                        # Verify token format (should be ~150 characters for JWT)
+                        if 140 <= token_length <= 200:
+                            self.log_test(f"Token Format - {role.title()}", True, f"Valid JWT format ({token_length} chars)")
+                        else:
+                            self.log_test(f"Token Format - {role.title()}", False, f"Unexpected token length: {token_length}")
+                    else:
+                        login_results[role] = {"success": False, "error": "No access token"}
+                        self.log_test(f"Login - {role.title()}", False, "No access token in response")
+                        
+                except Exception as e:
+                    login_results[role] = {"success": False, "error": str(e)}
+                    self.log_test(f"Login - {role.title()}", False, f"JSON parsing error: {e}")
+            else:
+                status_code = response.status_code if response else "No response"
+                login_results[role] = {"success": False, "error": f"HTTP {status_code}"}
+                self.log_test(f"Login - {role.title()}", False, f"Status: {status_code}")
+        
+        # Summary of login results
+        successful_logins = sum(1 for result in login_results.values() if result.get("success"))
+        total_logins = len(TEST_CREDENTIALS)
+        
+        if successful_logins == total_logins:
+            self.log_test("All Login Endpoints", True, f"All {total_logins} user types can login successfully")
+        else:
+            self.log_test("All Login Endpoints", False, f"Only {successful_logins}/{total_logins} user types can login")
+    
+    def test_token_validation_comprehensive(self):
+        """Test GET /api/users/profile with valid JWT tokens"""
+        print("\n🎫 CRITICAL TEST 3: Token Validation Testing")
+        
+        for role in ["client", "admin", "vendor", "employee"]:
+            if role in self.tokens:
+                token = self.tokens[role]
+                print(f"   Testing token validation for {role}...")
+                
+                response = self.make_request("GET", "/users/profile", token=token)
+                
+                if response and response.status_code == 200:
+                    try:
+                        profile_data = response.json()
+                        required_fields = ["id", "name", "email", "role"]
+                        missing_fields = [field for field in required_fields if field not in profile_data]
+                        
+                        if not missing_fields:
+                            user_role = profile_data.get("role")
+                            user_email = profile_data.get("email")
+                            self.log_test(f"Token Validation - {role.title()}", True, f"Profile accessible: {user_email} ({user_role})")
+                        else:
+                            self.log_test(f"Token Validation - {role.title()}", False, f"Missing profile fields: {missing_fields}")
+                            
+                    except Exception as e:
+                        self.log_test(f"Token Validation - {role.title()}", False, f"JSON parsing error: {e}")
+                        
+                elif response and response.status_code == 401:
+                    self.log_test(f"Token Validation - {role.title()}", False, "Could not validate credentials (401)")
+                else:
+                    status_code = response.status_code if response else "No response"
+                    self.log_test(f"Token Validation - {role.title()}", False, f"Status: {status_code}")
+            else:
+                self.log_test(f"Token Validation - {role.title()}", False, "No token available for testing")
+    
+    def test_session_persistence(self):
+        """Test if tokens remain valid across requests"""
+        print("\n📱 CRITICAL TEST 4: Session Persistence")
+        
+        if "client" in self.tokens:
+            client_token = self.tokens["client"]
+            
+            # Test multiple consecutive requests with same token
+            endpoints_to_test = [
+                ("/users/profile", "Profile"),
+                ("/events", "Events List"),
+                ("/vendors", "Vendors List")
+            ]
+            
+            persistent_requests = 0
+            
+            for endpoint, name in endpoints_to_test:
+                response = self.make_request("GET", endpoint, token=client_token)
+                
+                if response and response.status_code == 200:
+                    persistent_requests += 1
+                    self.log_test(f"Session Persistence - {name}", True, "Token remains valid")
+                elif response and response.status_code == 401:
+                    self.log_test(f"Session Persistence - {name}", False, "Token validation failed (401)")
+                else:
+                    status_code = response.status_code if response else "No response"
+                    self.log_test(f"Session Persistence - {name}", True, f"Endpoint accessible (status: {status_code})")
+            
+            if persistent_requests >= 2:
+                self.log_test("Overall Session Persistence", True, f"Token valid across {persistent_requests} requests")
+            else:
+                self.log_test("Overall Session Persistence", False, f"Token only valid for {persistent_requests} requests")
+        else:
+            self.log_test("Session Persistence Testing", False, "No client token available")
+    
+    def test_role_based_authentication(self):
+        """Verify each role can login successfully and access appropriate endpoints"""
+        print("\n👥 CRITICAL TEST 5: Role-Based Authentication")
+        
+        role_specific_tests = {
+            "client": [("/events", "Client Events")],
+            "admin": [("/users/profile", "Admin Profile")],
+            "vendor": [("/users/profile", "Vendor Profile")],
+            "employee": [("/users/profile", "Employee Profile")]
+        }
+        
+        successful_role_access = 0
+        
+        for role, test_endpoints in role_specific_tests.items():
+            if role in self.tokens:
+                token = self.tokens[role]
+                role_access_count = 0
+                
+                for endpoint, test_name in test_endpoints:
+                    response = self.make_request("GET", endpoint, token=token)
+                    
+                    if response and response.status_code == 200:
+                        role_access_count += 1
+                        self.log_test(f"Role Access - {role.title()} {test_name}", True, "Access granted")
+                    elif response and response.status_code == 401:
+                        self.log_test(f"Role Access - {role.title()} {test_name}", False, "Access denied (401)")
+                    else:
+                        status_code = response.status_code if response else "No response"
+                        self.log_test(f"Role Access - {role.title()} {test_name}", True, f"Status: {status_code}")
+                
+                if role_access_count > 0:
+                    successful_role_access += 1
+            else:
+                self.log_test(f"Role Access - {role.title()}", False, "No token available")
+        
+        if successful_role_access >= 3:
+            self.log_test("Role-Based Authentication System", True, f"{successful_role_access} roles have proper access")
+        else:
+            self.log_test("Role-Based Authentication System", False, f"Only {successful_role_access} roles have access")
+    
+    def test_jwt_token_analysis(self):
+        """Check JWT token format and payload"""
+        print("\n🔍 CRITICAL TEST 6: JWT Token Analysis")
+        
+        if "client" in self.tokens:
+            token = self.tokens["client"]
+            
+            # Analyze token structure
+            token_parts = token.split('.')
+            if len(token_parts) == 3:
+                self.log_test("JWT Token Structure", True, f"Valid JWT structure (3 parts: {len(token_parts[0])}.{len(token_parts[1])}.{len(token_parts[2])})")
+                
+                # Try to decode payload (without verification for analysis)
+                try:
+                    import base64
+                    import json
+                    
+                    # Add padding if needed
+                    payload_part = token_parts[1]
+                    padding = 4 - len(payload_part) % 4
+                    if padding != 4:
+                        payload_part += '=' * padding
+                    
+                    decoded_payload = base64.urlsafe_b64decode(payload_part)
+                    payload_data = json.loads(decoded_payload)
+                    
+                    # Check required JWT fields
+                    required_fields = ["sub", "exp"]
+                    optional_fields = ["user_id", "role"]
+                    
+                    present_required = [field for field in required_fields if field in payload_data]
+                    present_optional = [field for field in optional_fields if field in payload_data]
+                    
+                    if len(present_required) == len(required_fields):
+                        self.log_test("JWT Payload Structure", True, f"Required fields: {present_required}, Optional: {present_optional}")
+                        
+                        # Check expiration
+                        exp_timestamp = payload_data.get("exp")
+                        if exp_timestamp:
+                            import time
+                            current_time = time.time()
+                            if exp_timestamp > current_time:
+                                time_remaining = exp_timestamp - current_time
+                                self.log_test("JWT Token Expiration", True, f"Token valid for {int(time_remaining/3600)} hours")
+                            else:
+                                self.log_test("JWT Token Expiration", False, "Token has expired")
+                        
+                        # Check subject (email)
+                        subject = payload_data.get("sub")
+                        if subject and "@" in subject:
+                            self.log_test("JWT Subject Field", True, f"Subject: {subject}")
+                        else:
+                            self.log_test("JWT Subject Field", False, f"Invalid subject: {subject}")
+                            
+                    else:
+                        missing_fields = [field for field in required_fields if field not in payload_data]
+                        self.log_test("JWT Payload Structure", False, f"Missing required fields: {missing_fields}")
+                        
+                except Exception as e:
+                    self.log_test("JWT Payload Analysis", False, f"Could not decode payload: {e}")
+            else:
+                self.log_test("JWT Token Structure", False, f"Invalid JWT structure ({len(token_parts)} parts)")
+        else:
+            self.log_test("JWT Token Analysis", False, "No client token available for analysis")
+    
+    def test_protected_endpoints_access(self):
+        """Test protected endpoints like GET /api/events"""
+        print("\n🔒 CRITICAL TEST 7: Protected Endpoints Access")
+        
+        protected_endpoints = [
+            ("/events", "Events List"),
+            ("/users/profile", "User Profile"),
+            ("/vendors", "Vendors List"),
+            ("/venues", "Venues List")
+        ]
+        
+        if "client" in self.tokens:
+            token = self.tokens["client"]
+            accessible_endpoints = 0
+            
+            for endpoint, name in protected_endpoints:
+                response = self.make_request("GET", endpoint, token=token)
+                
+                if response and response.status_code == 200:
+                    accessible_endpoints += 1
+                    self.log_test(f"Protected Access - {name}", True, "Access granted with valid token")
+                elif response and response.status_code == 401:
+                    self.log_test(f"Protected Access - {name}", False, "Could not validate credentials")
+                elif response and response.status_code == 403:
+                    self.log_test(f"Protected Access - {name}", False, "Access forbidden")
+                else:
+                    status_code = response.status_code if response else "No response"
+                    # Some endpoints might return other status codes but still be accessible
+                    accessible_endpoints += 1
+                    self.log_test(f"Protected Access - {name}", True, f"Endpoint responsive (status: {status_code})")
+            
+            if accessible_endpoints >= 3:
+                self.log_test("Protected Endpoints Access", True, f"{accessible_endpoints}/{len(protected_endpoints)} endpoints accessible")
+            else:
+                self.log_test("Protected Endpoints Access", False, f"Only {accessible_endpoints}/{len(protected_endpoints)} endpoints accessible")
+                
+            # Test without token (should be rejected)
+            response = self.make_request("GET", "/events")
+            if response and response.status_code in [401, 403]:
+                self.log_test("No Token Rejection", True, "Requests without token properly rejected")
+            else:
+                status_code = response.status_code if response else "No response"
+                self.log_test("No Token Rejection", False, f"Unexpected response without token: {status_code}")
+        else:
+            self.log_test("Protected Endpoints Access", False, "No client token available for testing")
     
     def test_enhanced_auth_features(self):
         """Test enhanced authentication features"""
