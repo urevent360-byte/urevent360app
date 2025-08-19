@@ -985,7 +985,28 @@ const CreateEventWizard = () => {
                               onChange={() => handleArrayToggle('neededExtras', extra)}
                               className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
                             />
-                            <span className="ml-3 text-sm text-gray-700">{extra}</span>
+                            <div className="ml-3">
+                              <span className="text-sm text-gray-700 font-medium">{extra}</span>
+                              {/* Extras help text */}
+                              {extra === 'Dessert Stations & Sweets' && (
+                                <p className="text-xs text-gray-500 mt-1">Dessert table, candy bar, donut wall, ice-cream cart, chocolate fountain</p>
+                              )}
+                              {extra === 'Dance Floor' && (
+                                <p className="text-xs text-gray-500 mt-1">Professional dance flooring rental</p>
+                              )}
+                              {extra === 'Special Lighting Effects' && (
+                                <p className="text-xs text-gray-500 mt-1">Cold sparks, dancing on clouds, spotlights, and FX</p>
+                              )}
+                              {extra === 'Photo Booth' && (
+                                <p className="text-xs text-gray-500 mt-1">Interactive photo booth with props and prints</p>
+                              )}
+                              {extra === 'Lounge Areas' && (
+                                <p className="text-xs text-gray-500 mt-1">Comfortable seating and lounge furniture rental</p>
+                              )}
+                              {extra === 'Late Night Snacks' && (
+                                <p className="text-xs text-gray-500 mt-1">Light bites and snacks for later in the evening</p>
+                              )}
+                            </div>
                           </label>
                         ))}
                       </div>
