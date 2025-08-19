@@ -853,7 +853,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Step-by-Step Mode Primary CTA"
+    - "Location Radius/ZIP-Only & Budget Wizard Functionality"
   stuck_tasks:
     - "Enhanced Authentication System"
     - "Calendar & Appointment Integration Backend"
