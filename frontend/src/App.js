@@ -56,155 +56,140 @@ import EnhancedAccountSettings from './components/settings/EnhancedAccountSettin
 
 function App() {
   return (
-    <EnhancedAuthProvider>
-      <AuthProvider>
-        <Router>
-          <div className="App">
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+    <ErrorBoundary>
+      <EnhancedAuthProvider>
+        <AuthProvider>
+          <Router>
+            <div className="App">
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                
+                {/* CEO Portal */}
+                <Route 
+                  path="/ceo/*" 
+                  element={
+                    <ProtectedRoute requiredRole="ROLE_CEO">
+                      <ErrorBoundary>
+                        <CEOConsolePage />
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
 
-              {/* CEO Console Routes */}
-              <Route 
-                path="/ceo/*" 
-                element={
-                  <ProtectedRoute requiredRole="ROLE_CEO">
-                    <CEOConsolePage />
-                  </ProtectedRoute>
-                } 
-              />
+                {/* Admin Portal */}
+                <Route 
+                  path="/admin/*" 
+                  element={
+                    <ProtectedRoute requiredRole="admin">
+                      <ErrorBoundary>
+                        <AdminLayout>
+                          <Routes>
+                            <Route path="/" element={<AdminDashboard />} />
+                            <Route path="/users" element={<UserManagement />} />
+                            <Route path="/vendors" element={<VendorManagement />} />
+                            <Route path="/operations" element={<OperationsManagement />} />
+                            <Route path="/reports" element={<AdminReports />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </AdminLayout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
 
-              {/* Admin routes */}
-              <Route 
-                path="/admin" 
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminLayout>
-                      <AdminDashboard />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/users" 
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminLayout>
-                      <UserManagement />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/vendors" 
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminLayout>
-                      <VendorManagement />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/operations" 
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminLayout>
-                      <OperationsManagement />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/admin/reports" 
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminLayout>
-                      <AdminReports />
-                    </AdminLayout>
-                  </ProtectedRoute>
-                } 
-              />
+                {/* Vendor Portal */}
+                <Route 
+                  path="/vendor/*" 
+                  element={
+                    <ProtectedRoute requiredRole="vendor">
+                      <ErrorBoundary>
+                        <VendorLayout>
+                          <Routes>
+                            <Route path="/" element={<VendorDashboard />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </VendorLayout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
 
-              {/* Vendor routes */}
-              <Route 
-                path="/vendor" 
-                element={
-                  <ProtectedRoute requiredRole="vendor">
-                    <VendorLayout>
-                      <VendorDashboard />
-                    </VendorLayout>
-                  </ProtectedRoute>
-                } 
-              />
+                {/* Employee Portal */}
+                <Route 
+                  path="/employee/*" 
+                  element={
+                    <ProtectedRoute requiredRole="employee">
+                      <ErrorBoundary>
+                        <EmployeeLayout>
+                          <Routes>
+                            <Route path="/" element={<EmployeeDashboard />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </EmployeeLayout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
 
-              {/* Employee routes */}
-              <Route 
-                path="/employee" 
-                element={
-                  <ProtectedRoute requiredRole="employee">
-                    <EmployeeLayout>
-                      <EmployeeDashboard />
-                    </EmployeeLayout>
-                  </ProtectedRoute>
-                } 
-              />
-
-              {/* Client routes */}
-              <Route 
-                path="/" 
-                element={
-                  <ProtectedRoute>
-                    <ErrorBoundary>
-                      <Layout>
-                        <Routes>
-                          <Route path="/" element={<Dashboard />} />
-                          <Route path="/events/new" element={<CreateEventWizard />} />
-                          <Route path="/events/create" element={<EventCreation />} />
-                          <Route path="/events/:eventId/plan" element={<StepByStepMode />} />
-                          <Route path="/events/:eventId/planning" element={<EventPlanning />} />
-                          <Route path="/venues" element={<VenueBrowser />} />
-                          <Route path="/venues/new" element={<VenueCreate />} />
-                          <Route path="/vendors" element={<VendorMarketplace />} />
-                          <Route path="/preferred-vendors" element={<PreferredVendors />} />
-                          <Route path="/messages" element={<Messages />} />
-                          <Route path="/analytics" element={<Analytics />} />
-                          <Route path="/payments" element={<PaymentCenter />} />
-                          <Route path="/loans" element={<LoanCenter />} />
-                          <Route path="/communication" element={<CommunicationCenter />} />
-                          <Route path="/events/:eventId/guests" element={<GuestManagement />} />
-                          <Route path="/events/:eventId/budget" element={<BudgetTracker />} />
-                          <Route path="/history" element={<EventHistory />} />
-                          <Route path="/profile" element={<Profile />} />
-                          <Route path="/calendar" element={<CalendarView />} />
-                          
-                          {/* Settings routes */}
-                          <Route path="/settings" element={<Settings />} />
-                          <Route path="/settings/profile" element={<EditProfile />} />
-                          <Route path="/settings/password" element={<ChangePassword />} />
-                          <Route path="/settings/language" element={<LanguageSettings />} />
-                          <Route path="/settings/security" element={<SecuritySettings />} />
-                          <Route path="/settings/notifications" element={<NotificationSettings />} />
-                          <Route path="/settings/privacy" element={<PrivacySettings />} />
-                          <Route path="/settings/integrations" element={<IntegrationSettings />} />
-                          <Route path="/settings/billing" element={<BillingSettings />} />
-                          <Route path="/settings/help" element={<HelpSupport />} />
-                          <Route path="/settings/account" element={<EnhancedAccountSettings />} />
-                          
-                          {/* 404 route */}
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </Layout>
-                    </ErrorBoundary>
-                  </ProtectedRoute>
-                } 
-              />
-            </Routes>
-          </div>
-        </Router>
-      </AuthProvider>
-    </EnhancedAuthProvider>
+                {/* Client Portal */}
+                <Route 
+                  path="/" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <Routes>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/events/new" element={<CreateEventWizard />} />
+                            <Route path="/events/create" element={<EventCreation />} />
+                            <Route path="/events/:eventId/plan" element={<StepByStepMode />} />
+                            <Route path="/events/:eventId/planning" element={<EventPlanning />} />
+                            <Route path="/venues" element={<VenueBrowser />} />
+                            <Route path="/venues/new" element={<VenueCreate />} />
+                            <Route path="/vendors" element={<VendorMarketplace />} />
+                            <Route path="/preferred-vendors" element={<PreferredVendors />} />
+                            <Route path="/messages" element={<Messages />} />
+                            <Route path="/analytics" element={<Analytics />} />
+                            <Route path="/payments" element={<PaymentCenter />} />
+                            <Route path="/loans" element={<LoanCenter />} />
+                            <Route path="/communication" element={<CommunicationCenter />} />
+                            <Route path="/events/:eventId/guests" element={<GuestManagement />} />
+                            <Route path="/events/:eventId/budget" element={<BudgetTracker />} />
+                            <Route path="/history" element={<EventHistory />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/calendar" element={<CalendarView />} />
+                            
+                            {/* Settings routes */}
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="/settings/profile" element={<EditProfile />} />
+                            <Route path="/settings/password" element={<ChangePassword />} />
+                            <Route path="/settings/language" element={<LanguageSettings />} />
+                            <Route path="/settings/security" element={<SecuritySettings />} />
+                            <Route path="/settings/notifications" element={<NotificationSettings />} />
+                            <Route path="/settings/privacy" element={<PrivacySettings />} />
+                            <Route path="/settings/integrations" element={<IntegrationSettings />} />
+                            <Route path="/settings/billing" element={<BillingSettings />} />
+                            <Route path="/settings/help" element={<HelpSupport />} />
+                            <Route path="/settings/account" element={<EnhancedAccountSettings />} />
+                            
+                            {/* 404 route */}
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Global 404 catch-all */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+          </Router>
+        </AuthProvider>
+      </EnhancedAuthProvider>
+    </ErrorBoundary>
   );
 }
 
