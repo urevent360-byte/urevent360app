@@ -2360,6 +2360,11 @@ async def match_venues_for_event(
         radius_miles = location_prefs.get("radius_miles", 25)
         city = location_prefs.get("city") or event.get("location")
         
+        # Debug logging
+        if os.environ.get('DEBUG') == 'true':
+            print(f"[Matcher] eventId {event_id}, location_prefs: {location_prefs}")
+            print(f"[Matcher] zipcode: {zipcode}, zip_only: {zip_only}, radius_miles: {radius_miles}, city: {city}")
+        
         # Get event criteria
         event_type = event.get("event_type")
         guest_count = event.get("guest_count")
