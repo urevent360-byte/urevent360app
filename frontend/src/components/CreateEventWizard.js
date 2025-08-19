@@ -457,6 +457,91 @@ const CreateEventWizard = () => {
       case 4:
         return (
           <div className="space-y-6">
+            {/* Wedding-Specific: Space Preferences (only for weddings) */}
+            {eventData.type === 'wedding' && (
+              <div className="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <span className="mr-2">💒</span>
+                  Wedding Space Preferences
+                </h4>
+                
+                <div className="space-y-4">
+                  {/* Space needs checkboxes */}
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-3">Which spaces do you need?</p>
+                    <div className="space-y-3">
+                      <label className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          checked={eventData.spacePreferences.needCeremonySpace}
+                          onChange={(e) => {
+                            setEventData(prev => ({
+                              ...prev,
+                              spacePreferences: {
+                                ...prev.spacePreferences,
+                                needCeremonySpace: e.target.checked
+                              }
+                            }));
+                          }}
+                          className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                        />
+                        <span className="text-sm text-gray-700">Need ceremony space</span>
+                      </label>
+                      
+                      <label className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          checked={eventData.spacePreferences.needReceptionSpace}
+                          onChange={(e) => {
+                            setEventData(prev => ({
+                              ...prev,
+                              spacePreferences: {
+                                ...prev.spacePreferences,
+                                needReceptionSpace: e.target.checked
+                              }
+                            }));
+                          }}
+                          className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                        />
+                        <span className="text-sm text-gray-700">Need reception space</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Prefer one venue toggle */}
+                  {(eventData.spacePreferences.needCeremonySpace && eventData.spacePreferences.needReceptionSpace) && (
+                    <div>
+                      <label className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          checked={eventData.spacePreferences.preferOneVenue}
+                          onChange={(e) => {
+                            setEventData(prev => ({
+                              ...prev,
+                              spacePreferences: {
+                                ...prev.spacePreferences,
+                                preferOneVenue: e.target.checked
+                              }
+                            }));
+                          }}
+                          className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                        />
+                        <span className="text-sm font-medium text-gray-700">Prefer one venue for both</span>
+                      </label>
+                      
+                      {eventData.spacePreferences.preferOneVenue && (
+                        <div className="mt-2 ml-6 p-3 bg-blue-50 border border-blue-200 rounded">
+                          <p className="text-sm text-blue-700">
+                            📍 <strong>Note:</strong> We'll only show venues that offer both ceremony + reception spaces.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-4">
                 Preferred Venue Types * (Select all that interest you)
