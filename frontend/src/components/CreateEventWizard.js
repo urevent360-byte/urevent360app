@@ -841,15 +841,135 @@ const CreateEventWizard = () => {
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {RECEPTION_SERVICES.map((service) => (
-                        <label key={service} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={eventData.neededCoreServices.includes(service)}
-                            onChange={() => handleArrayToggle('neededCoreServices', service)}
-                            className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
-                          />
-                          <span className="ml-3 text-sm text-gray-700">{service}</span>
-                        </label>
+                        <div key={service}>
+                          <label className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={eventData.neededCoreServices.includes(service)}
+                              onChange={() => handleArrayToggle('neededCoreServices', service)}
+                              className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
+                            />
+                            <div className="ml-3">
+                              <span className="text-sm text-gray-700 font-medium">{service}</span>
+                              {/* Service help text */}
+                              {service === 'Catering' && (
+                                <p className="text-xs text-gray-500 mt-1">Full-Service, Appetizers only, or Specialty Food Stations</p>
+                              )}
+                              {service === 'Cakes' && (
+                                <p className="text-xs text-gray-500 mt-1">Wedding, Birthday, Quinceañera, or Custom designs</p>
+                              )}
+                              {service === 'Bar Service' && (
+                                <p className="text-xs text-gray-500 mt-1">Full bar, beer & wine, or signature cocktails</p>
+                              )}
+                              {service === 'DJ/Band' && (
+                                <p className="text-xs text-gray-500 mt-1">Music and entertainment for your reception</p>
+                              )}
+                              {service === 'Photography/Videography' && (
+                                <p className="text-xs text-gray-500 mt-1">Professional photo and video services</p>
+                              )}
+                              {service === 'Reception Lighting' && (
+                                <p className="text-xs text-gray-500 mt-1">Uplighting, wash lighting, and ambiance</p>
+                              )}
+                              {service === 'Day-of Coordination' && (
+                                <p className="text-xs text-gray-500 mt-1">Professional coordination on your event day</p>
+                              )}
+                            </div>
+                          </label>
+
+                          {/* Catering Subcategories */}
+                          {service === 'Catering' && eventData.neededCoreServices.includes('Catering') && (
+                            <div className="mt-3 ml-6 p-3 bg-blue-50 border border-blue-200 rounded">
+                              <p className="text-sm font-medium text-gray-900 mb-2">Catering Type:</p>
+                              <div className="space-y-2">
+                                {['Full-Service Catering', 'Appetizers / Small Bites only', 'Specialty Food Stations'].map((type) => (
+                                  <label key={type} className="flex items-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={eventData.serviceSubcategories.catering.includes(type)}
+                                      onChange={() => {
+                                        setEventData(prev => ({
+                                          ...prev,
+                                          serviceSubcategories: {
+                                            ...prev.serviceSubcategories,
+                                            catering: prev.serviceSubcategories.catering.includes(type)
+                                              ? prev.serviceSubcategories.catering.filter(t => t !== type)
+                                              : [...prev.serviceSubcategories.catering, type]
+                                          }
+                                        }));
+                                      }}
+                                      className="h-3 w-3 text-blue-600 focus:ring-blue-500 rounded"
+                                    />
+                                    <span className="ml-2 text-sm text-gray-700">{type}</span>
+                                  </label>
+                                ))}
+                              </div>
+
+                              {/* Specialty Stations Sub-selection */}
+                              {eventData.serviceSubcategories.catering.includes('Specialty Food Stations') && (
+                                <div className="mt-3 p-2 bg-white border border-gray-200 rounded">
+                                  <p className="text-xs font-medium text-gray-900 mb-2">Select Stations:</p>
+                                  <div className="grid grid-cols-2 gap-1">
+                                    {['Sushi', 'Charcuterie/Cheese', 'Fruit', 'Taco', 'Pasta', 'Carving', 'Seafood/Raw Bar', 'Ceviche'].map((station) => (
+                                      <label key={station} className="flex items-center">
+                                        <input
+                                          type="checkbox"
+                                          checked={eventData.serviceSubcategories.cateringStations.includes(station)}
+                                          onChange={() => {
+                                            setEventData(prev => ({
+                                              ...prev,
+                                              serviceSubcategories: {
+                                                ...prev.serviceSubcategories,
+                                                cateringStations: prev.serviceSubcategories.cateringStations.includes(station)
+                                                  ? prev.serviceSubcategories.cateringStations.filter(s => s !== station)
+                                                  : [...prev.serviceSubcategories.cateringStations, station]
+                                              }
+                                            }));
+                                          }}
+                                          className="h-3 w-3 text-blue-600 focus:ring-blue-500 rounded"
+                                        />
+                                        <span className="ml-1 text-xs text-gray-600">{station}</span>
+                                      </label>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Cakes Subcategories */}
+                          {service === 'Cakes' && eventData.neededCoreServices.includes('Cakes') && (
+                            <div className="mt-3 ml-6 p-3 bg-pink-50 border border-pink-200 rounded">
+                              <p className="text-sm font-medium text-gray-900 mb-2">Cake Type:</p>
+                              <div className="space-y-2">
+                                {eventData.type === 'wedding' ? ['Wedding Cake', 'Custom Designs', 'Cupcakes', 'Macarons'] :
+                                 eventData.type === 'birthday' ? ['Birthday Cake', 'Custom Designs', 'Cupcakes'] :
+                                 eventData.type === 'quinceanera' ? ['Quinceañera Cake', 'Custom Designs', 'Cupcakes'] :
+                                 ['Custom Cake', 'Cupcakes', 'Macarons']
+                                }.map((cakeType) => (
+                                  <label key={cakeType} className="flex items-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={eventData.serviceSubcategories.cakes.includes(cakeType)}
+                                      onChange={() => {
+                                        setEventData(prev => ({
+                                          ...prev,
+                                          serviceSubcategories: {
+                                            ...prev.serviceSubcategories,
+                                            cakes: prev.serviceSubcategories.cakes.includes(cakeType)
+                                              ? prev.serviceSubcategories.cakes.filter(t => t !== cakeType)
+                                              : [...prev.serviceSubcategories.cakes, cakeType]
+                                          }
+                                        }));
+                                      }}
+                                      className="h-3 w-3 text-pink-600 focus:ring-pink-500 rounded"
+                                    />
+                                    <span className="ml-2 text-sm text-gray-700">{cakeType}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
 
