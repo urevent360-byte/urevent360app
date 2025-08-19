@@ -134,7 +134,7 @@ function App() {
 
                 {/* Client Portal */}
                 <Route 
-                  path="/" 
+                  path="/*" 
                   element={
                     <ProtectedRoute>
                       <ErrorBoundary>
