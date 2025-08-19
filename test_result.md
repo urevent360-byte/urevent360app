@@ -506,15 +506,18 @@ backend:
 
   - task: "Discrete Admin Access Icon"
     implemented: true
-    working: unknown
+    working: true
     file: "Login.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: unknown
         agent: "main"
         comment: "Added discrete admin access icon (shield) in top right corner of login pages. Administrators can easily click the icon to access admin portal. Icon appears on both role selection and login form pages, with glassmorphism styling to match premium design. Much more visible and accessible than clickable logo."
+      - working: true
+        agent: "testing"
+        comment: "✅ DISCRETE ADMIN ACCESS ICON WORKING: Admin access icon (shield) is visible and properly positioned in top-right corner of login pages. Icon has proper glassmorphism styling and hover effects. Clicking the icon correctly transitions to admin login form with pre-filled credentials. Visual implementation is correct and accessible. Note: Actual admin login functionality is blocked by broader authentication issues, but the UI component itself works as designed."
 
   - task: "Employee Portal Module"
     implemented: true
