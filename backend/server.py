@@ -110,7 +110,8 @@ class Event(BaseModel):
     date: datetime
     location: Optional[str] = None
     zipcode: Optional[str] = None
-    location_preferences: Optional[Dict[str, Any]] = None  # search_radius, only_exact_location, preferred_areas
+    location_preferences: Optional[Dict[str, Any]] = None  # search_radius, only_exact_location, preferred_areas, zip_only, radius_miles
+    budget_preferences: Optional[Dict[str, Any]] = None  # target, currency
     venue_id: Optional[str] = None
     venue_name: Optional[str] = None
     venue_address: Optional[str] = None
