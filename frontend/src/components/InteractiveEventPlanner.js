@@ -1802,6 +1802,9 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
   // Default mode (new planning) - original interface
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      {/* Debug Component */}
+      {process.env.REACT_APP_DEBUG_MATCHING === 'true' && <DebugPlanner event={eventData} />}
+      
       <div className="relative top-4 mx-auto p-0 border w-full max-w-7xl shadow-lg rounded-lg bg-white mb-8">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
