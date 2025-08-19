@@ -251,6 +251,19 @@ const StepByStepMode = () => {
                 <div>{event.preferred_venue_types.join(', ')}</div>
               </div>
             )}
+            {(event.needed_core_services?.length > 0 || event.needed_extras?.length > 0) && (
+              <div>
+                <span className="text-white/80">Services Selected:</span>
+                <div>
+                  {[...(event.needed_core_services || []), ...(event.needed_extras || [])]
+                    .slice(0, 3)
+                    .join(', ')}
+                  {([...(event.needed_core_services || []), ...(event.needed_extras || [])].length > 3) && 
+                    ` +${[...(event.needed_core_services || []), ...(event.needed_extras || [])].length - 3} more`
+                  }
+                </div>
+              </div>
+            )}
             {event.needed_core_services?.length > 0 && (
               <div>
                 <span className="text-white/80">Core Services:</span>
