@@ -351,6 +351,10 @@ const CreateEventWizard = () => {
         preferred_venue_types: eventData.preferredVenueTypes,
         needed_core_services: eventData.neededCoreServices,
         needed_extras: eventData.neededExtras,
+        
+        // Service subcategories for enhanced vendor matching
+        service_subcategories: eventData.serviceSubcategories,
+        
         category_specific: eventData.categorySpecific
       };
 
