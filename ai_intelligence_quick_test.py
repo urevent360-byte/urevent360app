@@ -9,7 +9,7 @@ import json
 from datetime import datetime, timedelta
 
 # Configuration
-BACKEND_URL = "https://urevent-unified.preview.emergentagent.com"
+BACKEND_URL = "https://urevent-platform.preview.emergentagent.com"
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
