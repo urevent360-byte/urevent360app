@@ -451,15 +451,15 @@ const CreateEventWizard = () => {
             {/* Location Search Controls - Only show if unified flag is OFF */}
             {process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' ? (
               /* Show read-only location preview when unified flag is enabled */
-              eventData.location && (eventData.location.city || eventData.location.zipcode) ? (
+              eventData.location_preferences && (eventData.location_preferences.city || eventData.location_preferences.zipcode) ? (
                 <div className="bg-gray-50 border rounded-lg p-4">
                   <div className="flex items-start justify-between">
                     <div>
                       <h5 className="text-sm font-medium text-gray-900 mb-1">Search Area</h5>
                       <p className="text-sm text-gray-600">
-                        {eventData.location.zipOnly
-                          ? `ZIP-only ${eventData.location.zipcode || '—'}`
-                          : `${eventData.location.radiusMiles || 25} miles around ${eventData.location.zipcode || eventData.location.city || 'selected location'}`}
+                        {eventData.location_preferences.zipOnly
+                          ? `ZIP-only ${eventData.location_preferences.zipcode || '—'}`
+                          : `${eventData.location_preferences.radiusMiles || 25} miles around ${eventData.location_preferences.zipcode || eventData.location_preferences.city || 'selected location'}`}
                       </p>
                     </div>
                     <button
