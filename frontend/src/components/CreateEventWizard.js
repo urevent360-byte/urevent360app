@@ -53,6 +53,21 @@ const CreateEventWizard = () => {
       radiusMiles: 25
     },
     
+    // Wedding-specific: Ceremony location (optional)
+    ceremonyLocation: {
+      city: '',
+      zipcode: '',
+      address: '',
+      sameAsReception: true // Default toggle ON
+    },
+    
+    // Wedding-specific: Space preferences
+    spacePreferences: {
+      needCeremonySpace: false,
+      needReceptionSpace: true, // Default ON for weddings
+      preferOneVenue: false // Prefer one venue for both
+    },
+    
     // Budget preferences  
     budget: {
       target: undefined,
