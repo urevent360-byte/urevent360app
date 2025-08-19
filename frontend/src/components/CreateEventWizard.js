@@ -36,8 +36,16 @@ const CreateEventWizard = () => {
     city: '',
     guestCount: '',
     
-    // Extended location preferences
+    // Extended location preferences (legacy)
     location: {
+      city: '',
+      zipcode: '',
+      zipOnly: false,
+      radiusMiles: 25
+    },
+    
+    // Unified location preferences (new)
+    location_preferences: {
       city: '',
       zipcode: '',
       zipOnly: false,
