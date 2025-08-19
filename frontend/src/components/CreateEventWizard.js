@@ -35,6 +35,20 @@ const CreateEventWizard = () => {
     city: '',
     guestCount: '',
     
+    // Extended location preferences
+    location: {
+      city: '',
+      zipcode: '',
+      zipOnly: false,
+      radiusMiles: 25
+    },
+    
+    // Budget preferences  
+    budget: {
+      target: undefined,
+      currency: 'USD'
+    },
+    
     // Preferences captured in wizard to seed Step-by-Step Mode
     preferredVenueTypes: [],
     categorySpecific: {
