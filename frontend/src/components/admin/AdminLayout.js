@@ -28,7 +28,8 @@ import CEOSuccession from '../CEOSuccession';
 
 const AdminLayout = () => {
   const { user, logout } = useContext(AuthContext);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [open, setOpen] = useState(true);
+  const onOpenChange = useCallback((v) => setOpen(v), []);
   const location = useLocation();
 
   // Base navigation for all admin users
