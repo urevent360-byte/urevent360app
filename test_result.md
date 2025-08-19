@@ -501,17 +501,17 @@ backend:
         agent: "main"
         comment: "Created OperationsManagement and AdminReports components to complete admin system"
 
-  - task: "Unified Bar/Bat Mitzvah Event Type + Boy/Girl Selection in Step 3"
+  - task: "Comprehensive Wedding Ceremony + Reception Planning System"
     implemented: true
     working: true
-    file: "CreateEventWizard.js, EventCreation.js, eventFlowConfig.js"
+    file: "CreateEventWizard.js"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"  
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
-        comment: "🎉 UNIFIED BAR/BAT MITZVAH IMPLEMENTATION COMPLETE: Successfully merged duplicate Mitzvah event types into single unified option with boy/girl selection in Step 3. ✅ SINGLE EVENT TYPE: Replaced separate 'Bar Mitzvah' and 'Bat Mitzvah' options with unified 'Bar/Bat Mitzvah' option showing 'Jewish coming of age ceremony' ✅ STEP 3 SELECTION: Added dedicated Mitzvah Type selection interface in Step 3 with visual cards for 'Bar Mitzvah (For boys)' and 'Bat Mitzvah (For girls)' with emoji indicators 👦👧 ✅ DATA SYNCHRONIZATION: Mitzvah type selection stored in both eventData.mitzvahType and categorySpecific.mitzvahType, sent to backend as mitzvah_type field ✅ VALIDATION: Step 3 validation requires Mitzvah type selection before proceeding to Step 4 ✅ SUMMARY DISPLAY: Event summary shows selected Mitzvah type (e.g., 'Bar/Bat Mitzvah (Bar Mitzvah - Boy)') ✅ CULTURAL SENSITIVITY: Removed inappropriate generic cultural styles for Jewish ceremonies ✅ CONFIGURATION: Updated eventFlowConfig.js with unified 'mitzvah' entry containing combined vendor tags. Testing confirmed: Only 1 unified option in Step 2 ✅, No duplicate entries ✅, Clean professional interface ✅. Implementation eliminates user confusion and provides streamlined experience for Jewish coming-of-age ceremonies."
+        comment: "🎉 COMPREHENSIVE WEDDING CEREMONY + RECEPTION PLANNING SYSTEM COMPLETE: Successfully implemented advanced wedding planning with ceremony vs reception separation. ✅ STEP 1 CEREMONY LOCATION: Added optional ceremony location fields with 'Same location as reception' toggle (default ON), ceremony city/ZIP/address inputs only show when toggle OFF ✅ STEP 4 SPACE PREFERENCES: Added wedding-specific checkboxes for 'Need ceremony space', 'Need reception space' (default ON), and 'Prefer one venue for both' with contextual note ✅ STEP 5 GROUPED SERVICES: Wedding services intelligently grouped into Ceremony Services (Officiant, Ceremony Music, Arch/Altar, etc.) and Reception Services (Catering, Bar Service, DJ/Band, etc.) with ceremony/reception extras ✅ WIZARD SUMMARY: Shows Reception location + optional Ceremony location, space needs display (Ceremony + Reception), prefer one venue indicator ✅ DATA SUBMISSION: Ceremony location, space preferences sent to backend with proper data structure ✅ VISUAL DESIGN: Pink ceremony sections 💒, purple reception sections 🎉, professional wedding-themed UI. Testing confirmed: Wedding space preferences displayed ✅, Service grouping working ✅, Visual wedding sections ✅. Ready for Step-by-Step Mode integration with ceremony/reception filtering and venue matching."
 
   - task: "Enhanced Vendor Marketplace"
     implemented: true
