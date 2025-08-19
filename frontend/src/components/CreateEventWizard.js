@@ -191,7 +191,7 @@ const CreateEventWizard = () => {
         // Check location based on feature flag
         if (process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true') {
           // For unified location: require either city or zipcode
-          return (eventData.location?.city?.trim() || eventData.location?.zipcode?.trim() || eventData.city?.trim()) !== '';
+          return (eventData.location_preferences?.city?.trim() || eventData.location_preferences?.zipcode?.trim() || eventData.city?.trim()) !== '';
         } else {
           // Legacy: require city
           return eventData.city.trim() !== '';
