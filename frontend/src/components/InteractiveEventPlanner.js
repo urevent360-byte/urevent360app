@@ -626,21 +626,25 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
 
       let response;
       if (stepId === 'venue') {
-        // Enhanced venue filtering based on event's preferred venue type
-        if (currentEvent?.location) {
-          params.append('city', currentEvent.location);
+        // Use enhanced venue matching API with location preferences
+        if (eventId) {
+          response = await axios.get(`${API}/match/venues/event/${eventId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+        } else {
+          // Fallback to search API for events without ID
+          if (currentEvent?.location) {
+            params.append('city', currentEvent.location);
+          }
+          if (currentEvent?.guest_count) {
+            params.append('capacity_min', Math.floor(currentEvent.guest_count * 0.8));
+            params.append('capacity_max', Math.ceil(currentEvent.guest_count * 1.2));
+          }
+          if (currentEvent?.preferred_venue_type) {
+            params.append('preferred_venue_type', currentEvent.preferred_venue_type);
+          }
+          response = await axios.get(`${API}/venues/search?${params}`);
         }
-        if (currentEvent?.guest_count) {
-          params.append('capacity_min', Math.floor(currentEvent.guest_count * 0.8));
-          params.append('capacity_max', Math.ceil(currentEvent.guest_count * 1.2));
-        }
-        
-        // FILTERING: Only show venues matching preferred venue type
-        if (currentEvent?.preferred_venue_type) {
-          params.append('preferred_venue_type', currentEvent.preferred_venue_type);
-        }
-        
-        response = await axios.get(`${API}/venues/search?${params}`);
       } else {
         // Enhanced service filtering based on event's services needed
         const isServiceNeeded = checkIfServiceNeeded(stepId, currentEvent?.services_needed || []);
