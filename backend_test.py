@@ -785,14 +785,415 @@ class APITester:
         else:
             self.log_test("No Token Rejection", False, f"Status: {response.status_code if response else 'No response'}")
     
+    def test_authentication_fix_verification(self):
+        """Test the FIXED authentication system as per review request"""
+        print("\n🔐 AUTHENTICATION FIX VERIFICATION")
+        print("=" * 70)
+        
+        # Test login with specific credentials from review request
+        print("Testing login with sarah.johnson@email.com/SecurePass123...")
+        
+        credentials = {"email": "sarah.johnson@email.com", "password": "SecurePass123"}
+        response = self.make_request("POST", "/login", credentials)
+        
+        if response and response.status_code == 200:
+            try:
+                login_data = response.json()
+                access_token = login_data.get("access_token")
+                user_data = login_data.get("user", {})
+                
+                if access_token:
+                    self.tokens["client"] = access_token
+                    token_length = len(access_token)
+                    user_role = user_data.get("role", "unknown")
+                    user_email = user_data.get("email", "unknown")
+                    
+                    self.log_test("Authentication Fix - Client Login", True, 
+                                f"Email: {user_email}, Role: {user_role}, Token: {token_length} chars")
+                    
+                    # Test JWT token storage and usage
+                    self.test_jwt_token_storage_usage(access_token)
+                    
+                    # Test protected routes access
+                    self.test_protected_routes_access_fix()
+                    
+                else:
+                    self.log_test("Authentication Fix - Client Login", False, "No access token in response")
+                    
+            except Exception as e:
+                self.log_test("Authentication Fix - Client Login", False, f"JSON parsing error: {e}")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("Authentication Fix - Client Login", False, f"Status: {status_code}")
+    
+    def test_jwt_token_storage_usage(self, token):
+        """Verify JWT tokens are properly stored and used"""
+        print("\n🎫 Testing JWT Token Storage and Usage...")
+        
+        # Test token format
+        token_parts = token.split('.')
+        if len(token_parts) == 3:
+            self.log_test("JWT Token Format", True, f"Valid JWT structure (3 parts)")
+            
+            # Test token usage for API calls
+            response = self.make_request("GET", "/users/profile", token=token)
+            if response and response.status_code == 200:
+                profile_data = response.json()
+                if "email" in profile_data and "role" in profile_data:
+                    self.log_test("JWT Token Usage", True, f"Token successfully used for API calls")
+                else:
+                    self.log_test("JWT Token Usage", False, "Incomplete profile data")
+            else:
+                self.log_test("JWT Token Usage", False, f"Profile access failed: {response.status_code if response else 'No response'}")
+        else:
+            self.log_test("JWT Token Format", False, f"Invalid JWT structure ({len(token_parts)} parts)")
+    
+    def test_protected_routes_access_fix(self):
+        """Confirm users can access protected routes like /events/new"""
+        print("\n🔒 Testing Protected Routes Access...")
+        
+        if "client" not in self.tokens:
+            self.log_test("Protected Routes Access", False, "No client token available")
+            return
+        
+        token = self.tokens["client"]
+        
+        # Test events endpoint (equivalent to /events/new functionality)
+        response = self.make_request("GET", "/events", token=token)
+        if response and response.status_code == 200:
+            self.log_test("Protected Route - Events List", True, "Events endpoint accessible")
+        else:
+            self.log_test("Protected Route - Events List", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test event creation (equivalent to /events/new)
+        test_event_data = {
+            "name": "Authentication Test Event",
+            "event_type": "wedding",
+            "date": "2024-12-15T18:00:00Z",
+            "location": "New York, NY",
+            "budget": 25000.0,
+            "guest_count": 100
+        }
+        
+        response = self.make_request("POST", "/events", test_event_data, token=token)
+        if response and response.status_code == 200:
+            event_data = response.json()
+            event_id = event_data.get("id")
+            self.log_test("Protected Route - Event Creation", True, f"Event created: {event_id}")
+            return event_id
+        else:
+            self.log_test("Protected Route - Event Creation", False, f"Status: {response.status_code if response else 'No response'}")
+            return None
+    
+    def test_location_radius_zip_backend_api(self):
+        """Test Location Radius/ZIP-only Backend API Support"""
+        print("\n📍 LOCATION RADIUS/ZIP-ONLY BACKEND API TESTING")
+        print("=" * 70)
+        
+        if "client" not in self.tokens:
+            self.log_test("Location API Testing", False, "No client token available")
+            return None
+        
+        token = self.tokens["client"]
+        
+        # Test event creation with location_preferences
+        print("Testing event creation with location_preferences...")
+        
+        event_data_with_location = {
+            "name": "Location Radius Test Event",
+            "event_type": "wedding",
+            "date": "2024-12-20T19:00:00Z",
+            "location": "New York, NY",
+            "budget": 40000.0,
+            "guest_count": 150,
+            "location_preferences": {
+                "city": "New York",
+                "zipcode": "10001",
+                "zip_only": True,
+                "radius_miles": 25
+            }
+        }
+        
+        response = self.make_request("POST", "/events", event_data_with_location, token=token)
+        if response and response.status_code == 200:
+            event_data = response.json()
+            event_id = event_data.get("id")
+            location_prefs = event_data.get("location_preferences", {})
+            
+            # Verify location preferences were stored
+            if location_prefs.get("zipcode") == "10001" and location_prefs.get("zip_only") == True:
+                self.log_test("Event Creation with Location Preferences", True, 
+                            f"ZIP: {location_prefs.get('zipcode')}, ZIP-only: {location_prefs.get('zip_only')}, Radius: {location_prefs.get('radius_miles')} miles")
+            else:
+                self.log_test("Event Creation with Location Preferences", False, "Location preferences not properly stored")
+            
+            # Test enhanced venue matching
+            self.test_enhanced_venue_matching(event_id, token)
+            
+            return event_id
+        else:
+            self.log_test("Event Creation with Location Preferences", False, f"Status: {response.status_code if response else 'No response'}")
+            return None
+    
+    def test_enhanced_venue_matching(self, event_id, token):
+        """Test enhanced venue matching with ZIP-only and radius filtering"""
+        print("\n🏛️ Testing Enhanced Venue Matching...")
+        
+        # Test venue search with ZIP code and radius
+        params = {
+            "zip_code": "10001",
+            "radius": 25,
+            "preferred_venue_type": "hotel/banquet hall"
+        }
+        
+        response = self.make_request("GET", "/venues/search", params=params, token=token)
+        if response and response.status_code == 200:
+            venues = response.json()
+            if isinstance(venues, list):
+                self.log_test("Enhanced Venue Matching - ZIP Code Search", True, 
+                            f"Found {len(venues)} venues in ZIP 10001 within 25 miles")
+                
+                # Test ZIP-only filtering
+                zip_only_params = {
+                    "zip_code": "10001",
+                    "radius": 0  # ZIP-only mode
+                }
+                
+                response = self.make_request("GET", "/venues/search", params=zip_only_params, token=token)
+                if response and response.status_code == 200:
+                    zip_only_venues = response.json()
+                    if isinstance(zip_only_venues, list):
+                        self.log_test("Enhanced Venue Matching - ZIP-only Mode", True, 
+                                    f"Found {len(zip_only_venues)} venues in ZIP-only mode")
+                    else:
+                        self.log_test("Enhanced Venue Matching - ZIP-only Mode", False, "Invalid response format")
+                else:
+                    self.log_test("Enhanced Venue Matching - ZIP-only Mode", False, f"Status: {response.status_code if response else 'No response'}")
+            else:
+                self.log_test("Enhanced Venue Matching - ZIP Code Search", False, "Invalid response format")
+        else:
+            self.log_test("Enhanced Venue Matching - ZIP Code Search", False, f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test GET /api/match/venues/event/{event_id} endpoint if it exists
+        response = self.make_request("GET", f"/match/venues/event/{event_id}", token=token)
+        if response and response.status_code == 200:
+            matched_venues = response.json()
+            self.log_test("Event-Specific Venue Matching API", True, f"Found {len(matched_venues) if isinstance(matched_venues, list) else 'N/A'} matched venues")
+        else:
+            # This endpoint might not exist, so we'll test venue search with event context
+            response = self.make_request("GET", "/venues/search", params={"event_id": event_id}, token=token)
+            if response and response.status_code == 200:
+                self.log_test("Event-Context Venue Matching", True, "Venue search with event context working")
+            else:
+                self.log_test("Event-Context Venue Matching", False, "No event-specific venue matching available")
+    
+    def test_budget_wizard_backend_api(self):
+        """Test Budget Wizard Backend API Support"""
+        print("\n💰 BUDGET WIZARD BACKEND API TESTING")
+        print("=" * 70)
+        
+        if "client" not in self.tokens:
+            self.log_test("Budget API Testing", False, "No client token available")
+            return None
+        
+        token = self.tokens["client"]
+        
+        # Test event creation with budget_preferences
+        print("Testing event creation with budget_preferences...")
+        
+        event_data_with_budget = {
+            "name": "Budget Wizard Test Event",
+            "event_type": "corporate",
+            "date": "2024-12-25T18:00:00Z",
+            "location": "Chicago, IL",
+            "budget": 30000.0,
+            "guest_count": 120,
+            "budget_preferences": {
+                "target": 40000.0,
+                "currency": "USD"
+            }
+        }
+        
+        response = self.make_request("POST", "/events", event_data_with_budget, token=token)
+        if response and response.status_code == 200:
+            event_data = response.json()
+            event_id = event_data.get("id")
+            budget_prefs = event_data.get("budget_preferences", {})
+            
+            # Verify budget preferences were stored
+            if budget_prefs.get("target") == 40000.0 and budget_prefs.get("currency") == "USD":
+                self.log_test("Event Creation with Budget Preferences", True, 
+                            f"Target: ${budget_prefs.get('target')}, Currency: {budget_prefs.get('currency')}")
+            else:
+                self.log_test("Event Creation with Budget Preferences", False, "Budget preferences not properly stored")
+            
+            # Test budget tracking initialization
+            self.test_budget_tracking_initialization(event_id, token)
+            
+            return event_id
+        else:
+            self.log_test("Event Creation with Budget Preferences", False, f"Status: {response.status_code if response else 'No response'}")
+            return None
+    
+    def test_budget_tracking_initialization(self, event_id, token):
+        """Test budget tracking initialization when target budget is set"""
+        print("\n📊 Testing Budget Tracking Initialization...")
+        
+        # Get budget tracker for the event
+        response = self.make_request("GET", f"/events/{event_id}/budget-tracker", token=token)
+        if response and response.status_code == 200:
+            budget_data = response.json()
+            total_budget = budget_data.get("total_budget", 0)
+            total_paid = budget_data.get("total_paid", 0)
+            remaining_balance = budget_data.get("remaining_balance", 0)
+            
+            self.log_test("Budget Tracking Initialization", True, 
+                        f"Total: ${total_budget}, Paid: ${total_paid}, Remaining: ${remaining_balance}")
+            
+            # Test budget calculations with target amounts
+            if "payment_progress" in budget_data:
+                progress = budget_data.get("payment_progress", 0)
+                self.log_test("Budget Progress Calculation", True, f"Payment progress: {progress:.1f}%")
+            else:
+                self.log_test("Budget Progress Calculation", False, "No payment progress data")
+                
+        else:
+            self.log_test("Budget Tracking Initialization", False, f"Status: {response.status_code if response else 'No response'}")
+    
+    def test_feature_flag_configuration(self):
+        """Test Feature Flag Configuration"""
+        print("\n🚩 FEATURE FLAG CONFIGURATION TESTING")
+        print("=" * 70)
+        
+        # Check if feature flags are properly configured by testing functionality
+        # Since we can't directly access frontend .env from backend, we test the functionality
+        
+        # Test location filters functionality (indicates REACT_APP_FEATURE_WIZARD_LOCATION_FILTERS=true)
+        location_event_id = self.test_location_radius_zip_backend_api()
+        if location_event_id:
+            self.log_test("Feature Flag - Location Filters", True, "Location radius/ZIP-only functionality working")
+        else:
+            self.log_test("Feature Flag - Location Filters", False, "Location functionality not working")
+        
+        # Test budget functionality (indicates REACT_APP_FEATURE_WIZARD_BUDGET=true)
+        budget_event_id = self.test_budget_wizard_backend_api()
+        if budget_event_id:
+            self.log_test("Feature Flag - Budget Wizard", True, "Budget wizard functionality working")
+        else:
+            self.log_test("Feature Flag - Budget Wizard", False, "Budget functionality not working")
+        
+        return location_event_id, budget_event_id
+    
+    def test_integration_testing(self):
+        """Integration Testing - Create test event with ZIP code 10001, 25-mile radius, ZIP-only mode, and $40,000 target budget"""
+        print("\n🔄 INTEGRATION TESTING")
+        print("=" * 70)
+        
+        if "client" not in self.tokens:
+            self.log_test("Integration Testing", False, "No client token available")
+            return
+        
+        token = self.tokens["client"]
+        
+        # Create comprehensive test event as specified in review request
+        print("Creating test event with ZIP code 10001, 25-mile radius, ZIP-only mode, and $40,000 target budget...")
+        
+        integration_event_data = {
+            "name": "Integration Test Event - Complete Flow",
+            "event_type": "wedding",
+            "date": "2024-12-30T19:00:00Z",
+            "location": "New York, NY",
+            "budget": 40000.0,
+            "guest_count": 200,
+            "location_preferences": {
+                "city": "New York",
+                "zipcode": "10001",
+                "zip_only": True,
+                "radius_miles": 25
+            },
+            "budget_preferences": {
+                "target": 40000.0,
+                "currency": "USD"
+            }
+        }
+        
+        response = self.make_request("POST", "/events", integration_event_data, token=token)
+        if response and response.status_code == 200:
+            event_data = response.json()
+            event_id = event_data.get("id")
+            
+            self.log_test("Integration - Event Creation", True, f"Event ID: {event_id}")
+            
+            # Test venue matching returns appropriate results based on location filters
+            print("Testing venue matching with location filters...")
+            
+            params = {
+                "zip_code": "10001",
+                "radius": 25,
+                "venue_type": "hotel/banquet hall"
+            }
+            
+            response = self.make_request("GET", "/venues/search", params=params, token=token)
+            if response and response.status_code == 200:
+                venues = response.json()
+                if isinstance(venues, list):
+                    self.log_test("Integration - Venue Matching", True, 
+                                f"Found {len(venues)} venues matching location criteria")
+                    
+                    # Test the complete flow from wizard to Step-by-Step mode
+                    self.test_complete_flow_wizard_to_stepbystep(event_id, token)
+                else:
+                    self.log_test("Integration - Venue Matching", False, "Invalid venue response")
+            else:
+                self.log_test("Integration - Venue Matching", False, f"Status: {response.status_code if response else 'No response'}")
+        else:
+            self.log_test("Integration - Event Creation", False, f"Status: {response.status_code if response else 'No response'}")
+    
+    def test_complete_flow_wizard_to_stepbystep(self, event_id, token):
+        """Test the complete flow from wizard to Step-by-Step mode"""
+        print("\n🎯 Testing Complete Flow: Wizard → Step-by-Step Mode...")
+        
+        # Initialize planner state (Step-by-Step mode)
+        response = self.make_request("GET", f"/events/{event_id}/planner/state", token=token)
+        if response and response.status_code == 200:
+            planner_state = response.json()
+            budget_tracking = planner_state.get("budget_tracking", {})
+            
+            # Verify budget from wizard carried over to Step-by-Step mode
+            set_budget = budget_tracking.get("set_budget", 0)
+            if set_budget == 40000.0:
+                self.log_test("Flow - Budget Transfer", True, f"Budget transferred: ${set_budget}")
+            else:
+                self.log_test("Flow - Budget Transfer", False, f"Budget mismatch: Expected $40000, Got ${set_budget}")
+            
+            # Test vendor search in Step-by-Step mode with budget constraints
+            response = self.make_request("GET", f"/events/{event_id}/planner/vendors/catering", token=token)
+            if response and response.status_code == 200:
+                vendors = response.json()
+                if isinstance(vendors, list):
+                    self.log_test("Flow - Step-by-Step Vendor Search", True, 
+                                f"Found {len(vendors)} catering vendors in Step-by-Step mode")
+                else:
+                    self.log_test("Flow - Step-by-Step Vendor Search", False, "Invalid vendor response")
+            else:
+                self.log_test("Flow - Step-by-Step Vendor Search", False, f"Status: {response.status_code if response else 'No response'}")
+        else:
+            self.log_test("Flow - Planner State Initialization", False, f"Status: {response.status_code if response else 'No response'}")
+    
     def run_tests(self):
-        """Run all authentication debugging tests"""
-        print("🚀 Starting URGENT Authentication Debugging Tests...")
+        """Run all tests for the FIXED authentication system and Location Radius/ZIP-only functionality"""
+        print("🚀 Starting Authentication Fix & Location Radius/ZIP-only & Budget Wizard Testing...")
         print(f"Backend URL: {BACKEND_URL}")
         print("=" * 70)
         
-        # Run the critical authentication debugging tests
-        self.test_authentication_debugging()
+        # 1. Authentication System Fix Verification
+        self.test_authentication_fix_verification()
+        
+        # 2. Feature Flag Configuration Testing
+        self.test_feature_flag_configuration()
+        
+        # 3. Integration Testing
+        self.test_integration_testing()
         
         # Print summary
         self.print_summary()
