@@ -1,6 +1,5 @@
-/* Default collapsed width before React hydration to prevent flicker */
+/* Smooth transitions for sidebar elements - no fixed width to avoid conflicts */
 aside[data-sb] { 
-  width: 4rem; 
   transition: width 300ms ease;
 }
 
