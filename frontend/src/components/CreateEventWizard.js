@@ -74,7 +74,7 @@ const CreateEventWizard = () => {
     { id: 'other', name: 'Other', desc: 'Custom event type', icon: '🎭' }
   ];
 
-  const steps = [
+  const baseSteps = [
     { id: 1, name: 'Basic Info', desc: 'Event details' },
     { id: 2, name: 'Event Type', desc: 'What kind of event' },
     { 
@@ -86,7 +86,15 @@ const CreateEventWizard = () => {
     { id: 4, name: 'Venue Preferences', desc: 'Where you want to host' },
     { id: 5, name: 'Services Needed', desc: 'What help you need' },
     { id: 6, name: 'Guest Count', desc: 'Event size' }
-  ].filter(step => !step.condition || step.condition());
+  ];
+
+  // Add budget step conditionally
+  const budgetStepEnabled = process.env.REACT_APP_FEATURE_WIZARD_BUDGET === 'true';
+  const budgetStep = { id: 7, name: 'Budget', desc: 'Target budget' };
+  
+  const steps = budgetStepEnabled 
+    ? [...baseSteps, budgetStep].filter(step => !step.condition || step.condition())
+    : baseSteps.filter(step => !step.condition || step.condition());
 
   function getCategoryStepName() {
     if (!eventData.type) return 'Category Style';
