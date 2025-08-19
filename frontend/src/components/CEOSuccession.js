@@ -17,7 +17,7 @@ import {
   History,
   Users
 } from 'lucide-react';
-import { AuthContext } from '../App';
+import { AuthContext } from '../contexts/AuthContext';
 import axios from 'axios';
 
 const CEOSuccession = () => {

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { AuthContext } from '../../App';
+import { AuthContext } from '../../contexts/AuthContext';
 import {
   LayoutDashboard,
   Calendar,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../App';
+import { AuthContext } from '../contexts/AuthContext';
 import {
   Calendar, Clock, MapPin, Phone, Video, User, CheckCircle, XCircle,
   AlertTriangle, ChevronLeft, ChevronRight, Plus, Users, DollarSign,

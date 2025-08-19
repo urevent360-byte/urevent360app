@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { AuthContext } from '../App';
+import { AuthContext } from '../contexts/AuthContext';
 import {
   Calendar, CalendarDays, Clock, MapPin, Phone, Video, Users, DollarSign,
   Plus, ChevronLeft, ChevronRight, Bell, CheckCircle, XCircle, 

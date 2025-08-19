@@ -15,7 +15,7 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react';
-import { AuthContext } from '../../App';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const CEOAnalytics = () => {
   const { user } = useContext(AuthContext);

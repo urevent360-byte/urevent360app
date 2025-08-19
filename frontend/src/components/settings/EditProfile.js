@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { AuthContext } from '../../App';
+import { AuthContext } from '../../contexts/AuthContext';
 import { User, Mail, Phone, MapPin, Camera, Save, X, Upload } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;

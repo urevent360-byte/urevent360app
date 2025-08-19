@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
-import { AuthContext } from '../App';
+import { AuthContext } from '../contexts/AuthContext';
 import { ArrowLeft, MapPin, Users, Phone, Mail, Globe, Camera } from 'lucide-react';
 import axios from 'axios';
 

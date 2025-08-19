@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { AuthContext } from '../App';
+import { AuthContext } from '../contexts/AuthContext';
 import { 
   History, Calendar, MapPin, Users, DollarSign, Star, 
   Search, Filter, Eye, Copy, Download, Clock, Award,

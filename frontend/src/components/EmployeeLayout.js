@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { AuthContext } from '../App';
+import { AuthContext } from '../contexts/AuthContext';
 import {
   LayoutDashboard,
   CheckSquare,

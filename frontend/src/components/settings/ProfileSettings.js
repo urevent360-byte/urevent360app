@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../../App';
+import { AuthContext } from '../../contexts/AuthContext';
 import { 
   User, Edit, Lock, Globe, Shield, HelpCircle, 
   ChevronRight, ChevronDown, Settings, UserCog, 

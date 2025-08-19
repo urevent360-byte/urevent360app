@@ -19,7 +19,7 @@ import {
   Target,
   Lightbulb
 } from 'lucide-react';
-import { AuthContext } from '../../App';
+import { AuthContext } from '../../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 

@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../App';
+import { AuthContext } from '../contexts/AuthContext';
 import { 
   Bell, Menu, Search, User, Settings, LogOut, Edit, Lock, 
   Globe, Shield, HelpCircle, Smartphone, Eye, Link as LinkIcon,
