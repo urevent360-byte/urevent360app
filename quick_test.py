@@ -1,7 +1,7 @@
 import requests
 import json
 
-BASE_URL = 'https://strategic-ai-2.preview.emergentagent.com/api'
+BASE_URL = 'https://smart-planner-14.preview.emergentagent.com/api'
 
 # Get client token
 response = requests.post(f'{BASE_URL}/auth/login', json={'email': 'sarah.johnson@email.com', 'password': 'SecurePass123'})

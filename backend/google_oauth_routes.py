@@ -34,7 +34,7 @@ google_oauth_service = GoogleOAuthService(db, auth_service)
 google_oauth_router = APIRouter(prefix="/api/auth/google", tags=["Google OAuth Authentication"])
 
 # Frontend URL for redirects
-FRONTEND_URL = os.environ.get("REACT_APP_FRONTEND_URL", "https://strategic-ai-2.preview.emergentagent.com")
+FRONTEND_URL = os.environ.get("REACT_APP_FRONTEND_URL", "https://smart-planner-14.preview.emergentagent.com")
 
 # Models
 class GoogleLoginRequest(BaseModel):
