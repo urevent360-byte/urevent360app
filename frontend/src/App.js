@@ -156,38 +156,47 @@ function App() {
                 path="/" 
                 element={
                   <ProtectedRoute>
-                    <Layout>
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/events/new" element={<CreateEventWizard />} />
-                        <Route path="/events/create" element={<EventCreation />} />
-                        <Route path="/events/:eventId/plan" element={<StepByStepMode />} />
-                        <Route path="/events/:eventId/planning" element={<EventPlanning />} />
-                        <Route path="/venues" element={<VenueBrowser />} />
-                        <Route path="/vendors" element={<VendorMarketplace />} />
-                        <Route path="/payments" element={<PaymentCenter />} />
-                        <Route path="/loans" element={<LoanCenter />} />
-                        <Route path="/communication" element={<CommunicationCenter />} />
-                        <Route path="/events/:eventId/guests" element={<GuestManagement />} />
-                        <Route path="/events/:eventId/budget" element={<BudgetTracker />} />
-                        <Route path="/history" element={<EventHistory />} />
-                        <Route path="/profile" element={<Profile />} />
-                        <Route path="/calendar" element={<CalendarView />} />
-                        
-                        {/* Settings routes */}
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="/settings/profile" element={<EditProfile />} />
-                        <Route path="/settings/password" element={<ChangePassword />} />
-                        <Route path="/settings/language" element={<LanguageSettings />} />
-                        <Route path="/settings/security" element={<SecuritySettings />} />
-                        <Route path="/settings/notifications" element={<NotificationSettings />} />
-                        <Route path="/settings/privacy" element={<PrivacySettings />} />
-                        <Route path="/settings/integrations" element={<IntegrationSettings />} />
-                        <Route path="/settings/billing" element={<BillingSettings />} />
-                        <Route path="/settings/help" element={<HelpSupport />} />
-                        <Route path="/settings/account" element={<EnhancedAccountSettings />} />
-                      </Routes>
-                    </Layout>
+                    <ErrorBoundary>
+                      <Layout>
+                        <Routes>
+                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/events/new" element={<CreateEventWizard />} />
+                          <Route path="/events/create" element={<EventCreation />} />
+                          <Route path="/events/:eventId/plan" element={<StepByStepMode />} />
+                          <Route path="/events/:eventId/planning" element={<EventPlanning />} />
+                          <Route path="/venues" element={<VenueBrowser />} />
+                          <Route path="/venues/new" element={<VenueCreate />} />
+                          <Route path="/vendors" element={<VendorMarketplace />} />
+                          <Route path="/preferred-vendors" element={<PreferredVendors />} />
+                          <Route path="/messages" element={<Messages />} />
+                          <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/payments" element={<PaymentCenter />} />
+                          <Route path="/loans" element={<LoanCenter />} />
+                          <Route path="/communication" element={<CommunicationCenter />} />
+                          <Route path="/events/:eventId/guests" element={<GuestManagement />} />
+                          <Route path="/events/:eventId/budget" element={<BudgetTracker />} />
+                          <Route path="/history" element={<EventHistory />} />
+                          <Route path="/profile" element={<Profile />} />
+                          <Route path="/calendar" element={<CalendarView />} />
+                          
+                          {/* Settings routes */}
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="/settings/profile" element={<EditProfile />} />
+                          <Route path="/settings/password" element={<ChangePassword />} />
+                          <Route path="/settings/language" element={<LanguageSettings />} />
+                          <Route path="/settings/security" element={<SecuritySettings />} />
+                          <Route path="/settings/notifications" element={<NotificationSettings />} />
+                          <Route path="/settings/privacy" element={<PrivacySettings />} />
+                          <Route path="/settings/integrations" element={<IntegrationSettings />} />
+                          <Route path="/settings/billing" element={<BillingSettings />} />
+                          <Route path="/settings/help" element={<HelpSupport />} />
+                          <Route path="/settings/account" element={<EnhancedAccountSettings />} />
+                          
+                          {/* 404 route */}
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </Layout>
+                    </ErrorBoundary>
                   </ProtectedRoute>
                 } 
               />
