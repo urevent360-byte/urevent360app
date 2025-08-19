@@ -86,9 +86,21 @@ const VenueCreate = () => {
 
     try {
       const submitData = {
-        ...formData,
+        name: formData.name,
+        description: formData.description || '',
+        location: formData.city, // Map city to location
+        venue_type: formData.venueTypes.length > 0 ? formData.venueTypes[0] : '', // Map venueTypes to venue_type (use first selected)
         capacity: parseInt(formData.capacity),
-        price_per_person: formData.pricePerPerson ? parseFloat(formData.pricePerPerson) : null
+        price_per_person: formData.pricePerPerson ? parseFloat(formData.pricePerPerson) : null,
+        amenities: formData.amenities,
+        contact_info: {
+          name: formData.contactName || '',
+          phone: formData.phone || '',
+          email: formData.email || '',
+          website: formData.website || '',
+          address: formData.address || '',
+          zipcode: formData.zipcode || ''
+        }
       };
 
       const response = await axios.post(`${API}/venues`, submitData, {
