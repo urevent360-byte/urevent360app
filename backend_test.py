@@ -784,17 +784,61 @@ class APITester:
         else:
             self.log_test("No Token Rejection", False, f"Status: {response.status_code if response else 'No response'}")
     
-    def test_authentication(self):
-        """Test authentication for all user roles"""
-        print("\n🔐 Testing Authentication...")
+    def run_tests(self):
+        """Run all authentication debugging tests"""
+        print("🚀 Starting URGENT Authentication Debugging Tests...")
+        print(f"Backend URL: {BACKEND_URL}")
+        print("=" * 70)
         
-        # Start with enhanced authentication test
-        self.test_enhanced_authentication_system()
+        # Run the critical authentication debugging tests
+        self.test_authentication_debugging()
         
-        # Ensure we have at least basic authentication working
-        if not any(role in self.tokens for role in ["client", "admin", "vendor", "employee"]):
-            print("   No authentication tokens available - testing basic login...")
-            self.test_basic_login()
+        # Print summary
+        self.print_summary()
+    
+    def print_summary(self):
+        """Print test summary"""
+        print("\n" + "=" * 70)
+        print("🎯 AUTHENTICATION DEBUGGING TEST SUMMARY")
+        print("=" * 70)
+        
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        failed_tests = total_tests - passed_tests
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests*100):.1f}%")
+        
+        if self.failed_tests:
+            print(f"\n🚨 FAILED TESTS ({len(self.failed_tests)}):")
+            for test_name in self.failed_tests:
+                print(f"   ❌ {test_name}")
+        
+        # Critical authentication analysis
+        print(f"\n🔍 CRITICAL AUTHENTICATION ANALYSIS:")
+        
+        # Check if basic login works
+        login_working = any("Login -" in result["test"] and result["success"] for result in self.test_results)
+        token_validation_working = any("Token Validation -" in result["test"] and result["success"] for result in self.test_results)
+        session_persistence_working = any("Session Persistence" in result["test"] and result["success"] for result in self.test_results)
+        
+        print(f"   🔑 Login System: {'✅ WORKING' if login_working else '❌ BROKEN'}")
+        print(f"   🎫 Token Validation: {'✅ WORKING' if token_validation_working else '❌ BROKEN'}")
+        print(f"   📱 Session Persistence: {'✅ WORKING' if session_persistence_working else '❌ BROKEN'}")
+        
+        # Identify root cause
+        if not login_working:
+            print(f"\n🚨 ROOT CAUSE: Login system is not working - users cannot authenticate")
+        elif not token_validation_working:
+            print(f"\n🚨 ROOT CAUSE: Token validation is failing - users get 'could not validate credentials'")
+        elif not session_persistence_working:
+            print(f"\n🚨 ROOT CAUSE: Session persistence is broken - users get kicked back to login")
+        else:
+            print(f"\n✅ AUTHENTICATION SYSTEM: All core components working correctly")
+        
+        print("=" * 70)
     
     def test_routing_lifecycle_issues(self):
         """Test routing and lifecycle issues - quote creation/resume workflows"""
