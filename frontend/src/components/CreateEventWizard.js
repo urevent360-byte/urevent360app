@@ -561,8 +561,6 @@ const CreateEventWizard = () => {
       </div>
     );
   };
-    }
-  };
 
   const renderCategoryStep = () => {
     if (!eventData.type) return null;
