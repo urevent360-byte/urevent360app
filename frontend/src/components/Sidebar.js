@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
@@ -28,18 +28,6 @@ const Sidebar = ({ open, onOpenChange }) => {
     }
   }
 
-  // Persist collapsed state
-  useEffect(() => {
-    const saved = localStorage.getItem("sb:open");
-    if (saved !== null) {
-      onOpenChange(saved === "1");
-    }
-  }, [onOpenChange]);
-
-  useEffect(() => {
-    localStorage.setItem("sb:open", open ? "1" : "0");
-  }, [open]);
-
   const toggle = () => onOpenChange(!open);
 
   const navigation = [
@@ -57,7 +45,10 @@ const Sidebar = ({ open, onOpenChange }) => {
   ];
 
   return (
-    <aside className={`fixed left-0 top-0 h-screen ${open ? "w-64" : "w-16"} transition-all duration-300 border-r bg-white shadow-lg z-30`}>
+    <aside 
+      data-sb 
+      className={`fixed left-0 top-0 h-screen ${open ? "w-64" : "w-16"} transition-all duration-300 border-r bg-white shadow-lg z-30`}
+    >
       {/* Header + collapse button */}
       <div className="flex items-center justify-between p-3 border-b border-gray-200">
         {open ? (
