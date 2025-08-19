@@ -602,19 +602,19 @@ const CreateEventWizard = () => {
             <p><strong>Date:</strong> {eventData.date} {eventData.time && `at ${eventData.time}`}</p>
             <p><strong>Location:</strong> {
               process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' 
-                ? (eventData.location?.city || eventData.city || eventData.location?.zipcode || 'Not specified')
+                ? (eventData.location_preferences?.city || eventData.city || eventData.location_preferences?.zipcode || 'Not specified')
                 : eventData.city
             }</p>
             <p><strong>Guests:</strong> {eventData.guestCount}</p>
             
             {/* Unified Location Search Area */}
-            {process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' && (eventData.location?.zipcode || eventData.location?.city) && (
+            {process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' && (eventData.location_preferences?.zipcode || eventData.location_preferences?.city) && (
               <p><strong>Search Area:</strong>{' '}
-                {eventData.location.zipOnly && eventData.location.zipcode
-                  ? `ZIP-only ${eventData.location.zipcode}`
-                  : eventData.location.zipcode
-                    ? `${eventData.location.radiusMiles || 25} miles around ZIP ${eventData.location.zipcode}`
-                    : `${eventData.location.radiusMiles || 25} miles around ${eventData.location.city}`}
+                {eventData.location_preferences.zipOnly && eventData.location_preferences.zipcode
+                  ? `ZIP-only ${eventData.location_preferences.zipcode}`
+                  : eventData.location_preferences.zipcode
+                    ? `${eventData.location_preferences.radiusMiles || 25} miles around ZIP ${eventData.location_preferences.zipcode}`
+                    : `${eventData.location_preferences.radiusMiles || 25} miles around ${eventData.location_preferences.city}`}
               </p>
             )}
             
