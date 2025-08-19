@@ -48,7 +48,10 @@ HEADERS = {"Content-Type": "application/json"}
 
 # Test credentials
 TEST_CREDENTIALS = {
-    "client": {"email": "test@example.com", "password": "testpass123"}
+    "admin": {"email": "admin@urevent360.com", "password": "admin123"},
+    "vendor": {"email": "vendor@example.com", "password": "vendor123"},
+    "employee": {"email": "employee@example.com", "password": "employee123"},
+    "client": {"email": "sarah.johnson@email.com", "password": "SecurePass123"}
 }
 
 class TwoFlowTester:
