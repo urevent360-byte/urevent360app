@@ -483,14 +483,25 @@ async def register_user(user_data: UserRegister):
 
 @api_router.post("/login")
 async def login_user(user_data: UserLogin):
+    print(f"🔍 LOGIN DEBUG: Attempting login for {user_data.email}")
+    
     # Find user
     user = await db.users.find_one({"email": user_data.email})
     if not user:
+        print(f"❌ LOGIN DEBUG: User not found for {user_data.email}")
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
+    print(f"✅ LOGIN DEBUG: User found for {user_data.email}")
+    
     # Verify password
-    if not verify_password(user_data.password, user["password_hash"]):
+    password_valid = verify_password(user_data.password, user["password_hash"])
+    print(f"🔐 LOGIN DEBUG: Password valid: {password_valid}")
+    
+    if not password_valid:
+        print(f"❌ LOGIN DEBUG: Password verification failed for {user_data.email}")
         raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    print(f"✅ LOGIN DEBUG: Password verified for {user_data.email}")
     
     # Create JWT token
     token = create_jwt_token({
@@ -498,6 +509,8 @@ async def login_user(user_data: UserLogin):
         "email": user["email"],
         "role": user.get("role", "client")
     })
+    
+    print(f"✅ LOGIN DEBUG: Token created for {user_data.email}")
     
     return {
         "access_token": token,
