@@ -536,15 +536,18 @@ backend:
 
   - task: "Discrete Employee Portal Access"
     implemented: true
-    working: unknown
+    working: true
     file: "Login.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: unknown
         agent: "main"
         comment: "Created discrete employee portal access similar to admin icon style. Small button with user's logo and 'Employee Portal' text positioned at bottom center of login pages. Uses glassmorphism styling, rounded-full design, minimal space usage. Only visible to those who know to look for it, similar to admin shield icon approach."
+      - working: true
+        agent: "testing"
+        comment: "✅ DISCRETE EMPLOYEE PORTAL ACCESS WORKING: Employee portal access link is visible at bottom center of login pages with proper styling (glassmorphism, rounded design, company logo). Link is discrete and positioned correctly. Clicking the link properly transitions to employee login form. Visual implementation and UI behavior work as designed. Note: Actual employee login functionality is blocked by broader authentication issues, but the access UI component itself works correctly."
 
   - task: "Step-by-Step Mode Primary CTA"
     implemented: true
