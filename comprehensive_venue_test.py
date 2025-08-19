@@ -28,6 +28,10 @@ def make_request(method, endpoint, data=None, params=None, token=None):
             response = requests.get(url, headers=headers, params=params, timeout=30)
         elif method == "POST":
             response = requests.post(url, headers=headers, json=data, timeout=30)
+        elif method == "DELETE":
+            response = requests.delete(url, headers=headers, timeout=30)
+        else:
+            return None
         
         return response
     except requests.exceptions.RequestException as e:
