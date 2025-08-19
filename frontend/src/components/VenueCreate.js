@@ -10,7 +10,7 @@ const API = `${BACKEND_URL}/api`;
 
 const VenueCreate = () => {
   const navigate = useNavigate();
-  const { getAuthHeaders } = useAuth();
+  const { getAuthHeaders } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
