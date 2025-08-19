@@ -99,6 +99,47 @@ const CreateEventWizard = () => {
     { id: 'other', name: 'Other', desc: 'Custom event type', icon: '🎭' }
   ];
 
+  // Wedding-specific service groupings
+  const CEREMONY_SERVICES = [
+    'Officiant',
+    'Ceremony Music/Sound',
+    'Ceremony Arch/Altar',
+    'Ceremony Seating/Chairs', 
+    'Ceremony Décor',
+    'Aisle Runner',
+    'Sound System for Vows'
+  ];
+
+  const RECEPTION_SERVICES = [
+    'Catering',
+    'Bar Service',
+    'DJ/Band',
+    'Reception Lighting',
+    'Dance Floor',
+    'Photography/Videography',
+    'Reception Décor',
+    'Wedding Cake',
+    'Day-of Coordination'
+  ];
+
+  const CEREMONY_EXTRAS = [
+    'Flower Petals/Confetti',
+    'Unity Candle/Sand',
+    'Guest Book Station',
+    'Ring Bearer Pillow',
+    'Ceremony Programs'
+  ];
+
+  const RECEPTION_EXTRAS = [
+    'Photo Booth',
+    'Live Entertainment',
+    'Special Lighting Effects',
+    'Lounge Areas',
+    'Dessert Station',
+    'Late Night Snacks',
+    'Transportation'
+  ];
+
   const baseSteps = [
     { id: 1, name: 'Basic Info', desc: 'Event details' },
     { id: 2, name: 'Event Type', desc: 'What kind of event' },
