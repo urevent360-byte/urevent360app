@@ -111,15 +111,13 @@ const CreateEventWizard = () => {
   ];
 
   const RECEPTION_SERVICES = [
-    'Catering',
+    'Catering', // Now with subcategories: Full-Service, Appetizers only, Specialty Stations
     'Bar Service',
     'DJ/Band',
-    'Reception Lighting',
-    'Dance Floor',
     'Photography/Videography',
-    'Reception Décor',
-    'Wedding Cake',
-    'Day-of Coordination'
+    'Reception Lighting',
+    'Day-of Coordination',
+    'Cakes' // Generalized for all event types (Wedding/Birthday/Quince)
   ];
 
   const CEREMONY_EXTRAS = [
@@ -131,13 +129,12 @@ const CreateEventWizard = () => {
   ];
 
   const RECEPTION_EXTRAS = [
-    'Photo Booth',
-    'Live Entertainment',
+    'Dessert Stations & Sweets', // New comprehensive sweets category
+    'Dance Floor', // Moved from Reception Services to Extras
     'Special Lighting Effects',
+    'Photo Booth',
     'Lounge Areas',
-    'Dessert Station',
-    'Late Night Snacks',
-    'Transportation'
+    'Late Night Snacks'
   ];
 
   const baseSteps = [
