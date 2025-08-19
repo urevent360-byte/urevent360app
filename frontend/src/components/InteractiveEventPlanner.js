@@ -1285,6 +1285,19 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     
     return (
       <div className="space-y-6">
+        {/* Location Scope Indicator for Venue Step */}
+        {step.id === 'venue' && eventData?.location_preferences && (
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 text-blue-700 px-3 py-1 text-xs">
+            <MapPin className="h-3 w-3" />
+            <span>Search Area:</span>
+            <b>
+              {eventData.location_preferences.zip_only
+                ? `ZIP-only ${eventData.location_preferences.zipcode || '—'}`
+                : `${eventData.location_preferences.radius_miles ?? 25} mi around ${eventData.location_preferences.zipcode || eventData.location_preferences.city || eventData.location || 'location'}`}
+            </b>
+          </div>
+        )}
+
         {/* Search Bar */}
         {step.searchable && (
           <div className="relative">
