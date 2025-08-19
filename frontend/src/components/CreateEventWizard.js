@@ -473,28 +473,94 @@ const CreateEventWizard = () => {
                   placeholder="Number of guests"
                 />
               </div>
-            </div>
-
-            <div className="bg-purple-50 p-6 rounded-lg">
-              <h4 className="font-medium text-purple-900 mb-4">Event Summary</h4>
-              <div className="space-y-2 text-sm text-purple-700">
-                <p><strong>Event:</strong> {eventData.name}</p>
-                <p><strong>Type:</strong> {eventTypes.find(t => t.id === eventData.type)?.name}</p>
-                <p><strong>Date:</strong> {eventData.date} {eventData.time && `at ${eventData.time}`}</p>
-                <p><strong>Location:</strong> {eventData.city}</p>
-                <p><strong>Guests:</strong> {eventData.guestCount}</p>
-                <p><strong>Venue Types:</strong> {eventData.preferredVenueTypes.join(', ')}</p>
-                <p><strong>Core Services:</strong> {eventData.neededCoreServices.join(', ')}</p>
-                {eventData.neededExtras.length > 0 && (
-                  <p><strong>Add-Ons:</strong> {eventData.neededExtras.join(', ')}</p>
-                )}
-              </div>
+              <p className="text-sm text-gray-500 mt-2">
+                This helps us recommend appropriate venue sizes and catering options.
+              </p>
             </div>
           </div>
         );
 
+      case 7:
+        // Budget step - conditionally rendered based on feature flag
+        if (process.env.REACT_APP_FEATURE_WIZARD_BUDGET === 'true') {
+          return (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Budget Planning</h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Set a target budget to help us recommend vendors and services within your range.
+                  This is optional but helps provide better matches.
+                </p>
+              </div>
+              <BudgetStep
+                value={eventData.budget}
+                onChange={handleBudgetChange}
+              />
+            </div>
+          );
+        }
+        
+        // If budget step is disabled, fall through to summary
+        return renderEventSummary();
+
       default:
-        return null;
+        // Final step - summary (either step 7 if budget disabled, or step 8 if budget enabled)
+        return renderEventSummary();
+    }
+  };
+
+  const renderEventSummary = () => {
+    const locationFiltersEnabled = process.env.REACT_APP_FEATURE_WIZARD_LOCATION_FILTERS === 'true';
+    const budgetEnabled = process.env.REACT_APP_FEATURE_WIZARD_BUDGET === 'true';
+    
+    return (
+      <div className="space-y-6">
+        <div className="bg-purple-50 p-6 rounded-lg">
+          <h4 className="font-medium text-purple-900 mb-4">Event Summary</h4>
+          <div className="space-y-2 text-sm text-purple-700">
+            <p><strong>Event:</strong> {eventData.name}</p>
+            <p><strong>Type:</strong> {eventTypes.find(t => t.id === eventData.type)?.name}</p>
+            <p><strong>Date:</strong> {eventData.date} {eventData.time && `at ${eventData.time}`}</p>
+            <p><strong>Location:</strong> {eventData.city}</p>
+            <p><strong>Guests:</strong> {eventData.guestCount}</p>
+            
+            {/* Location search area - feature flagged */}
+            {locationFiltersEnabled && eventData.location?.zipcode && (
+              <p><strong>Search Area:</strong>{' '}
+                {eventData.location.zipOnly
+                  ? `ZIP code ${eventData.location.zipcode} only`
+                  : `${eventData.location.radiusMiles} miles around ZIP ${eventData.location.zipcode}`}
+              </p>
+            )}
+            
+            <p><strong>Venue Types:</strong> {eventData.preferredVenueTypes.join(', ')}</p>
+            <p><strong>Core Services:</strong> {eventData.neededCoreServices.join(', ')}</p>
+            {eventData.neededExtras.length > 0 && (
+              <p><strong>Add-Ons:</strong> {eventData.neededExtras.join(', ')}</p>
+            )}
+            
+            {/* Budget summary - feature flagged */}
+            {budgetEnabled && eventData.budget?.target && (
+              <p><strong>Target Budget:</strong> ${eventData.budget.target.toLocaleString()} {eventData.budget.currency}</p>
+            )}
+          </div>
+        </div>
+        
+        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+          <h5 className="font-medium text-blue-900 mb-2">What's Next?</h5>
+          <p className="text-sm text-blue-700">
+            We'll create your event and take you to the Step-by-Step planning workspace where you can:
+          </p>
+          <ul className="text-sm text-blue-700 mt-2 ml-4 list-disc">
+            <li>Find and compare venues based on your preferences</li>
+            <li>Match with specialized vendors for your services</li>
+            <li>Track your budget and manage expenses</li>
+            <li>Plan your timeline and coordinate details</li>
+          </ul>
+        </div>
+      </div>
+    );
+  };
     }
   };
 
