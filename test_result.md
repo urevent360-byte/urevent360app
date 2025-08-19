@@ -501,17 +501,17 @@ backend:
         agent: "main"
         comment: "Created OperationsManagement and AdminReports components to complete admin system"
 
-  - task: "Sidebar Default Collapsed + Hamburger Toggle (with Persistence)"
+  - task: "Unified Bar/Bat Mitzvah Event Type + Boy/Girl Selection in Step 3"
     implemented: true
     working: true
-    file: "Layout.js, AdminLayout.js, VendorLayout.js, EmployeeLayout.js, CEOLayout.js, Sidebar.js, Navbar.js, Login.js, index.html, sidebar-base.css"
+    file: "CreateEventWizard.js, EventCreation.js, eventFlowConfig.js"
     stuck_count: 0
     priority: "medium"
     needs_retesting: false
     status_history:
       - working: true
         agent: "main"
-        comment: "🎉 SIDEBAR DEFAULT COLLAPSED IMPLEMENTATION COMPLETE: Successfully implemented comprehensive sidebar collapse functionality across all 5 portals (Client, Admin, Vendor, Employee, CEO). ✅ DEFAULT COLLAPSED: All sidebars start collapsed by default (64px width) on fresh login and first load ✅ HAMBURGER TOGGLE: Functional hamburger buttons in headers for expand/collapse with smooth transitions ✅ LOCALSTORAGE PERSISTENCE: User preferences saved per portal (sb:open, admin-sb:open, vendor-sb:open, employee-sb:open, ceo-sb:open) ✅ FRESH LOGIN RESET: Login.js resets all sidebar states to collapsed on successful authentication ✅ NO HYDRATION FLICKER: CSS base rules prevent initial flash before React loads ✅ MOBILE OVERLAY: Proper mobile behavior with backdrop dismissal ✅ CROSS-PORTAL CONSISTENCY: Unified experience across all portal types with role-specific styling. Comprehensive testing confirms: Fresh login collapsed ✅, Hamburger toggle ✅, Navigation persistence ✅, Fresh login reset ✅. All acceptance criteria met successfully."
+        comment: "🎉 UNIFIED BAR/BAT MITZVAH IMPLEMENTATION COMPLETE: Successfully merged duplicate Mitzvah event types into single unified option with boy/girl selection in Step 3. ✅ SINGLE EVENT TYPE: Replaced separate 'Bar Mitzvah' and 'Bat Mitzvah' options with unified 'Bar/Bat Mitzvah' option showing 'Jewish coming of age ceremony' ✅ STEP 3 SELECTION: Added dedicated Mitzvah Type selection interface in Step 3 with visual cards for 'Bar Mitzvah (For boys)' and 'Bat Mitzvah (For girls)' with emoji indicators 👦👧 ✅ DATA SYNCHRONIZATION: Mitzvah type selection stored in both eventData.mitzvahType and categorySpecific.mitzvahType, sent to backend as mitzvah_type field ✅ VALIDATION: Step 3 validation requires Mitzvah type selection before proceeding to Step 4 ✅ SUMMARY DISPLAY: Event summary shows selected Mitzvah type (e.g., 'Bar/Bat Mitzvah (Bar Mitzvah - Boy)') ✅ CULTURAL SENSITIVITY: Removed inappropriate generic cultural styles for Jewish ceremonies ✅ CONFIGURATION: Updated eventFlowConfig.js with unified 'mitzvah' entry containing combined vendor tags. Testing confirmed: Only 1 unified option in Step 2 ✅, No duplicate entries ✅, Clean professional interface ✅. Implementation eliminates user confusion and provides streamlined experience for Jewish coming-of-age ceremonies."
 
   - task: "Enhanced Vendor Marketplace"
     implemented: true
