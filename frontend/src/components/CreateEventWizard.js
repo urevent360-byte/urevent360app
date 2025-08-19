@@ -515,6 +515,125 @@ const CreateEventWizard = () => {
                 </div>
               )
             )}
+
+            {/* Wedding-Specific: Ceremony Location (only show for weddings) */}
+            {eventData.type === 'wedding' && (
+              <div className="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <span className="mr-2">💒</span>
+                  Ceremony Location (Optional)
+                </h4>
+                
+                {/* Same location toggle */}
+                <div className="mb-4">
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={eventData.ceremonyLocation.sameAsReception}
+                      onChange={(e) => {
+                        setEventData(prev => ({
+                          ...prev,
+                          ceremonyLocation: {
+                            ...prev.ceremonyLocation,
+                            sameAsReception: e.target.checked,
+                            // Clear ceremony location if toggling back to same
+                            city: e.target.checked ? '' : prev.ceremonyLocation.city,
+                            zipcode: e.target.checked ? '' : prev.ceremonyLocation.zipcode,
+                            address: e.target.checked ? '' : prev.ceremonyLocation.address
+                          }
+                        }));
+                      }}
+                      className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">
+                      Same location as reception
+                    </span>
+                  </label>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Turn off to set a different ceremony location
+                  </p>
+                </div>
+
+                {/* Ceremony location fields (only when toggle is OFF) */}
+                {!eventData.ceremonyLocation.sameAsReception && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Ceremony City/Location
+                      </label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                        <input
+                          type="text"
+                          value={eventData.ceremonyLocation.city}
+                          onChange={(e) => {
+                            setEventData(prev => ({
+                              ...prev,
+                              ceremonyLocation: {
+                                ...prev.ceremonyLocation,
+                                city: e.target.value
+                              }
+                            }));
+                          }}
+                          className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                          placeholder="Ceremony city or location"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Ceremony ZIP Code (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={eventData.ceremonyLocation.zipcode}
+                          onChange={(e) => {
+                            setEventData(prev => ({
+                              ...prev,
+                              ceremonyLocation: {
+                                ...prev.ceremonyLocation,
+                                zipcode: e.target.value
+                              }
+                            }));
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                          placeholder="ZIP code"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Ceremony Address (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={eventData.ceremonyLocation.address}
+                          onChange={(e) => {
+                            setEventData(prev => ({
+                              ...prev,
+                              ceremonyLocation: {
+                                ...prev.ceremonyLocation,
+                                address: e.target.value
+                              }
+                            }));
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                          placeholder="Street address or venue name"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                      <p className="text-sm text-blue-700">
+                        <span className="font-medium">💡 Tip:</span> Setting a ceremony location helps us find venues and vendors near both your ceremony and reception locations.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         );
 
