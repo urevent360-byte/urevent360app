@@ -56,7 +56,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAuthenticated = () => {
-    return !!localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    return !!(token && userData && user);
   };
 
   const value = {
