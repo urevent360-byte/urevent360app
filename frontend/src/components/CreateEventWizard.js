@@ -998,7 +998,32 @@ const CreateEventWizard = () => {
               process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' 
                 ? (eventData.location_preferences?.city || eventData.city || eventData.location_preferences?.zipcode || 'Not specified')
                 : eventData.city
-            }</p>
+            } <span className="text-xs">(Reception)</span></p>
+            
+            {/* Wedding-specific: Show ceremony location if different */}
+            {eventData.type === 'wedding' && !eventData.ceremonyLocation?.sameAsReception && (
+              eventData.ceremonyLocation?.city || eventData.ceremonyLocation?.zipcode || eventData.ceremonyLocation?.address
+            ) && (
+              <p><strong>Ceremony Location:</strong> {
+                eventData.ceremonyLocation.address 
+                  ? eventData.ceremonyLocation.address 
+                  : (eventData.ceremonyLocation.city || eventData.ceremonyLocation.zipcode)
+              }</p>
+            )}
+            
+            {/* Wedding-specific: Show space needs */}
+            {eventData.type === 'wedding' && (eventData.spacePreferences?.needCeremonySpace || eventData.spacePreferences?.needReceptionSpace) && (
+              <p><strong>Spaces Needed:</strong>{' '}
+                {[
+                  eventData.spacePreferences.needCeremonySpace && 'Ceremony',
+                  eventData.spacePreferences.needReceptionSpace && 'Reception'
+                ].filter(Boolean).join(' + ')}
+                {eventData.spacePreferences.preferOneVenue && (
+                  <span className="text-xs ml-1">(Prefer one venue for both)</span>
+                )}
+              </p>
+            )}
+
             <p><strong>Guests:</strong> {eventData.guestCount}</p>
             
             {/* Unified Location Search Area */}
