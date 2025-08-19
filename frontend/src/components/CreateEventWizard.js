@@ -394,6 +394,17 @@ const CreateEventWizard = () => {
                 ))}
               </div>
             </div>
+
+            {/* Location Search Controls - Feature Flagged */}
+            {process.env.REACT_APP_FEATURE_WIZARD_LOCATION_FILTERS === 'true' && (
+              <div className="border-t pt-6">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Location Search Preferences</h4>
+                <VenueSearchControls
+                  value={eventData.location}
+                  onChange={handleLocationChange}
+                />
+              </div>
+            )}
           </div>
         );
 
