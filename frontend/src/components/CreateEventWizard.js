@@ -317,6 +317,20 @@ const CreateEventWizard = () => {
         // Mitzvah type (for Bar/Bat Mitzvah)
         mitzvah_type: eventData.mitzvahType || eventData.categorySpecific?.mitzvahType || null,
         
+        // Wedding-specific: Ceremony location
+        ceremony_location: eventData.type === 'wedding' && !eventData.ceremonyLocation?.sameAsReception ? {
+          city: eventData.ceremonyLocation?.city || null,
+          zipcode: eventData.ceremonyLocation?.zipcode || null,
+          address: eventData.ceremonyLocation?.address || null
+        } : null,
+        
+        // Wedding-specific: Space preferences  
+        space_preferences: eventData.type === 'wedding' ? {
+          need_ceremony_space: !!eventData.spacePreferences?.needCeremonySpace,
+          need_reception_space: !!eventData.spacePreferences?.needReceptionSpace,
+          prefer_one_venue: !!eventData.spacePreferences?.preferOneVenue
+        } : null,
+        
         // Extended location preferences
         location_preferences: {
           city: eventData.location.city || eventData.city,
