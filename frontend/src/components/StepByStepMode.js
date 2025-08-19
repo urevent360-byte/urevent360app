@@ -365,78 +365,188 @@ const StepByStepMode = () => {
     </div>
   );
 
-  const renderVendorsSection = (type) => {
-    const isCore = type === 'core';
-    const title = isCore ? 'Core Vendors' : 'Add-Ons (Extras)';
-    const description = isCore 
-      ? 'Essential services for your event'
-      : 'Special enhancements and entertainment options';
-
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-            <p className="text-gray-600">{description}</p>
+  const renderVendorsSection = (sectionType) => {
+    // Get services based on section type (core-vendors or add-ons)
+    const allEventServices = [
+      ...(event?.needed_core_services || []),
+      ...(event?.needed_extras || [])
+    ];
+    
+    const sectionServices = getServicesBySection(allEventServices, sectionType);
+    
+    if (sectionServices.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <div className="mx-auto h-24 w-24 text-gray-400">
+            <Users className="h-full w-full" />
           </div>
-          <div className="flex space-x-3">
-            {shouldShowCulturalStyles(event?.event_type) && (
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Cultural Style:</span>
-                <select className="border border-gray-300 rounded px-3 py-1 text-sm">
-                  <option>All Styles</option>
-                  <option>American</option>
-                  <option>Hispanic/Latino</option>
-                  <option>Indian</option>
-                </select>
-              </div>
-            )}
-            <button className="flex items-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Filter className="h-4 w-4 mr-2" />
-              More Filters
+          <h3 className="mt-4 text-lg font-medium text-gray-900">
+            {sectionType === 'core-vendors' ? 'No Core Services Selected' : 'No Add-Ons Selected'}
+          </h3>
+          <p className="mt-2 text-sm text-gray-500">
+            {sectionType === 'core-vendors' 
+              ? 'You haven\'t selected any core services in your event wizard.'
+              : 'You haven\'t selected any extras in your event wizard.'
+            }
+          </p>
+          <div className="mt-6">
+            <button
+              onClick={() => navigate(`/events/${eventId}`)}
+              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Edit Event Services
             </button>
           </div>
         </div>
+      );
+    }
 
-        {loadingVendors ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Finding specialized vendors...</p>
+    return (
+      <div className="space-y-8">
+        {/* Wedding Context Filters (if wedding) */}
+        {event?.event_type === 'wedding' && sectionType === 'core-vendors' && (
+          <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg border border-pink-200">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+              💒 Wedding Planning Filters
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <button className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm border border-pink-300">
+                Ceremony
+              </button>
+              <button className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm border border-purple-300">
+                Reception  
+              </button>
+              <button className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm border border-gray-300">
+                Both
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {vendors.map((vendor) => (
-              <div key={vendor.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                <img 
-                  src={vendor.image} 
-                  alt={vendor.name}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-gray-900">{vendor.name}</h3>
-                    <div className="flex items-center">
-                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="text-sm text-gray-600 ml-1">{vendor.rating}</span>
+        )}
+
+        {/* Service-Specific Sections */}
+        {sectionServices.map(service => {
+          const mapping = SERVICE_MAPPING[service];
+          if (!mapping) return null;
+          
+          return (
+            <div key={service} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{mapping.stepByStepCategory}</h3>
+                  <p className="text-sm text-gray-600">
+                    Budget: {mapping.budgetBucket} | Context: {mapping.context}
+                  </p>
+                </div>
+                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                  {service}
+                </span>
+              </div>
+
+              {/* Vendors for this service */}
+              {loadingVendors ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mx-auto"></div>
+                  <p className="mt-2 text-sm text-gray-600">Finding {service.toLowerCase()} vendors...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {vendors
+                    .filter(vendor => 
+                      vendor.services.some(s => 
+                        mapping.vendorTypes.some(type => 
+                          s.toLowerCase().includes(type.replace('_', ' ')) ||
+                          type.toLowerCase().includes(s.toLowerCase())
+                        )
+                      )
+                    )
+                    .slice(0, 3) // Show top 3 per service
+                    .map((vendor) => (
+                    <div key={`${service}-${vendor.id}`} className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                      <img 
+                        src={vendor.image} 
+                        alt={vendor.name}
+                        className="w-full h-32 object-cover"
+                      />
+                      <div className="p-3">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="font-medium text-gray-900 text-sm">{vendor.name}</h4>
+                          <div className="flex items-center">
+                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                            <span className="text-xs text-gray-600 ml-1">{vendor.rating}</span>
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-2">{vendor.services.join(', ')}</p>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-medium text-green-600">
+                            {vendor.price_range}
+                          </span>
+                          <button className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 transition-colors">
+                            Get Quote
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* "View All" link */}
+              <div className="mt-4 text-center">
+                <button className="text-purple-600 hover:text-purple-700 text-sm underline">
+                  View all {mapping.stepByStepCategory.toLowerCase()} vendors
+                </button>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* General vendor grid if no service mapping */}
+        {sectionServices.length === 0 && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {sectionType === 'core-vendors' ? 'All Core Vendors' : 'All Add-On Services'}
+            </h3>
+            {loadingVendors ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600">Finding specialized vendors...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {vendors.map((vendor) => (
+                  <div key={vendor.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                    <img 
+                      src={vendor.image} 
+                      alt={vendor.name}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-gray-900">{vendor.name}</h3>
+                        <div className="flex items-center">
+                          <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                          <span className="text-sm text-gray-600 ml-1">{vendor.rating}</span>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600 mb-2">{vendor.services.join(', ')}</p>
+                      {vendor.culturalStyles && (
+                        <p className="text-xs text-blue-600 mb-2">
+                          Specializes in: {vendor.culturalStyles.join(', ')}
+                        </p>
+                      )}
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-sm font-medium text-green-600">
+                          {vendor.price_range}
+                        </span>
+                        <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                          Get Quote
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">{vendor.services.join(', ')}</p>
-                  {vendor.culturalStyles && (
-                    <p className="text-xs text-blue-600 mb-2">
-                      Specializes in: {vendor.culturalStyles.join(', ')}
-                    </p>
-                  )}
-                  <div className="flex justify-between items-center mt-4">
-                    <span className="text-sm font-medium text-green-600">
-                      {vendor.price_range}
-                    </span>
-                    <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
-                      Get Quote
-                    </button>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
