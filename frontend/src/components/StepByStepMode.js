@@ -573,9 +573,9 @@ const StepByStepMode = () => {
       case 'venues':
         return renderVenuesSection();
       case 'core-vendors':
-        return renderVendorsSection('core');
+        return renderVendorsSection('core-vendors');
       case 'add-ons':
-        return renderVendorsSection('extras');
+        return renderVendorsSection('add-ons');
       case 'timeline':
         return renderPlaceholderSection('Timeline Management', 'Schedule and coordinate all your event activities');
       case 'budget':
