@@ -147,5 +147,3 @@ const Sidebar = ({ open, onOpenChange }) => {
 };
 
 export default Sidebar;
-
-export default Sidebar;
