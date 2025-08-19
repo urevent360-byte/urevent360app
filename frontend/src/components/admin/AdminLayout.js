@@ -86,7 +86,7 @@ const AdminLayout = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={() => onOpenChange(false)}
                   className={`group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                     isActive
                       ? 'bg-purple-100 text-purple-700 border-r-2 border-purple-700'
