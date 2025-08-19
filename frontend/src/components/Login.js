@@ -136,7 +136,19 @@ const Login = () => {
       // For regular users, allow login regardless of role in database
       login(response.data.access_token, userData);
       
-      // React Router will automatically redirect when user state changes
+      // Redirect based on user role after successful login
+      if (userData.role === 'admin' || userData.role === 'ROLE_ADMIN') {
+        navigate('/admin');
+      } else if (userData.role === 'vendor') {
+        navigate('/vendor');
+      } else if (userData.role === 'employee') {
+        navigate('/employee');
+      } else if (userData.role === 'ROLE_CEO') {
+        navigate('/ceo');
+      } else {
+        // Default to main dashboard for clients and other roles
+        navigate('/');
+      }
     } catch (err) {
       if (err.response?.status === 401) {
         setError('Invalid email or password. Please check your credentials and try again.');
