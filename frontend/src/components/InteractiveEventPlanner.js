@@ -13,6 +13,19 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
+// Debug component for location matching
+const DebugPlanner = ({ event }) => {
+  useEffect(() => {
+    if (process.env.REACT_APP_DEBUG_MATCHING === 'true') {
+      console.log('[Planner] event.location_preferences:', event?.location_preferences);
+      console.log('[Planner] event.location:', event?.location);
+      console.log('[Planner] event.type:', event?.type, 'guestCount:', event?.guestCount);
+      console.log('[Planner] event.preferred_venue_types:', event?.preferred_venue_types);
+    }
+  }, [event]);
+  return null;
+};
+
 const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, mode = 'new' }) => {
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
