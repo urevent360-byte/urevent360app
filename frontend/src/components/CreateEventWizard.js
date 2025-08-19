@@ -141,13 +141,23 @@ const CreateEventWizard = () => {
     setError('');
   };
 
-  const handleArrayToggle = (arrayName, value) => {
+  const handleLocationChange = (locationData) => {
     setEventData(prev => ({
       ...prev,
-      [arrayName]: prev[arrayName].includes(value)
-        ? prev[arrayName].filter(item => item !== value)
-        : [...prev[arrayName], value]
+      location: {
+        ...prev.location,
+        ...locationData
+      }
     }));
+    setError('');
+  };
+
+  const handleBudgetChange = (budgetData) => {
+    setEventData(prev => ({
+      ...prev,
+      budget: budgetData
+    }));
+    setError('');
   };
 
   const handleCategorySpecificToggle = (type, value) => {
