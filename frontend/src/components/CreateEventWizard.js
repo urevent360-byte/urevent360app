@@ -600,11 +600,26 @@ const CreateEventWizard = () => {
             <p><strong>Event:</strong> {eventData.name}</p>
             <p><strong>Type:</strong> {eventTypes.find(t => t.id === eventData.type)?.name}</p>
             <p><strong>Date:</strong> {eventData.date} {eventData.time && `at ${eventData.time}`}</p>
-            <p><strong>Location:</strong> {eventData.city}</p>
+            <p><strong>Location:</strong> {
+              process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' 
+                ? (eventData.location?.city || eventData.city || eventData.location?.zipcode || 'Not specified')
+                : eventData.city
+            }</p>
             <p><strong>Guests:</strong> {eventData.guestCount}</p>
             
-            {/* Location search area - feature flagged */}
-            {locationFiltersEnabled && eventData.location?.zipcode && (
+            {/* Unified Location Search Area */}
+            {process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' && (eventData.location?.zipcode || eventData.location?.city) && (
+              <p><strong>Search Area:</strong>{' '}
+                {eventData.location.zipOnly && eventData.location.zipcode
+                  ? `ZIP-only ${eventData.location.zipcode}`
+                  : eventData.location.zipcode
+                    ? `${eventData.location.radiusMiles || 25} miles around ZIP ${eventData.location.zipcode}`
+                    : `${eventData.location.radiusMiles || 25} miles around ${eventData.location.city}`}
+              </p>
+            )}
+            
+            {/* Legacy Location search area - feature flagged */}
+            {process.env.REACT_APP_WIZARD_LOCATION_UNIFIED !== 'true' && locationFiltersEnabled && eventData.location?.zipcode && (
               <p><strong>Search Area:</strong>{' '}
                 {eventData.location.zipOnly
                   ? `ZIP code ${eventData.location.zipcode} only`
