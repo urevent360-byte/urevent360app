@@ -2436,6 +2436,8 @@ async def match_venues_for_event(
         
         # Apply location filtering
         filtered_venues = []
+        before_count = len(all_venues)
+        
         for venue in all_venues:
             # Apply ZIP-only filter if enabled
             if zip_only and zipcode:
