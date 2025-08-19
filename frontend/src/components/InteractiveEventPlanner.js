@@ -669,8 +669,15 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
 
       setVendors(prev => ({
         ...prev,
-        [stepId]: response.data?.vendors || response.data || []
+        [stepId]: response.data?.venues || response.data?.vendors || response.data || []
       }));
+
+      // Debug logging for venue matching
+      if (process.env.REACT_APP_DEBUG_MATCHING === 'true' && stepId === 'venue' && eventId) {
+        console.log('[Planner] Enhanced venue matching response:', response.data);
+        console.log('[Planner] Location filter applied:', response.data?.location_filter);
+        console.log('[Planner] Total matches:', response.data?.total_matches);
+      }
     } catch (err) {
       console.error('Error searching vendors:', err);
     } finally {
