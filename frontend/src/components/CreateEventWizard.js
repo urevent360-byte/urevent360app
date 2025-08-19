@@ -230,9 +230,23 @@ const CreateEventWizard = () => {
         name: eventData.name,
         event_type: eventData.type,
         date: eventDateTime.toISOString(),
-        location: eventData.city,
+        location: eventData.city, // Keep backward compatibility
         guest_count: parseInt(eventData.guestCount),
         status: 'planning',
+        
+        // Extended location preferences
+        location_preferences: {
+          city: eventData.location.city || eventData.city,
+          zipcode: eventData.location.zipcode,
+          zip_only: !!eventData.location.zipOnly,
+          radius_miles: eventData.location.radiusMiles || 25
+        },
+        
+        // Budget preferences
+        budget_preferences: {
+          target: eventData.budget?.target || null,
+          currency: eventData.budget?.currency || 'USD'
+        },
         
         // Preferences for Step-by-Step Mode matching
         preferred_venue_types: eventData.preferredVenueTypes,
