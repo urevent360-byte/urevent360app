@@ -208,7 +208,11 @@ const CreateEventWizard = () => {
       case 2:
         return eventData.type !== '' && eventData.date !== '';
       case 3:
-        // Category step is optional
+        // Category step - require Mitzvah type for Mitzvah ceremonies
+        if (eventData.type === 'mitzvah') {
+          return eventData.mitzvahType !== '' || eventData.categorySpecific?.mitzvahType !== '';
+        }
+        // Other event types - category is optional
         return true;
       case 4:
         return eventData.preferredVenueTypes.length > 0;
