@@ -2337,6 +2337,171 @@ async def get_preferred_vendors(current_user: dict = Depends(get_current_user)):
 # ================================================================================================
 
 # Venue Matching API for Step-by-Step Mode
+# Enhanced venue matching with event-based location preferences
+@api_router.get("/match/venues/event/{event_id}")
+async def match_venues_for_event(
+    event_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Match venues for a specific event using stored location preferences
+    Supports ZIP-only search and radius-based matching
+    """
+    try:
+        # Get the event
+        event = await db.events.find_one({"id": event_id, "user_id": current_user["id"]})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        # Extract location preferences
+        location_prefs = event.get("location_preferences", {})
+        zipcode = location_prefs.get("zipcode")
+        zip_only = location_prefs.get("zip_only", False)
+        radius_miles = location_prefs.get("radius_miles", 25)
+        city = location_prefs.get("city") or event.get("location")
+        
+        # Get event criteria
+        event_type = event.get("event_type")
+        guest_count = event.get("guest_count")
+        preferred_types = event.get("preferred_venue_types", [])
+        
+        # Mock venues database (in real implementation, this would be from database)
+        all_venues = [
+            {
+                "id": "venue_1",
+                "name": "Grand Palace Banquet Hall",
+                "supportedTypes": ["wedding", "corporate", "anniversary", "birthday"],
+                "venueTypes": ["Hotel/Banquet Hall"],
+                "city": city or "Orlando",
+                "zipcode": "32801",
+                "capacity": 300,
+                "rating": 4.8,
+                "price_per_person": 85,
+                "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Elegant banquet hall with crystal chandeliers and premium amenities",
+                "lat": 28.5383, "lng": -81.3792  # Orlando coordinates
+            },
+            {
+                "id": "venue_2", 
+                "name": "Riverside Garden Venue",
+                "supportedTypes": ["wedding", "birthday", "anniversary", "graduation"],
+                "venueTypes": ["Outdoor/Garden"],
+                "city": city or "Orlando",
+                "zipcode": "32801",
+                "capacity": 150,
+                "rating": 4.6,
+                "price_per_person": 65,
+                "image": "https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Beautiful outdoor garden setting with natural lighting",
+                "lat": 28.5450, "lng": -81.3850
+            },
+            {
+                "id": "venue_3",
+                "name": "Downtown Conference Center", 
+                "supportedTypes": ["corporate", "wedding", "other"],
+                "venueTypes": ["Community Center"],
+                "city": city or "Orlando",
+                "zipcode": "32803",  # Different ZIP
+                "capacity": 500,
+                "rating": 4.4,
+                "price_per_person": 45,
+                "image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Modern conference facility with state-of-the-art AV equipment",
+                "lat": 28.5200, "lng": -81.3600
+            },
+            {
+                "id": "venue_4",
+                "name": "Oceanview Restaurant",
+                "supportedTypes": ["anniversary", "birthday", "corporate", "retirement"],
+                "venueTypes": ["Restaurant", "Beach/Waterfront"],
+                "city": "Miami",  # Different city
+                "zipcode": "33101",
+                "capacity": 80,
+                "rating": 4.9,
+                "price_per_person": 120,
+                "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Upscale waterfront dining with panoramic ocean views",
+                "lat": 25.7617, "lng": -80.1918  # Miami coordinates
+            }
+        ]
+        
+        # Apply location filtering
+        filtered_venues = []
+        for venue in all_venues:
+            # Apply ZIP-only filter if enabled
+            if zip_only and zipcode:
+                if venue.get("zipcode") != zipcode:
+                    continue
+            elif zipcode and not zip_only:
+                # Apply radius filter (simplified - in real implementation use haversine distance)
+                venue_zip = venue.get("zipcode")
+                if venue_zip:
+                    # For demo, consider venues in same state as within radius
+                    # In real implementation, calculate actual distance
+                    base_zip_prefix = zipcode[:3] if len(zipcode) >= 3 else zipcode[:2]
+                    venue_zip_prefix = venue_zip[:3] if len(venue_zip) >= 3 else venue_zip[:2]
+                    if venue_zip_prefix != base_zip_prefix:
+                        continue
+            
+            # Apply other filters
+            if event_type and event_type not in venue["supportedTypes"]:
+                continue
+                
+            if guest_count and venue["capacity"] < guest_count:
+                continue
+                
+            # Check preferred venue types match
+            if preferred_types:
+                venue_types_match = any(
+                    pref.lower() in [vt.lower() for vt in venue["venueTypes"]] 
+                    for pref in preferred_types
+                )
+                if not venue_types_match:
+                    continue
+            
+            # Add compatibility score
+            score = 0
+            if event_type and event_type in venue["supportedTypes"]:
+                score += 30
+            if guest_count and venue["capacity"] >= guest_count:
+                score += 20
+            if preferred_types:
+                matching_types = sum(1 for pref in preferred_types 
+                                   if pref.lower() in [vt.lower() for vt in venue["venueTypes"]])
+                score += (matching_types / len(preferred_types)) * 30
+            score += venue["rating"] * 4  # Rating contribution
+            
+            venue["compatibility_score"] = score
+            filtered_venues.append(venue)
+        
+        # Sort by compatibility score
+        filtered_venues.sort(key=lambda x: x["compatibility_score"], reverse=True)
+        
+        return {
+            "venues": filtered_venues,
+            "location_filter": {
+                "zip_only": zip_only,
+                "zipcode": zipcode,
+                "radius_miles": radius_miles,
+                "city": city
+            },
+            "total_matches": len(filtered_venues)
+        }
+        
+    except Exception as e:
+        print(f"Error in venue matching: {e}")
+        return {
+            "venues": [],
+            "location_filter": {},
+            "total_matches": 0,
+            "error": str(e)
+        }
+
+# Keep the original API for backward compatibility
 @api_router.get("/match/venues")
 async def match_venues(
     type: str = None,
