@@ -258,6 +258,9 @@ const CreateEventWizard = () => {
         guest_count: parseInt(eventData.guestCount),
         status: 'planning',
         
+        // Mitzvah type (for Bar/Bat Mitzvah)
+        mitzvah_type: eventData.mitzvahType || eventData.categorySpecific?.mitzvahType || null,
+        
         // Extended location preferences
         location_preferences: {
           city: eventData.location.city || eventData.city,
