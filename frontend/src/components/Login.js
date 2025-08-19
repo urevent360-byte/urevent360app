@@ -19,7 +19,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState('role-selection'); // 'role-selection' or 'login-form'
   const [selectedRole, setSelectedRole] = useState('');
