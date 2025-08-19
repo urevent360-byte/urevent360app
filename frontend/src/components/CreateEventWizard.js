@@ -941,11 +941,11 @@ const CreateEventWizard = () => {
                             <div className="mt-3 ml-6 p-3 bg-pink-50 border border-pink-200 rounded">
                               <p className="text-sm font-medium text-gray-900 mb-2">Cake Type:</p>
                               <div className="space-y-2">
-                                {eventData.type === 'wedding' ? ['Wedding Cake', 'Custom Designs', 'Cupcakes', 'Macarons'] :
+                                {(eventData.type === 'wedding' ? ['Wedding Cake', 'Custom Designs', 'Cupcakes', 'Macarons'] :
                                  eventData.type === 'birthday' ? ['Birthday Cake', 'Custom Designs', 'Cupcakes'] :
                                  eventData.type === 'quinceanera' ? ['Quinceañera Cake', 'Custom Designs', 'Cupcakes'] :
                                  ['Custom Cake', 'Cupcakes', 'Macarons']
-                                }.map((cakeType) => (
+                                ).map((cakeType) => (
                                   <label key={cakeType} className="flex items-center">
                                     <input
                                       type="checkbox"
