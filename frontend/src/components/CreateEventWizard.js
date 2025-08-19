@@ -126,6 +126,17 @@ const CreateEventWizard = () => {
       }));
     } else {
       setEventData(prev => ({ ...prev, [name]: value }));
+      
+      // Sync city with location.city for backward compatibility
+      if (name === 'city') {
+        setEventData(prev => ({
+          ...prev,
+          location: {
+            ...prev.location,
+            city: value
+          }
+        }));
+      }
     }
     setError('');
   };
