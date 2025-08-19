@@ -7,8 +7,23 @@ export const SERVICE_MAPPING = {
     stepByStepCategory: 'Catering',
     budgetBucket: 'Food & Beverage',
     section: 'core-vendors',
-    vendorTypes: ['catering', 'caterer'],
-    context: 'reception'
+    vendorTypes: ['catering', 'caterer', 'full_service_catering'],
+    context: 'reception',
+    subcategories: [
+      'Full-Service Catering',
+      'Appetizers / Small Bites only', 
+      'Specialty Food Stations'
+    ],
+    specialtyStations: [
+      'Sushi Station',
+      'Charcuterie/Cheese Station', 
+      'Fruit Station',
+      'Taco Station',
+      'Pasta Station', 
+      'Carving Station',
+      'Seafood/Raw Bar',
+      'Ceviche Station'
+    ]
   },
   
   'Bar Service': {
@@ -27,22 +42,6 @@ export const SERVICE_MAPPING = {
     context: 'reception'
   },
   
-  'Reception Lighting': {
-    stepByStepCategory: 'Lighting',
-    budgetBucket: 'Production / Lighting',
-    section: 'core-vendors', 
-    vendorTypes: ['lighting', 'uplighting'],
-    context: 'reception'
-  },
-  
-  'Dance Floor': {
-    stepByStepCategory: 'Dance Floor Rental',
-    budgetBucket: 'Rentals / Production',
-    section: 'core-vendors',
-    vendorTypes: ['dance_floor', 'flooring', 'rentals'],
-    context: 'reception'
-  },
-  
   'Photography/Videography': {
     stepByStepCategory: 'Photographer / Videographer',
     budgetBucket: 'Photo/Video',
@@ -51,19 +50,11 @@ export const SERVICE_MAPPING = {
     context: 'both'
   },
   
-  'Reception Décor': {
-    stepByStepCategory: 'Decor / Floral / Rentals', 
-    budgetBucket: 'Decor & Design',
-    section: 'core-vendors',
-    vendorTypes: ['decor', 'floral', 'design'],
-    context: 'reception'
-  },
-  
-  'Wedding Cake': {
-    stepByStepCategory: 'Bakery / Cake',
-    budgetBucket: 'Food & Beverage',
-    section: 'core-vendors',
-    vendorTypes: ['bakery', 'cake', 'dessert'],
+  'Reception Lighting': {
+    stepByStepCategory: 'Reception Lighting',
+    budgetBucket: 'Production & Rentals',
+    section: 'core-vendors', 
+    vendorTypes: ['lighting', 'uplighting', 'reception_lighting'],
     context: 'reception'
   },
   
@@ -73,6 +64,22 @@ export const SERVICE_MAPPING = {
     section: 'core-vendors', 
     vendorTypes: ['coordinator', 'planner', 'day_of'],
     context: 'both'
+  },
+
+  'Cakes': {
+    stepByStepCategory: 'Cakes & Custom Designs',
+    budgetBucket: 'Food & Beverage',
+    section: 'core-vendors',
+    vendorTypes: ['bakery', 'cake', 'wedding_cake', 'birthday_cake', 'quince_cake'],
+    context: 'reception',
+    subcategories: [
+      'Wedding Cake',
+      'Birthday Cake', 
+      'Quinceañera Cake',
+      'Custom Designs',
+      'Cupcakes',
+      'Macarons'
+    ]
   },
 
   // Ceremony Services (Core Vendors)
@@ -101,6 +108,33 @@ export const SERVICE_MAPPING = {
   },
 
   // Reception Extras (Add-Ons)
+  'Dessert Stations & Sweets': {
+    stepByStepCategory: 'Dessert Stations & Sweets',
+    budgetBucket: 'Food & Beverage',
+    section: 'add-ons',
+    vendorTypes: ['dessert_station', 'sweets', 'candy_bar', 'donut_wall'],
+    context: 'reception',
+    subcategories: [
+      'Dessert Table',
+      'Candy Bar',
+      'Donut Wall', 
+      'Ice-cream Cart',
+      'Chocolate Fountain',
+      'Fruit Display',
+      'Churros Station',
+      'Cotton Candy',
+      'S\'mores Station'
+    ]
+  },
+  
+  'Dance Floor': {
+    stepByStepCategory: 'Dance Floor Rental',
+    budgetBucket: 'Production & Rentals',
+    section: 'add-ons', // Moved from core-vendors to add-ons
+    vendorTypes: ['dance_floor', 'flooring', 'rentals'],
+    context: 'reception'
+  },
+  
   'Photo Booth': {
     stepByStepCategory: 'Photo Booth',
     budgetBucket: 'Photo/Video (Extras)',
@@ -109,17 +143,9 @@ export const SERVICE_MAPPING = {
     context: 'reception'
   },
   
-  'Live Entertainment': {
-    stepByStepCategory: 'Specialty Acts / Performers',
-    budgetBucket: 'Entertainment (Extras)',
-    section: 'add-ons',
-    vendorTypes: ['performers', 'acts', 'entertainment'],
-    context: 'reception'
-  },
-  
   'Special Lighting Effects': {
     stepByStepCategory: 'FX (Cold Sparks, Dancing on Clouds, Spotlights)', 
-    budgetBucket: 'Production / Lighting (Extras)',
+    budgetBucket: 'Production & Rentals',
     section: 'add-ons',
     vendorTypes: ['fx', 'cold_sparks', 'clouds', 'special_effects'],
     context: 'reception'
@@ -127,23 +153,15 @@ export const SERVICE_MAPPING = {
   
   'Lounge Areas': {
     stepByStepCategory: 'Lounge Furniture Rental',
-    budgetBucket: 'Rentals (Extras)', 
+    budgetBucket: 'Production & Rentals', 
     section: 'add-ons',
     vendorTypes: ['lounge', 'furniture', 'seating'],
     context: 'reception'
   },
   
-  'Dessert Station': {
-    stepByStepCategory: 'Dessert Station / Catering Add-On',
-    budgetBucket: 'Food & Beverage (Extras)',
-    section: 'add-ons',
-    vendorTypes: ['dessert_station', 'dessert'],
-    context: 'reception'
-  },
-  
   'Late Night Snacks': {
     stepByStepCategory: 'Catering Late Night',
-    budgetBucket: 'Food & Beverage (Extras)',
+    budgetBucket: 'Food & Beverage',
     section: 'add-ons',
     vendorTypes: ['late_night', 'snacks'],
     context: 'reception'
