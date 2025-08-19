@@ -614,7 +614,13 @@ const CreateEventWizard = () => {
           <h4 className="font-medium text-purple-900 mb-4">Event Summary</h4>
           <div className="space-y-2 text-sm text-purple-700">
             <p><strong>Event:</strong> {eventData.name}</p>
-            <p><strong>Type:</strong> {eventTypes.find(t => t.id === eventData.type)?.name}</p>
+            <p><strong>Type:</strong> {eventTypes.find(t => t.id === eventData.type)?.name}
+              {eventData.type === 'mitzvah' && (eventData.mitzvahType || eventData.categorySpecific?.mitzvahType) && (
+                <span className="text-sm ml-1">
+                  ({(eventData.mitzvahType || eventData.categorySpecific?.mitzvahType) === 'bar_mitzvah' ? 'Bar Mitzvah - Boy' : 'Bat Mitzvah - Girl'})
+                </span>
+              )}
+            </p>
             <p><strong>Date:</strong> {eventData.date} {eventData.time && `at ${eventData.time}`}</p>
             <p><strong>Location:</strong> {
               process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' 
