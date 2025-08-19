@@ -16,6 +16,7 @@ import {
 } from '../config/eventFlowConfig';
 import VenueSearchControls from './wizard/VenueSearchControls';
 import BudgetStep from './wizard/BudgetStep';
+import LocationSection from './wizard/LocationSection';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
