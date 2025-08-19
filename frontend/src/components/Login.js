@@ -136,6 +136,15 @@ const Login = () => {
       // For regular users, allow login regardless of role in database
       login(response.data.access_token, userData);
       
+      // Reset all sidebar states to collapsed after successful login
+      if (typeof window !== "undefined") {
+        localStorage.setItem("sb:open", "0");           // Client portal
+        localStorage.setItem("admin-sb:open", "0");     // Admin portal
+        localStorage.setItem("vendor-sb:open", "0");    // Vendor portal
+        localStorage.setItem("employee-sb:open", "0");  // Employee portal
+        localStorage.setItem("ceo-sb:open", "0");       // CEO portal
+      }
+      
       // Redirect based on user role after successful login
       if (userData.role === 'admin' || userData.role === 'ROLE_ADMIN') {
         navigate('/admin');
