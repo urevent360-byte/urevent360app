@@ -35,7 +35,12 @@ const CreateEventWizard = () => {
     time: '',
     city: '',
     guestCount: '',
-    mitzvahType: '', // For Bar/Bat Mitzvah selection
+    // Service subcategories (for Catering, Cakes, etc.)
+    serviceSubcategories: {
+      catering: [], // Will store: Full-Service, Appetizers, or Specialty Stations
+      cateringStations: [], // Will store specific stations if Specialty Stations selected
+      cakes: [] // Will store: Wedding Cake, Birthday Cake, etc.
+    },
     
     // Extended location preferences (legacy)
     location: {
