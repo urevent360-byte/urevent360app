@@ -666,6 +666,90 @@ const CreateEventWizard = () => {
   const renderCategoryStep = () => {
     if (!eventData.type) return null;
 
+    // Special case for Mitzvah ceremonies - show boy/girl selection
+    if (eventData.type === 'mitzvah') {
+      return (
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-4">
+              Mitzvah Type <span className="text-red-500">*</span>
+            </label>
+            <p className="text-sm text-gray-600 mb-6">
+              Please specify if this is for a boy or girl to help us find the right vendors and traditions.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div
+                onClick={() => {
+                  setEventData(prev => ({
+                    ...prev,
+                    mitzvahType: 'bar_mitzvah',
+                    categorySpecific: {
+                      ...prev.categorySpecific,
+                      mitzvahType: 'bar_mitzvah'
+                    }
+                  }));
+                }}
+                className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
+                  eventData.mitzvahType === 'bar_mitzvah' || eventData.categorySpecific?.mitzvahType === 'bar_mitzvah'
+                    ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
+                    : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="text-4xl">👦</div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Bar Mitzvah</h3>
+                    <p className="text-sm text-gray-600 mt-1">For boys (age 13)</p>
+                    <p className="text-xs text-gray-500 mt-1">Traditional coming of age ceremony</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div
+                onClick={() => {
+                  setEventData(prev => ({
+                    ...prev,
+                    mitzvahType: 'bat_mitzvah',
+                    categorySpecific: {
+                      ...prev.categorySpecific,
+                      mitzvahType: 'bat_mitzvah'
+                    }
+                  }));
+                }}
+                className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
+                  eventData.mitzvahType === 'bat_mitzvah' || eventData.categorySpecific?.mitzvahType === 'bat_mitzvah'
+                    ? 'border-pink-500 bg-pink-50 ring-2 ring-pink-500'
+                    : 'border-gray-300 hover:border-pink-400 hover:bg-pink-50'
+                }`}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="text-4xl">👧</div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Bat Mitzvah</h3>
+                    <p className="text-sm text-gray-600 mt-1">For girls (age 12-13)</p>
+                    <p className="text-xs text-gray-500 mt-1">Traditional coming of age ceremony</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Display current selection */}
+            {(eventData.mitzvahType || eventData.categorySpecific?.mitzvahType) && (
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700">
+                  ✓ Selected: <strong>
+                    {(eventData.mitzvahType || eventData.categorySpecific?.mitzvahType) === 'bar_mitzvah' 
+                      ? 'Bar Mitzvah (for boys)' 
+                      : 'Bat Mitzvah (for girls)'}
+                  </strong>
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     if (shouldShowCulturalStyles(eventData.type)) {
       return (
         <div className="space-y-6">
