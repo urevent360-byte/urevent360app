@@ -19,13 +19,13 @@ export const EVENT_FLOW_CONFIG = {
     displayName: 'Sweet 16'
   },
   bar_mitzvah: { 
-    showCulturalStyles: true,  
+    showCulturalStyles: false,  // Jewish ceremony - no need for cultural style selection
     replaceWith: null,            
     vendorTags: ['jewish', 'mitzvah', 'bar_mitzvah'],
     displayName: 'Bar Mitzvah'
   },
   bat_mitzvah: { 
-    showCulturalStyles: true,  
+    showCulturalStyles: false,  // Jewish ceremony - no need for cultural style selection  
     replaceWith: null,            
     vendorTags: ['jewish', 'mitzvah', 'bat_mitzvah'],
     displayName: 'Bat Mitzvah'
