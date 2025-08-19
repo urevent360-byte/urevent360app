@@ -132,50 +132,364 @@ function App() {
                   } 
                 />
 
-                {/* Client Portal */}
+                {/* Client Portal - Specific Routes Only */}
                 <Route 
-                  path="/*" 
+                  path="/" 
                   element={
                     <ProtectedRoute>
                       <ErrorBoundary>
                         <Layout>
-                          <Routes>
-                            <Route path="/" element={<Dashboard />} />
-                            <Route path="/events/new" element={<CreateEventWizard />} />
-                            <Route path="/events/create" element={<EventCreation />} />
-                            <Route path="/events/:eventId/plan" element={<StepByStepMode />} />
-                            <Route path="/events/:eventId/planning" element={<EventPlanning />} />
-                            <Route path="/venues" element={<VenueBrowser />} />
-                            <Route path="/venues/new" element={<VenueCreate />} />
-                            <Route path="/vendors" element={<VendorMarketplace />} />
-                            <Route path="/preferred-vendors" element={<PreferredVendors />} />
-                            <Route path="/messages" element={<Messages />} />
-                            <Route path="/analytics" element={<Analytics />} />
-                            <Route path="/payments" element={<PaymentCenter />} />
-                            <Route path="/loans" element={<LoanCenter />} />
-                            <Route path="/communication" element={<CommunicationCenter />} />
-                            <Route path="/events/:eventId/guests" element={<GuestManagement />} />
-                            <Route path="/events/:eventId/budget" element={<BudgetTracker />} />
-                            <Route path="/history" element={<EventHistory />} />
-                            <Route path="/profile" element={<Profile />} />
-                            <Route path="/calendar" element={<CalendarView />} />
-                            
-                            {/* Settings routes */}
-                            <Route path="/settings" element={<Settings />} />
-                            <Route path="/settings/profile" element={<EditProfile />} />
-                            <Route path="/settings/password" element={<ChangePassword />} />
-                            <Route path="/settings/language" element={<LanguageSettings />} />
-                            <Route path="/settings/security" element={<SecuritySettings />} />
-                            <Route path="/settings/notifications" element={<NotificationSettings />} />
-                            <Route path="/settings/privacy" element={<PrivacySettings />} />
-                            <Route path="/settings/integrations" element={<IntegrationSettings />} />
-                            <Route path="/settings/billing" element={<BillingSettings />} />
-                            <Route path="/settings/help" element={<HelpSupport />} />
-                            <Route path="/settings/account" element={<EnhancedAccountSettings />} />
-                            
-                            {/* 404 route */}
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
+                          <Dashboard />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/events/new" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <CreateEventWizard />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/events/create" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <EventCreation />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/events/:eventId/plan" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <StepByStepMode />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/events/:eventId/planning" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <EventPlanning />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/venues" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <VenueBrowser />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/venues/new" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <VenueCreate />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/vendors" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <VendorMarketplace />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/preferred-vendors" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <PreferredVendors />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/messages" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <Messages />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/analytics" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <Analytics />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/payments" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <PaymentCenter />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/loans" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <LoanCenter />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/communication" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <CommunicationCenter />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/events/:eventId/guests" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <GuestManagement />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/events/:eventId/budget" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <BudgetTracker />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/history" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <EventHistory />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <Profile />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/calendar" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <CalendarView />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Settings routes */}
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <Settings />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/profile" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <EditProfile />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/password" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <ChangePassword />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/language" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <LanguageSettings />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/security" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <SecuritySettings />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/notifications" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <NotificationSettings />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/privacy" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <PrivacySettings />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/integrations" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <IntegrationSettings />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/billing" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <BillingSettings />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/help" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <HelpSupport />
+                        </Layout>
+                      </ErrorBoundary>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings/account" 
+                  element={
+                    <ProtectedRoute>
+                      <ErrorBoundary>
+                        <Layout>
+                          <EnhancedAccountSettings />
                         </Layout>
                       </ErrorBoundary>
                     </ProtectedRoute>
