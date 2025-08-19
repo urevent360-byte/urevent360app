@@ -305,18 +305,18 @@ const CreateEventWizard = () => {
                 <h4 className="text-lg font-medium text-gray-900 mb-4">Location & Search Preferences</h4>
                 <LocationSection
                   value={{
-                    city: eventData.city || eventData.location?.city,
-                    zipcode: eventData.location?.zipcode,
-                    zipOnly: eventData.location?.zipOnly,
-                    radiusMiles: eventData.location?.radiusMiles,
+                    city: eventData.city || eventData.location_preferences?.city,
+                    zipcode: eventData.location_preferences?.zipcode,
+                    zipOnly: eventData.location_preferences?.zipOnly,
+                    radiusMiles: eventData.location_preferences?.radiusMiles,
                   }}
                   onChange={(locationData) => {
-                    // Update both city (for backward compatibility) and location object
+                    // Update both city (for backward compatibility) and location_preferences (unified)
                     setEventData(prev => ({
                       ...prev,
                       city: locationData.city || prev.city,
-                      location: {
-                        ...prev.location,
+                      location_preferences: {
+                        ...prev.location_preferences,
                         ...locationData
                       }
                     }));
