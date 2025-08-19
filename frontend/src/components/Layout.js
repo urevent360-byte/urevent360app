@@ -43,7 +43,7 @@ const Layout = ({ children }) => {
             </div>
           </header>
           
-          <main className={`flex-1 transition-all duration-300 p-6 ${open ? "ml-0" : "ml-0"}`}>
+          <main className="flex-1 transition-all duration-300 p-6">
             {children}
           </main>
         </div>
