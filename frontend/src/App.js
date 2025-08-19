@@ -195,5 +195,3 @@ function App() {
 
 export default App;
 
-// Export AuthContext for components that expect it from App.js
-export { AuthContext };
