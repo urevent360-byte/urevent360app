@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthContext';
 import {
@@ -26,10 +26,24 @@ import CEOSecurity from './CEOSecurity';
 import AICopilot from './AICopilot';
 import AIIntelligenceCenter from './AIIntelligenceCenter';
 
+const LS_KEY = "ceo-sb:open";
+const DEFAULT_OPEN = false; // collapsed by default
+
 const CEOLayout = () => {
   const { user, logout } = useContext(AuthContext);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(DEFAULT_OPEN);
   const location = useLocation();
+
+  // Read saved preference once (stays collapsed if none saved)
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? localStorage.getItem(LS_KEY) : null;
+    if (saved !== null) setSidebarOpen(saved === "1");
+  }, []);
+
+  // Persist when user toggles
+  useEffect(() => {
+    if (typeof window !== "undefined") localStorage.setItem(LS_KEY, sidebarOpen ? "1" : "0");
+  }, [sidebarOpen]);
 
   // Ensure only CEO can access this layout
   if (!user || user.role !== 'ROLE_CEO') {
@@ -50,24 +64,36 @@ const CEOLayout = () => {
     <div className="min-h-screen bg-gray-50 flex">
       {/* CEO Sidebar */}
       <div className={`bg-gradient-to-b from-gray-900 to-gray-800 shadow-2xl transition-all duration-300 ${
-        sidebarOpen ? 'w-64' : 'w-64 hidden lg:block'
+        sidebarOpen ? 'w-64' : 'w-16'
       }`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
-              <Shield className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-white">CEO Console</h1>
-              <p className="text-xs text-gray-300">Executive Control Center</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-1 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          {sidebarOpen ? (
+            <>
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-white">CEO Console</h1>
+                  <p className="text-xs text-gray-300">Executive Control Center</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-1 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="w-full flex justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
+              title="Expand sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          )}
         </div>
 
         <nav className="mt-6 px-3">
@@ -82,54 +108,58 @@ const CEOLayout = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  onClick={() => setSidebarOpen(false)}
                   className={`group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
                     isActive
                       ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
                       : 'text-gray-300 hover:text-white hover:bg-gray-700'
                   }`}
+                  title={!sidebarOpen ? item.name : undefined}
                 >
-                  <Icon className={`mr-3 h-5 w-5 transition-colors ${
+                  <Icon className={`${sidebarOpen ? 'mr-3' : ''} h-5 w-5 transition-colors ${
                     isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'
                   }`} />
-                  {item.name}
+                  {sidebarOpen && item.name}
                 </Link>
               );
             })}
           </div>
 
           {/* CEO Security Alert */}
-          <div className="mt-8 p-4 bg-gradient-to-r from-red-900/50 to-orange-900/50 rounded-lg border border-red-700/50">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-orange-400" />
-              <span className="text-sm font-medium text-orange-200">Security Notice</span>
+          {sidebarOpen && (
+            <div className="mt-8 p-4 bg-gradient-to-r from-red-900/50 to-orange-900/50 rounded-lg border border-red-700/50">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="h-4 w-4 text-orange-400" />
+                <span className="text-sm font-medium text-orange-200">Security Notice</span>
+              </div>
+              <p className="text-xs text-orange-300">
+                All CEO actions are monitored and logged for security compliance.
+              </p>
             </div>
-            <p className="text-xs text-orange-300">
-              All CEO actions are monitored and logged for security compliance.
-            </p>
-          </div>
+          )}
 
           {/* CEO Info */}
-          <div className="mt-8 pt-6 border-t border-gray-700">
-            <div className="flex items-center px-3 py-2">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">
-                  {user?.name?.split(' ').map(n => n[0]).join('') || 'CEO'}
-                </span>
+          {sidebarOpen && (
+            <div className="mt-8 pt-6 border-t border-gray-700">
+              <div className="flex items-center px-3 py-2">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">
+                    {user?.name?.split(' ').map(n => n[0]).join('') || 'CEO'}
+                  </span>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-white">{user?.name}</p>
+                  <p className="text-xs text-blue-300">Chief Executive Officer</p>
+                </div>
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-white">{user?.name}</p>
-                <p className="text-xs text-blue-300">Chief Executive Officer</p>
-              </div>
+              <button
+                onClick={logout}
+                className="mt-3 w-full flex items-center px-3 py-2 text-sm font-medium text-gray-300 rounded-lg hover:text-white hover:bg-red-600/20 transition-colors"
+              >
+                <LogOut className="mr-3 h-4 w-4" />
+                Secure Logout
+              </button>
             </div>
-            <button
-              onClick={logout}
-              className="mt-3 w-full flex items-center px-3 py-2 text-sm font-medium text-gray-300 rounded-lg hover:text-white hover:bg-red-600/20 transition-colors"
-            >
-              <LogOut className="mr-3 h-4 w-4" />
-              Secure Logout
-            </button>
-          </div>
+          )}
         </nav>
       </div>
 
@@ -147,8 +177,9 @@ const CEOLayout = () => {
         <header className="bg-white shadow-sm border-b border-gray-200 px-4 lg:px-6 py-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors"
+              aria-label={sidebarOpen ? "Collapse menu" : "Expand menu"}
             >
               <Menu className="h-6 w-6" />
             </button>
