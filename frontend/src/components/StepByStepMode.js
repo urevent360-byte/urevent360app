@@ -16,6 +16,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { EVENT_FLOW_CONFIG, shouldShowCulturalStyles, getVendorTags } from '../config/eventFlowConfig';
+import { SERVICE_MAPPING, getServicesBySection, getServicesByContext, getBudgetBuckets } from '../config/serviceMapping';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
