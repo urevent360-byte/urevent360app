@@ -35,6 +35,7 @@ const CreateEventWizard = () => {
     time: '',
     city: '',
     guestCount: '',
+    mitzvahType: '', // For Bar/Bat Mitzvah selection
     
     // Extended location preferences (legacy)
     location: {
@@ -62,7 +63,8 @@ const CreateEventWizard = () => {
     preferredVenueTypes: [],
     categorySpecific: {
       culturalStyle: [],
-      themeOrFormat: []
+      themeOrFormat: [],
+      mitzvahType: '' // For Bar/Bat Mitzvah selection
     },
     neededCoreServices: [],
     neededExtras: []
