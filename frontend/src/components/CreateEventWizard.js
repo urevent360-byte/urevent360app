@@ -289,22 +289,50 @@ const CreateEventWizard = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                City/Location *
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                <input
-                  type="text"
-                  name="city"
-                  value={eventData.city}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="City or location"
+            {/* Unified Location Controls - Feature Flagged */}
+            {process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' ? (
+              <div>
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Location & Search Preferences</h4>
+                <LocationSection
+                  value={{
+                    city: eventData.city || eventData.location?.city,
+                    zipcode: eventData.location?.zipcode,
+                    zipOnly: eventData.location?.zipOnly,
+                    radiusMiles: eventData.location?.radiusMiles,
+                  }}
+                  onChange={(locationData) => {
+                    // Update both city (for backward compatibility) and location object
+                    setEventData(prev => ({
+                      ...prev,
+                      city: locationData.city || prev.city,
+                      location: {
+                        ...prev.location,
+                        ...locationData
+                      }
+                    }));
+                    setError('');
+                  }}
                 />
               </div>
-            </div>
+            ) : (
+              /* Legacy City Input */
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City/Location *
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <input
+                    type="text"
+                    name="city"
+                    value={eventData.city}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="City or location"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         );
 
