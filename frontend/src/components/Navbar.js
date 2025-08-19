@@ -8,7 +8,7 @@ import {
   CreditCard, MessageCircle
 } from 'lucide-react';
 
-const Navbar = ({ setSidebarOpen }) => {
+const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
