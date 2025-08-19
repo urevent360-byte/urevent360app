@@ -1,0 +1,10 @@
+/* Default collapsed width before React hydration to prevent flicker */
+aside[data-sb] { 
+  width: 4rem; 
+  transition: width 300ms ease;
+}
+
+/* Ensure smooth transitions for all sidebar elements */
+.sidebar-transition {
+  transition: all 300ms ease-in-out;
+}
