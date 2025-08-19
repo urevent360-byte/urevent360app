@@ -49,7 +49,7 @@ const Sidebar = ({ open, onOpenChange }) => {
     { name: 'Venues', href: '/venues', icon: MapPin },
     { name: 'Vendors', href: '/vendors', icon: Users },
     { name: 'Preferred Vendors', href: '/preferred-vendors', icon: Heart },
-    { name: 'Event History', href: '/event-history', icon: History },
+    { name: 'Event History', href: '/history', icon: History },
     { name: 'Payments', href: '/payments', icon: CreditCard },
     { name: 'Loans', href: '/loans', icon: DollarSign },
     { name: 'Messages', href: '/messages', icon: MessageCircle },
