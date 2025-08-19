@@ -2488,6 +2488,13 @@ async def match_venues_for_event(
         # Sort by compatibility score
         filtered_venues.sort(key=lambda x: x["compatibility_score"], reverse=True)
         
+        # Debug logging for results
+        if os.environ.get('DEBUG') == 'true':
+            print(f"[Matcher] eventId {event_id} results:")
+            print(f"  zipOnly: {zip_only}, zipcode: {zipcode}, radiusMiles: {radius_miles}")
+            print(f"  before: {before_count}, after: {len(filtered_venues)}")
+            print(f"  filtered venues: {[v['name'] + ' (' + v.get('zipcode', 'N/A') + ')' for v in filtered_venues[:3]]}")
+        
         return {
             "venues": filtered_venues,
             "location_filter": {
