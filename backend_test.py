@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-AUTHENTICATION FIX & LOCATION RADIUS/ZIP-ONLY & BUDGET WIZARD TESTING
-Focus: Testing the FIXED authentication system and Location Radius/ZIP-only functionality
+UNIFIED LOCATION CONTROLS IMPLEMENTATION TESTING
+Focus: Testing the UNIFIED Location Controls implementation that was just deployed
 
 CRITICAL TESTS (as per review request):
-1. **Authentication System Fix Verification** - Test login with sarah.johnson@email.com/SecurePass123
-2. **JWT Token Storage and Usage** - Verify JWT tokens are properly stored and used
-3. **Protected Routes Access** - Confirm users can access protected routes like /events/new
-4. **Location Radius/ZIP-only Backend API Support** - Test event creation with location_preferences
-5. **Budget Wizard Backend API Support** - Test event creation with budget_preferences
-6. **Feature Flag Configuration** - Confirm feature flags are working
-7. **Enhanced Venue Matching** - Test GET /api/match/venues/event/{event_id} endpoint
-8. **Integration Testing** - Create test event and verify complete flow
+1. **Feature Flag Verification** - Confirm REACT_APP_WIZARD_LOCATION_UNIFIED=true is working
+2. **Unified Location Data Model Testing** - Test event creation with unified location object containing: city, zipcode, zipOnly, radiusMiles
+3. **Backward Compatibility Testing** - Ensure existing location data is preserved and both eventData.city (legacy) and eventData.location (unified) are populated correctly
+4. **Validation Rules Testing** - Test Step 1 validation: requires either city OR zipcode when unified flag is enabled
+5. **Data Synchronization Testing** - Test that changes in unified location controls update both eventData.city and eventData.location
+6. **Event Summary Integration** - Test that event summary shows proper location information based on feature flag
+7. **Migration Testing** - Test migration from legacy city-only data to unified location object
+8. **Both Modes Testing** - Test both modes (unified flag ON vs OFF) to ensure no regressions
 
-FOCUS: Test the restored Location Radius/ZIP-only and Budget functionality that users can now access after the authentication fix.
+FOCUS: Test the unified location feature that eliminates duplication by centralizing all location controls in Step 1 (Basic Info) while preserving all existing functionality and maintaining backward compatibility.
 """
 
 import requests
