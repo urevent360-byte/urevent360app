@@ -766,46 +766,158 @@ const CreateEventWizard = () => {
       case 5:
         return (
           <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
-                Core Services Needed * (What main services do you need?)
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {CORE_SERVICES.map((service) => (
-                  <label key={service} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={eventData.neededCoreServices.includes(service)}
-                      onChange={() => handleArrayToggle('neededCoreServices', service)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
-                    />
-                    <span className="ml-3 text-sm text-gray-700">{service}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            {eventData.type === 'wedding' ? (
+              /* Wedding-specific grouped services */
+              <div className="space-y-6">
+                {/* Show ceremony services if ceremony space is needed */}
+                {eventData.spacePreferences?.needCeremonySpace && (
+                  <div className="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                    <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <span className="mr-2">💒</span>
+                      Ceremony Services
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Services needed for your wedding ceremony
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {CEREMONY_SERVICES.map((service) => (
+                        <label key={service} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={eventData.neededCoreServices.includes(service)}
+                            onChange={() => handleArrayToggle('neededCoreServices', service)}
+                            className="h-4 w-4 text-pink-600 focus:ring-pink-500 rounded"
+                          />
+                          <span className="ml-3 text-sm text-gray-700">{service}</span>
+                        </label>
+                      ))}
+                    </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
-                Add-Ons (Extras) - Optional
-              </label>
-              <p className="text-sm text-gray-600 mb-4">
-                Special entertainment and enhancement options to make your event memorable.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {ADD_ON_EXTRAS.map((extra) => (
-                  <label key={extra} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={eventData.neededExtras.includes(extra)}
-                      onChange={() => handleArrayToggle('neededExtras', extra)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
-                    />
-                    <span className="ml-3 text-sm text-gray-700">{extra}</span>
-                  </label>
-                ))}
+                    {/* Ceremony extras */}
+                    <div className="mt-6">
+                      <h5 className="text-md font-medium text-gray-900 mb-3">Ceremony Extras (Optional)</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {CEREMONY_EXTRAS.map((extra) => (
+                          <label key={extra} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={eventData.neededExtras.includes(extra)}
+                              onChange={() => handleArrayToggle('neededExtras', extra)}
+                              className="h-4 w-4 text-pink-600 focus:ring-pink-500 rounded"
+                            />
+                            <span className="ml-3 text-sm text-gray-700">{extra}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Show reception services if reception space is needed */}
+                {eventData.spacePreferences?.needReceptionSpace && (
+                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                    <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <span className="mr-2">🎉</span>
+                      Reception Services
+                    </h4>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Services needed for your wedding reception
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {RECEPTION_SERVICES.map((service) => (
+                        <label key={service} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={eventData.neededCoreServices.includes(service)}
+                            onChange={() => handleArrayToggle('neededCoreServices', service)}
+                            className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
+                          />
+                          <span className="ml-3 text-sm text-gray-700">{service}</span>
+                        </label>
+                      ))}
+                    </div>
+
+                    {/* Reception extras */}
+                    <div className="mt-6">
+                      <h5 className="text-md font-medium text-gray-900 mb-3">Reception Extras (Optional)</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {RECEPTION_EXTRAS.map((extra) => (
+                          <label key={extra} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={eventData.neededExtras.includes(extra)}
+                              onChange={() => handleArrayToggle('neededExtras', extra)}
+                              className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
+                            />
+                            <span className="ml-3 text-sm text-gray-700">{extra}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* If neither ceremony nor reception space is selected, show general message */}
+                {!eventData.spacePreferences?.needCeremonySpace && !eventData.spacePreferences?.needReceptionSpace && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">
+                      Please select ceremony or reception spaces in Step 4 to see relevant services.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(4)}
+                      className="mt-2 text-purple-600 hover:text-purple-700 underline"
+                    >
+                      Go back to Step 4
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
+            ) : (
+              /* Default services for non-wedding events */
+              <div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-4">
+                    Core Services Needed * (What main services do you need?)
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {CORE_SERVICES.map((service) => (
+                      <label key={service} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={eventData.neededCoreServices.includes(service)}
+                          onChange={() => handleArrayToggle('neededCoreServices', service)}
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
+                        />
+                        <span className="ml-3 text-sm text-gray-700">{service}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-4">
+                    Add-Ons (Extras) - Optional
+                  </label>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Special entertainment and enhancement options to make your event memorable.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {ADD_ON_EXTRAS.map((extra) => (
+                      <label key={extra} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={eventData.neededExtras.includes(extra)}
+                          onChange={() => handleArrayToggle('neededExtras', extra)}
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
+                        />
+                        <span className="ml-3 text-sm text-gray-700">{extra}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
 
