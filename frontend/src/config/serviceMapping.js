@@ -201,6 +201,39 @@ export const getBudgetBuckets = (services) => {
   return Array.from(buckets);
 };
 
+export const getBudgetBucketsWithMappings = () => {
+  return {
+    'Food & Beverage': [
+      'Catering (Full-Service, Appetizers, Specialty Stations)',
+      'Bar Service', 
+      'Cakes (Wedding/Birthday/Quince)',
+      'Dessert Stations & Sweets',
+      'Late Night Snacks'
+    ],
+    'Production & Rentals': [
+      'Reception Lighting',
+      'Dance Floor', 
+      'Special Lighting Effects',
+      'Lounge Areas'
+    ],
+    'Entertainment / Music': [
+      'DJ/Band',
+      'Ceremony Musicians'
+    ],
+    'Photo/Video': [
+      'Photography/Videography',
+      'Photo Booth'
+    ],
+    'Planning / Coordination': [
+      'Day-of Coordination'
+    ],
+    'Ceremony': [
+      'Officiant',
+      'Ceremony Arch/Altar'
+    ]
+  };
+};
+
 export const getVendorTypesForServices = (services) => {
   if (!services || !Array.isArray(services)) return [];
   
