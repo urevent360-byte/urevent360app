@@ -438,15 +438,41 @@ const CreateEventWizard = () => {
               </div>
             </div>
 
-            {/* Location Search Controls - Feature Flagged */}
-            {process.env.REACT_APP_FEATURE_WIZARD_LOCATION_FILTERS === 'true' && (
-              <div className="border-t pt-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Location Search Preferences</h4>
-                <VenueSearchControls
-                  value={eventData.location}
-                  onChange={handleLocationChange}
-                />
-              </div>
+            {/* Location Search Controls - Only show if unified flag is OFF */}
+            {process.env.REACT_APP_WIZARD_LOCATION_UNIFIED === 'true' ? (
+              /* Show read-only location preview when unified flag is enabled */
+              eventData.location && (eventData.location.city || eventData.location.zipcode) ? (
+                <div className="bg-gray-50 border rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h5 className="text-sm font-medium text-gray-900 mb-1">Search Area</h5>
+                      <p className="text-sm text-gray-600">
+                        {eventData.location.zipOnly
+                          ? `ZIP-only ${eventData.location.zipcode || '—'}`
+                          : `${eventData.location.radiusMiles || 25} miles around ${eventData.location.zipcode || eventData.location.city || 'selected location'}`}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(1)}
+                      className="text-purple-600 hover:text-purple-700 text-sm underline"
+                    >
+                      Edit in Step 1
+                    </button>
+                  </div>
+                </div>
+              ) : null
+            ) : (
+              /* Legacy Location Search Controls */
+              process.env.REACT_APP_FEATURE_WIZARD_LOCATION_FILTERS === 'true' && (
+                <div className="border-t pt-6">
+                  <h4 className="text-lg font-medium text-gray-900 mb-4">Location Search Preferences</h4>
+                  <VenueSearchControls
+                    value={eventData.location}
+                    onChange={handleLocationChange}
+                  />
+                </div>
+              )
             )}
           </div>
         );
