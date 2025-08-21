@@ -700,15 +700,15 @@ class APITester:
         else:
             self.log_test("Cultural Grouping", False, f"API call failed: {response.status_code if response else 'No response'}")
     
-    def run_cultural_vendor_matching_tests(self):
-        """Run all Cultural Vendor Matching System tests"""
-        print("\n🌍 STARTING CULTURAL VENDOR MATCHING SYSTEM TESTS")
+    def run_venue_expansion_tests(self):
+        """Run all Venue Expansion System tests"""
+        print("\n🏛️ STARTING VENUE EXPANSION SYSTEM TESTS")
         print("=" * 70)
         
-        self.test_cultural_vendor_matching_system()
+        self.test_venue_expansion_system()
         
         # Print summary
-        print("\n📊 CULTURAL VENDOR MATCHING TEST SUMMARY")
+        print("\n📊 VENUE EXPANSION SYSTEM TEST SUMMARY")
         print("=" * 70)
         
         total_tests = len(self.test_results)
