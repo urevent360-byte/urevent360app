@@ -480,57 +480,103 @@ class APITester:
             self.log_test("Bella Vista Availability", False, f"API call failed: {response.status_code if response else 'No response'}")
     
     def test_restaurant_reservations(self):
-        """Test the 'Find more options' functionality"""
-        print("\n🔍 PRIORITY 1.4: Testing Expand Cultural Results...")
+        """Test restaurant reservation system"""
+        print("\n🍽️ PRIORITY 2.2: Testing Restaurant Reservations...")
         
         token = self.tokens.get("client")
         if not token:
-            self.log_test("Expand Cultural Results", False, "No authentication token")
+            self.log_test("Restaurant Reservations", False, "No authentication token")
             return
         
-        # Test with expand_cultural_results=true
-        print("   Testing expanded cultural results...")
-        params = {
-            "client_culture": "Indian",
-            "expand_cultural_results": "true",
-            "service": "Catering"
+        # Test creating a restaurant reservation
+        print("   Testing restaurant reservation creation...")
+        reservation_data = {
+            "event_id": "test_event_123",
+            "venue_id": "venue_4",
+            "party_size": 8,
+            "reservation_date": "2025-08-25T18:00:00",
+            "time_slot": "dinner_1800",
+            "price_type": "per_person",
+            "price_amount": 75,
+            "special_requests": "Birthday celebration with cake",
+            "occasion_type": "birthday",
+            "contact_phone": "+1234567890",
+            "contact_email": "sarah.johnson@email.com"
         }
         
-        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        response = self.make_request("POST", "/restaurants/reserve", reservation_data, token=token)
         if response and response.status_code == 200:
             data = response.json()
-            vendors = data.get("vendors", [])
-            filters_applied = data.get("filters_applied", {})
+            reservation_id = data.get("reservation_id")
+            status = data.get("status")
+            confirmation_status = data.get("confirmation_status")
             
-            # Verify expand flag is applied
-            expand_flag = filters_applied.get("expand_cultural_results", False)
-            if expand_flag:
-                self.log_test("Expand Cultural Results Flag", True, "Expand flag correctly applied")
+            if reservation_id:
+                self.log_test("Restaurant Reservation Creation", True, f"Reservation created: {reservation_id}")
                 
-                # Check if cultural boost is reduced (vendors should be sorted more by base score)
-                bollywood_vendor = next((v for v in vendors if "Bollywood Bliss" in v.get("name", "")), None)
-                if bollywood_vendor:
-                    cultural_boost = bollywood_vendor.get("cultural_boost", 0)
-                    base_score = bollywood_vendor.get("base_score", 0)
+                # Verify status is pending
+                if status == "pending" and confirmation_status == "pending":
+                    self.log_test("Restaurant Reservation Status", True, f"Status: {status}, Confirmation: {confirmation_status}")
+                else:
+                    self.log_test("Restaurant Reservation Status", False, f"Unexpected status: {status}/{confirmation_status}")
+                
+                # Test retrieving the reservation
+                print("   Testing reservation retrieval...")
+                response = self.make_request("GET", f"/restaurants/reservations/{reservation_id}", token=token)
+                if response and response.status_code == 200:
+                    reservation_details = response.json()
                     
-                    # In expanded mode, sorting should prioritize base_score over cultural_boost
-                    self.log_test("Expand Cultural Results Scoring", True, 
-                                f"Expanded results show broader options (cultural_boost: {cultural_boost}, base_score: {base_score})")
+                    # Verify reservation details
+                    required_fields = ["id", "venue_id", "party_size", "reservation_date", "time_slot", "price_type", "price_amount"]
+                    missing_fields = [field for field in required_fields if field not in reservation_details]
+                    
+                    if not missing_fields:
+                        self.log_test("Restaurant Reservation Retrieval", True, f"All required fields present: {list(reservation_details.keys())}")
+                        
+                        # Check specific values
+                        if reservation_details.get("party_size") == 8:
+                            self.log_test("Reservation Party Size", True, f"Party size correct: {reservation_details.get('party_size')}")
+                        else:
+                            self.log_test("Reservation Party Size", False, f"Party size incorrect: {reservation_details.get('party_size')}")
+                        
+                        if reservation_details.get("venue_id") == "venue_4":
+                            self.log_test("Reservation Venue ID", True, f"Venue ID correct: {reservation_details.get('venue_id')}")
+                        else:
+                            self.log_test("Reservation Venue ID", False, f"Venue ID incorrect: {reservation_details.get('venue_id')}")
+                    else:
+                        self.log_test("Restaurant Reservation Retrieval", False, f"Missing fields: {missing_fields}")
                 else:
-                    self.log_test("Expand Cultural Results Scoring", False, "Bollywood Bliss not found in expanded results")
-                
-                # Check if more diverse vendors are included
-                vendor_names = [v.get("name", "") for v in vendors]
-                if len(vendor_names) >= 3:
-                    self.log_test("Expand Cultural Results Diversity", True, 
-                                f"Expanded results include diverse vendors: {len(vendor_names)} total")
-                else:
-                    self.log_test("Expand Cultural Results Diversity", False, 
-                                f"Insufficient vendor diversity in expanded results: {len(vendor_names)} total")
+                    self.log_test("Restaurant Reservation Retrieval", False, f"Retrieval failed: {response.status_code if response else 'No response'}")
             else:
-                self.log_test("Expand Cultural Results Flag", False, "Expand flag not properly applied")
+                self.log_test("Restaurant Reservation Creation", False, "No reservation ID returned")
         else:
-            self.log_test("Expand Cultural Results", False, f"API call failed: {response.status_code if response else 'No response'}")
+            self.log_test("Restaurant Reservation Creation", False, f"API call failed: {response.status_code if response else 'No response'}")
+        
+        # Test reservation with different parameters (Bella Vista)
+        print("   Testing Bella Vista reservation...")
+        bella_vista_reservation = {
+            "event_id": "test_event_456",
+            "venue_id": "venue_5",
+            "party_size": 6,
+            "reservation_date": "2025-08-25T19:00:00",
+            "time_slot": "dinner_1900",
+            "price_type": "fb_minimum",
+            "price_amount": 500,
+            "special_requests": "Anniversary dinner",
+            "occasion_type": "anniversary",
+            "contact_phone": "+1234567890",
+            "contact_email": "sarah.johnson@email.com"
+        }
+        
+        response = self.make_request("POST", "/restaurants/reserve", bella_vista_reservation, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            if data.get("reservation_id"):
+                self.log_test("Bella Vista Reservation", True, f"Bella Vista reservation created successfully")
+            else:
+                self.log_test("Bella Vista Reservation", False, "No reservation ID for Bella Vista")
+        else:
+            self.log_test("Bella Vista Reservation", False, f"Bella Vista reservation failed: {response.status_code if response else 'No response'}")
     
     def test_vendor_scoring(self):
         """Test vendor scoring system"""
