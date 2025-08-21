@@ -122,7 +122,8 @@ class VendorCapabilityTester:
         
         response = self.make_request("GET", "/match/vendors", params=params, token=token)
         if response and response.status_code == 200:
-            vendors = response.json()
+            response_data = response.json()
+            vendors = response_data.get("vendors", []) if isinstance(response_data, dict) else response_data
             if isinstance(vendors, list) and len(vendors) > 0:
                 self.log_test("Legacy Matching - Core Services", True, 
                             f"Found {len(vendors)} vendors for core services: catering, decoration")
