@@ -25,9 +25,16 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return { Authorization: `Bearer ${token}` };
+  };
+
   const fetchDashboardData = async () => {
     try {
-      const eventsResponse = await axios.get(`${API}/events`);
+      const eventsResponse = await axios.get(`${API}/events`, {
+        headers: getAuthHeaders()
+      });
       const events = eventsResponse.data;
       setEvents(events);
 
