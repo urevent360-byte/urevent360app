@@ -157,6 +157,10 @@ class Vendor(BaseModel):
     cultural_specializations: List[str] = []  # indian, hispanic, american, jewish, african, asian, middle_eastern
     contact_info: Dict[str, str] = {}
     
+    # Enhanced Capability System - Maps to serviceMapping.js
+    capabilities: Dict[str, List[str]] = {}  # e.g., {"catering": ["Full-Service", "Appetizers-only"], "catering_stations": ["Sushi", "Taco"]}
+    services: List[str] = []  # Legacy field maintained for compatibility
+    
     # Business fields  
     business_name: Optional[str] = None
     license_number: Optional[str] = None
