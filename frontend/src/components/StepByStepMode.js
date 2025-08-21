@@ -129,6 +129,24 @@ const StepByStepMode = () => {
     alert(`Venue selection functionality will be implemented. Venue: ${venue.name}`);
   };
 
+  const handleRestaurantBooking = (venue) => {
+    // TODO: Implement restaurant booking flow
+    console.log('Restaurant booking for:', venue.name);
+    
+    // For now, show mock booking interface
+    const partySize = prompt('Party size?', '8');
+    const date = prompt('Date (YYYY-MM-DD)?', '2025-08-25');
+    const occasion = prompt('Occasion (birthday, anniversary, etc.)?', 'birthday');
+    
+    if (partySize && date) {
+      alert(`Mock reservation created for ${venue.name}:
+Party Size: ${partySize}
+Date: ${date}
+Occasion: ${occasion}
+Status: Pending restaurant confirmation`);
+    }
+  };
+
   const sections = [
     { id: 'venues', name: 'Venue Matching', icon: MapPin, desc: 'Find the perfect venue' },
     { id: 'core-vendors', name: 'Core Vendors', icon: Users, desc: 'Essential services' },
