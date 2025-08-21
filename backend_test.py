@@ -8309,6 +8309,9 @@ class APITester:
         # Test 6: Comprehensive API Integration
         self.test_api_integration_comprehensive()
         
+        # Test 7: Vendor Capability System (NEW)
+        self.test_vendor_capability_system()
+        
         # Print final summary
         print("\n" + "=" * 80)
         print("🎯 BUDGET & STEP-BY-STEP MODE CONSOLIDATION TESTING SUMMARY")
