@@ -642,6 +642,43 @@ const StepByStepMode = () => {
         </div>
       </div>
 
+      {/* Wedding Venue Preferences */}
+      {event?.event_type === 'wedding' && (
+        <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg border border-pink-200">
+          <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
+            💒 Wedding Venue Preferences
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600">Ceremony Location:</span>
+              <div className="font-medium">
+                {event.ceremonyLocation?.sameAsReception ? 'Same as Reception' : 
+                 event.ceremonyLocation?.city || 'Not specified'}
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-600">Reception Location:</span>
+              <div className="font-medium">{event.location || 'Not specified'}</div>
+            </div>
+            <div>
+              <span className="text-gray-600">Space Preference:</span>
+              <div className="font-medium">
+                {event.spacePreferences?.preferOneVenue ? 'One Venue Preferred' : 'Separate OK'}
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-600">Needs:</span>
+              <div className="font-medium">
+                {event.spacePreferences?.needCeremonySpace && event.spacePreferences?.needReceptionSpace ? 
+                  'Both Spaces' : 
+                  event.spacePreferences?.needCeremonySpace ? 'Ceremony Only' : 
+                  event.spacePreferences?.needReceptionSpace ? 'Reception Only' : 'Not specified'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loadingVenues ? (
         <div className="text-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
@@ -665,15 +702,113 @@ const StepByStepMode = () => {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">{venue.venueTypes.join(', ')}</p>
-                <p className="text-sm text-gray-600 mb-2">
+                <p className="text-sm text-gray-600 mb-3">
                   <MapPin className="h-4 w-4 inline mr-1" />
                   {venue.city} • Capacity: {venue.capacity}
                 </p>
+
+                {/* Enhanced Space Capabilities */}
+                {venue.spaceCapabilities && (
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Space Options:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {venue.spaceCapabilities.ceremonySpace && (
+                        <span className="bg-pink-100 text-pink-700 px-2 py-1 rounded-full text-xs">
+                          Ceremony
+                        </span>
+                      )}
+                      {venue.spaceCapabilities.receptionSpace && (
+                        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
+                          Reception
+                        </span>
+                      )}
+                      {venue.spaceCapabilities.combinedSpace && (
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">
+                          Combined
+                        </span>
+                      )}
+                      {venue.spaceCapabilities.separateSpaces && (
+                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                          Separate Areas
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Included Services */}
+                {venue.includedServices && venue.includedServices.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-gray-700 mb-1">Included:</p>
+                    <div className="text-xs text-green-600">
+                      {venue.includedServices.slice(0, 3).join(', ')}
+                      {venue.includedServices.length > 3 && ` +${venue.includedServices.length - 3} more`}
+                    </div>
+                  </div>
+                )}
+
+                {/* Venue Match Score for Weddings */}
+                {event?.event_type === 'wedding' && (
+                  <div className="mb-3">
+                    {/* Calculate match score based on space preferences */}
+                    {(() => {
+                      let matchScore = 0;
+                      let matchReasons = [];
+                      
+                      if (event.spacePreferences?.preferOneVenue && venue.spaceCapabilities?.combinedSpace) {
+                        matchScore += 2;
+                        matchReasons.push('One venue preference');
+                      }
+                      
+                      if (event.spacePreferences?.needCeremonySpace && venue.spaceCapabilities?.ceremonySpace) {
+                        matchScore += 1;
+                        matchReasons.push('Ceremony space');
+                      }
+                      
+                      if (event.spacePreferences?.needReceptionSpace && venue.spaceCapabilities?.receptionSpace) {
+                        matchScore += 1;
+                        matchReasons.push('Reception space');
+                      }
+                      
+                      // Check for included services that match selected services
+                      const selectedServices = [...(event.needed_core_services || []), ...(event.needed_extras || [])];
+                      const matchingServices = venue.includedServices?.filter(service => 
+                        selectedServices.some(selected => selected.toLowerCase().includes(service.toLowerCase()))
+                      ) || [];
+                      
+                      if (matchingServices.length > 0) {
+                        matchScore += matchingServices.length;
+                        matchReasons.push(`${matchingServices.length} services included`);
+                      }
+                      
+                      if (matchScore > 0) {
+                        return (
+                          <div className="bg-green-50 border border-green-200 rounded p-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-medium text-green-800">Great Match!</span>
+                              <span className="text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full">
+                                Score: {matchScore}
+                              </span>
+                            </div>
+                            <div className="text-xs text-green-600 mt-1">
+                              {matchReasons.slice(0, 2).join(', ')}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center mt-4">
                   <span className="text-lg font-semibold text-green-600">
                     ${venue.price_per_person}/person
                   </span>
-                  <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                  <button 
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm"
+                    onClick={() => handleSelectVenue(venue)}
+                  >
                     Select Venue
                   </button>
                 </div>
