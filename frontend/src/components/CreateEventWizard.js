@@ -610,18 +610,65 @@ const CreateEventWizard = () => {
               <p className="text-sm text-gray-600 mb-4">
                 We'll use these preferences to find the best venues for you in the next step.
               </p>
+              
+              {/* Helper text for Restaurant selection */}
+              {eventData.preferredVenueTypes.includes('Restaurant') && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    <strong>Restaurant selected:</strong> This option is for intimate celebrations and private rooms. 
+                    We'll show per-person pricing and live availability.
+                  </p>
+                </div>
+              )}
+              
+              {/* Helper text for Short-Term Rental selection */}
+              {eventData.preferredVenueTypes.includes('Short-Term Rental (Airbnb/VRBO)') && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <p className="text-sm text-green-800">
+                    <strong>Short-Term Rental selected:</strong> We'll show homes and condos that explicitly allow events or gatherings.
+                  </p>
+                </div>
+              )}
+              
               <div className="grid grid-cols-2 gap-3">
-                {PREFERRED_VENUE_TYPES.map((venue) => (
-                  <label key={venue} className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={eventData.preferredVenueTypes.includes(venue)}
-                      onChange={() => handleArrayToggle('preferredVenueTypes', venue)}
-                      className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
-                    />
-                    <span className="ml-3 text-sm text-gray-700">{venue}</span>
-                  </label>
-                ))}
+                {PREFERRED_VENUE_TYPES.map((venue) => {
+                  // Add tooltips for specific venue types
+                  const getVenueTooltip = (venueType) => {
+                    switch(venueType) {
+                      case 'Restaurant':
+                        return 'For intimate celebrations and private dining rooms';
+                      case 'Short-Term Rental (Airbnb/VRBO)':
+                        return 'Homes/condos that explicitly allow small events or gatherings';
+                      default:
+                        return null;
+                    }
+                  };
+                  
+                  const tooltip = getVenueTooltip(venue);
+                  
+                  return (
+                    <label 
+                      key={venue} 
+                      className="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer relative group"
+                      title={tooltip}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={eventData.preferredVenueTypes.includes(venue)}
+                        onChange={() => handleArrayToggle('preferredVenueTypes', venue)}
+                        className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
+                      />
+                      <span className="ml-3 text-sm text-gray-700">{venue}</span>
+                      
+                      {/* Tooltip for specific venue types */}
+                      {tooltip && (
+                        <div className="hidden group-hover:block absolute bottom-full left-0 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg z-10 whitespace-nowrap">
+                          {tooltip}
+                        </div>
+                      )}
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
