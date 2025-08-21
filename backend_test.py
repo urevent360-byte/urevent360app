@@ -304,70 +304,102 @@ class APITester:
         
         token = self.tokens.get("client")
         if not token:
-            self.log_test("All-Cultures Matching", False, "No authentication token")
+            self.log_test("Short-Term Rental Data", False, "No authentication token")
             return
         
-        # Test American culture should show Universal Event Catering with 🌐 badge
-        # Note: Universal Event Catering serves "American" specifically AND welcomes all cultures
-        # So it should be treated as exact_match for American, but still have all_cultures_welcomed=True
-        print("   Testing American culture with all-cultures vendor...")
-        params = {
-            "client_culture": "American",
-            "service": "Catering"
-        }
+        # Get venues and find short-term rental venues
+        response = self.make_request("GET", "/match/venues", token=token)
         
-        response = self.make_request("GET", "/match/vendors", params=params, token=token)
         if response and response.status_code == 200:
             data = response.json()
-            vendors = data.get("vendors", [])
+            venues = data.get("venues", [])
             
-            # Find Universal Event Catering
-            universal_vendor = next((v for v in vendors if "Universal Event" in v.get("name", "")), None)
-            if universal_vendor:
-                cultural_boost = universal_vendor.get("cultural_boost", 0)
-                cultural_match_type = universal_vendor.get("cultural_match_type", "none")
-                all_cultures_welcomed = universal_vendor.get("cultural_expertise", {}).get("all_cultures_welcomed", False)
+            # Test Modern Downtown Loft details
+            downtown_loft = next((v for v in venues if "Modern Downtown Loft" in v.get("name", "")), None)
+            if downtown_loft:
+                rental_details = downtown_loft.get("short_term_rental_details", {})
                 
-                # Universal Event Catering should have all_cultures_welcomed=True (🌐 badge capability)
-                if all_cultures_welcomed:
-                    self.log_test("All-Cultures Badge Detection", True, 
-                                f"Universal Event Catering has 🌐 badge capability (all_cultures_welcomed: {all_cultures_welcomed})")
+                # Test allows_events flag
+                allows_events = rental_details.get("allows_events")
+                if allows_events is True:
+                    self.log_test("Downtown Loft Allows Events", True, "Allows events: True")
                 else:
-                    self.log_test("All-Cultures Badge Detection", False, 
-                                f"Universal Event Catering missing 🌐 badge capability (welcomed: {all_cultures_welcomed})")
+                    self.log_test("Downtown Loft Allows Events", False, f"Allows events flag incorrect: {allows_events}")
                 
-                # For American culture, Universal Event Catering should get exact_match (since it serves American)
-                # but still have high boost due to cultural expertise
-                if cultural_boost >= 2:
-                    self.log_test("All-Cultures Boost Scoring", True, 
-                                f"Universal Event Catering has appropriate boost (boost: {cultural_boost}, type: {cultural_match_type})")
+                # Test max_event_guests
+                max_event_guests = rental_details.get("max_event_guests", {})
+                if max_event_guests.get("standing") and max_event_guests.get("seated"):
+                    self.log_test("Downtown Loft Max Guests", True, f"Max guests - Standing: {max_event_guests['standing']}, Seated: {max_event_guests['seated']}")
                 else:
-                    self.log_test("All-Cultures Boost Scoring", False, 
-                                f"Universal Event Catering has insufficient boost (boost: {cultural_boost})")
+                    self.log_test("Downtown Loft Max Guests", False, "Max event guests data missing")
                 
-                # Test with a culture that Universal Event doesn't specifically serve to see all_cultures behavior
-                print("   Testing with culture not specifically served to verify all_cultures matching...")
-                params_other = {
-                    "client_culture": "African",  # Universal serves African but let's test the logic
-                    "service": "Catering"
-                }
+                # Test parking capacity
+                parking_capacity = rental_details.get("parking_capacity")
+                if parking_capacity is not None:
+                    self.log_test("Downtown Loft Parking", True, f"Parking capacity: {parking_capacity}")
+                else:
+                    self.log_test("Downtown Loft Parking", False, "Parking capacity missing")
                 
-                response_other = self.make_request("GET", "/match/vendors", params=params_other, token=token)
-                if response_other and response_other.status_code == 200:
-                    data_other = response_other.json()
-                    vendors_other = data_other.get("vendors", [])
-                    
-                    universal_vendor_other = next((v for v in vendors_other if "Universal Event" in v.get("name", "")), None)
-                    if universal_vendor_other:
-                        cultural_match_type_other = universal_vendor_other.get("cultural_match_type", "none")
-                        # Since Universal Event serves African culture, it should still be exact_match
-                        # The all_cultures logic works when vendor doesn't specifically serve the culture
-                        self.log_test("All-Cultures Logic Verification", True, 
-                                    f"Universal Event Catering matching logic working (type: {cultural_match_type_other})")
+                # Test allowed event types
+                allowed_event_types = rental_details.get("allowed_event_types", [])
+                if allowed_event_types and len(allowed_event_types) > 0:
+                    self.log_test("Downtown Loft Event Types", True, f"Allowed event types: {allowed_event_types}")
+                else:
+                    self.log_test("Downtown Loft Event Types", False, "Allowed event types missing")
+                
+                # Test house rules
+                house_rules = rental_details.get("house_rules")
+                if house_rules:
+                    self.log_test("Downtown Loft House Rules", True, f"House rules present: {len(house_rules)} characters")
+                else:
+                    self.log_test("Downtown Loft House Rules", False, "House rules missing")
+                
+                # Test fees structure
+                fees = rental_details.get("fees", {})
+                if fees.get("cleaning_fee") and fees.get("security_deposit"):
+                    self.log_test("Downtown Loft Fees", True, f"Fees - Cleaning: ${fees['cleaning_fee']}, Deposit: ${fees['security_deposit']}")
+                else:
+                    self.log_test("Downtown Loft Fees", False, "Fee structure incomplete")
+                
+                # Test curfew/noise rules
+                curfew_rules = rental_details.get("curfew_noise_rules")
+                if curfew_rules:
+                    self.log_test("Downtown Loft Curfew Rules", True, f"Curfew rules present")
+                else:
+                    self.log_test("Downtown Loft Curfew Rules", False, "Curfew rules missing")
+                
+                # Test host approval required
+                host_approval = rental_details.get("host_approval_required")
+                if host_approval is not None:
+                    self.log_test("Downtown Loft Host Approval", True, f"Host approval required: {host_approval}")
+                else:
+                    self.log_test("Downtown Loft Host Approval", False, "Host approval flag missing")
             else:
-                self.log_test("All-Cultures Matching", False, "Universal Event Catering not found in results")
+                self.log_test("Downtown Loft Details", False, "Modern Downtown Loft not found")
+            
+            # Test Hamptons Beach House details
+            hamptons_beach = next((v for v in venues if "Hamptons Beach House" in v.get("name", "")), None)
+            if hamptons_beach:
+                rental_details = hamptons_beach.get("short_term_rental_details", {})
+                
+                # Test higher capacity venue
+                max_event_guests = rental_details.get("max_event_guests", {})
+                if max_event_guests.get("standing", 0) >= 50:
+                    self.log_test("Hamptons Beach House Capacity", True, f"High capacity venue - Standing: {max_event_guests['standing']}")
+                else:
+                    self.log_test("Hamptons Beach House Capacity", False, f"Capacity lower than expected: {max_event_guests}")
+                
+                # Test parking capacity for larger venue
+                parking_capacity = rental_details.get("parking_capacity", 0)
+                if parking_capacity >= 8:
+                    self.log_test("Hamptons Beach House Parking", True, f"Adequate parking: {parking_capacity} spaces")
+                else:
+                    self.log_test("Hamptons Beach House Parking", False, f"Insufficient parking: {parking_capacity} spaces")
+            else:
+                self.log_test("Hamptons Beach House Details", False, "Hamptons Beach House not found")
+                
         else:
-            self.log_test("All-Cultures Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
+            self.log_test("Short-Term Rental Data", False, f"API call failed: {response.status_code if response else 'No response'}")
     
     def test_dietary_compliance_matching(self):
         """Test dietary compliance matching"""
