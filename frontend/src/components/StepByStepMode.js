@@ -46,8 +46,50 @@ const StepByStepMode = () => {
   const [expandCulturalResults, setExpandCulturalResults] = useState(false); // "Find more options" flag
   const [culturalGrouping, setCulturalGrouping] = useState(null); // Cultural grouping info from API
 
-  // Helper functions for enhanced filtering
-  const toggleSubcategory = (service, subcategory) => {
+  // Service gating - filter services based on venue types
+  const getFilteredServicesForVenues = (services) => {
+    if (!event?.preferred_venue_types) return services;
+    
+    // If Restaurant is selected, hide certain services by default
+    if (event.preferred_venue_types.includes('Restaurant')) {
+      const restaurantRestrictedServices = [
+        'Catering',  // Restaurants provide their own catering
+        'DJ/Band',   // Most restaurants don't allow loud entertainment
+        'Decor/Florist',  // Limited decor options in restaurants
+        'Photography/Videography',  // May be restricted in restaurants
+        'Reception Lighting',  // Restaurants have their own lighting
+        'Dance Floor'  // Most restaurants don't have dance floors
+      ];
+      
+      const allowedRestaurantServices = [
+        'Photo Booth',  // Small, unobtrusive
+        'Transportation',  // Always relevant
+        'Cakes',  // Often allowed if restaurant doesn't provide
+        'Dessert Stations & Sweets',  // Sometimes allowed
+        'Live Entertainment'  // Acoustic/small acts might be OK
+      ];
+      
+      // Filter out restricted services unless restaurant "allows outside vendors"
+      return services.filter(service => {
+        if (restaurantRestrictedServices.includes(service)) {
+          // Check if any selected restaurant venues allow outside vendors
+          const allowsOutsideVendors = venues.some(venue => 
+            venue.venueTypes?.includes('Restaurant') && 
+            venue.restaurant_details?.reservation_rules?.allows_outside_vendors === true
+          );
+          return allowsOutsideVendors;
+        }
+        return allowedRestaurantServices.includes(service) || !restaurantRestrictedServices.includes(service);
+      });
+    }
+    
+    // If Short-Term Rental is selected, all services are typically allowed
+    if (event.preferred_venue_types.includes('Short-Term Rental (Airbnb/VRBO)')) {
+      return services; // No restrictions for Airbnb/VRBO
+    }
+    
+    return services;
+  };
     setSelectedSubcategories(prev => ({
       ...prev,
       [service]: prev[service]?.includes(subcategory)
