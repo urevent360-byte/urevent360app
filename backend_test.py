@@ -100,24 +100,23 @@ class APITester:
             self.log_test("Health Check", False, f"Status: {response.status_code if response else 'No response'}")
             return False
     
-    def test_cultural_vendor_matching_system(self):
-        """Test the Cultural Vendor Matching System as per review request"""
-        print("\n🌍 CULTURAL VENDOR MATCHING SYSTEM TESTING")
+    def test_venue_expansion_system(self):
+        """Test the Venue Expansion System as per review request"""
+        print("\n🏛️ VENUE EXPANSION SYSTEM TESTING")
         print("=" * 70)
         
         # Ensure we have client authentication
         if not self.test_client_authentication():
             return
         
-        # PRIORITY 1 - Cultural Matching API
-        self.test_basic_cultural_matching()
-        self.test_all_cultures_matching()
-        self.test_dietary_compliance_matching()
-        self.test_expand_cultural_results()
+        # PRIORITY 1 - Enhanced Venue Matching API
+        self.test_basic_venue_matching()
+        self.test_restaurant_specific_data()
+        self.test_short_term_rental_data()
         
-        # PRIORITY 2 - Cultural Ranking & Scoring
-        self.test_vendor_scoring()
-        self.test_cultural_grouping()
+        # PRIORITY 2 - Restaurant Booking API
+        self.test_venue_availability()
+        self.test_restaurant_reservations()
     
     def test_client_authentication(self):
         """Ensure client authentication is working"""
