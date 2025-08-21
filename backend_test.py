@@ -136,101 +136,81 @@ class APITester:
         self.log_test("Client Authentication", False, "Failed to authenticate")
         return False
     
-    def test_basic_cultural_matching(self):
-        """Test basic cultural matching with specific cultural parameters"""
-        print("\n🎯 PRIORITY 1.1: Testing Basic Cultural Matching...")
+    def test_basic_venue_matching(self):
+        """Test basic venue matching to verify new venue types appear"""
+        print("\n🎯 PRIORITY 1.1: Testing Basic Venue Matching...")
         
         token = self.tokens.get("client")
         if not token:
-            self.log_test("Basic Cultural Matching", False, "No authentication token")
+            self.log_test("Basic Venue Matching", False, "No authentication token")
             return
         
-        # Test 1: Indian culture should boost Bollywood Bliss Catering
-        print("   Testing Indian culture matching...")
-        params = {
-            "client_culture": "Indian",
-            "service": "Catering"
-        }
+        # Test venue matching API
+        print("   Testing venue matching API...")
+        response = self.make_request("GET", "/match/venues", token=token)
         
-        response = self.make_request("GET", "/match/vendors", params=params, token=token)
         if response and response.status_code == 200:
             data = response.json()
-            vendors = data.get("vendors", [])
+            venues = data.get("venues", [])
             
-            # Find Bollywood Bliss Catering
-            bollywood_vendor = next((v for v in vendors if "Bollywood Bliss" in v.get("name", "")), None)
-            if bollywood_vendor:
-                cultural_boost = bollywood_vendor.get("cultural_boost", 0)
-                cultural_match_type = bollywood_vendor.get("cultural_match_type", "none")
-                
-                if cultural_boost >= 3 and cultural_match_type == "exact_match":
-                    self.log_test("Indian Cultural Matching", True, 
-                                f"Bollywood Bliss boosted correctly (boost: {cultural_boost}, type: {cultural_match_type})")
-                else:
-                    self.log_test("Indian Cultural Matching", False, 
-                                f"Insufficient boost for Bollywood Bliss (boost: {cultural_boost}, type: {cultural_match_type})")
+            # Verify we have 8 venues total
+            if len(venues) == 8:
+                self.log_test("Total Venue Count", True, f"Found {len(venues)} venues as expected")
             else:
-                self.log_test("Indian Cultural Matching", False, "Bollywood Bliss Catering not found in results")
-        else:
-            self.log_test("Indian Cultural Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
-        
-        # Test 2: Hispanic/Latino culture should boost Fiesta Flavors
-        print("   Testing Hispanic/Latino culture matching...")
-        params = {
-            "client_culture": "Hispanic/Latino",
-            "service": "Catering"
-        }
-        
-        response = self.make_request("GET", "/match/vendors", params=params, token=token)
-        if response and response.status_code == 200:
-            data = response.json()
-            vendors = data.get("vendors", [])
+                self.log_test("Total Venue Count", False, f"Expected 8 venues, found {len(venues)}")
             
-            # Find Fiesta Flavors Catering
-            fiesta_vendor = next((v for v in vendors if "Fiesta Flavors" in v.get("name", "")), None)
-            if fiesta_vendor:
-                cultural_boost = fiesta_vendor.get("cultural_boost", 0)
-                cultural_match_type = fiesta_vendor.get("cultural_match_type", "none")
+            # Find Restaurant venues
+            restaurant_venues = [v for v in venues if "Restaurant" in v.get("venueTypes", [])]
+            if len(restaurant_venues) >= 2:
+                restaurant_names = [v.get("name") for v in restaurant_venues]
+                self.log_test("Restaurant Venues Present", True, f"Found {len(restaurant_venues)} restaurants: {restaurant_names}")
                 
-                if cultural_boost >= 3 and cultural_match_type == "exact_match":
-                    self.log_test("Hispanic/Latino Cultural Matching", True, 
-                                f"Fiesta Flavors boosted correctly (boost: {cultural_boost}, type: {cultural_match_type})")
+                # Check for specific restaurants
+                oceanview = next((v for v in restaurant_venues if "Oceanview Restaurant" in v.get("name", "")), None)
+                bella_vista = next((v for v in restaurant_venues if "Bella Vista Italian Bistro" in v.get("name", "")), None)
+                
+                if oceanview:
+                    self.log_test("Oceanview Restaurant Found", True, "Oceanview Restaurant appears in results")
                 else:
-                    self.log_test("Hispanic/Latino Cultural Matching", False, 
-                                f"Insufficient boost for Fiesta Flavors (boost: {cultural_boost}, type: {cultural_match_type})")
+                    self.log_test("Oceanview Restaurant Found", False, "Oceanview Restaurant not found")
+                    
+                if bella_vista:
+                    self.log_test("Bella Vista Italian Bistro Found", True, "Bella Vista Italian Bistro appears in results")
+                else:
+                    self.log_test("Bella Vista Italian Bistro Found", False, "Bella Vista Italian Bistro not found")
             else:
-                self.log_test("Hispanic/Latino Cultural Matching", False, "Fiesta Flavors Catering not found in results")
-        else:
-            self.log_test("Hispanic/Latino Cultural Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
-        
-        # Test 3: Jewish culture should prioritize Kosher Delights
-        print("   Testing Jewish culture matching...")
-        params = {
-            "client_culture": "Jewish",
-            "service": "Catering"
-        }
-        
-        response = self.make_request("GET", "/match/vendors", params=params, token=token)
-        if response and response.status_code == 200:
-            data = response.json()
-            vendors = data.get("vendors", [])
+                self.log_test("Restaurant Venues Present", False, f"Expected 2+ restaurants, found {len(restaurant_venues)}")
             
-            # Find Kosher Delights Catering
-            kosher_vendor = next((v for v in vendors if "Kosher Delights" in v.get("name", "")), None)
-            if kosher_vendor:
-                cultural_boost = kosher_vendor.get("cultural_boost", 0)
-                cultural_match_type = kosher_vendor.get("cultural_match_type", "none")
+            # Find Short-Term Rental venues
+            rental_venues = [v for v in venues if "Short-Term Rental (Airbnb/VRBO)" in v.get("venueTypes", [])]
+            if len(rental_venues) >= 3:
+                rental_names = [v.get("name") for v in rental_venues]
+                self.log_test("Short-Term Rental Venues Present", True, f"Found {len(rental_venues)} rentals: {rental_names}")
                 
-                if cultural_boost >= 3 and cultural_match_type == "exact_match":
-                    self.log_test("Jewish Cultural Matching", True, 
-                                f"Kosher Delights boosted correctly (boost: {cultural_boost}, type: {cultural_match_type})")
+                # Check for specific rentals
+                downtown_loft = next((v for v in rental_venues if "Modern Downtown Loft" in v.get("name", "")), None)
+                brooklyn_brownstone = next((v for v in rental_venues if "Cozy Brooklyn Brownstone" in v.get("name", "")), None)
+                hamptons_beach = next((v for v in rental_venues if "Hamptons Beach House" in v.get("name", "")), None)
+                
+                if downtown_loft:
+                    self.log_test("Modern Downtown Loft Found", True, "Modern Downtown Loft appears in results")
                 else:
-                    self.log_test("Jewish Cultural Matching", False, 
-                                f"Insufficient boost for Kosher Delights (boost: {cultural_boost}, type: {cultural_match_type})")
+                    self.log_test("Modern Downtown Loft Found", False, "Modern Downtown Loft not found")
+                    
+                if brooklyn_brownstone:
+                    self.log_test("Cozy Brooklyn Brownstone Found", True, "Cozy Brooklyn Brownstone appears in results")
+                else:
+                    self.log_test("Cozy Brooklyn Brownstone Found", False, "Cozy Brooklyn Brownstone not found")
+                    
+                if hamptons_beach:
+                    self.log_test("Hamptons Beach House Found", True, "Hamptons Beach House appears in results")
+                else:
+                    self.log_test("Hamptons Beach House Found", False, "Hamptons Beach House not found")
             else:
-                self.log_test("Jewish Cultural Matching", False, "Kosher Delights Catering not found in results")
+                self.log_test("Short-Term Rental Venues Present", False, f"Expected 3+ rentals, found {len(rental_venues)}")
+                
         else:
-            self.log_test("Jewish Cultural Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
+            self.log_test("Basic Venue Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
     
     def test_all_cultures_matching(self):
         """Test vendors with all_cultures_welcomed flag"""
