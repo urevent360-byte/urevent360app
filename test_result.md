@@ -906,8 +906,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Location Radius/ZIP-Only & Budget Wizard Functionality"
+    - "Enhanced Step-by-Step Mode Integration and Vendor Capability System"
   stuck_tasks:
+    - "Enhanced Step-by-Step Mode Integration and Vendor Capability System"
     - "Enhanced Authentication System"
     - "Calendar & Appointment Integration Backend"
   test_all: false
