@@ -102,31 +102,460 @@ class APITester:
             self.log_test("Health Check", False, f"Status: {response.status_code if response else 'No response'}")
             return False
     
-    def test_authentication_debugging(self):
-        """URGENT: Test authentication system to debug login/redirect issues"""
-        print("\n🚨 URGENT AUTHENTICATION DEBUGGING - Login/Redirect Issues")
+    def test_cultural_vendor_matching_system(self):
+        """Test the Cultural Vendor Matching System as per review request"""
+        print("\n🌍 CULTURAL VENDOR MATCHING SYSTEM TESTING")
         print("=" * 70)
         
-        # Step 1: Backend Authentication Health Check
-        self.test_backend_auth_health()
+        # Ensure we have client authentication
+        if not self.test_client_authentication():
+            return
         
-        # Step 2: Login Endpoints Testing
-        self.test_all_login_endpoints()
+        # PRIORITY 1 - Cultural Matching API
+        self.test_basic_cultural_matching()
+        self.test_all_cultures_matching()
+        self.test_dietary_compliance_matching()
+        self.test_expand_cultural_results()
         
-        # Step 3: Token Validation Testing
-        self.test_token_validation_comprehensive()
+        # PRIORITY 2 - Cultural Ranking & Scoring
+        self.test_vendor_scoring()
+        self.test_cultural_grouping()
+    
+    def test_client_authentication(self):
+        """Ensure client authentication is working"""
+        print("\n🔐 Testing Client Authentication...")
         
-        # Step 4: Session Persistence Testing
-        self.test_session_persistence()
+        credentials = {"email": "sarah.johnson@email.com", "password": "SecurePass123"}
+        response = self.make_request("POST", "/login", credentials)
         
-        # Step 5: Role-Based Authentication Testing
-        self.test_role_based_authentication()
+        if response and response.status_code == 200:
+            login_data = response.json()
+            access_token = login_data.get("access_token")
+            if access_token:
+                self.tokens["client"] = access_token
+                self.log_test("Client Authentication", True, "Successfully authenticated")
+                return True
         
-        # Step 6: JWT Token Analysis
-        self.test_jwt_token_analysis()
+        self.log_test("Client Authentication", False, "Failed to authenticate")
+        return False
+    
+    def test_basic_cultural_matching(self):
+        """Test basic cultural matching with specific cultural parameters"""
+        print("\n🎯 PRIORITY 1.1: Testing Basic Cultural Matching...")
         
-        # Step 7: Protected Endpoints Access
-        self.test_protected_endpoints_access()
+        token = self.tokens.get("client")
+        if not token:
+            self.log_test("Basic Cultural Matching", False, "No authentication token")
+            return
+        
+        # Test 1: Indian culture should boost Bollywood Bliss Catering
+        print("   Testing Indian culture matching...")
+        params = {
+            "client_culture": "Indian",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            vendors = data.get("vendors", [])
+            
+            # Find Bollywood Bliss Catering
+            bollywood_vendor = next((v for v in vendors if "Bollywood Bliss" in v.get("name", "")), None)
+            if bollywood_vendor:
+                cultural_boost = bollywood_vendor.get("cultural_boost", 0)
+                cultural_match_type = bollywood_vendor.get("cultural_match_type", "none")
+                
+                if cultural_boost >= 3 and cultural_match_type == "exact_match":
+                    self.log_test("Indian Cultural Matching", True, 
+                                f"Bollywood Bliss boosted correctly (boost: {cultural_boost}, type: {cultural_match_type})")
+                else:
+                    self.log_test("Indian Cultural Matching", False, 
+                                f"Insufficient boost for Bollywood Bliss (boost: {cultural_boost}, type: {cultural_match_type})")
+            else:
+                self.log_test("Indian Cultural Matching", False, "Bollywood Bliss Catering not found in results")
+        else:
+            self.log_test("Indian Cultural Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
+        
+        # Test 2: Hispanic/Latino culture should boost Fiesta Flavors
+        print("   Testing Hispanic/Latino culture matching...")
+        params = {
+            "client_culture": "Hispanic/Latino",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            vendors = data.get("vendors", [])
+            
+            # Find Fiesta Flavors Catering
+            fiesta_vendor = next((v for v in vendors if "Fiesta Flavors" in v.get("name", "")), None)
+            if fiesta_vendor:
+                cultural_boost = fiesta_vendor.get("cultural_boost", 0)
+                cultural_match_type = fiesta_vendor.get("cultural_match_type", "none")
+                
+                if cultural_boost >= 3 and cultural_match_type == "exact_match":
+                    self.log_test("Hispanic/Latino Cultural Matching", True, 
+                                f"Fiesta Flavors boosted correctly (boost: {cultural_boost}, type: {cultural_match_type})")
+                else:
+                    self.log_test("Hispanic/Latino Cultural Matching", False, 
+                                f"Insufficient boost for Fiesta Flavors (boost: {cultural_boost}, type: {cultural_match_type})")
+            else:
+                self.log_test("Hispanic/Latino Cultural Matching", False, "Fiesta Flavors Catering not found in results")
+        else:
+            self.log_test("Hispanic/Latino Cultural Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
+        
+        # Test 3: Jewish culture should prioritize Kosher Delights
+        print("   Testing Jewish culture matching...")
+        params = {
+            "client_culture": "Jewish",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            vendors = data.get("vendors", [])
+            
+            # Find Kosher Delights Catering
+            kosher_vendor = next((v for v in vendors if "Kosher Delights" in v.get("name", "")), None)
+            if kosher_vendor:
+                cultural_boost = kosher_vendor.get("cultural_boost", 0)
+                cultural_match_type = kosher_vendor.get("cultural_match_type", "none")
+                
+                if cultural_boost >= 3 and cultural_match_type == "exact_match":
+                    self.log_test("Jewish Cultural Matching", True, 
+                                f"Kosher Delights boosted correctly (boost: {cultural_boost}, type: {cultural_match_type})")
+                else:
+                    self.log_test("Jewish Cultural Matching", False, 
+                                f"Insufficient boost for Kosher Delights (boost: {cultural_boost}, type: {cultural_match_type})")
+            else:
+                self.log_test("Jewish Cultural Matching", False, "Kosher Delights Catering not found in results")
+        else:
+            self.log_test("Jewish Cultural Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
+    
+    def test_all_cultures_matching(self):
+        """Test vendors with all_cultures_welcomed flag"""
+        print("\n🌐 PRIORITY 1.2: Testing All-Cultures Matching...")
+        
+        token = self.tokens.get("client")
+        if not token:
+            self.log_test("All-Cultures Matching", False, "No authentication token")
+            return
+        
+        # Test American culture should show Universal Event Catering with 🌐 badge
+        print("   Testing American culture with all-cultures vendor...")
+        params = {
+            "client_culture": "American",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            vendors = data.get("vendors", [])
+            
+            # Find Universal Event Catering
+            universal_vendor = next((v for v in vendors if "Universal Event" in v.get("name", "")), None)
+            if universal_vendor:
+                cultural_boost = universal_vendor.get("cultural_boost", 0)
+                cultural_match_type = universal_vendor.get("cultural_match_type", "none")
+                all_cultures_welcomed = universal_vendor.get("cultural_expertise", {}).get("all_cultures_welcomed", False)
+                
+                if cultural_match_type == "all_cultures" and all_cultures_welcomed:
+                    self.log_test("All-Cultures Badge Detection", True, 
+                                f"Universal Event Catering shows 🌐 badge (all_cultures_welcomed: {all_cultures_welcomed})")
+                else:
+                    self.log_test("All-Cultures Badge Detection", False, 
+                                f"Universal Event Catering missing 🌐 badge (type: {cultural_match_type}, welcomed: {all_cultures_welcomed})")
+                
+                if cultural_boost >= 2:
+                    self.log_test("All-Cultures Boost Scoring", True, 
+                                f"Universal Event Catering has medium boost (boost: {cultural_boost})")
+                else:
+                    self.log_test("All-Cultures Boost Scoring", False, 
+                                f"Universal Event Catering has insufficient boost (boost: {cultural_boost})")
+            else:
+                self.log_test("All-Cultures Matching", False, "Universal Event Catering not found in results")
+        else:
+            self.log_test("All-Cultures Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
+    
+    def test_dietary_compliance_matching(self):
+        """Test dietary compliance matching"""
+        print("\n🥗 PRIORITY 1.3: Testing Dietary Compliance Matching...")
+        
+        token = self.tokens.get("client")
+        if not token:
+            self.log_test("Dietary Compliance Matching", False, "No authentication token")
+            return
+        
+        # Test 1: Indian culture with Halal and Vegetarian/Vegan requirements
+        print("   Testing Indian culture with Halal and Vegetarian/Vegan dietary requirements...")
+        params = {
+            "client_culture": "Indian",
+            "client_dietary": "Halal,Vegetarian/Vegan",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            vendors = data.get("vendors", [])
+            
+            # Find vendors with dietary compliance
+            dietary_compliant_vendors = [v for v in vendors if v.get("dietary_boost", 0) > 0]
+            if dietary_compliant_vendors:
+                # Check Bollywood Bliss specifically
+                bollywood_vendor = next((v for v in vendors if "Bollywood Bliss" in v.get("name", "")), None)
+                if bollywood_vendor:
+                    dietary_matches = bollywood_vendor.get("dietary_matches", [])
+                    dietary_boost = bollywood_vendor.get("dietary_boost", 0)
+                    
+                    if "Halal" in dietary_matches and "Vegetarian/Vegan" in dietary_matches:
+                        self.log_test("Indian Dietary Compliance", True, 
+                                    f"Bollywood Bliss matches dietary requirements (matches: {dietary_matches}, boost: {dietary_boost})")
+                    else:
+                        self.log_test("Indian Dietary Compliance", False, 
+                                    f"Bollywood Bliss missing dietary matches (matches: {dietary_matches})")
+                else:
+                    self.log_test("Indian Dietary Compliance", False, "Bollywood Bliss not found")
+            else:
+                self.log_test("Indian Dietary Compliance", False, "No vendors with dietary compliance found")
+        else:
+            self.log_test("Indian Dietary Compliance", False, f"API call failed: {response.status_code if response else 'No response'}")
+        
+        # Test 2: Jewish culture with Kosher requirements
+        print("   Testing Jewish culture with Kosher dietary requirements...")
+        params = {
+            "client_culture": "Jewish",
+            "client_dietary": "Kosher",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            vendors = data.get("vendors", [])
+            
+            # Find Kosher Delights
+            kosher_vendor = next((v for v in vendors if "Kosher Delights" in v.get("name", "")), None)
+            if kosher_vendor:
+                dietary_matches = kosher_vendor.get("dietary_matches", [])
+                dietary_boost = kosher_vendor.get("dietary_boost", 0)
+                
+                if "Kosher" in dietary_matches and dietary_boost >= 1:
+                    self.log_test("Jewish Dietary Compliance", True, 
+                                f"Kosher Delights matches Kosher requirement (matches: {dietary_matches}, boost: {dietary_boost})")
+                else:
+                    self.log_test("Jewish Dietary Compliance", False, 
+                                f"Kosher Delights missing Kosher compliance (matches: {dietary_matches}, boost: {dietary_boost})")
+            else:
+                self.log_test("Jewish Dietary Compliance", False, "Kosher Delights not found")
+        else:
+            self.log_test("Jewish Dietary Compliance", False, f"API call failed: {response.status_code if response else 'No response'}")
+    
+    def test_expand_cultural_results(self):
+        """Test the 'Find more options' functionality"""
+        print("\n🔍 PRIORITY 1.4: Testing Expand Cultural Results...")
+        
+        token = self.tokens.get("client")
+        if not token:
+            self.log_test("Expand Cultural Results", False, "No authentication token")
+            return
+        
+        # Test with expand_cultural_results=true
+        print("   Testing expanded cultural results...")
+        params = {
+            "client_culture": "Indian",
+            "expand_cultural_results": "true",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            vendors = data.get("vendors", [])
+            filters_applied = data.get("filters_applied", {})
+            
+            # Verify expand flag is applied
+            expand_flag = filters_applied.get("expand_cultural_results", False)
+            if expand_flag:
+                self.log_test("Expand Cultural Results Flag", True, "Expand flag correctly applied")
+                
+                # Check if cultural boost is reduced (vendors should be sorted more by base score)
+                bollywood_vendor = next((v for v in vendors if "Bollywood Bliss" in v.get("name", "")), None)
+                if bollywood_vendor:
+                    cultural_boost = bollywood_vendor.get("cultural_boost", 0)
+                    base_score = bollywood_vendor.get("base_score", 0)
+                    
+                    # In expanded mode, sorting should prioritize base_score over cultural_boost
+                    self.log_test("Expand Cultural Results Scoring", True, 
+                                f"Expanded results show broader options (cultural_boost: {cultural_boost}, base_score: {base_score})")
+                else:
+                    self.log_test("Expand Cultural Results Scoring", False, "Bollywood Bliss not found in expanded results")
+                
+                # Check if more diverse vendors are included
+                vendor_names = [v.get("name", "") for v in vendors]
+                if len(vendor_names) >= 3:
+                    self.log_test("Expand Cultural Results Diversity", True, 
+                                f"Expanded results include diverse vendors: {len(vendor_names)} total")
+                else:
+                    self.log_test("Expand Cultural Results Diversity", False, 
+                                f"Insufficient vendor diversity in expanded results: {len(vendor_names)} total")
+            else:
+                self.log_test("Expand Cultural Results Flag", False, "Expand flag not properly applied")
+        else:
+            self.log_test("Expand Cultural Results", False, f"API call failed: {response.status_code if response else 'No response'}")
+    
+    def test_vendor_scoring(self):
+        """Test vendor scoring system"""
+        print("\n📊 PRIORITY 2.1: Testing Vendor Scoring...")
+        
+        token = self.tokens.get("client")
+        if not token:
+            self.log_test("Vendor Scoring", False, "No authentication token")
+            return
+        
+        # Test cultural boost scoring
+        print("   Testing cultural boost scoring...")
+        params = {
+            "client_culture": "Indian",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            vendors = data.get("vendors", [])
+            
+            # Analyze scoring patterns
+            exact_matches = [v for v in vendors if v.get("cultural_match_type") == "exact_match"]
+            all_cultures_matches = [v for v in vendors if v.get("cultural_match_type") == "all_cultures"]
+            cuisine_matches = [v for v in vendors if v.get("cultural_match_type") == "cuisine_match"]
+            
+            # Verify scoring hierarchy
+            if exact_matches:
+                exact_boost = exact_matches[0].get("cultural_boost", 0)
+                self.log_test("Exact Cultural Match Scoring", exact_boost >= 3, 
+                            f"Exact matches have high boost (boost: {exact_boost})")
+            
+            if all_cultures_matches:
+                all_cultures_boost = all_cultures_matches[0].get("cultural_boost", 0)
+                self.log_test("All-Cultures Match Scoring", all_cultures_boost >= 2, 
+                            f"All-cultures matches have medium boost (boost: {all_cultures_boost})")
+            
+            if cuisine_matches:
+                cuisine_boost = cuisine_matches[0].get("cultural_boost", 0)
+                self.log_test("Cuisine Match Scoring", cuisine_boost >= 1, 
+                            f"Cuisine matches have small boost (boost: {cuisine_boost})")
+            
+            # Verify vendors are properly ranked
+            if len(vendors) >= 2:
+                first_vendor = vendors[0]
+                second_vendor = vendors[1]
+                
+                first_score = first_vendor.get("match_score", 0)
+                second_score = second_vendor.get("match_score", 0)
+                
+                if first_score >= second_score:
+                    self.log_test("Vendor Ranking Order", True, 
+                                f"Vendors properly ranked by score (1st: {first_score}, 2nd: {second_score})")
+                else:
+                    self.log_test("Vendor Ranking Order", False, 
+                                f"Vendors not properly ranked (1st: {first_score}, 2nd: {second_score})")
+        else:
+            self.log_test("Vendor Scoring", False, f"API call failed: {response.status_code if response else 'No response'}")
+    
+    def test_cultural_grouping(self):
+        """Test cultural grouping in response"""
+        print("\n📋 PRIORITY 2.2: Testing Cultural Grouping...")
+        
+        token = self.tokens.get("client")
+        if not token:
+            self.log_test("Cultural Grouping", False, "No authentication token")
+            return
+        
+        # Test cultural grouping response structure
+        print("   Testing cultural grouping response structure...")
+        params = {
+            "client_culture": "Indian",
+            "service": "Catering"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            cultural_grouping = data.get("cultural_grouping", {})
+            
+            # Verify required grouping fields
+            required_fields = [
+                "exact_cultural_matches",
+                "all_cultures_matches", 
+                "other_matches",
+                "client_cultural_preference",
+                "expand_cultural_results"
+            ]
+            
+            missing_fields = [field for field in required_fields if field not in cultural_grouping]
+            if not missing_fields:
+                self.log_test("Cultural Grouping Structure", True, 
+                            f"All required grouping fields present: {list(cultural_grouping.keys())}")
+                
+                # Verify grouping counts
+                exact_count = cultural_grouping.get("exact_cultural_matches", 0)
+                all_cultures_count = cultural_grouping.get("all_cultures_matches", 0)
+                other_count = cultural_grouping.get("other_matches", 0)
+                total_vendors = len(data.get("vendors", []))
+                
+                calculated_total = exact_count + all_cultures_count + other_count
+                if calculated_total == total_vendors:
+                    self.log_test("Cultural Grouping Counts", True, 
+                                f"Grouping counts match total (exact: {exact_count}, all_cultures: {all_cultures_count}, other: {other_count}, total: {total_vendors})")
+                else:
+                    self.log_test("Cultural Grouping Counts", False, 
+                                f"Grouping counts mismatch (calculated: {calculated_total}, actual: {total_vendors})")
+                
+                # Verify client preference is recorded
+                client_pref = cultural_grouping.get("client_cultural_preference")
+                if client_pref == "Indian":
+                    self.log_test("Cultural Grouping Client Preference", True, 
+                                f"Client preference correctly recorded: {client_pref}")
+                else:
+                    self.log_test("Cultural Grouping Client Preference", False, 
+                                f"Client preference incorrect: {client_pref}")
+            else:
+                self.log_test("Cultural Grouping Structure", False, 
+                            f"Missing required fields: {missing_fields}")
+        else:
+            self.log_test("Cultural Grouping", False, f"API call failed: {response.status_code if response else 'No response'}")
+    
+    def run_cultural_vendor_matching_tests(self):
+        """Run all Cultural Vendor Matching System tests"""
+        print("\n🌍 STARTING CULTURAL VENDOR MATCHING SYSTEM TESTS")
+        print("=" * 70)
+        
+        self.test_cultural_vendor_matching_system()
+        
+        # Print summary
+        print("\n📊 CULTURAL VENDOR MATCHING TEST SUMMARY")
+        print("=" * 70)
+        
+        total_tests = len(self.test_results)
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        failed_tests = total_tests - passed_tests
+        
+        print(f"Total Tests: {total_tests}")
+        print(f"Passed: {passed_tests}")
+        print(f"Failed: {failed_tests}")
+        print(f"Success Rate: {(passed_tests/total_tests*100):.1f}%")
+        
+        if self.failed_tests:
+            print(f"\n❌ Failed Tests:")
+            for test_name in self.failed_tests:
+                print(f"   - {test_name}")
+        
+        return passed_tests, total_tests
     
     def test_backend_auth_health(self):
         """Test /api/auth/health endpoint and database connectivity"""
