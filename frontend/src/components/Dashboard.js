@@ -87,7 +87,9 @@ const Dashboard = () => {
     
     setDeleting(true);
     try {
-      await axios.delete(`${API}/events/${eventToDelete.id}`);
+      await axios.delete(`${API}/events/${eventToDelete.id}`, {
+        headers: getAuthHeaders()
+      });
       
       // Refresh dashboard data after successful deletion
       await fetchDashboardData();
