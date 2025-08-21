@@ -479,7 +479,7 @@ class APITester:
         else:
             self.log_test("Bella Vista Availability", False, f"API call failed: {response.status_code if response else 'No response'}")
     
-    def test_expand_cultural_results(self):
+    def test_restaurant_reservations(self):
         """Test the 'Find more options' functionality"""
         print("\n🔍 PRIORITY 1.4: Testing Expand Cultural Results...")
         
