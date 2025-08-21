@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
 """
-CULTURAL VENDOR MATCHING SYSTEM TESTING
-Focus: Testing the Cultural Vendor Matching System implementation
+VENUE EXPANSION SYSTEM TESTING (Airbnb & Restaurant Booking)
+Focus: Testing the newly implemented Venue Expansion System
 
-PRIORITY 1 - Cultural Matching API:
-1. **Basic Cultural Matching**: Test `/api/match/vendors` with cultural parameters
-2. **All-Cultures Matching**: Test vendors with all_cultures_welcomed flag
-3. **Dietary Compliance**: Test dietary matching
-4. **Expand Cultural Results**: Test the "Find more options" functionality
+PRIORITY 1 - Enhanced Venue Matching API:
+1. **Basic Venue Matching**: Test `/api/match/venues` to verify new venue types appear
+2. **Restaurant-Specific Data**: Test restaurant venue details
+3. **Short-Term Rental Data**: Test Airbnb/VRBO venue details
 
-PRIORITY 2 - Cultural Ranking & Scoring:
-5. **Vendor Scoring**: Verify cultural boost scoring works correctly
-6. **Cultural Grouping**: Verify the response includes proper grouping
+PRIORITY 2 - Restaurant Booking API:
+4. **Venue Availability**: Test `/api/venues/{venue_id}/availability`
+5. **Restaurant Reservations**: Test `/api/restaurants/reserve` POST
 
 EXPECTED BEHAVIOR:
-- Indian cultural preference should rank Bollywood Bliss Catering higher
-- Hispanic/Latino should boost Fiesta Flavors Catering
-- Jewish culture should prioritize Kosher Delights
-- Universal Event Catering should show 🌐 badge for all_cultures_welcomed=true
-- Cultural match types should be properly identified (exact_match, all_cultures, cuisine_match)
-- Dietary compliance should add additional scoring for matching dietary requirements
+- Venue matching should return 8 venues including 2 restaurants and 3 short-term rentals
+- Restaurant venues should have detailed restaurant_details with cuisine, private rooms, time slots
+- Airbnb venues should have short_term_rental_details with event permissions and house rules
+- Restaurant availability API should return time slots with pricing
+- Reservation system should create pending reservations for restaurant confirmation
 
 AUTHENTICATION: Use the working client credentials: sarah.johnson@email.com / SecurePass123
 """
