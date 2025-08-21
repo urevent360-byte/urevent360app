@@ -37,6 +37,11 @@ const StepByStepMode = () => {
   const [loadingVenues, setLoadingVenues] = useState(false);
   const [loadingVendors, setLoadingVendors] = useState(false);
 
+  // Enhanced filtering states
+  const [contextFilter, setContextFilter] = useState('both'); // ceremony | reception | both
+  const [selectedSubcategories, setSelectedSubcategories] = useState({}); // {service: [subcategories]}
+  const [selectedSpecialtyStations, setSelectedSpecialtyStations] = useState([]); // for Catering specialty stations
+
   const sections = [
     { id: 'venues', name: 'Venue Matching', icon: MapPin, desc: 'Find the perfect venue' },
     { id: 'core-vendors', name: 'Core Vendors', icon: Users, desc: 'Essential services' },
