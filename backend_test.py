@@ -212,7 +212,93 @@ class APITester:
         else:
             self.log_test("Basic Venue Matching", False, f"API call failed: {response.status_code if response else 'No response'}")
     
-    def test_all_cultures_matching(self):
+    def test_restaurant_specific_data(self):
+        """Test restaurant venue details"""
+        print("\n🍽️ PRIORITY 1.2: Testing Restaurant-Specific Data...")
+        
+        token = self.tokens.get("client")
+        if not token:
+            self.log_test("Restaurant-Specific Data", False, "No authentication token")
+            return
+        
+        # Get venues and find restaurant venues
+        response = self.make_request("GET", "/match/venues", token=token)
+        
+        if response and response.status_code == 200:
+            data = response.json()
+            venues = data.get("venues", [])
+            
+            # Test Oceanview Restaurant details
+            oceanview = next((v for v in venues if "Oceanview Restaurant" in v.get("name", "")), None)
+            if oceanview:
+                restaurant_details = oceanview.get("restaurant_details", {})
+                
+                # Test cuisine types
+                cuisine_types = restaurant_details.get("cuisine_types", [])
+                if cuisine_types and len(cuisine_types) > 0:
+                    self.log_test("Oceanview Cuisine Types", True, f"Cuisine types populated: {cuisine_types}")
+                else:
+                    self.log_test("Oceanview Cuisine Types", False, "Cuisine types missing or empty")
+                
+                # Test private rooms
+                private_rooms = restaurant_details.get("private_rooms", [])
+                if private_rooms and len(private_rooms) > 0:
+                    room_names = [room.get("name") for room in private_rooms]
+                    self.log_test("Oceanview Private Rooms", True, f"Private rooms available: {room_names}")
+                else:
+                    self.log_test("Oceanview Private Rooms", False, "Private rooms missing or empty")
+                
+                # Test time slots
+                time_slots = restaurant_details.get("time_slots", [])
+                if time_slots and len(time_slots) > 0:
+                    slot_names = [slot.get("slot") for slot in time_slots]
+                    self.log_test("Oceanview Time Slots", True, f"Time slots available: {slot_names}")
+                else:
+                    self.log_test("Oceanview Time Slots", False, "Time slots missing or empty")
+                
+                # Test reservation rules
+                reservation_rules = restaurant_details.get("reservation_rules", {})
+                allows_outside_vendors = reservation_rules.get("allows_outside_vendors")
+                if allows_outside_vendors is not None:
+                    self.log_test("Oceanview Outside Vendors Flag", True, f"Allows outside vendors: {allows_outside_vendors}")
+                else:
+                    self.log_test("Oceanview Outside Vendors Flag", False, "Outside vendors flag missing")
+                
+                # Test price per person range
+                price_range = restaurant_details.get("price_per_person_range", {})
+                if price_range.get("min") and price_range.get("max"):
+                    self.log_test("Oceanview Price Range", True, f"Price range: ${price_range['min']}-${price_range['max']}")
+                else:
+                    self.log_test("Oceanview Price Range", False, "Price per person range missing")
+            else:
+                self.log_test("Oceanview Restaurant Details", False, "Oceanview Restaurant not found")
+            
+            # Test Bella Vista Italian Bistro details
+            bella_vista = next((v for v in venues if "Bella Vista Italian Bistro" in v.get("name", "")), None)
+            if bella_vista:
+                restaurant_details = bella_vista.get("restaurant_details", {})
+                
+                # Test cuisine types
+                cuisine_types = restaurant_details.get("cuisine_types", [])
+                if "Italian" in cuisine_types:
+                    self.log_test("Bella Vista Cuisine Types", True, f"Italian cuisine confirmed: {cuisine_types}")
+                else:
+                    self.log_test("Bella Vista Cuisine Types", False, f"Italian cuisine missing: {cuisine_types}")
+                
+                # Test allows outside vendors (should be True for Bella Vista)
+                reservation_rules = restaurant_details.get("reservation_rules", {})
+                allows_outside_vendors = reservation_rules.get("allows_outside_vendors")
+                if allows_outside_vendors is True:
+                    self.log_test("Bella Vista Outside Vendors", True, "Allows outside vendors: True")
+                else:
+                    self.log_test("Bella Vista Outside Vendors", False, f"Outside vendors flag incorrect: {allows_outside_vendors}")
+            else:
+                self.log_test("Bella Vista Restaurant Details", False, "Bella Vista Italian Bistro not found")
+                
+        else:
+            self.log_test("Restaurant-Specific Data", False, f"API call failed: {response.status_code if response else 'No response'}")
+
+    def test_short_term_rental_data(self):
         """Test vendors with all_cultures_welcomed flag"""
         print("\n🌐 PRIORITY 1.2: Testing All-Cultures Matching...")
         
