@@ -669,6 +669,107 @@ const StepByStepMode = () => {
         </div>
       </div>
 
+      {/* Restaurant Booking Flow - Show if Restaurant is selected */}
+      {event?.preferred_venue_types?.includes('Restaurant') && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <h3 className="font-semibold text-blue-900 mb-3 flex items-center">
+            🍽️ Restaurant Booking Flow
+          </h3>
+          <p className="text-sm text-blue-700 mb-4">
+            This is for intimate celebrations and private rooms. Use the filters below to find the perfect restaurant.
+          </p>
+          
+          {/* Restaurant Filters */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Party Size</label>
+              <input 
+                type="number" 
+                placeholder="8" 
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <input 
+                type="date" 
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option>Lunch (12-3 PM)</option>
+                <option>Dinner (6-9 PM)</option>
+                <option>Late Dinner (8-11 PM)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Private Room?</label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option>Preferred</option>
+                <option>Required</option>
+                <option>Not needed</option>
+              </select>
+            </div>
+          </div>
+          
+          {/* Cuisine & Price Filters */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Cuisine</label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option>Any Cuisine</option>
+                <option>American</option>
+                <option>Italian</option>
+                <option>Asian</option>
+                <option>Mexican</option>
+                <option>Seafood</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price Range</label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option>Any Price</option>
+                <option>$25-$45 per person</option>
+                <option>$45-$75 per person</option>
+                <option>$75+ per person</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option>Any Rating</option>
+                <option>4.5+ stars</option>
+                <option>4.0+ stars</option>
+                <option>3.5+ stars</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Short-Term Rental Guide - Show if Airbnb/VRBO is selected */}
+      {event?.preferred_venue_types?.includes('Short-Term Rental (Airbnb/VRBO)') && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+          <h3 className="font-semibold text-green-900 mb-3 flex items-center">
+            🏠 Short-Term Rental Guidelines
+          </h3>
+          <p className="text-sm text-green-700 mb-4">
+            These properties explicitly allow events and gatherings. Please review house rules carefully.
+          </p>
+          <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+            <h4 className="font-medium text-yellow-800 mb-2">Important Reminders:</h4>
+            <ul className="text-sm text-yellow-700 space-y-1">
+              <li>• Respect maximum guest capacity and noise rules</li>
+              <li>• Confirm event approval with host before booking</li>
+              <li>• Review parking limitations and HOA requirements</li>
+              <li>• Plan for cleaning fees and security deposits</li>
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* Wedding Venue Preferences */}
       {event?.event_type === 'wedding' && (
         <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg border border-pink-200">
@@ -729,13 +830,49 @@ const StepByStepMode = () => {
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">{venue.venueTypes.join(', ')}</p>
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-sm text-gray-600 mb-2">
                   <MapPin className="h-4 w-4 inline mr-1" />
                   {venue.city} • Capacity: {venue.capacity}
                 </p>
 
-                {/* Enhanced Space Capabilities */}
-                {venue.spaceCapabilities && (
+                {/* Enhanced Display for Different Venue Types */}
+                {venue.venueTypes.includes('Restaurant') && venue.restaurant_details && (
+                  <div className="mb-3">
+                    <div className="text-xs text-blue-600 mb-1">🍽️ Restaurant Features:</div>
+                    <div className="text-xs text-gray-600 space-y-1">
+                      <div>Cuisine: {venue.restaurant_details.cuisine_types?.join(', ')}</div>
+                      {venue.restaurant_details.private_rooms?.length > 0 && (
+                        <div>Private Rooms: {venue.restaurant_details.private_rooms.length} available</div>
+                      )}
+                      <div>Price: ${venue.restaurant_details.price_per_person_range?.min}-${venue.restaurant_details.price_per_person_range?.max}/person</div>
+                    </div>
+                    {/* Live Availability Button */}
+                    <button className="mt-2 w-full bg-blue-100 text-blue-700 px-3 py-1 rounded text-xs hover:bg-blue-200 transition-colors">
+                      Check Live Availability
+                    </button>
+                  </div>
+                )}
+
+                {venue.venueTypes.includes('Short-Term Rental (Airbnb/VRBO)') && venue.short_term_rental_details && (
+                  <div className="mb-3">
+                    <div className="text-xs text-green-600 mb-1">🏠 Rental Features:</div>
+                    <div className="text-xs text-gray-600 space-y-1">
+                      <div>Max Guests: {venue.short_term_rental_details.max_event_guests?.standing} standing, {venue.short_term_rental_details.max_event_guests?.seated} seated</div>
+                      <div>Parking: {venue.short_term_rental_details.parking_capacity} spaces</div>
+                      <div>Events: {venue.short_term_rental_details.allowed_event_types?.join(', ')}</div>
+                      {venue.short_term_rental_details.curfew_noise_rules && (
+                        <div className="text-orange-600">⚠️ {venue.short_term_rental_details.curfew_noise_rules}</div>
+                      )}
+                    </div>
+                    {/* House Rules Acknowledgment */}
+                    <button className="mt-2 w-full bg-green-100 text-green-700 px-3 py-1 rounded text-xs hover:bg-green-200 transition-colors">
+                      View House Rules
+                    </button>
+                  </div>
+                )}
+
+                {/* Enhanced Space Capabilities for Regular Venues */}
+                {venue.spaceCapabilities && !venue.venueTypes.includes('Restaurant') && !venue.venueTypes.includes('Short-Term Rental (Airbnb/VRBO)') && (
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-700 mb-1">Space Options:</p>
                     <div className="flex flex-wrap gap-1">
@@ -775,7 +912,7 @@ const StepByStepMode = () => {
                 )}
 
                 {/* Venue Match Score for Weddings */}
-                {event?.event_type === 'wedding' && (
+                {event?.event_type === 'wedding' && !venue.venueTypes.includes('Restaurant') && (
                   <div className="mb-3">
                     {/* Calculate match score based on space preferences */}
                     {(() => {
@@ -834,9 +971,15 @@ const StepByStepMode = () => {
                   </span>
                   <button 
                     className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm"
-                    onClick={() => handleSelectVenue(venue)}
+                    onClick={() => {
+                      if (venue.venueTypes.includes('Restaurant')) {
+                        handleRestaurantBooking(venue);
+                      } else {
+                        handleSelectVenue(venue);
+                      }
+                    }}
                   >
-                    Select Venue
+                    {venue.venueTypes.includes('Restaurant') ? 'Book Table' : 'Select Venue'}
                   </button>
                 </div>
               </div>
