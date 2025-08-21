@@ -90,6 +90,9 @@ const StepByStepMode = () => {
     
     return services;
   };
+
+  // Helper functions for enhanced filtering
+  const toggleSubcategory = (service, subcategory) => {
     setSelectedSubcategories(prev => ({
       ...prev,
       [service]: prev[service]?.includes(subcategory)
