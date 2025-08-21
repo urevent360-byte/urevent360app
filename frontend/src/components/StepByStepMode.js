@@ -42,6 +42,83 @@ const StepByStepMode = () => {
   const [selectedSubcategories, setSelectedSubcategories] = useState({}); // {service: [subcategories]}
   const [selectedSpecialtyStations, setSelectedSpecialtyStations] = useState([]); // for Catering specialty stations
 
+  // Helper functions for enhanced filtering
+  const toggleSubcategory = (service, subcategory) => {
+    setSelectedSubcategories(prev => ({
+      ...prev,
+      [service]: prev[service]?.includes(subcategory)
+        ? prev[service].filter(s => s !== subcategory)
+        : [...(prev[service] || []), subcategory]
+    }));
+  };
+
+  const toggleSpecialtyStation = (station) => {
+    setSelectedSpecialtyStations(prev => 
+      prev.includes(station) 
+        ? prev.filter(s => s !== station)
+        : [...prev, station]
+    );
+  };
+
+  const getFilteredVendors = (vendors, service, mapping) => {
+    if (!vendors || vendors.length === 0) return [];
+    
+    // First filter by basic service matching
+    let filtered = vendors.filter(vendor => 
+      vendor.services.some(s => 
+        mapping.vendorTypes.some(type => 
+          s.toLowerCase().includes(type.replace('_', ' ')) ||
+          type.toLowerCase().includes(s.toLowerCase())
+        )
+      )
+    );
+
+    // Enhanced filtering by vendor capabilities (if available)
+    const serviceKey = service.toLowerCase().replace(' ', '_').replace('&', 'and');
+    if (selectedSubcategories[service]?.length > 0) {
+      filtered = filtered.filter(vendor => {
+        if (vendor.capabilities && vendor.capabilities[serviceKey]) {
+          return selectedSubcategories[service].some(subcategory =>
+            vendor.capabilities[serviceKey].some(cap => 
+              cap.toLowerCase().includes(subcategory.toLowerCase()) ||
+              subcategory.toLowerCase().includes(cap.toLowerCase())
+            )
+          );
+        }
+        return true; // Include vendors without capability data for now
+      });
+    }
+
+    // Filter by specialty stations for catering
+    if (service === 'Catering' && selectedSpecialtyStations.length > 0) {
+      filtered = filtered.filter(vendor => {
+        if (vendor.capabilities && vendor.capabilities.catering_stations) {
+          return selectedSpecialtyStations.some(station =>
+            vendor.capabilities.catering_stations.some(cap => 
+              cap.toLowerCase().includes(station.toLowerCase()) ||
+              station.toLowerCase().includes(cap.toLowerCase())
+            )
+          );
+        }
+        return true; // Include vendors without station capability data for now
+      });
+    }
+
+    return filtered;
+  };
+
+  const handleGetQuote = (vendor, service) => {
+    // TODO: Implement quote request functionality
+    console.log('Requesting quote from:', vendor.name, 'for service:', service);
+    alert(`Quote request functionality will be implemented. Vendor: ${vendor.name}, Service: ${service}`);
+  };
+
+  const handleViewAllVendors = (service, mapping) => {
+    // TODO: Navigate to expanded vendor view
+    console.log('View all vendors for:', service, mapping);
+    alert(`Expanded vendor view will be implemented for: ${service}`);
+  };
+
   const sections = [
     { id: 'venues', name: 'Venue Matching', icon: MapPin, desc: 'Find the perfect venue' },
     { id: 'core-vendors', name: 'Core Vendors', icon: Users, desc: 'Essential services' },
