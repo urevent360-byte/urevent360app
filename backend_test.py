@@ -8286,6 +8286,297 @@ class APITester:
         print("   • Vendor count and total budget calculations tested")
         print("   • Quote status management (in_progress vs completed) verified")
 
+    def test_vendor_capability_system(self):
+        """Test the newly implemented vendor capability system and enhanced vendor matching API"""
+        print("\n🎯 VENDOR CAPABILITY SYSTEM TESTING")
+        print("=" * 70)
+        
+        if "client" not in self.tokens:
+            self.log_test("Vendor Capability System", False, "No client token available")
+            return
+        
+        token = self.tokens["client"]
+        
+        # PRIORITY 1 - Enhanced Vendor Matching API
+        self.test_basic_legacy_matching(token)
+        self.test_capability_based_matching(token)
+        
+        # PRIORITY 2 - Vendor Capability Management
+        self.test_get_vendor_capabilities(token)
+        self.test_update_vendor_capabilities(token)
+    
+    def test_basic_legacy_matching(self, token):
+        """Test /api/match/vendors with legacy parameters (core, extras, cultural)"""
+        print("\n🔍 Testing Basic Legacy Matching...")
+        
+        # Test with legacy core services
+        params = {
+            "core": "catering,decoration",
+            "cultural": "American",
+            "city": "New York"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list) and len(vendors) > 0:
+                self.log_test("Legacy Matching - Core Services", True, 
+                            f"Found {len(vendors)} vendors for core services: catering, decoration")
+                
+                # Check if vendors have expected fields
+                first_vendor = vendors[0]
+                expected_fields = ["id", "name", "services", "rating", "capabilities"]
+                missing_fields = [field for field in expected_fields if field not in first_vendor]
+                
+                if not missing_fields:
+                    self.log_test("Legacy Matching - Response Format", True, 
+                                f"All expected fields present: {list(first_vendor.keys())}")
+                else:
+                    self.log_test("Legacy Matching - Response Format", False, 
+                                f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("Legacy Matching - Core Services", False, "No vendors returned")
+        else:
+            self.log_test("Legacy Matching - Core Services", False, 
+                        f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test with extras parameter
+        params = {
+            "extras": "photography,music",
+            "cultural": "American"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list):
+                self.log_test("Legacy Matching - Extra Services", True, 
+                            f"Found {len(vendors)} vendors for extra services: photography, music")
+            else:
+                self.log_test("Legacy Matching - Extra Services", False, "Invalid response format")
+        else:
+            self.log_test("Legacy Matching - Extra Services", False, 
+                        f"Status: {response.status_code if response else 'No response'}")
+    
+    def test_capability_based_matching(self, token):
+        """Test capability-based matching with new parameters"""
+        print("\n🎯 Testing Capability-Based Matching...")
+        
+        # Test 1: Catering with Full-Service and Specialty Food Stations
+        params = {
+            "service": "Catering",
+            "subcategories": "Full-Service Catering,Specialty Food Stations"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list):
+                capability_matches = 0
+                for vendor in vendors:
+                    if vendor.get("capability_match") == True:
+                        capability_matches += 1
+                
+                self.log_test("Capability Matching - Catering Subcategories", True, 
+                            f"Found {len(vendors)} vendors, {capability_matches} with capability_match=true")
+                
+                # Verify vendors have catering capabilities
+                catering_vendors = [v for v in vendors if "catering" in v.get("capabilities", {})]
+                if catering_vendors:
+                    self.log_test("Capability Matching - Catering Capabilities", True, 
+                                f"{len(catering_vendors)} vendors have catering capabilities")
+                else:
+                    self.log_test("Capability Matching - Catering Capabilities", False, 
+                                "No vendors with catering capabilities found")
+            else:
+                self.log_test("Capability Matching - Catering Subcategories", False, "Invalid response format")
+        else:
+            self.log_test("Capability Matching - Catering Subcategories", False, 
+                        f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 2: Catering with Specialty Stations
+        params = {
+            "service": "Catering",
+            "subcategories": "Specialty Food Stations",
+            "specialty_stations": "Sushi Station,Taco Station"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list):
+                station_matches = 0
+                for vendor in vendors:
+                    capabilities = vendor.get("capabilities", {})
+                    if "catering_stations" in capabilities:
+                        stations = capabilities["catering_stations"]
+                        if any(station in ["Sushi Station", "Taco Station"] for station in stations):
+                            station_matches += 1
+                
+                self.log_test("Capability Matching - Specialty Stations", True, 
+                            f"Found {len(vendors)} vendors, {station_matches} with matching specialty stations")
+            else:
+                self.log_test("Capability Matching - Specialty Stations", False, "Invalid response format")
+        else:
+            self.log_test("Capability Matching - Specialty Stations", False, 
+                        f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 3: Cakes with Wedding and Custom Designs
+        params = {
+            "service": "Cakes",
+            "subcategories": "Wedding Cake,Custom Designs"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list):
+                cake_vendors = [v for v in vendors if "cakes" in v.get("capabilities", {})]
+                self.log_test("Capability Matching - Cakes", True, 
+                            f"Found {len(vendors)} vendors, {len(cake_vendors)} with cake capabilities")
+            else:
+                self.log_test("Capability Matching - Cakes", False, "Invalid response format")
+        else:
+            self.log_test("Capability Matching - Cakes", False, 
+                        f"Status: {response.status_code if response else 'No response'}")
+        
+        # Test 4: Dessert Stations & Sweets
+        params = {
+            "service": "Dessert Stations & Sweets",
+            "subcategories": "Candy Bar,Donut Wall"
+        }
+        
+        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list):
+                dessert_vendors = [v for v in vendors if "dessert_stations_and_sweets" in v.get("capabilities", {})]
+                self.log_test("Capability Matching - Dessert Stations", True, 
+                            f"Found {len(vendors)} vendors, {len(dessert_vendors)} with dessert capabilities")
+            else:
+                self.log_test("Capability Matching - Dessert Stations", False, "Invalid response format")
+        else:
+            self.log_test("Capability Matching - Dessert Stations", False, 
+                        f"Status: {response.status_code if response else 'No response'}")
+    
+    def test_get_vendor_capabilities(self, token):
+        """Test /api/vendors/{vendor_id}/capabilities for existing vendors"""
+        print("\n📋 Testing Get Vendor Capabilities...")
+        
+        # First, get a list of vendors to test with
+        response = self.make_request("GET", "/vendors", token=token)
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list) and len(vendors) > 0:
+                # Test with first vendor
+                vendor_id = vendors[0].get("id")
+                if vendor_id:
+                    response = self.make_request("GET", f"/vendors/{vendor_id}/capabilities", token=token)
+                    if response and response.status_code == 200:
+                        capabilities_data = response.json()
+                        expected_fields = ["vendor_id", "vendor_name", "capabilities", "services"]
+                        missing_fields = [field for field in expected_fields if field not in capabilities_data]
+                        
+                        if not missing_fields:
+                            capabilities = capabilities_data.get("capabilities", {})
+                            services = capabilities_data.get("services", [])
+                            self.log_test("Get Vendor Capabilities", True, 
+                                        f"Vendor: {capabilities_data.get('vendor_name')}, "
+                                        f"Capabilities: {len(capabilities)} categories, "
+                                        f"Services: {len(services)} items")
+                        else:
+                            self.log_test("Get Vendor Capabilities", False, 
+                                        f"Missing fields: {missing_fields}")
+                    else:
+                        self.log_test("Get Vendor Capabilities", False, 
+                                    f"Status: {response.status_code if response else 'No response'}")
+                else:
+                    self.log_test("Get Vendor Capabilities", False, "No vendor ID available")
+            else:
+                self.log_test("Get Vendor Capabilities", False, "No vendors available for testing")
+        else:
+            # Test with mock vendor ID if no vendors in database
+            mock_vendor_id = "vendor_1"  # From mock data
+            response = self.make_request("GET", f"/vendors/{mock_vendor_id}/capabilities", token=token)
+            if response and response.status_code == 200:
+                capabilities_data = response.json()
+                self.log_test("Get Vendor Capabilities - Mock Data", True, 
+                            f"Retrieved capabilities for mock vendor: {capabilities_data.get('vendor_name')}")
+            else:
+                self.log_test("Get Vendor Capabilities", False, 
+                            f"Status: {response.status_code if response else 'No response'}")
+    
+    def test_update_vendor_capabilities(self, token):
+        """Test /api/vendors/{vendor_id}/capabilities PUT endpoint with sample capability data"""
+        print("\n✏️ Testing Update Vendor Capabilities...")
+        
+        # Sample capability data for testing
+        sample_capabilities = {
+            "catering": ["Full-Service Catering", "Appetizers / Small Bites only", "Specialty Food Stations"],
+            "catering_stations": ["Sushi Station", "Taco Station", "Charcuterie/Cheese Station", "Pasta Station"],
+            "cakes": ["Wedding Cake", "Custom Designs", "Cupcakes"],
+            "dessert_stations_and_sweets": ["Dessert Table", "Candy Bar", "Donut Wall"]
+        }
+        
+        # First, get a vendor to test with
+        response = self.make_request("GET", "/vendors", token=token)
+        if response and response.status_code == 200:
+            vendors = response.json()
+            if isinstance(vendors, list) and len(vendors) > 0:
+                vendor_id = vendors[0].get("id")
+                if vendor_id:
+                    # Update vendor capabilities
+                    response = self.make_request("PUT", f"/vendors/{vendor_id}/capabilities", 
+                                               sample_capabilities, token=token)
+                    if response and response.status_code == 200:
+                        update_result = response.json()
+                        if (update_result.get("message") == "Vendor capabilities updated successfully" and
+                            update_result.get("vendor_id") == vendor_id):
+                            self.log_test("Update Vendor Capabilities", True, 
+                                        f"Updated capabilities for vendor {vendor_id}")
+                            
+                            # Verify the update by getting capabilities
+                            response = self.make_request("GET", f"/vendors/{vendor_id}/capabilities", token=token)
+                            if response and response.status_code == 200:
+                                capabilities_data = response.json()
+                                updated_capabilities = capabilities_data.get("capabilities", {})
+                                
+                                # Check if our sample data was saved
+                                if ("catering" in updated_capabilities and 
+                                    "Full-Service Catering" in updated_capabilities["catering"]):
+                                    self.log_test("Update Verification", True, 
+                                                "Capabilities successfully updated and verified")
+                                else:
+                                    self.log_test("Update Verification", False, 
+                                                "Updated capabilities not found")
+                            else:
+                                self.log_test("Update Verification", False, 
+                                            "Could not verify capability update")
+                        else:
+                            self.log_test("Update Vendor Capabilities", False, 
+                                        "Unexpected response format")
+                    else:
+                        self.log_test("Update Vendor Capabilities", False, 
+                                    f"Status: {response.status_code if response else 'No response'}")
+                else:
+                    self.log_test("Update Vendor Capabilities", False, "No vendor ID available")
+            else:
+                self.log_test("Update Vendor Capabilities", False, "No vendors available for testing")
+        else:
+            # Test with mock vendor ID
+            mock_vendor_id = "vendor_1"
+            response = self.make_request("PUT", f"/vendors/{mock_vendor_id}/capabilities", 
+                                       sample_capabilities, token=token)
+            if response and response.status_code == 200:
+                self.log_test("Update Vendor Capabilities - Mock Data", True, 
+                            "Successfully updated mock vendor capabilities")
+            elif response and response.status_code == 404:
+                self.log_test("Update Vendor Capabilities", False, 
+                            "Mock vendor not found - database may be empty")
+            else:
+                self.log_test("Update Vendor Capabilities", False, 
+                            f"Status: {response.status_code if response else 'No response'}")
+
     def run_all_tests(self):
         """Run all tests in the correct order for comprehensive backend testing"""
         print("🚀 Starting Comprehensive Backend Testing...")
