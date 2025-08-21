@@ -201,35 +201,74 @@ const StepByStepMode = () => {
     try {
       setLoadingVendors(true);
       const config = EVENT_FLOW_CONFIG[event.event_type];
-      const tags = config ? getVendorTags(event.event_type) : ['general'];
       
-      const params = new URLSearchParams({
-        type: event.event_type,
-        city: event.location,
-        date: event.date,
-        tags: tags.join(',')
-      });
-
-      if (event.needed_core_services?.length > 0) {
+      const params = new URLSearchParams();
+      params.append('type', event.event_type);
+      params.append('city', event.location || '');
+      
+      if (event.guest_count) {
+        params.append('guests', event.guest_count.toString());
+      }
+      
+      if (event.date) {
+        params.append('date', event.date);
+      }
+      
+      // Add vendor tags
+      if (config?.vendorTags && config.vendorTags.length > 0) {
+        params.append('tags', config.vendorTags.join(','));
+      }
+      
+      // Add services
+      if (event.needed_core_services && event.needed_core_services.length > 0) {
         params.append('core', event.needed_core_services.join(','));
       }
-
-      if (event.needed_extras?.length > 0) {
+      
+      if (event.needed_extras && event.needed_extras.length > 0) {
         params.append('extras', event.needed_extras.join(','));
       }
-
+      
+      // Add cultural specializations
       if (event.category_specific?.culturalStyle?.length > 0) {
         params.append('cultural', event.category_specific.culturalStyle.join(','));
       }
-
+      
       if (event.category_specific?.themeOrFormat?.length > 0) {
         params.append('theme', event.category_specific.themeOrFormat.join(','));
+      }
+
+      // Enhanced: Add capability-based parameters for current active service
+      const allEventServices = [
+        ...(event?.needed_core_services || []),
+        ...(event?.needed_extras || [])
+      ];
+      
+      if (activeSection === 'core-vendors' || activeSection === 'add-ons') {
+        const sectionServices = getServicesBySection(allEventServices, activeSection);
+        
+        // If user has selected specific subcategories, add them to the query
+        sectionServices.forEach(service => {
+          const mapping = SERVICE_MAPPING[service];
+          if (mapping && selectedSubcategories[service]?.length > 0) {
+            params.append('service', service);
+            params.append('subcategories', selectedSubcategories[service].join(','));
+            
+            // Add specialty stations for catering
+            if (service === 'Catering' && selectedSpecialtyStations.length > 0) {
+              params.append('specialty_stations', selectedSpecialtyStations.join(','));
+            }
+          }
+        });
       }
 
       const response = await axios.get(`${API}/match/vendors?${params}`, {
         headers: getAuthHeaders()
       });
-      setVendors(response.data.vendors || []);
+      
+      // Handle both array and object responses
+      const vendorData = response.data.vendors || response.data || [];
+      setVendors(Array.isArray(vendorData) ? vendorData : []);
+      
     } catch (error) {
       console.error('Failed to fetch vendors:', error);
       // Use mock data for development
