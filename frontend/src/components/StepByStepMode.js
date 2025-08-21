@@ -119,6 +119,12 @@ const StepByStepMode = () => {
     alert(`Expanded vendor view will be implemented for: ${service}`);
   };
 
+  const handleSelectVenue = (venue) => {
+    // TODO: Implement venue selection functionality
+    console.log('Selected venue:', venue.name);
+    alert(`Venue selection functionality will be implemented. Venue: ${venue.name}`);
+  };
+
   const sections = [
     { id: 'venues', name: 'Venue Matching', icon: MapPin, desc: 'Find the perfect venue' },
     { id: 'core-vendors', name: 'Core Vendors', icon: Users, desc: 'Essential services' },
