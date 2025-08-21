@@ -268,22 +268,134 @@ const StepByStepMode = () => {
     {
       id: 1,
       name: 'Elite Catering Co.',
-      services: ['Catering'],
+      services: ['Catering', 'Full Service Catering'],
       culturalStyles: ['American', 'Italian'],
       cities: ['New York'],
       rating: 4.9,
       price_range: '$50-$100 per person',
-      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300'
+      image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300',
+      capabilities: {
+        catering: ['Full-Service Catering', 'Appetizers / Small Bites only'],
+        catering_stations: ['Charcuterie/Cheese Station', 'Pasta Station', 'Carving Station']
+      }
     },
     {
       id: 2,
+      name: 'Gourmet Stations & More',
+      services: ['Catering', 'Specialty Food Stations'],
+      culturalStyles: ['Asian', 'Fusion'],
+      cities: ['New York'],
+      rating: 4.8,
+      price_range: '$40-$80 per person',
+      image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300',
+      capabilities: {
+        catering: ['Specialty Food Stations'],
+        catering_stations: ['Sushi Station', 'Taco Station', 'Seafood/Raw Bar', 'Ceviche Station']
+      }
+    },
+    {
+      id: 3,
+      name: 'Sweet Dreams Bakery',
+      services: ['Cakes', 'Wedding Cake', 'Custom Designs'],
+      culturalStyles: ['American', 'French'],
+      cities: ['New York'],
+      rating: 4.9,
+      price_range: '$300-$1,500',
+      image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300',
+      capabilities: {
+        cakes: ['Wedding Cake', 'Custom Designs', 'Cupcakes', 'Macarons']
+      }
+    },
+    {
+      id: 4,
+      name: 'Birthday Bliss Cakes',
+      services: ['Cakes', 'Birthday Cake', 'Cupcakes'],
+      culturalStyles: ['American', 'Modern'],
+      cities: ['New York'],
+      rating: 4.7,
+      price_range: '$150-$800',
+      image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=300',
+      capabilities: {
+        cakes: ['Birthday Cake', 'Custom Designs', 'Cupcakes']
+      }
+    },
+    {
+      id: 5,
+      name: 'Sugar Rush Dessert Co.',
+      services: ['Dessert Stations', 'Candy Bar', 'Donut Wall'],
+      culturalStyles: ['American', 'Modern'],
+      cities: ['New York'],
+      rating: 4.6,
+      price_range: '$500-$2,000',
+      image: 'https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300',
+      capabilities: {
+        'dessert_stations_and_sweets': ['Dessert Table', 'Candy Bar', 'Donut Wall', 'Ice-cream Cart', 'Chocolate Fountain']
+      }
+    },
+    {
+      id: 6,
+      name: 'Professional DJ Services',
+      services: ['DJ', 'Music', 'Entertainment'],
+      culturalStyles: ['American', 'Latin', 'Caribbean'],
+      cities: ['New York'],
+      rating: 4.8,
+      price_range: '$800-$2,500',
+      image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300',
+      capabilities: {
+        'dj_band': ['DJ Services', 'MC Services', 'Sound Equipment', 'Lighting']
+      }
+    },
+    {
+      id: 7,
+      name: 'Elegant Event Photography',
+      services: ['Photography', 'Videography'],
+      culturalStyles: ['American', 'Modern', 'Traditional'],
+      cities: ['New York'],
+      rating: 4.9,
+      price_range: '$1,500-$5,000',
+      image: 'https://images.unsplash.com/photo-1556103255-4443dbae8e5a?w=300',
+      capabilities: {
+        'photography_videography': ['Wedding Photography', 'Event Photography', 'Videography', 'Photo Albums']
+      }
+    },
+    {
+      id: 8,
+      name: 'Premium Floor Rentals',
+      services: ['Dance Floor', 'Flooring', 'Rentals'],
+      culturalStyles: ['American', 'Modern'],
+      cities: ['New York'],
+      rating: 4.7,
+      price_range: '$300-$1,200',
+      image: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=300',
+      capabilities: {
+        dance_floor: ['White Dance Floor', 'Black Dance Floor', 'LED Dance Floor', 'Outdoor Dance Floor']
+      }
+    },
+    {
+      id: 9,
+      name: 'Elite Bar Services',
+      services: ['Bar Service', 'Bartending', 'Beverage'],
+      culturalStyles: ['American', 'Cocktail'],
+      cities: ['New York'],
+      rating: 4.8,
+      price_range: '$15-$35 per person',
+      image: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=300',
+      capabilities: {
+        bar_service: ['Full Bar Service', 'Wine Service', 'Cocktail Specialties', 'Non-Alcoholic Options']
+      }
+    },
+    {
+      id: 10,
       name: 'Elegant Decorations',
-      services: ['Decoration'],
+      services: ['Decoration', 'Reception Lighting', 'Uplighting'],
       culturalStyles: ['American', 'Modern'],
       cities: ['New York'],
       rating: 4.7,
       price_range: '$2,000-$8,000',
-      image: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=300'
+      image: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=300',
+      capabilities: {
+        reception_lighting: ['Uplighting', 'String Lights', 'Chandeliers', 'Ambient Lighting']
+      }
     }
   ];
 
