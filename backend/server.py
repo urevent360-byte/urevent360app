@@ -3349,6 +3349,128 @@ async def get_vendor_capabilities(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get vendor capabilities: {str(e)}")
 
+@api_router.get("/venues/{venue_id}/availability")
+async def get_venue_availability(
+    venue_id: str,
+    date: str,
+    party_size: int = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get venue availability for restaurant bookings
+    Returns available time slots for the specified date
+    """
+    try:
+        # Mock time slots for restaurant venues
+        # In production, this would integrate with OpenTable/Resy/SevenRooms or check manual inventory
+        mock_availability = {
+            "venue_4": {  # Oceanview Restaurant
+                "2025-08-25": [
+                    {"slot": "lunch_1200", "time": "12:00 PM", "available": True, "price_type": "per_person", "price": 75},
+                    {"slot": "lunch_1300", "time": "1:00 PM", "available": True, "price_type": "per_person", "price": 75},
+                    {"slot": "dinner_1800", "time": "6:00 PM", "available": True, "price_type": "per_person", "price": 85},
+                    {"slot": "dinner_1930", "time": "7:30 PM", "available": False, "price_type": "per_person", "price": 85},
+                    {"slot": "dinner_2100", "time": "9:00 PM", "available": True, "price_type": "per_person", "price": 85}
+                ]
+            },
+            "venue_5": {  # Bella Vista Italian Bistro
+                "2025-08-25": [
+                    {"slot": "lunch_1130", "time": "11:30 AM", "available": True, "price_type": "per_person", "price": 55},
+                    {"slot": "lunch_1300", "time": "1:00 PM", "available": True, "price_type": "per_person", "price": 55},
+                    {"slot": "dinner_1730", "time": "5:30 PM", "available": True, "price_type": "fb_minimum", "price": 500},
+                    {"slot": "dinner_1900", "time": "7:00 PM", "available": True, "price_type": "fb_minimum", "price": 500},
+                    {"slot": "dinner_2030", "time": "8:30 PM", "available": False, "price_type": "fb_minimum", "price": 500}
+                ]
+            }
+        }
+        
+        venue_availability = mock_availability.get(venue_id, {})
+        date_availability = venue_availability.get(date, [])
+        
+        # Filter by party size if provided (mock logic)
+        if party_size:
+            # In production, check actual table/room capacity
+            if party_size > 20:
+                date_availability = [slot for slot in date_availability if "dinner" in slot["slot"]]
+        
+        return {
+            "venue_id": venue_id,
+            "date": date,
+            "party_size": party_size,
+            "available_slots": date_availability,
+            "total_slots": len(date_availability)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get availability: {str(e)}")
+
+@api_router.post("/restaurants/reserve")
+async def create_restaurant_reservation(
+    reservation: RestaurantReservation,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Create a restaurant reservation
+    Sends reservation request to restaurant for confirmation
+    """
+    try:
+        # In production, this would save to database and send notification to restaurant
+        reservation_data = reservation.dict()
+        reservation_data["id"] = str(uuid.uuid4())
+        reservation_data["created_at"] = datetime.utcnow()
+        reservation_data["confirmation_status"] = "pending"
+        
+        # Mock - in production, save to database
+        # await db.restaurant_reservations.insert_one(reservation_data)
+        
+        return {
+            "message": "Reservation request sent successfully",
+            "reservation_id": reservation_data["id"],
+            "status": "pending",
+            "confirmation_status": "pending",
+            "next_steps": "The restaurant will review your request and respond within 2 hours"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create reservation: {str(e)}")
+
+@api_router.get("/restaurants/reservations/{reservation_id}")
+async def get_restaurant_reservation(
+    reservation_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get restaurant reservation details and status
+    """
+    try:
+        # Mock reservation data - in production, fetch from database
+        mock_reservation = {
+            "id": reservation_id,
+            "event_id": "event_123",
+            "venue_id": "venue_4",
+            "venue_name": "Oceanview Restaurant",
+            "party_size": 8,
+            "reservation_date": "2025-08-25T18:00:00",
+            "time_slot": "dinner_1800",
+            "price_type": "per_person",
+            "price_amount": 75,
+            "special_requests": "Birthday celebration with cake",
+            "occasion_type": "birthday",
+            "contact_phone": "+1234567890",
+            "contact_email": "client@example.com", 
+            "deposit_amount": 100,
+            "deposit_status": "paid",
+            "confirmation_status": "confirmed",
+            "vendor_response": "We're excited to host your birthday celebration! Table reserved in our Ocean View Room.",
+            "created_at": "2025-08-20T10:00:00",
+            "updated_at": "2025-08-20T14:30:00"
+        }
+        
+        return mock_reservation
+        
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f"Reservation not found: {str(e)}")
+
 # ================================================================================================
 
 # Include the router in the app
