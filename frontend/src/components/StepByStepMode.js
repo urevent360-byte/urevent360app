@@ -1060,7 +1060,13 @@ Status: Pending restaurant confirmation`);
       ...(event?.needed_extras || [])
     ];
     
-    const sectionServices = getServicesBySection(allEventServices, sectionType);
+    // Apply service filtering based on venue types (Restaurant service gating)
+    const filteredEventServices = getFilteredServicesForVenues(allEventServices);
+    const sectionServices = getServicesBySection(filteredEventServices, sectionType);
+    
+    // Show service gating notification for restaurants
+    const isRestaurantSelected = event?.preferred_venue_types?.includes('Restaurant');
+    const hiddenServices = allEventServices.filter(service => !filteredEventServices.includes(service));
     
     if (sectionServices.length === 0) {
       return (
@@ -1077,6 +1083,20 @@ Status: Pending restaurant confirmation`);
               : 'You haven\'t selected any extras in your event wizard.'
             }
           </p>
+          
+          {/* Show service gating notification */}
+          {isRestaurantSelected && hiddenServices.length > 0 && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg max-w-md mx-auto">
+              <p className="text-sm text-blue-800">
+                <strong>Restaurant selected:</strong> Some services are hidden because most restaurants don't allow outside vendors. 
+                Services like catering, DJ, and decor are typically provided by the restaurant.
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                Hidden: {hiddenServices.join(', ')}
+              </p>
+            </div>
+          )}
+          
           <div className="mt-6">
             <button
               onClick={() => navigate(`/events/${eventId}`)}
