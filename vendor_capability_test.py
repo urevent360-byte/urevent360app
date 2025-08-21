@@ -268,48 +268,37 @@ class VendorCapabilityTester:
         """Test /api/vendors/{vendor_id}/capabilities for existing vendors"""
         print("\n📋 Testing Get Vendor Capabilities...")
         
-        # First, get a list of vendors to test with
-        response = self.make_request("GET", "/vendors", token=token)
-        if response and response.status_code == 200:
-            vendors = response.json()
-            if isinstance(vendors, list) and len(vendors) > 0:
-                # Test with first vendor
-                vendor_id = vendors[0].get("id")
-                if vendor_id:
-                    response = self.make_request("GET", f"/vendors/{vendor_id}/capabilities", token=token)
-                    if response and response.status_code == 200:
-                        capabilities_data = response.json()
-                        expected_fields = ["vendor_id", "vendor_name", "capabilities", "services"]
-                        missing_fields = [field for field in expected_fields if field not in capabilities_data]
-                        
-                        if not missing_fields:
-                            capabilities = capabilities_data.get("capabilities", {})
-                            services = capabilities_data.get("services", [])
-                            self.log_test("Get Vendor Capabilities", True, 
-                                        f"Vendor: {capabilities_data.get('vendor_name')}, "
-                                        f"Capabilities: {len(capabilities)} categories, "
-                                        f"Services: {len(services)} items")
-                        else:
-                            self.log_test("Get Vendor Capabilities", False, 
-                                        f"Missing fields: {missing_fields}")
-                    else:
-                        self.log_test("Get Vendor Capabilities", False, 
-                                    f"Status: {response.status_code if response else 'No response'}")
-                else:
-                    self.log_test("Get Vendor Capabilities", False, "No vendor ID available")
-            else:
-                self.log_test("Get Vendor Capabilities", False, "No vendors available for testing")
-        else:
-            # Test with mock vendor ID if no vendors in database
-            mock_vendor_id = "vendor_1"  # From mock data
+        # Since database is empty, test with mock vendor IDs that should exist in the matching system
+        mock_vendor_ids = ["vendor_1", "vendor_2", "vendor_3"]
+        
+        for mock_vendor_id in mock_vendor_ids:
             response = self.make_request("GET", f"/vendors/{mock_vendor_id}/capabilities", token=token)
             if response and response.status_code == 200:
                 capabilities_data = response.json()
-                self.log_test("Get Vendor Capabilities - Mock Data", True, 
-                            f"Retrieved capabilities for mock vendor: {capabilities_data.get('vendor_name')}")
+                expected_fields = ["vendor_id", "vendor_name", "capabilities", "services"]
+                missing_fields = [field for field in expected_fields if field not in capabilities_data]
+                
+                if not missing_fields:
+                    capabilities = capabilities_data.get("capabilities", {})
+                    services = capabilities_data.get("services", [])
+                    self.log_test(f"Get Vendor Capabilities - {mock_vendor_id}", True, 
+                                f"Vendor: {capabilities_data.get('vendor_name')}, "
+                                f"Capabilities: {len(capabilities)} categories, "
+                                f"Services: {len(services)} items")
+                    return  # Success with at least one vendor
+                else:
+                    self.log_test(f"Get Vendor Capabilities - {mock_vendor_id}", False, 
+                                f"Missing fields: {missing_fields}")
+            elif response and response.status_code == 404:
+                # Expected for mock vendors not in database
+                continue
             else:
-                self.log_test("Get Vendor Capabilities", False, 
+                self.log_test(f"Get Vendor Capabilities - {mock_vendor_id}", False, 
                             f"Status: {response.status_code if response else 'No response'}")
+        
+        # If we get here, none of the mock vendors worked
+        self.log_test("Get Vendor Capabilities", False, 
+                    "Vendor capability endpoints require vendors in database (not just mock data)")
     
     def test_update_vendor_capabilities(self, token):
         """Test /api/vendors/{vendor_id}/capabilities PUT endpoint with sample capability data"""
@@ -323,64 +312,50 @@ class VendorCapabilityTester:
             "dessert_stations_and_sweets": ["Dessert Table", "Candy Bar", "Donut Wall"]
         }
         
-        # First, get a vendor to test with
-        response = self.make_request("GET", "/vendors", token=token)
-        if response and response.status_code == 200:
-            vendors = response.json()
-            if isinstance(vendors, list) and len(vendors) > 0:
-                vendor_id = vendors[0].get("id")
-                if vendor_id:
-                    # Update vendor capabilities
-                    response = self.make_request("PUT", f"/vendors/{vendor_id}/capabilities", 
-                                               sample_capabilities, token=token)
-                    if response and response.status_code == 200:
-                        update_result = response.json()
-                        if (update_result.get("message") == "Vendor capabilities updated successfully" and
-                            update_result.get("vendor_id") == vendor_id):
-                            self.log_test("Update Vendor Capabilities", True, 
-                                        f"Updated capabilities for vendor {vendor_id}")
-                            
-                            # Verify the update by getting capabilities
-                            response = self.make_request("GET", f"/vendors/{vendor_id}/capabilities", token=token)
-                            if response and response.status_code == 200:
-                                capabilities_data = response.json()
-                                updated_capabilities = capabilities_data.get("capabilities", {})
-                                
-                                # Check if our sample data was saved
-                                if ("catering" in updated_capabilities and 
-                                    "Full-Service Catering" in updated_capabilities["catering"]):
-                                    self.log_test("Update Verification", True, 
-                                                "Capabilities successfully updated and verified")
-                                else:
-                                    self.log_test("Update Verification", False, 
-                                                "Updated capabilities not found")
-                            else:
-                                self.log_test("Update Verification", False, 
-                                            "Could not verify capability update")
-                        else:
-                            self.log_test("Update Vendor Capabilities", False, 
-                                        "Unexpected response format")
-                    else:
-                        self.log_test("Update Vendor Capabilities", False, 
-                                    f"Status: {response.status_code if response else 'No response'}")
-                else:
-                    self.log_test("Update Vendor Capabilities", False, "No vendor ID available")
-            else:
-                self.log_test("Update Vendor Capabilities", False, "No vendors available for testing")
-        else:
-            # Test with mock vendor ID
-            mock_vendor_id = "vendor_1"
+        # Test with mock vendor IDs
+        mock_vendor_ids = ["vendor_1", "vendor_2", "vendor_3"]
+        
+        for mock_vendor_id in mock_vendor_ids:
             response = self.make_request("PUT", f"/vendors/{mock_vendor_id}/capabilities", 
                                        sample_capabilities, token=token)
             if response and response.status_code == 200:
-                self.log_test("Update Vendor Capabilities - Mock Data", True, 
-                            "Successfully updated mock vendor capabilities")
+                update_result = response.json()
+                if (update_result.get("message") == "Vendor capabilities updated successfully" and
+                    update_result.get("vendor_id") == mock_vendor_id):
+                    self.log_test(f"Update Vendor Capabilities - {mock_vendor_id}", True, 
+                                f"Updated capabilities for vendor {mock_vendor_id}")
+                    
+                    # Verify the update by getting capabilities
+                    response = self.make_request("GET", f"/vendors/{mock_vendor_id}/capabilities", token=token)
+                    if response and response.status_code == 200:
+                        capabilities_data = response.json()
+                        updated_capabilities = capabilities_data.get("capabilities", {})
+                        
+                        # Check if our sample data was saved
+                        if ("catering" in updated_capabilities and 
+                            "Full-Service Catering" in updated_capabilities["catering"]):
+                            self.log_test("Update Verification", True, 
+                                        "Capabilities successfully updated and verified")
+                        else:
+                            self.log_test("Update Verification", False, 
+                                        "Updated capabilities not found")
+                    else:
+                        self.log_test("Update Verification", False, 
+                                    "Could not verify capability update")
+                    return  # Success with at least one vendor
+                else:
+                    self.log_test(f"Update Vendor Capabilities - {mock_vendor_id}", False, 
+                                "Unexpected response format")
             elif response and response.status_code == 404:
-                self.log_test("Update Vendor Capabilities", False, 
-                            "Mock vendor not found - database may be empty")
+                # Expected for mock vendors not in database
+                continue
             else:
-                self.log_test("Update Vendor Capabilities", False, 
+                self.log_test(f"Update Vendor Capabilities - {mock_vendor_id}", False, 
                             f"Status: {response.status_code if response else 'No response'}")
+        
+        # If we get here, none of the mock vendors worked
+        self.log_test("Update Vendor Capabilities", False, 
+                    "Vendor capability update endpoints require vendors in database (not just mock data)")
     
     def run_vendor_capability_tests(self):
         """Run all vendor capability tests"""
