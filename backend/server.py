@@ -2663,7 +2663,7 @@ async def match_venues(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to match venues: {str(e)}")
 
-# Enhanced Vendor Matching API for Step-by-Step Mode with Capability System
+# Enhanced Vendor Matching API for Step-by-Step Mode with Cultural Awareness
 @api_router.get("/match/vendors")
 async def match_vendors(
     type: str = None,
@@ -2678,11 +2678,15 @@ async def match_vendors(
     service: str = None,  # specific service (e.g., "Catering")
     subcategories: str = None,  # subcategories (e.g., "Full-Service,Specialty Food Stations")
     specialty_stations: str = None,  # specialty stations (e.g., "Sushi Station,Taco Station")
+    # Cultural matching parameters
+    client_culture: str = None,  # Selected cultural style from wizard
+    client_dietary: str = None,  # Dietary requirements (e.g., "Halal,Kosher")
+    expand_cultural_results: bool = False,  # "Find more options" flag
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Enhanced vendor matching for Step-by-Step Mode with capability-based filtering
-    Supports both legacy service matching and new granular capability matching
+    Enhanced vendor matching with cultural awareness and intelligent ranking
+    Supports both legacy service matching and new granular capability + cultural matching
     """
     try:
         # Parse legacy parameters
@@ -2716,177 +2720,215 @@ async def match_vendors(
         if specialty_stations:
             target_stations = [s.strip() for s in specialty_stations.split(',')]
         
-        # Try to get vendors from database first
-        try:
-            query = {}
-            if city:
-                query["location"] = {"$regex": city, "$options": "i"}
-            
-            db_vendors = await db.vendors.find(query).to_list(1000)
-            
-            # Convert to compatible format
-            vendors = []
-            for vendor in db_vendors:
-                vendor_data = {
-                    "id": vendor.get("id"),
-                    "name": vendor.get("name"),
-                    "services": vendor.get("services", []),
-                    "categories": vendor.get("specialties", []),
-                    "culturalStyles": vendor.get("cultural_specializations", []),
-                    "rating": vendor.get("rating", 4.5),
-                    "price_range": vendor.get("price_range", "$$"),
-                    "image": f"https://images.unsplash.com/photo-{1500000000 + hash(vendor.get('name', '')) % 1000000000}?w=300",
-                    "capabilities": vendor.get("capabilities", {})
-                }
-                vendors.append(vendor_data)
-                
-        except Exception as e:
-            print(f"Database query failed, using mock data: {e}")
-            vendors = []
+        # Parse cultural parameters
+        client_cultural_preference = client_culture
+        client_dietary_requirements = []
+        if client_dietary:
+            client_dietary_requirements = [d.strip() for d in client_dietary.split(',')]
         
-        # If no database vendors or for development, use enhanced mock data
-        if not vendors:
-            vendors = [
-                {
-                    "id": "vendor_1",
-                    "name": "Elite Catering Co.",
-                    "categories": ["wedding", "corporate", "celebration"],
-                    "services": ["Catering", "Full Service Catering"],
-                    "culturalStyles": ["American", "Italian"],
-                    "rating": 4.9,
-                    "price_range": "$50-$100 per person",
-                    "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300",
-                    "capabilities": {
-                        "catering": ["Full-Service Catering", "Appetizers / Small Bites only"],
-                        "catering_stations": ["Charcuterie/Cheese Station", "Pasta Station", "Carving Station"]
-                    }
+        # Enhanced mock vendor data with cultural expertise
+        vendors = [
+            {
+                "id": "vendor_1",
+                "name": "Elite Catering Co.",
+                "categories": ["wedding", "corporate", "celebration"],
+                "services": ["Catering", "Full Service Catering"],
+                "culturalStyles": ["American", "Italian"],
+                "rating": 4.9,
+                "price_range": "$50-$100 per person",
+                "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300",
+                "capabilities": {
+                    "catering": ["Full-Service Catering", "Appetizers / Small Bites only"],
+                    "catering_stations": ["Charcuterie/Cheese Station", "Pasta Station", "Carving Station"]
                 },
-                {
-                    "id": "vendor_2",
-                    "name": "Gourmet Stations & More",
-                    "categories": ["wedding", "celebration"],
-                    "services": ["Catering", "Specialty Food Stations"],
-                    "culturalStyles": ["Asian", "Fusion"],
-                    "rating": 4.8,
-                    "price_range": "$40-$80 per person",
-                    "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300",
-                    "capabilities": {
-                        "catering": ["Specialty Food Stations"],
-                        "catering_stations": ["Sushi Station", "Taco Station", "Seafood/Raw Bar", "Ceviche Station"]
-                    }
+                "cultural_expertise": {
+                    "cultures_served": ["American", "Italian"],
+                    "all_cultures_welcomed": False,
+                    "languages_served": ["English", "Italian"],
+                    "dietary_compliance": ["Vegetarian/Vegan", "Gluten-free"]
                 },
-                {
-                    "id": "vendor_3",
-                    "name": "Sweet Dreams Bakery",
-                    "categories": ["wedding", "birthday", "celebration"],
-                    "services": ["Cakes", "Wedding Cake", "Custom Designs"],
-                    "culturalStyles": ["American", "French"],
-                    "rating": 4.9,
-                    "price_range": "$300-$1,500",
-                    "image": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300",
-                    "capabilities": {
-                        "cakes": ["Wedding Cake", "Custom Designs", "Cupcakes", "Macarons"]
-                    }
-                },
-                {
-                    "id": "vendor_4",
-                    "name": "Birthday Bliss Cakes",
-                    "categories": ["birthday", "celebration"],
-                    "services": ["Cakes", "Birthday Cake", "Cupcakes"],
-                    "culturalStyles": ["American", "Modern"],
-                    "rating": 4.7,
-                    "price_range": "$150-$800",
-                    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=300",
-                    "capabilities": {
-                        "cakes": ["Birthday Cake", "Custom Designs", "Cupcakes"]
-                    }
-                },
-                {
-                    "id": "vendor_5",
-                    "name": "Sugar Rush Dessert Co.",
-                    "categories": ["wedding", "birthday", "celebration"],
-                    "services": ["Dessert Stations", "Candy Bar", "Donut Wall"],
-                    "culturalStyles": ["American", "Modern"],
-                    "rating": 4.6,
-                    "price_range": "$500-$2,000",
-                    "image": "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300",
-                    "capabilities": {
-                        "dessert_stations_and_sweets": ["Dessert Table", "Candy Bar", "Donut Wall", "Ice-cream Cart", "Chocolate Fountain"]
-                    }
-                },
-                {
-                    "id": "vendor_6",
-                    "name": "Professional DJ Services",
-                    "categories": ["wedding", "birthday", "corporate"],
-                    "services": ["DJ", "Music", "Entertainment"],
-                    "culturalStyles": ["American", "Latin", "Caribbean"],
-                    "rating": 4.8,
-                    "price_range": "$800-$2,500",
-                    "image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300",
-                    "capabilities": {
-                        "dj_band": ["DJ Services", "MC Services", "Sound Equipment", "Lighting"]
-                    }
-                },
-                {
-                    "id": "vendor_7",
-                    "name": "Elegant Event Photography",
-                    "categories": ["wedding", "birthday", "corporate"],
-                    "services": ["Photography", "Videography"],
-                    "culturalStyles": ["American", "Modern", "Traditional"],
-                    "rating": 4.9,
-                    "price_range": "$1,500-$5,000",
-                    "image": "https://images.unsplash.com/photo-1556103255-4443dbae8e5a?w=300",
-                    "capabilities": {
-                        "photography_videography": ["Wedding Photography", "Event Photography", "Videography", "Photo Albums"]
-                    }
-                },
-                {
-                    "id": "vendor_8",
-                    "name": "Premium Floor Rentals",
-                    "categories": ["wedding", "celebration"],
-                    "services": ["Dance Floor", "Flooring", "Rentals"],
-                    "culturalStyles": ["American", "Modern"],
-                    "rating": 4.7,
-                    "price_range": "$300-$1,200",
-                    "image": "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=300",
-                    "capabilities": {
-                        "dance_floor": ["White Dance Floor", "Black Dance Floor", "LED Dance Floor", "Outdoor Dance Floor"]
-                    }
-                },
-                {
-                    "id": "vendor_9",
-                    "name": "Elite Bar Services",
-                    "categories": ["wedding", "corporate", "celebration"],
-                    "services": ["Bar Service", "Bartending", "Beverage"],
-                    "culturalStyles": ["American", "Cocktail"],
-                    "rating": 4.8,
-                    "price_range": "$15-$35 per person",
-                    "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=300",
-                    "capabilities": {
-                        "bar_service": ["Full Bar Service", "Wine Service", "Cocktail Specialties", "Non-Alcoholic Options"]
-                    }
-                },
-                {
-                    "id": "vendor_10",
-                    "name": "Elegant Decorations",
-                    "categories": ["wedding", "celebration"],
-                    "services": ["Decoration", "Reception Lighting", "Uplighting"],
-                    "culturalStyles": ["American", "Modern"],
-                    "rating": 4.7,
-                    "price_range": "$2,000-$8,000",
-                    "image": "https://images.unsplash.com/photo-1464207687429-7505649dae38?w=300",
-                    "capabilities": {
-                        "reception_lighting": ["Uplighting", "String Lights", "Chandeliers", "Ambient Lighting"]
+                "service_specializations": {
+                    "catering": {
+                        "cuisine_types": ["American Classic", "Italian", "Mediterranean"],
+                        "service_scope": ["Full-service catering", "Appetizers/Small bites only"],
+                        "specialty_stations": ["Charcuterie/Cheese", "Pasta", "Carving"],
+                        "dietary_badges": ["Vegetarian/Vegan", "Gluten-free"]
                     }
                 }
-            ]
+            },
+            {
+                "id": "vendor_2", 
+                "name": "Bollywood Bliss Catering",
+                "categories": ["wedding", "celebration"],
+                "services": ["Catering", "Indian Cuisine"],
+                "culturalStyles": ["Indian", "Asian"],
+                "rating": 4.8,
+                "price_range": "$40-$80 per person",
+                "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300",
+                "capabilities": {
+                    "catering": ["Full-Service Catering", "Specialty Food Stations"],
+                    "catering_stations": ["Indian Station", "Chaat Station", "Tandoor Station"]
+                },
+                "cultural_expertise": {
+                    "cultures_served": ["Indian", "Hindu", "Sikh"],
+                    "all_cultures_welcomed": False,
+                    "languages_served": ["English", "Hindi", "Punjabi"],
+                    "dietary_compliance": ["Vegetarian/Vegan", "Halal"]
+                },
+                "service_specializations": {
+                    "catering": {
+                        "cuisine_types": ["North Indian", "South Indian", "Indo-Chinese", "Street Food"],
+                        "service_scope": ["Full-service catering", "Specialty stations"],
+                        "specialty_stations": ["Indian", "Chaat", "Tandoor", "Biryani"],
+                        "dietary_badges": ["Vegetarian/Vegan", "Halal"]
+                    }
+                }
+            },
+            {
+                "id": "vendor_3",
+                "name": "Fiesta Flavors Catering",
+                "categories": ["wedding", "celebration"],
+                "services": ["Catering", "Mexican Cuisine"],
+                "culturalStyles": ["Hispanic/Latino", "Mexican"],
+                "rating": 4.7,
+                "price_range": "$35-$70 per person", 
+                "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300",
+                "capabilities": {
+                    "catering": ["Full-Service Catering", "Specialty Food Stations"],
+                    "catering_stations": ["Taco Station", "Fajita Station", "Margarita Bar"]
+                },
+                "cultural_expertise": {
+                    "cultures_served": ["Hispanic/Latino", "Mexican", "Central American"],
+                    "all_cultures_welcomed": False,
+                    "languages_served": ["English", "Spanish"],
+                    "dietary_compliance": ["Halal", "Vegetarian/Vegan"]
+                },
+                "service_specializations": {
+                    "catering": {
+                        "cuisine_types": ["Mexican", "Tex-Mex", "Central American", "South American"],
+                        "service_scope": ["Full-service catering", "Specialty stations"],
+                        "specialty_stations": ["Taco", "Fajita", "Ceviche", "Churros"],
+                        "dietary_badges": ["Halal", "Vegetarian/Vegan"]
+                    }
+                }
+            },
+            {
+                "id": "vendor_4",
+                "name": "Universal Event Catering",
+                "categories": ["wedding", "corporate", "celebration"],
+                "services": ["Catering", "Multi-Cultural Cuisine"],
+                "culturalStyles": ["American", "International"],
+                "rating": 4.6,
+                "price_range": "$45-$85 per person",
+                "image": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300",
+                "capabilities": {
+                    "catering": ["Full-Service Catering", "Specialty Food Stations", "Appetizers / Small Bites only"],
+                    "catering_stations": ["International", "Fusion", "Custom"]
+                },
+                "cultural_expertise": {
+                    "cultures_served": ["American", "Indian", "Hispanic/Latino", "Asian", "Middle_Eastern", "African"],
+                    "all_cultures_welcomed": True,  # 🌐 Globe badge
+                    "languages_served": ["English", "Spanish", "Hindi", "Arabic", "French"],
+                    "dietary_compliance": ["Halal", "Kosher", "Vegetarian/Vegan", "Gluten-free"]
+                },
+                "service_specializations": {
+                    "catering": {
+                        "cuisine_types": ["American Classic", "Indian", "Mexican", "Mediterranean", "Asian Fusion", "Middle Eastern"],
+                        "service_scope": ["Full-service catering", "Appetizers/Small bites only", "Specialty stations"],
+                        "specialty_stations": ["International", "Fusion", "Custom"],
+                        "dietary_badges": ["Halal", "Kosher", "Vegetarian/Vegan", "Gluten-free"]
+                    }
+                }
+            },
+            {
+                "id": "vendor_5",
+                "name": "Kosher Delights Catering", 
+                "categories": ["wedding", "celebration"],
+                "services": ["Catering", "Kosher Cuisine"],
+                "culturalStyles": ["Jewish", "American"],
+                "rating": 4.9,
+                "price_range": "$60-$120 per person",
+                "image": "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300",
+                "capabilities": {
+                    "catering": ["Full-Service Catering"],
+                    "catering_stations": ["Kosher Station", "Dessert Station"]
+                },
+                "cultural_expertise": {
+                    "cultures_served": ["Jewish", "American"],
+                    "all_cultures_welcomed": False,
+                    "languages_served": ["English", "Hebrew"],
+                    "dietary_compliance": ["Kosher", "Vegetarian/Vegan"]
+                },
+                "service_specializations": {
+                    "catering": {
+                        "cuisine_types": ["Jewish Traditional", "Modern Jewish", "American Kosher"],
+                        "service_scope": ["Full-service catering"],
+                        "specialty_stations": ["Kosher", "Traditional Jewish Desserts"],
+                        "dietary_badges": ["Kosher", "Vegetarian/Vegan"]
+                    }
+                }
+            },
+            {
+                "id": "vendor_6", 
+                "name": "Professional DJ Services",
+                "categories": ["wedding", "birthday", "corporate"],
+                "services": ["DJ", "Music", "Entertainment"],
+                "culturalStyles": ["American", "Latin", "Caribbean"],
+                "rating": 4.8,
+                "price_range": "$800-$2,500",
+                "image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300",
+                "capabilities": {
+                    "dj_band": ["DJ Services", "MC Services", "Sound Equipment", "Lighting"]
+                },
+                "cultural_expertise": {
+                    "cultures_served": ["American", "Hispanic/Latino", "Caribbean"],
+                    "all_cultures_welcomed": False,
+                    "languages_served": ["English", "Spanish"],
+                    "dietary_compliance": []
+                },
+                "service_specializations": {
+                    "music_dj_entertainment": {
+                        "genres": ["Top 40", "Hip-Hop/R&B", "Salsa/Bachata/Merengue", "Reggaeton", "Cumbia"],
+                        "mc_languages": ["English", "Spanish"],
+                        "live_performers": ["Latin Band", "Mariachi"]
+                    }
+                }
+            },
+            {
+                "id": "vendor_7",
+                "name": "Bollywood Beats DJ",
+                "categories": ["wedding", "celebration"],
+                "services": ["DJ", "Music", "Indian Entertainment"],
+                "culturalStyles": ["Indian", "Asian"],
+                "rating": 4.9,
+                "price_range": "$900-$3,000",
+                "image": "https://images.unsplash.com/photo-1556103255-4443dbae8e5a?w=300",
+                "capabilities": {
+                    "dj_band": ["DJ Services", "MC Services", "Sound Equipment", "Traditional Instruments"]
+                },
+                "cultural_expertise": {
+                    "cultures_served": ["Indian", "Hindu", "Sikh", "Pakistani"],
+                    "all_cultures_welcomed": False,
+                    "languages_served": ["English", "Hindi", "Punjabi", "Gujarati"],
+                    "dietary_compliance": []
+                },
+                "service_specializations": {
+                    "music_dj_entertainment": {
+                        "genres": ["Bollywood", "Bhangra", "Garba", "Classical Indian", "Indo-Western Fusion"],
+                        "mc_languages": ["English", "Hindi", "Punjabi", "Gujarati"],
+                        "live_performers": ["Dhol Players", "Traditional Dancers", "Indian Classical Musicians"]
+                    }
+                }
+            }
+        ]
         
-        # Enhanced filtering with capability matching
+        # Enhanced cultural and capability-based filtering
         filtered_vendors = []
         
         for vendor in vendors:
             vendor_score = 0
             max_score = 0
+            cultural_match_details = {}
             
             # Legacy matching (categories, services, cultural styles)
             if vendor_tags:
@@ -2909,53 +2951,133 @@ async def match_vendors(
                 if any(style in vendor.get("culturalStyles", []) for style in cultural_styles):
                     vendor_score += 1
             
-            # Enhanced capability-based matching
-            capability_match = False
+            # Enhanced cultural matching with sophisticated scoring
+            cultural_boost = 0
+            cultural_match_type = "none"
             
+            if client_cultural_preference and not expand_cultural_results:
+                # Strong boost for exact cultural match
+                if client_cultural_preference in vendor.get("cultural_expertise", {}).get("cultures_served", []):
+                    cultural_boost += 3  # Strong boost
+                    cultural_match_type = "exact_match"
+                    cultural_match_details["match_type"] = "Cultural Specialist"
+                    cultural_match_details["reason"] = f"Specializes in {client_cultural_preference} events"
+                
+                # Medium boost for "all cultures welcomed" 
+                elif vendor.get("cultural_expertise", {}).get("all_cultures_welcomed", False):
+                    cultural_boost += 2  # Medium boost
+                    cultural_match_type = "all_cultures"
+                    cultural_match_details["match_type"] = "All Cultures Welcomed"
+                    cultural_match_details["reason"] = "Welcomes all cultural backgrounds"
+                
+                # Small boost for related cuisines/styles
+                elif target_service == "Catering":
+                    cuisine_match = False
+                    vendor_cuisines = vendor.get("service_specializations", {}).get("catering", {}).get("cuisine_types", [])
+                    
+                    # Cultural cuisine mapping
+                    cuisine_cultural_map = {
+                        "Indian": ["North Indian", "South Indian", "Indo-Chinese"],
+                        "Hispanic/Latino": ["Mexican", "Tex-Mex", "Cuban", "Puerto Rican", "Central American"],
+                        "Asian": ["Chinese", "Japanese", "Korean", "Thai", "Vietnamese"],
+                        "Middle_Eastern": ["Middle Eastern", "Mediterranean", "Lebanese", "Persian"],
+                        "African": ["Ethiopian", "Moroccan", "West African"]
+                    }
+                    
+                    related_cuisines = cuisine_cultural_map.get(client_cultural_preference, [])
+                    if any(cuisine in vendor_cuisines for cuisine in related_cuisines):
+                        cultural_boost += 1  # Small boost
+                        cultural_match_type = "cuisine_match"
+                        cultural_match_details["match_type"] = "Compatible Cuisine"
+                        cultural_match_details["reason"] = f"Offers cuisine compatible with {client_cultural_preference} preferences"
+            
+            # Dietary compliance matching
+            dietary_boost = 0
+            dietary_matches = []
+            if client_dietary_requirements:
+                vendor_dietary = vendor.get("cultural_expertise", {}).get("dietary_compliance", [])
+                matching_dietary = [d for d in client_dietary_requirements if d in vendor_dietary]
+                if matching_dietary:
+                    dietary_boost += len(matching_dietary)  # 1 point per dietary match
+                    dietary_matches = matching_dietary
+            
+            # Capability-based matching (existing logic)
+            capability_match = False
             if target_service and vendor.get("capabilities"):
                 service_key = target_service.lower().replace(' ', '_').replace('&', 'and')
                 vendor_capabilities = vendor["capabilities"]
                 
-                # Check if vendor has capabilities for this service
                 if service_key in vendor_capabilities or any(key.startswith(service_key) for key in vendor_capabilities.keys()):
-                    max_score += 2  # Higher weight for capability matching
+                    max_score += 2
                     vendor_score += 1
                     capability_match = True
                     
-                    # Check subcategory matching
                     if target_subcategories:
                         matching_caps = vendor_capabilities.get(service_key, [])
                         if any(subcategory in matching_caps for subcategory in target_subcategories):
                             vendor_score += 1
-                            
-                    # Check specialty station matching for catering
-                    if target_stations and 'catering_stations' in vendor_capabilities:
-                        station_caps = vendor_capabilities.get('catering_stations', [])
-                        if any(station in station_caps for station in target_stations):
-                            vendor_score += 1
             
-            # Include vendor if they match criteria or have relevant capabilities
-            if max_score == 0 or vendor_score > 0 or capability_match:
-                vendor["match_score"] = vendor_score
+            # Calculate final score with cultural and dietary boosts
+            total_score = vendor_score + cultural_boost + dietary_boost
+            
+            # Include vendor if they meet minimum criteria or have cultural/capability relevance
+            if max_score == 0 or vendor_score > 0 or cultural_boost > 0 or capability_match:
+                vendor["match_score"] = total_score
+                vendor["base_score"] = vendor_score
+                vendor["cultural_boost"] = cultural_boost
+                vendor["dietary_boost"] = dietary_boost
+                vendor["cultural_match_type"] = cultural_match_type
+                vendor["cultural_match_details"] = cultural_match_details
+                vendor["dietary_matches"] = dietary_matches
                 vendor["capability_match"] = capability_match
                 filtered_vendors.append(vendor)
         
-        # Sort by capability match first, then by match score, then by rating
-        filtered_vendors.sort(key=lambda x: (x.get("capability_match", False), x.get("match_score", 0), x["rating"]), reverse=True)
+        # Intelligent sorting based on cultural preferences and expand flag
+        if client_cultural_preference and not expand_cultural_results:
+            # Default: prioritize cultural matches, then all-cultures, then others
+            filtered_vendors.sort(key=lambda x: (
+                x.get("cultural_match_type") == "exact_match",  # Exact cultural matches first
+                x.get("cultural_match_type") == "all_cultures",  # All-cultures second
+                x.get("cultural_match_type") == "cuisine_match",  # Compatible cuisines third
+                x.get("capability_match", False),  # Capability matches
+                x.get("match_score", 0),  # Total score
+                x["rating"]  # Rating as tiebreaker
+            ), reverse=True)
+        else:
+            # Expanded results: reduce cultural boost impact
+            filtered_vendors.sort(key=lambda x: (
+                x.get("capability_match", False),
+                x.get("base_score", 0),  # Use base score instead of total to reduce cultural bias
+                x["rating"]
+            ), reverse=True)
+        
+        # Group results for display
+        cultural_matches = [v for v in filtered_vendors if v.get("cultural_match_type") in ["exact_match"]]
+        all_cultures_matches = [v for v in filtered_vendors if v.get("cultural_match_type") == "all_cultures"]
+        other_matches = [v for v in filtered_vendors if v.get("cultural_match_type") not in ["exact_match", "all_cultures"]]
         
         return {
             "vendors": filtered_vendors,
             "total": len(filtered_vendors),
+            "cultural_grouping": {
+                "exact_cultural_matches": len(cultural_matches),
+                "all_cultures_matches": len(all_cultures_matches), 
+                "other_matches": len(other_matches),
+                "client_cultural_preference": client_cultural_preference,
+                "expand_cultural_results": expand_cultural_results
+            },
             "filters_applied": {
                 "vendor_tags": vendor_tags,
                 "core_services": core_services,
                 "extra_services": extra_services,
                 "cultural_styles": cultural_styles,
                 "theme_formats": theme_formats,
-                # New capability filters
                 "target_service": target_service,
                 "target_subcategories": target_subcategories,
-                "target_stations": target_stations
+                "target_stations": target_stations,
+                "client_cultural_preference": client_cultural_preference,
+                "client_dietary_requirements": client_dietary_requirements,
+                "expand_cultural_results": expand_cultural_results
             }
         }
         
