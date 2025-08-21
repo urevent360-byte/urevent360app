@@ -420,16 +420,38 @@ const StepByStepMode = () => {
         {event?.event_type === 'wedding' && sectionType === 'core-vendors' && (
           <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg border border-pink-200">
             <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-              💒 Wedding Planning Filters
+              💒 Wedding Planning Context
             </h3>
+            <p className="text-sm text-gray-600 mb-3">Filter vendors by ceremony and reception needs:</p>
             <div className="flex flex-wrap gap-2">
-              <button className="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm border border-pink-300">
-                Ceremony
+              <button 
+                className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+                  contextFilter === 'ceremony' 
+                    ? 'bg-pink-200 text-pink-900 border-pink-400' 
+                    : 'bg-pink-50 text-pink-700 border-pink-200 hover:bg-pink-100'
+                }`}
+                onClick={() => setContextFilter(contextFilter === 'ceremony' ? 'both' : 'ceremony')}
+              >
+                Ceremony Only
               </button>
-              <button className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm border border-purple-300">
-                Reception  
+              <button 
+                className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+                  contextFilter === 'reception' 
+                    ? 'bg-purple-200 text-purple-900 border-purple-400' 
+                    : 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
+                }`}
+                onClick={() => setContextFilter(contextFilter === 'reception' ? 'both' : 'reception')}
+              >
+                Reception Only  
               </button>
-              <button className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm border border-gray-300">
+              <button 
+                className={`px-3 py-1 rounded-full text-sm border transition-colors ${
+                  contextFilter === 'both' 
+                    ? 'bg-gray-200 text-gray-900 border-gray-400' 
+                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`}
+                onClick={() => setContextFilter('both')}
+              >
                 Both
               </button>
             </div>
@@ -440,6 +462,12 @@ const StepByStepMode = () => {
         {sectionServices.map(service => {
           const mapping = SERVICE_MAPPING[service];
           if (!mapping) return null;
+          
+          // Skip services that don't match wedding context filter
+          if (event?.event_type === 'wedding' && contextFilter !== 'both') {
+            if (contextFilter === 'ceremony' && mapping.context === 'reception') return null;
+            if (contextFilter === 'reception' && mapping.context === 'ceremony') return null;
+          }
           
           return (
             <div key={service} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -455,6 +483,60 @@ const StepByStepMode = () => {
                 </span>
               </div>
 
+              {/* Service Subcategory Filters */}
+              {mapping.subcategories && (
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm font-medium text-gray-900 mb-2">
+                    {service === 'Catering' ? 'Catering Type:' : 
+                     service === 'Cakes' ? 'Cake Style:' : 
+                     service === 'Dessert Stations & Sweets' ? 'Sweet Options:' : 'Options:'}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {mapping.subcategories.map(subcategory => {
+                      const isSelected = selectedSubcategories[service]?.includes(subcategory);
+                      return (
+                        <button
+                          key={subcategory}
+                          className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+                            isSelected 
+                              ? 'bg-blue-200 text-blue-900 border-blue-400' 
+                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          }`}
+                          onClick={() => toggleSubcategory(service, subcategory)}
+                        >
+                          {subcategory}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Specialty Stations for Catering */}
+                  {service === 'Catering' && selectedSubcategories[service]?.includes('Specialty Food Stations') && mapping.specialtyStations && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <p className="text-sm font-medium text-gray-900 mb-2">Specialty Stations:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {mapping.specialtyStations.map(station => {
+                          const isSelected = selectedSpecialtyStations.includes(station);
+                          return (
+                            <button
+                              key={station}
+                              className={`px-2 py-1 rounded-full text-xs border transition-colors ${
+                                isSelected 
+                                  ? 'bg-green-200 text-green-900 border-green-400' 
+                                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                              }`}
+                              onClick={() => toggleSpecialtyStation(station)}
+                            >
+                              {station}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Vendors for this service */}
               {loadingVendors ? (
                 <div className="text-center py-4">
@@ -462,53 +544,85 @@ const StepByStepMode = () => {
                   <p className="mt-2 text-sm text-gray-600">Finding {service.toLowerCase()} vendors...</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {vendors
-                    .filter(vendor => 
-                      vendor.services.some(s => 
-                        mapping.vendorTypes.some(type => 
-                          s.toLowerCase().includes(type.replace('_', ' ')) ||
-                          type.toLowerCase().includes(s.toLowerCase())
-                        )
-                      )
-                    )
-                    .slice(0, 3) // Show top 3 per service
-                    .map((vendor) => (
-                    <div key={`${service}-${vendor.id}`} className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                      <img 
-                        src={vendor.image} 
-                        alt={vendor.name}
-                        className="w-full h-32 object-cover"
-                      />
-                      <div className="p-3">
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-medium text-gray-900 text-sm">{vendor.name}</h4>
-                          <div className="flex items-center">
-                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                            <span className="text-xs text-gray-600 ml-1">{vendor.rating}</span>
-                          </div>
+                <div className="space-y-4">
+                  {/* Venue-Included Options */}
+                  {(service === 'Dance Floor' || service === 'Cakes') && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-green-900">Included by Venue</h4>
+                          <p className="text-sm text-green-700">
+                            Your venue may include {service.toLowerCase()}. Check with venue first.
+                          </p>
                         </div>
-                        <p className="text-xs text-gray-600 mb-2">{vendor.services.join(', ')}</p>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-green-600">
-                            {vendor.price_range}
-                          </span>
-                          <button className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 transition-colors">
-                            Get Quote
-                          </button>
-                        </div>
+                        <button className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition-colors">
+                          Mark as Included
+                        </button>
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Vendor Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {getFilteredVendors(vendors, service, mapping)
+                      .slice(0, 6) // Show top 6 per service
+                      .map((vendor) => (
+                      <div key={`${service}-${vendor.id}`} className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                        <img 
+                          src={vendor.image} 
+                          alt={vendor.name}
+                          className="w-full h-32 object-cover"
+                        />
+                        <div className="p-3">
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-medium text-gray-900 text-sm">{vendor.name}</h4>
+                            <div className="flex items-center">
+                              <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                              <span className="text-xs text-gray-600 ml-1">{vendor.rating}</span>
+                            </div>
+                          </div>
+                          
+                          {/* Vendor Capabilities */}
+                          {vendor.capabilities && vendor.capabilities[service.toLowerCase().replace(' ', '_')] && (
+                            <div className="mb-2">
+                              <div className="flex flex-wrap gap-1">
+                                {vendor.capabilities[service.toLowerCase().replace(' ', '_')].slice(0, 3).map(cap => (
+                                  <span key={cap} className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">
+                                    {cap}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
+                          <p className="text-xs text-gray-600 mb-2">{vendor.services.join(', ')}</p>
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-medium text-green-600">
+                              {vendor.price_range}
+                            </span>
+                            <button 
+                              className="bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 transition-colors"
+                              onClick={() => handleGetQuote(vendor, service)}
+                            >
+                              Get Quote
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* "View All" link */}
+                  <div className="text-center">
+                    <button 
+                      className="text-purple-600 hover:text-purple-700 text-sm underline"
+                      onClick={() => handleViewAllVendors(service, mapping)}
+                    >
+                      View all {mapping.stepByStepCategory.toLowerCase()} vendors ({getFilteredVendors(vendors, service, mapping).length} available)
+                    </button>
+                  </div>
                 </div>
               )}
-
-              {/* "View All" link */}
-              <div className="mt-4 text-center">
-                <button className="text-purple-600 hover:text-purple-700 text-sm underline">
-                  View all {mapping.stepByStepCategory.toLowerCase()} vendors
-                </button>
-              </div>
             </div>
           );
         })}
