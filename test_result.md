@@ -529,20 +529,20 @@ backend:
         agent: "testing"
         comment: "🎯 VENDOR CAPABILITY SYSTEM TESTING COMPLETED: Comprehensive testing of the newly implemented vendor capability system and enhanced vendor matching API performed successfully as requested in review. ✅ ENHANCED VENDOR MATCHING API WORKING: GET /api/match/vendors endpoint fully operational with both legacy and capability-based parameters. Legacy matching (core, extras, cultural) functional - Found 9 vendors for core services. ✅ CAPABILITY-BASED MATCHING OPERATIONAL: All new parameters working correctly: service=Catering&subcategories=Full-Service Catering,Specialty Food Stations (Found 10 vendors, 2 with capability_match=true), service=Catering&subcategories=Specialty Food Stations&specialty_stations=Sushi Station,Taco Station (Found 10 vendors, 1 with matching specialty stations), service=Cakes&subcategories=Wedding Cake,Custom Designs (Found 10 vendors, 2 with cake capabilities), service=Dessert Stations & Sweets&subcategories=Candy Bar,Donut Wall (Found 10 vendors, 1 with dessert capabilities). ✅ VENDOR RANKING BY CAPABILITY RELEVANCE: Vendors with better capability matches rank higher in results with capability_match=true flag. Enhanced scoring system working correctly. ✅ RESPONSE FORMAT ENHANCED: All responses include new capability fields, vendor capabilities properly structured with service categories and subcategories. ✅ AUTHENTICATION INTEGRATION: All endpoints working with client credentials (sarah.johnson@email.com/SecurePass123). ✅ CAPABILITY MANAGEMENT ENDPOINTS: GET/PUT /api/vendors/{vendor_id}/capabilities endpoints implemented but require vendors in database (not just mock data). Minor: Capability management endpoints return 404 for mock vendors as expected since they operate on database vendors. SUCCESS RATE: 75% (6/8 tests passed). The Enhanced Vendor Matching API is production-ready and fully operational with capability-based filtering working correctly and vendors ranked by capability relevance as requested."
 
-  - task: "Enhanced Vendor Marketplace"
+  - task: "Enhanced Step-by-Step Mode Integration and Vendor Capability System"
     implemented: true
     working: false
-    file: "VendorMarketplace.js"
+    file: "StepByStepMode.js, CreateEventWizard.js, serviceMapping.js"
     stuck_count: 1
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: unknown
+      - working: "NA"
         agent: "main"
-        comment: "Created enhanced vendor marketplace with category-based filtering, budget-aware vendor display, event-specific matching, and comprehensive vendor profiles"
+        comment: "Implemented Enhanced Step-by-Step Mode Integration with Wedding Context Filters (Ceremony | Reception | Both), service-specific sections showing only SELECTED services, subcategory filtering for Catering (Full-Service vs Specialty Stations), specialty station filtering (Sushi, Taco stations), vendor capability matching with badges/indicators, Add-Ons section with Dance Floor and Dessert Stations & Sweets, 'Included by Venue' options for Dance Floor and Cakes, enhanced vendor filtering and display with capability-based ranking."
       - working: false
         agent: "testing"
-        comment: "❌ BLOCKED BY AUTHENTICATION ISSUES: Cannot test Enhanced Vendor Marketplace functionality due to critical frontend authentication problems. Users cannot access the marketplace because: 1) Login redirects back to login page instead of dashboard, 2) Axios Authorization headers not set preventing API calls, 3) Protected routes not working properly. The marketplace component may be implemented correctly but is inaccessible due to authentication system failures. Requires authentication fixes before marketplace testing can be completed."
+        comment: "❌ TESTING BLOCKED BY AUTHENTICATION REGRESSION: Cannot test Enhanced Step-by-Step Mode Integration due to critical authentication system failure. Client login (sarah.johnson@email.com/SecurePass123) redirects back to login page instead of dashboard, preventing access to event creation and Step-by-Step Mode. Authentication system has regressed from previous working state. Enhanced functionality implementation appears complete based on code review, but cannot be verified until authentication is fixed. PRIORITY: Fix authentication system before retesting enhanced features."
 
   - task: "Multi-Role Login System"
     implemented: true
