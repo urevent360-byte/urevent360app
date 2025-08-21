@@ -9402,12 +9402,12 @@ def main():
     return success_rate >= 80
 
 if __name__ == "__main__":
-    print("🌍 CULTURAL VENDOR MATCHING SYSTEM TESTING")
-    print("Testing the newly implemented Cultural Vendor Matching System...")
+    print("🏛️ VENUE EXPANSION SYSTEM TESTING")
+    print("Testing the newly implemented Venue Expansion System (Airbnb & Restaurant Booking)...")
     print(f"Backend URL: {BACKEND_URL}")
     
     tester = APITester()
-    passed, total = tester.run_cultural_vendor_matching_tests()
+    passed, total = tester.run_venue_expansion_tests()
     
     # Exit with appropriate code
     if passed == total:
