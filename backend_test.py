@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
 """
-UNIFIED LOCATION CONTROLS IMPLEMENTATION TESTING
-Focus: Testing the UNIFIED Location Controls implementation that was just deployed
+CULTURAL VENDOR MATCHING SYSTEM TESTING
+Focus: Testing the Cultural Vendor Matching System implementation
 
-CRITICAL TESTS (as per review request):
-1. **Feature Flag Verification** - Confirm REACT_APP_WIZARD_LOCATION_UNIFIED=true is working
-2. **Unified Location Data Model Testing** - Test event creation with unified location object containing: city, zipcode, zipOnly, radiusMiles
-3. **Backward Compatibility Testing** - Ensure existing location data is preserved and both eventData.city (legacy) and eventData.location (unified) are populated correctly
-4. **Validation Rules Testing** - Test Step 1 validation: requires either city OR zipcode when unified flag is enabled
-5. **Data Synchronization Testing** - Test that changes in unified location controls update both eventData.city and eventData.location
-6. **Event Summary Integration** - Test that event summary shows proper location information based on feature flag
-7. **Migration Testing** - Test migration from legacy city-only data to unified location object
-8. **Both Modes Testing** - Test both modes (unified flag ON vs OFF) to ensure no regressions
+PRIORITY 1 - Cultural Matching API:
+1. **Basic Cultural Matching**: Test `/api/match/vendors` with cultural parameters
+2. **All-Cultures Matching**: Test vendors with all_cultures_welcomed flag
+3. **Dietary Compliance**: Test dietary matching
+4. **Expand Cultural Results**: Test the "Find more options" functionality
 
-FOCUS: Test the unified location feature that eliminates duplication by centralizing all location controls in Step 1 (Basic Info) while preserving all existing functionality and maintaining backward compatibility.
+PRIORITY 2 - Cultural Ranking & Scoring:
+5. **Vendor Scoring**: Verify cultural boost scoring works correctly
+6. **Cultural Grouping**: Verify the response includes proper grouping
+
+EXPECTED BEHAVIOR:
+- Indian cultural preference should rank Bollywood Bliss Catering higher
+- Hispanic/Latino should boost Fiesta Flavors Catering
+- Jewish culture should prioritize Kosher Delights
+- Universal Event Catering should show 🌐 badge for all_cultures_welcomed=true
+- Cultural match types should be properly identified (exact_match, all_cultures, cuisine_match)
+- Dietary compliance should add additional scoring for matching dietary requirements
+
+AUTHENTICATION: Use the working client credentials: sarah.johnson@email.com / SecurePass123
 """
 
 import requests
