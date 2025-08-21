@@ -267,6 +267,18 @@ const StepByStepMode = () => {
         });
       }
 
+      // Enhanced: Add cultural matching parameters
+      if (event.category_specific?.culturalStyle?.length > 0) {
+        params.append('client_culture', event.category_specific.culturalStyle[0]); // Use first selected culture
+      }
+      
+      if (event.category_specific?.dietaryRestrictions?.length > 0) {
+        params.append('client_dietary', event.category_specific.dietaryRestrictions.join(','));
+      }
+      
+      // Add expand cultural results flag
+      params.append('expand_cultural_results', expandCulturalResults ? 'true' : 'false');
+
       const response = await axios.get(`${API}/match/vendors?${params}`, {
         headers: getAuthHeaders()
       });
@@ -274,6 +286,11 @@ const StepByStepMode = () => {
       // Handle both array and object responses
       const vendorData = response.data.vendors || response.data || [];
       setVendors(Array.isArray(vendorData) ? vendorData : []);
+      
+      // Store cultural grouping information for UI
+      if (response.data.cultural_grouping) {
+        setCulturalGrouping(response.data.cultural_grouping);
+      }
       
     } catch (error) {
       console.error('Failed to fetch vendors:', error);
