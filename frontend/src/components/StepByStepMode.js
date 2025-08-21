@@ -1014,6 +1014,54 @@ const StepByStepMode = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Cultural Results Grouping Header */}
+                  {event.category_specific?.culturalStyle?.length > 0 && culturalGrouping && !expandCulturalResults && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-blue-900">
+                            Best matches for {culturalGrouping.client_cultural_preference} events
+                          </h4>
+                          <p className="text-sm text-blue-700">
+                            {culturalGrouping.exact_cultural_matches} specialist vendors • {culturalGrouping.all_cultures_matches} all-cultures vendors
+                          </p>
+                        </div>
+                        <button 
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors"
+                          onClick={() => {
+                            setExpandCulturalResults(true);
+                            fetchVendors(); // Refresh with expanded results
+                          }}
+                        >
+                          Find more options
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Expanded Results Header */}
+                  {expandCulturalResults && culturalGrouping && (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-medium text-gray-900">All available options</h4>
+                          <p className="text-sm text-gray-600">
+                            Showing all {getFilteredVendors(vendors, service, mapping).length} vendors for {service.toLowerCase()}
+                          </p>
+                        </div>
+                        <button 
+                          className="text-blue-600 hover:text-blue-700 text-sm underline"
+                          onClick={() => {
+                            setExpandCulturalResults(false);
+                            fetchVendors(); // Return to cultural matching
+                          }}
+                        >
+                          Back to best matches
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Venue-Included Options */}
                   {(service === 'Dance Floor' || service === 'Cakes') && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -1031,12 +1079,12 @@ const StepByStepMode = () => {
                     </div>
                   )}
 
-                  {/* Vendor Grid */}
+                  {/* Enhanced Vendor Grid with Cultural Badges */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {getFilteredVendors(vendors, service, mapping)
                       .slice(0, 6) // Show top 6 per service
                       .map((vendor) => (
-                      <div key={`${service}-${vendor.id}`} className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                      <div key={`${service}-${vendor.id}`} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                         <img 
                           src={vendor.image} 
                           alt={vendor.name}
@@ -1050,21 +1098,80 @@ const StepByStepMode = () => {
                               <span className="text-xs text-gray-600 ml-1">{vendor.rating}</span>
                             </div>
                           </div>
+
+                          {/* Cultural Match Indicator */}
+                          {vendor.cultural_match_details && (
+                            <div className="mb-2">
+                              <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
+                                vendor.cultural_match_type === 'exact_match' ? 'bg-green-100 text-green-800' :
+                                vendor.cultural_match_type === 'all_cultures' ? 'bg-blue-100 text-blue-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {vendor.cultural_match_type === 'all_cultures' && '🌐 '}
+                                {vendor.cultural_match_details.match_type}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Cultural & Dietary Badges */}
+                          <div className="mb-2 flex flex-wrap gap-1">
+                            {/* Cultural Expertise Badges */}
+                            {vendor.cultural_expertise?.cultures_served?.slice(0, 2).map(culture => (
+                              <span key={culture} className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs">
+                                {culture === 'Hispanic/Latino' ? 'Hispanic' : culture}
+                              </span>
+                            ))}
+                            
+                            {/* All Cultures Badge */}
+                            {vendor.cultural_expertise?.all_cultures_welcomed && (
+                              <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs flex items-center">
+                                🌐 All Cultures
+                              </span>
+                            )}
+
+                            {/* Dietary Badges */}
+                            {vendor.dietary_matches?.map(dietary => (
+                              <span key={dietary} className={`px-2 py-1 rounded-full text-xs ${
+                                dietary === 'Halal' ? 'bg-green-100 text-green-700' :
+                                dietary === 'Kosher' ? 'bg-blue-100 text-blue-700' :
+                                dietary === 'Vegetarian/Vegan' ? 'bg-orange-100 text-orange-700' :
+                                'bg-gray-100 text-gray-700'
+                              }`}>
+                                {dietary}
+                              </span>
+                            ))}
+                          </div>
                           
-                          {/* Vendor Capabilities */}
+                          {/* Service Capabilities */}
                           {vendor.capabilities && vendor.capabilities[service.toLowerCase().replace(' ', '_')] && (
                             <div className="mb-2">
                               <div className="flex flex-wrap gap-1">
-                                {vendor.capabilities[service.toLowerCase().replace(' ', '_')].slice(0, 3).map(cap => (
-                                  <span key={cap} className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">
+                                {vendor.capabilities[service.toLowerCase().replace(' ', '_')].slice(0, 2).map(cap => (
+                                  <span key={cap} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
                                     {cap}
                                   </span>
                                 ))}
                               </div>
                             </div>
                           )}
+
+                          {/* Cuisine/Service Types */}
+                          <div className="mb-2">
+                            <p className="text-xs text-gray-600">
+                              {service === 'Catering' && vendor.service_specializations?.catering?.cuisine_types?.length > 0 ? 
+                                vendor.service_specializations.catering.cuisine_types.slice(0, 3).join(', ') :
+                                vendor.services.join(', ')
+                              }
+                            </p>
+                          </div>
+
+                          {/* Cultural Match Score (if available) */}
+                          {vendor.cultural_boost > 0 && (
+                            <div className="mb-2 text-xs text-green-600">
+                              ✨ Great cultural match (Score: {vendor.match_score})
+                            </div>
+                          )}
                           
-                          <p className="text-xs text-gray-600 mb-2">{vendor.services.join(', ')}</p>
                           <div className="flex justify-between items-center">
                             <span className="text-xs font-medium text-green-600">
                               {vendor.price_range}
