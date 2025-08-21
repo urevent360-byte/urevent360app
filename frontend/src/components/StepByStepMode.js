@@ -913,20 +913,219 @@ const StepByStepMode = () => {
     );
   };
 
-  const renderPlaceholderSection = (title, description) => (
-    <div className="text-center py-12">
-      <div className="mx-auto h-24 w-24 text-gray-400">
-        <Calendar className="h-full w-full" />
+  const renderBudgetSection = () => {
+    if (!event) return null;
+    
+    // Get all selected services
+    const allEventServices = [
+      ...(event?.needed_core_services || []),
+      ...(event?.needed_extras || [])
+    ];
+    
+    // Calculate budget buckets
+    const budgetBuckets = getBudgetBuckets(allEventServices);
+    const serviceBuckets = {};
+    
+    // Group services by budget bucket
+    allEventServices.forEach(service => {
+      const mapping = SERVICE_MAPPING[service];
+      if (mapping && mapping.budgetBucket) {
+        if (!serviceBuckets[mapping.budgetBucket]) {
+          serviceBuckets[mapping.budgetBucket] = [];
+        }
+        serviceBuckets[mapping.budgetBucket].push(service);
+      }
+    });
+    
+    // Split ceremony vs reception for weddings
+    const ceremonyServices = event?.event_type === 'wedding' ? 
+      getServicesByContext(allEventServices, 'ceremony') : [];
+    const receptionServices = event?.event_type === 'wedding' ? 
+      getServicesByContext(allEventServices, 'reception') : [];
+    const bothServices = event?.event_type === 'wedding' ? 
+      getServicesByContext(allEventServices, 'both') : [];
+    
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold text-gray-900">Budget Planning</h2>
+          <div className="flex space-x-3">
+            <button className="flex items-center px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+              <DollarSign className="h-4 w-4 mr-2" />
+              Set Budget
+            </button>
+            <button className="flex items-center px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+              Export Budget
+            </button>
+          </div>
+        </div>
+
+        {/* Wedding Split Budget View */}
+        {event?.event_type === 'wedding' && (ceremonyServices.length > 0 || receptionServices.length > 0) && (
+          <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg border border-pink-200">
+            <h3 className="font-semibold text-gray-900 mb-4 flex items-center">
+              💒 Wedding Budget Split
+            </h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Ceremony Budget */}
+              {ceremonyServices.length > 0 && (
+                <div className="bg-white p-4 rounded-lg border border-pink-200">
+                  <h4 className="font-medium text-pink-900 mb-3">Ceremony Budget</h4>
+                  <div className="space-y-2">
+                    {ceremonyServices.map(service => {
+                      const mapping = SERVICE_MAPPING[service];
+                      return (
+                        <div key={`ceremony-${service}`} className="flex justify-between text-sm">
+                          <span className="text-gray-700">{service}</span>
+                          <span className="text-gray-500">{mapping?.budgetBucket}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-pink-200">
+                    <div className="flex justify-between font-medium text-pink-900">
+                      <span>Ceremony Subtotal</span>
+                      <span>Est. $0 - $0</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Reception Budget */}
+              {receptionServices.length > 0 && (
+                <div className="bg-white p-4 rounded-lg border border-purple-200">
+                  <h4 className="font-medium text-purple-900 mb-3">Reception Budget</h4>
+                  <div className="space-y-2">
+                    {receptionServices.map(service => {
+                      const mapping = SERVICE_MAPPING[service];
+                      return (
+                        <div key={`reception-${service}`} className="flex justify-between text-sm">
+                          <span className="text-gray-700">{service}</span>
+                          <span className="text-gray-500">{mapping?.budgetBucket}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-purple-200">
+                    <div className="flex justify-between font-medium text-purple-900">
+                      <span>Reception Subtotal</span>
+                      <span>Est. $0 - $0</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Shared Services */}
+            {bothServices.length > 0 && (
+              <div className="mt-4 bg-white p-4 rounded-lg border border-gray-200">
+                <h4 className="font-medium text-gray-900 mb-3">Shared Services (Both)</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  {bothServices.map(service => {
+                    const mapping = SERVICE_MAPPING[service];
+                    return (
+                      <div key={`both-${service}`} className="flex justify-between text-sm">
+                        <span className="text-gray-700">{service}</span>
+                        <span className="text-gray-500">{mapping?.budgetBucket}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Total Budget */}
+            <div className="mt-4 bg-gray-900 text-white p-4 rounded-lg">
+              <div className="flex justify-between font-semibold text-lg">
+                <span>Total Wedding Budget</span>
+                <span>Est. $0 - $0</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Service-Specific Budget Buckets */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Object.entries(serviceBuckets).map(([bucket, services]) => (
+            <div key={bucket} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900">{bucket}</h3>
+                <DollarSign className="h-5 w-5 text-green-600" />
+              </div>
+              
+              <div className="space-y-3">
+                {services.map(service => (
+                  <div key={service} className="flex justify-between items-center">
+                    <span className="text-sm text-gray-700">{service}</span>
+                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                      Pending
+                    </span>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-gray-900">Bucket Total</span>
+                  <span className="font-semibold text-green-600">$0 - $0</span>
+                </div>
+                <div className="mt-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-green-600 h-2 rounded-full" style={{width: '0%'}}></div>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>Allocated: $0</span>
+                    <span>Available: $0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Budget Summary */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h3 className="font-semibold text-gray-900 mb-4">Budget Summary</h3>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">$0</div>
+              <div className="text-sm text-gray-500">Total Budget</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">$0</div>
+              <div className="text-sm text-gray-500">Allocated</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">$0</div>
+              <div className="text-sm text-gray-500">Remaining</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{allEventServices.length}</div>
+              <div className="text-sm text-gray-500">Services</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200">
+          <h3 className="font-semibold text-gray-900 mb-4">Budget Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+              💰 Set Budget Limits
+            </button>
+            <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+              📊 Get Budget Estimates
+            </button>
+            <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+              🔔 Set Budget Alerts
+            </button>
+          </div>
+        </div>
       </div>
-      <h3 className="mt-4 text-lg font-medium text-gray-900">{title}</h3>
-      <p className="mt-2 text-sm text-gray-500">{description}</p>
-      <div className="mt-6">
-        <button className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
-          Coming Soon
-        </button>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderSectionContent = () => {
     switch (activeSection) {
