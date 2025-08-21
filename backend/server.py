@@ -137,13 +137,51 @@ class Venue(BaseModel):
     name: str
     description: str
     location: str
-    venue_type: str  # hotel, restaurant, outdoor, etc.
+    venue_type: str  # hotel, restaurant, outdoor, short_term_rental, etc.
     capacity: int
     price_per_person: Optional[float] = None
     amenities: List[str] = []
     rating: float = 0.0
     images: List[str] = []
     contact_info: Dict[str, str] = {}
+    
+    # Enhanced venue type specific fields
+    restaurant_details: Optional[Dict[str, Any]] = {
+        "cuisine_types": [],  # ["Italian", "Mexican", "American", etc.]
+        "price_per_person_range": {"min": 0, "max": 0},
+        "rating_source": "internal",  # "internal", "yelp", "google"
+        "neighborhood": "",
+        "private_rooms": [],  # [{"name": "Wine Room", "max_capacity": 12, "min_spend": 500}]
+        "time_slots": [],  # [{"slot": "lunch", "start_time": "12:00", "end_time": "15:00"}]
+        "reservation_rules": {
+            "deposit_amount": 0,
+            "cancellation_window_hours": 24,
+            "gratuity_service_fee": 0,
+            "allows_outside_vendors": False
+        },
+        "special_requests_enabled": True,
+        "auto_response_template": "",
+        "availability_integration": "manual"  # "manual", "opentable", "resy", "sevenrooms"
+    }
+    
+    short_term_rental_details: Optional[Dict[str, Any]] = {
+        "allows_events": False,  # Must be True to appear in results
+        "max_event_guests": {"standing": 0, "seated": 0},
+        "parking_capacity": 0,
+        "curfew_noise_rules": "",
+        "hoa_permit_requirements": "",
+        "allowed_event_types": [],  # ["birthday", "micro-wedding", "baby_shower", etc.]
+        "fees": {
+            "cleaning_fee": 0,
+            "security_deposit": 0,
+            "overtime_policy": ""
+        },
+        "availability_sync": "manual",  # "manual", "airbnb_ical", "vrbo_ical"
+        "house_rules": "",
+        "host_approval_required": True
+    }
+    
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class Vendor(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
