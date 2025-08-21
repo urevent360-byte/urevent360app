@@ -407,73 +407,77 @@ class APITester:
         
         token = self.tokens.get("client")
         if not token:
-            self.log_test("Dietary Compliance Matching", False, "No authentication token")
+            self.log_test("Venue Availability", False, "No authentication token")
             return
         
-        # Test 1: Indian culture with Halal and Vegetarian/Vegan requirements
-        print("   Testing Indian culture with Halal and Vegetarian/Vegan dietary requirements...")
+        # Test 1: Oceanview Restaurant availability for 2025-08-25 with party size 8
+        print("   Testing Oceanview Restaurant availability...")
         params = {
-            "client_culture": "Indian",
-            "client_dietary": "Halal,Vegetarian/Vegan",
-            "service": "Catering"
+            "date": "2025-08-25",
+            "party_size": 8
         }
         
-        response = self.make_request("GET", "/match/vendors", params=params, token=token)
+        response = self.make_request("GET", "/venues/venue_4/availability", params=params, token=token)
         if response and response.status_code == 200:
             data = response.json()
-            vendors = data.get("vendors", [])
+            available_slots = data.get("available_slots", [])
             
-            # Find vendors with dietary compliance
-            dietary_compliant_vendors = [v for v in vendors if v.get("dietary_boost", 0) > 0]
-            if dietary_compliant_vendors:
-                # Check Bollywood Bliss specifically
-                bollywood_vendor = next((v for v in vendors if "Bollywood Bliss" in v.get("name", "")), None)
-                if bollywood_vendor:
-                    dietary_matches = bollywood_vendor.get("dietary_matches", [])
-                    dietary_boost = bollywood_vendor.get("dietary_boost", 0)
-                    
-                    if "Halal" in dietary_matches and "Vegetarian/Vegan" in dietary_matches:
-                        self.log_test("Indian Dietary Compliance", True, 
-                                    f"Bollywood Bliss matches dietary requirements (matches: {dietary_matches}, boost: {dietary_boost})")
-                    else:
-                        self.log_test("Indian Dietary Compliance", False, 
-                                    f"Bollywood Bliss missing dietary matches (matches: {dietary_matches})")
-                else:
-                    self.log_test("Indian Dietary Compliance", False, "Bollywood Bliss not found")
-            else:
-                self.log_test("Indian Dietary Compliance", False, "No vendors with dietary compliance found")
-        else:
-            self.log_test("Indian Dietary Compliance", False, f"API call failed: {response.status_code if response else 'No response'}")
-        
-        # Test 2: Jewish culture with Kosher requirements
-        print("   Testing Jewish culture with Kosher dietary requirements...")
-        params = {
-            "client_culture": "Jewish",
-            "client_dietary": "Kosher",
-            "service": "Catering"
-        }
-        
-        response = self.make_request("GET", "/match/vendors", params=params, token=token)
-        if response and response.status_code == 200:
-            data = response.json()
-            vendors = data.get("vendors", [])
-            
-            # Find Kosher Delights
-            kosher_vendor = next((v for v in vendors if "Kosher Delights" in v.get("name", "")), None)
-            if kosher_vendor:
-                dietary_matches = kosher_vendor.get("dietary_matches", [])
-                dietary_boost = kosher_vendor.get("dietary_boost", 0)
+            if len(available_slots) > 0:
+                # Check for lunch and dinner slots
+                lunch_slots = [slot for slot in available_slots if "lunch" in slot.get("slot", "")]
+                dinner_slots = [slot for slot in available_slots if "dinner" in slot.get("slot", "")]
                 
-                if "Kosher" in dietary_matches and dietary_boost >= 1:
-                    self.log_test("Jewish Dietary Compliance", True, 
-                                f"Kosher Delights matches Kosher requirement (matches: {dietary_matches}, boost: {dietary_boost})")
+                if lunch_slots:
+                    lunch_slot = lunch_slots[0]
+                    self.log_test("Oceanview Lunch Slots", True, f"Lunch available: {lunch_slot.get('time')} at ${lunch_slot.get('price')}")
                 else:
-                    self.log_test("Jewish Dietary Compliance", False, 
-                                f"Kosher Delights missing Kosher compliance (matches: {dietary_matches}, boost: {dietary_boost})")
+                    self.log_test("Oceanview Lunch Slots", False, "No lunch slots available")
+                
+                if dinner_slots:
+                    dinner_slot = dinner_slots[0]
+                    self.log_test("Oceanview Dinner Slots", True, f"Dinner available: {dinner_slot.get('time')} at ${dinner_slot.get('price')}")
+                else:
+                    self.log_test("Oceanview Dinner Slots", False, "No dinner slots available")
+                
+                # Check price types
+                price_types = set(slot.get("price_type") for slot in available_slots)
+                if "per_person" in price_types:
+                    self.log_test("Oceanview Price Type", True, f"Per person pricing available: {price_types}")
+                else:
+                    self.log_test("Oceanview Price Type", False, f"Per person pricing missing: {price_types}")
             else:
-                self.log_test("Jewish Dietary Compliance", False, "Kosher Delights not found")
+                self.log_test("Oceanview Restaurant Availability", False, "No available slots returned")
         else:
-            self.log_test("Jewish Dietary Compliance", False, f"API call failed: {response.status_code if response else 'No response'}")
+            self.log_test("Oceanview Restaurant Availability", False, f"API call failed: {response.status_code if response else 'No response'}")
+        
+        # Test 2: Bella Vista Italian Bistro availability
+        print("   Testing Bella Vista Italian Bistro availability...")
+        params = {
+            "date": "2025-08-25",
+            "party_size": 8
+        }
+        
+        response = self.make_request("GET", "/venues/venue_5/availability", params=params, token=token)
+        if response and response.status_code == 200:
+            data = response.json()
+            available_slots = data.get("available_slots", [])
+            
+            if len(available_slots) > 0:
+                # Check for different time slots
+                slot_times = [slot.get("time") for slot in available_slots]
+                self.log_test("Bella Vista Time Slots", True, f"Available times: {slot_times}")
+                
+                # Check for fb_minimum pricing (food & beverage minimum)
+                fb_minimum_slots = [slot for slot in available_slots if slot.get("price_type") == "fb_minimum"]
+                if fb_minimum_slots:
+                    fb_slot = fb_minimum_slots[0]
+                    self.log_test("Bella Vista FB Minimum", True, f"F&B minimum pricing: ${fb_slot.get('price')}")
+                else:
+                    self.log_test("Bella Vista FB Minimum", False, "No F&B minimum pricing found")
+            else:
+                self.log_test("Bella Vista Availability", False, "No available slots returned")
+        else:
+            self.log_test("Bella Vista Availability", False, f"API call failed: {response.status_code if response else 'No response'}")
     
     def test_expand_cultural_results(self):
         """Test the 'Find more options' functionality"""
