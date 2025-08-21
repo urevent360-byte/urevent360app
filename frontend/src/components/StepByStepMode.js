@@ -288,7 +288,16 @@ const StepByStepMode = () => {
       rating: 4.8,
       price_per_person: 85,
       image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=300',
-      available: true
+      available: true,
+      // Enhanced space capabilities
+      spaceCapabilities: {
+        ceremonySpace: true,
+        receptionSpace: true,
+        combinedSpace: true,
+        separateSpaces: false
+      },
+      amenities: ['Dance Floor', 'Kitchen Facilities', 'Bridal Suite', 'Sound System', 'Lighting'],
+      includedServices: ['Dance Floor', 'Basic Lighting', 'Tables & Chairs']
     },
     {
       id: 2,
@@ -299,7 +308,72 @@ const StepByStepMode = () => {
       rating: 4.6,
       price_per_person: 65,
       image: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=300',
-      available: true
+      available: true,
+      spaceCapabilities: {
+        ceremonySpace: true,
+        receptionSpace: true,
+        combinedSpace: false,
+        separateSpaces: true
+      },
+      amenities: ['Outdoor Ceremony Area', 'Reception Pavilion', 'Garden Views', 'Parking'],
+      includedServices: ['Ceremony Arch', 'Garden Lighting']
+    },
+    {
+      id: 3,
+      name: 'Downtown Loft Studios',
+      venueTypes: ['Loft/Industrial'],
+      city: 'New York',
+      capacity: 120,
+      rating: 4.7,
+      price_per_person: 75,
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300',
+      available: true,
+      spaceCapabilities: {
+        ceremonySpace: false,
+        receptionSpace: true,
+        combinedSpace: false,
+        separateSpaces: false
+      },
+      amenities: ['Modern Interior', 'City Views', 'Built-in Bar', 'Sound System'],
+      includedServices: ['Basic Sound System', 'Uplighting']
+    },
+    {
+      id: 4,
+      name: 'Historic Manor Estate',
+      venueTypes: ['Historic/Manor'],
+      city: 'New York',
+      capacity: 180,
+      rating: 4.9,
+      price_per_person: 120,
+      image: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=300',
+      available: true,
+      spaceCapabilities: {
+        ceremonySpace: true,
+        receptionSpace: true,
+        combinedSpace: true,
+        separateSpaces: true
+      },
+      amenities: ['Historic Architecture', 'Gardens', 'Bridal Suite', 'Multiple Rooms', 'Parking'],
+      includedServices: ['Dance Floor', 'Basic Ceremony Setup', 'Chandelier Lighting']
+    },
+    {
+      id: 5,
+      name: 'Beachfront Resort Pavilion',
+      venueTypes: ['Beach/Waterfront'],
+      city: 'New York',
+      capacity: 100,
+      rating: 4.5,
+      price_per_person: 95,
+      image: 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=300',
+      available: true,
+      spaceCapabilities: {
+        ceremonySpace: true,
+        receptionSpace: true,
+        combinedSpace: false,
+        separateSpaces: true
+      },
+      amenities: ['Waterfront Views', 'Beach Access', 'Outdoor Ceremony Area', 'Indoor Reception'],
+      includedServices: ['Ceremony Arch', 'Beach Setup', 'Sound System']
     }
   ];
 
