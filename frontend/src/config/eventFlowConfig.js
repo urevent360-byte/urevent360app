@@ -97,9 +97,10 @@ export const PREFERRED_VENUE_TYPES = [
   'Hotel/Banquet Hall',
   'Restaurant',
   'Outdoor/Garden',
-  'Community Center',
+  'Community Center', 
   'Beach/Waterfront',
   'Private Residence',
+  'Short-Term Rental (Airbnb/VRBO)',  // NEW: Airbnb/VRBO for intimate events
   'Church/Religious Venue',
   'My Own Private Space',
   'I Already Have a Venue',
