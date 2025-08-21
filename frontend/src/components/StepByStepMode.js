@@ -41,6 +41,10 @@ const StepByStepMode = () => {
   const [contextFilter, setContextFilter] = useState('both'); // ceremony | reception | both
   const [selectedSubcategories, setSelectedSubcategories] = useState({}); // {service: [subcategories]}
   const [selectedSpecialtyStations, setSelectedSpecialtyStations] = useState([]); // for Catering specialty stations
+  
+  // Cultural matching states
+  const [expandCulturalResults, setExpandCulturalResults] = useState(false); // "Find more options" flag
+  const [culturalGrouping, setCulturalGrouping] = useState(null); // Cultural grouping info from API
 
   // Helper functions for enhanced filtering
   const toggleSubcategory = (service, subcategory) => {
