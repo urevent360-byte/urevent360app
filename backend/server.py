@@ -392,6 +392,26 @@ class CalendarEvent(BaseModel):
     notification_sent: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+class RestaurantReservation(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    venue_id: str  # Restaurant venue ID
+    party_size: int
+    reservation_date: datetime
+    time_slot: str  # "lunch_1200", "dinner_1800", etc.
+    price_type: str  # "per_person" or "fb_minimum" 
+    price_amount: float
+    special_requests: Optional[str] = None
+    occasion_type: Optional[str] = None  # "birthday", "anniversary", "proposal", etc.
+    contact_phone: Optional[str] = None
+    contact_email: Optional[str] = None
+    deposit_amount: Optional[float] = None
+    deposit_status: str = "pending"  # "pending", "paid", "waived"
+    confirmation_status: str = "pending"  # "pending", "confirmed", "declined", "cancelled"
+    vendor_response: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
+
 # Authentication functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
