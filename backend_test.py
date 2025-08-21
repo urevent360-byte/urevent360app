@@ -9232,9 +9232,17 @@ def main():
     return success_rate >= 80
 
 if __name__ == "__main__":
-    print("🚨 URGENT AUTHENTICATION DEBUGGING - Login/Redirect Issues")
-    print("Testing authentication system to identify login redirect problems...")
+    print("🌍 CULTURAL VENDOR MATCHING SYSTEM TESTING")
+    print("Testing the newly implemented Cultural Vendor Matching System...")
     print(f"Backend URL: {BACKEND_URL}")
     
     tester = APITester()
-    tester.run_tests()
+    passed, total = tester.run_cultural_vendor_matching_tests()
+    
+    # Exit with appropriate code
+    if passed == total:
+        print("\n✅ ALL TESTS PASSED!")
+        exit(0)
+    else:
+        print(f"\n❌ {total - passed} TESTS FAILED!")
+        exit(1)
