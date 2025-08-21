@@ -299,8 +299,8 @@ class APITester:
             self.log_test("Restaurant-Specific Data", False, f"API call failed: {response.status_code if response else 'No response'}")
 
     def test_short_term_rental_data(self):
-        """Test vendors with all_cultures_welcomed flag"""
-        print("\n🌐 PRIORITY 1.2: Testing All-Cultures Matching...")
+        """Test Airbnb/VRBO venue details"""
+        print("\n🏠 PRIORITY 1.3: Testing Short-Term Rental Data...")
         
         token = self.tokens.get("client")
         if not token:
