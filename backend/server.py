@@ -2629,7 +2629,7 @@ async def match_venues(
         if preferredTypes:
             preferred_venue_types = [t.strip() for t in preferredTypes.split(',')]
         
-        # For now, return mock data that matches the request
+        # Enhanced mock venues with Airbnb and Restaurant support
         mock_venues = [
             {
                 "id": "venue_1",
@@ -2638,7 +2638,7 @@ async def match_venues(
                 "venueTypes": ["Hotel/Banquet Hall"],
                 "city": city or "New York",
                 "capacity": 300,
-                "rating": 4.8,
+                "rating": 4.8,  
                 "price_per_person": 85,
                 "image": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=400&h=300&fit=crop",
                 "available": True,
@@ -2674,14 +2674,159 @@ async def match_venues(
                 "id": "venue_4",
                 "name": "Oceanview Restaurant",
                 "supportedTypes": ["anniversary", "birthday", "corporate", "retirement"],
-                "venueTypes": ["Restaurant", "Beach/Waterfront"],
+                "venueTypes": ["Restaurant"],
                 "city": city or "New York", 
                 "capacity": 80,
                 "rating": 4.9,
-                "price_per_person": 120,
-                "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop",
+                "price_per_person": 75,
+                "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
                 "available": True,
-                "description": "Upscale waterfront dining with panoramic ocean views"
+                "description": "Upscale oceanfront dining with private rooms available",
+                "restaurant_details": {
+                    "cuisine_types": ["American", "Seafood", "Contemporary"],
+                    "price_per_person_range": {"min": 45, "max": 85},
+                    "rating_source": "internal",
+                    "neighborhood": "Waterfront District",
+                    "private_rooms": [
+                        {"name": "Ocean View Room", "max_capacity": 20, "min_spend": 800},
+                        {"name": "Chef's Table", "max_capacity": 8, "min_spend": 600}
+                    ],
+                    "time_slots": [
+                        {"slot": "lunch", "start_time": "12:00", "end_time": "15:00"},
+                        {"slot": "dinner", "start_time": "18:00", "end_time": "22:00"}
+                    ],
+                    "reservation_rules": {
+                        "deposit_amount": 100,
+                        "cancellation_window_hours": 24,
+                        "gratuity_service_fee": 20,
+                        "allows_outside_vendors": False
+                    },
+                    "special_requests_enabled": True,
+                    "auto_response_template": "Thank you for choosing Oceanview Restaurant for your special occasion!",
+                    "availability_integration": "manual"
+                }
+            },
+            {
+                "id": "venue_5",
+                "name": "Bella Vista Italian Bistro",
+                "supportedTypes": ["birthday", "anniversary", "corporate", "graduation"],
+                "venueTypes": ["Restaurant"],
+                "city": city or "New York",
+                "capacity": 60,
+                "rating": 4.7, 
+                "price_per_person": 55,
+                "image": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Intimate Italian bistro with authentic cuisine and cozy atmosphere",
+                "restaurant_details": {
+                    "cuisine_types": ["Italian", "Mediterranean", "Wine Bar"],
+                    "price_per_person_range": {"min": 35, "max": 75},
+                    "rating_source": "internal",
+                    "neighborhood": "Little Italy",
+                    "private_rooms": [
+                        {"name": "Wine Cellar", "max_capacity": 16, "min_spend": 500}
+                    ],
+                    "time_slots": [
+                        {"slot": "lunch", "start_time": "11:30", "end_time": "15:00"},
+                        {"slot": "dinner", "start_time": "17:30", "end_time": "22:30"}
+                    ],
+                    "reservation_rules": {
+                        "deposit_amount": 50,
+                        "cancellation_window_hours": 24,
+                        "gratuity_service_fee": 18,
+                        "allows_outside_vendors": True
+                    },
+                    "special_requests_enabled": True,
+                    "auto_response_template": "",
+                    "availability_integration": "manual"
+                }
+            },
+            {
+                "id": "venue_6",
+                "name": "Modern Downtown Loft",
+                "supportedTypes": ["birthday", "anniversary", "baby_shower", "micro_wedding"],
+                "venueTypes": ["Short-Term Rental (Airbnb/VRBO)"],
+                "city": city or "New York",
+                "capacity": 25,
+                "rating": 4.8,
+                "price_per_person": 40,
+                "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Stylish downtown loft perfect for intimate gatherings",
+                "short_term_rental_details": {
+                    "allows_events": True,
+                    "max_event_guests": {"standing": 30, "seated": 25},
+                    "parking_capacity": 2,
+                    "curfew_noise_rules": "Quiet hours after 10 PM on weekdays, 11 PM on weekends",
+                    "hoa_permit_requirements": "None required for events under 30 people",
+                    "allowed_event_types": ["birthday", "micro_wedding", "baby_shower", "anniversary"],
+                    "fees": {
+                        "cleaning_fee": 150,
+                        "security_deposit": 500,
+                        "overtime_policy": "$50/hour after midnight"
+                    },
+                    "availability_sync": "airbnb_ical",
+                    "house_rules": "No smoking, no shoes on white furniture, clean up after use",
+                    "host_approval_required": True
+                }
+            },
+            {
+                "id": "venue_7",
+                "name": "Cozy Brooklyn Brownstone",
+                "supportedTypes": ["birthday", "baby_shower", "anniversary", "corporate_offsite"],
+                "venueTypes": ["Short-Term Rental (Airbnb/VRBO)"],
+                "city": city or "New York",
+                "capacity": 20,
+                "rating": 4.6,
+                "price_per_person": 35,
+                "image": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Charming Brooklyn brownstone with private garden",
+                "short_term_rental_details": {
+                    "allows_events": True,
+                    "max_event_guests": {"standing": 25, "seated": 20},
+                    "parking_capacity": 1,
+                    "curfew_noise_rules": "Music must be lowered after 9 PM",
+                    "hoa_permit_requirements": "24-hour advance notice to neighbors required",
+                    "allowed_event_types": ["birthday", "baby_shower", "anniversary", "corporate_offsite"],
+                    "fees": {
+                        "cleaning_fee": 100,
+                        "security_deposit": 300,
+                        "overtime_policy": "No events past 11 PM"
+                    },
+                    "availability_sync": "manual",
+                    "house_rules": "Respect neighbors, no loud music after 9 PM, maximum 20 guests",
+                    "host_approval_required": True
+                }
+            },
+            {
+                "id": "venue_8", 
+                "name": "Hamptons Beach House",
+                "supportedTypes": ["wedding", "birthday", "anniversary", "graduation"],
+                "venueTypes": ["Short-Term Rental (Airbnb/VRBO)"],
+                "city": city or "New York",
+                "capacity": 50,
+                "rating": 4.9,
+                "price_per_person": 80,
+                "image": "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400&h=300&fit=crop",
+                "available": True,
+                "description": "Stunning beachfront property perfect for special occasions",
+                "short_term_rental_details": {
+                    "allows_events": True,
+                    "max_event_guests": {"standing": 60, "seated": 50},
+                    "parking_capacity": 8,
+                    "curfew_noise_rules": "Events must end by 11 PM, music off by 10 PM",
+                    "hoa_permit_requirements": "Event permit required for 30+ guests, $200 fee",
+                    "allowed_event_types": ["wedding", "birthday", "anniversary", "graduation"],
+                    "fees": {
+                        "cleaning_fee": 400,
+                        "security_deposit": 1000,
+                        "overtime_policy": "Additional night required for events ending after 11 PM"
+                    },
+                    "availability_sync": "vrbo_ical",
+                    "house_rules": "No glass on beach, cleanup required, respect property and neighbors",
+                    "host_approval_required": True
+                }
             }
         ]
         
