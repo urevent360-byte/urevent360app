@@ -2930,6 +2930,68 @@ async def match_vendors(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to match vendors: {str(e)}")
 
+@api_router.put("/vendors/{vendor_id}/capabilities")
+async def update_vendor_capabilities(
+    vendor_id: str, 
+    capabilities_data: Dict[str, List[str]],
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Update vendor capabilities for enhanced matching
+    Allows vendors to specify their exact service capabilities
+    """
+    try:
+        # Validate vendor exists
+        vendor = await db.vendors.find_one({"id": vendor_id})
+        if not vendor:
+            raise HTTPException(status_code=404, detail="Vendor not found")
+        
+        # Update capabilities
+        update_result = await db.vendors.update_one(
+            {"id": vendor_id},
+            {
+                "$set": {
+                    "capabilities": capabilities_data,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        if update_result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Vendor not found")
+        
+        return {
+            "message": "Vendor capabilities updated successfully",
+            "vendor_id": vendor_id,
+            "capabilities": capabilities_data
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update vendor capabilities: {str(e)}")
+
+@api_router.get("/vendors/{vendor_id}/capabilities")
+async def get_vendor_capabilities(
+    vendor_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get vendor capabilities for profile management
+    """
+    try:
+        vendor = await db.vendors.find_one({"id": vendor_id})
+        if not vendor:
+            raise HTTPException(status_code=404, detail="Vendor not found")
+        
+        return {
+            "vendor_id": vendor_id,
+            "vendor_name": vendor.get("name"),
+            "capabilities": vendor.get("capabilities", {}),
+            "services": vendor.get("services", [])
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get vendor capabilities: {str(e)}")
+
 # ================================================================================================
 
 # Include the router in the app
