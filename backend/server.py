@@ -81,9 +81,19 @@ class EventCreate(BaseModel):
     sub_event_type: Optional[str] = None  # For wedding: reception_only, reception_with_ceremony
     cultural_style: Optional[str] = None  # For wedding: indian, american, hispanic, african, asian, middle_eastern, other
     date: datetime
-    location: Optional[str] = None
+    location: Optional[Union[str, Dict[str, Any]]] = None  # Can be string or dict for backward compatibility
     zipcode: Optional[str] = None
     location_preferences: Optional[Dict[str, Any]] = None  # search_radius, only_exact_location, preferred_areas, zip_only, radius_miles
+    
+    @field_validator('location', mode='before')
+    @classmethod
+    def validate_location(cls, v):
+        if isinstance(v, dict):
+            # Convert dict location to string for backward compatibility
+            if 'city' in v:
+                return f"{v.get('city', '')}, {v.get('state', '')}"
+            return str(v)
+        return v
     budget_preferences: Optional[Dict[str, Any]] = None  # target, currency
     venue_id: Optional[str] = None
     budget: Optional[float] = None
