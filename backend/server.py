@@ -154,11 +154,43 @@ class Vendor(BaseModel):
     price_range: str = "$$"  # $, $$, $$$, $$$$
     rating: float = 0.0
     specialties: List[str] = []
-    cultural_specializations: List[str] = []  # indian, hispanic, american, jewish, african, asian, middle_eastern
+    cultural_specializations: List[str] = []  # Legacy field - maintained for compatibility
     contact_info: Dict[str, str] = {}
     
+    # Enhanced Cultural Expertise System
+    cultural_expertise: Dict[str, Any] = {
+        "cultures_served": [],  # ["American", "Indian", "Hispanic/Latino", "African", "Asian", "Middle_Eastern", "Jewish", "Other/Mixed"]
+        "all_cultures_welcomed": False,  # Shows 🌐 globe badge
+        "languages_served": [],  # ["English", "Spanish", "Hindi", "Arabic", etc.]
+        "dietary_compliance": []  # ["Halal", "Kosher", "Vegetarian/Vegan", "Gluten-free"]
+    }
+    
+    # Service-Level Specializations
+    service_specializations: Dict[str, Any] = {
+        "catering": {
+            "cuisine_types": [],  # North/South Indian, Mexican, Cuban, etc.
+            "service_scope": [],  # Full-service, Appetizers only, Specialty stations
+            "specialty_stations": [],  # Sushi, Charcuterie, Taco, etc.
+            "dietary_badges": []  # Halal, Kosher, Vegan, GF
+        },
+        "decor_floral": {
+            "design_styles": [],  # traditional, modern, luxury, rustic, cultural-specific
+            "cultural_motifs": []  # mandap, chuppah, quince court, etc.
+        },
+        "music_dj_entertainment": {
+            "genres": [],  # Bollywood, Salsa, Regional Mexican, etc.
+            "mc_languages": [],  # Languages for MC services
+            "live_performers": []  # folk, traditional acts
+        },
+        "cakes_sweets": {
+            "cake_types": [],  # wedding, birthday, quince, custom
+            "dessert_stations": [],  # dessert table, donut wall, etc.
+            "specialty_sweets": []  # culture-specific desserts
+        }
+    }
+    
     # Enhanced Capability System - Maps to serviceMapping.js
-    capabilities: Dict[str, List[str]] = {}  # e.g., {"catering": ["Full-Service", "Appetizers-only"], "catering_stations": ["Sushi", "Taco"]}
+    capabilities: Dict[str, List[str]] = {}  # Legacy field maintained for compatibility
     services: List[str] = []  # Legacy field maintained for compatibility
     
     # Business fields  
