@@ -2631,7 +2631,7 @@ async def match_venues(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to match venues: {str(e)}")
 
-# Vendor Matching API for Step-by-Step Mode  
+# Enhanced Vendor Matching API for Step-by-Step Mode with Capability System
 @api_router.get("/match/vendors")
 async def match_vendors(
     type: str = None,
@@ -2642,15 +2642,18 @@ async def match_vendors(
     extras: str = None,
     cultural: str = None,
     theme: str = None,
+    # New capability-based parameters
+    service: str = None,  # specific service (e.g., "Catering")
+    subcategories: str = None,  # subcategories (e.g., "Full-Service,Specialty Food Stations")
+    specialty_stations: str = None,  # specialty stations (e.g., "Sushi Station,Taco Station")
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Auto-sync vendor matching for Step-by-Step Mode
-    Matches vendors that: list categories overlapping vendorTags, provide selected services,
-    optionally support chosen cultural style/theme
+    Enhanced vendor matching for Step-by-Step Mode with capability-based filtering
+    Supports both legacy service matching and new granular capability matching
     """
     try:
-        # Parse parameters
+        # Parse legacy parameters
         vendor_tags = []
         if tags:
             vendor_tags = [t.strip() for t in tags.split(',')]
@@ -2671,134 +2674,256 @@ async def match_vendors(
         if theme:
             theme_formats = [t.strip() for t in theme.split(',')]
         
-        # Mock vendor data with enhanced matching
-        mock_vendors = [
-            {
-                "id": "vendor_1",
-                "name": "Elite Catering Co.",
-                "categories": ["wedding", "corporate", "celebration"],
-                "services": ["Catering"],
-                "culturalStyles": ["American", "Italian", "Hispanic"],
-                "cities": [city or "New York"],
-                "rating": 4.9,
-                "price_range": "$50-$100 per person",
-                "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
-                "description": "Premium catering service specializing in cultural cuisines"
-            },
-            {
-                "id": "vendor_2",
-                "name": "Elegant Decorations",
-                "categories": ["wedding", "birthday", "anniversary"],
-                "services": ["Decoration"],
-                "culturalStyles": ["American", "Modern", "Indian"],
-                "cities": [city or "New York"],
-                "rating": 4.7,
-                "price_range": "$2,000-$8,000",
-                "image": "https://images.unsplash.com/photo-1464207687429-7505649dae38?w=400&h=300&fit=crop",
-                "description": "Creative decoration specialists for all cultural celebrations"
-            },
-            {
-                "id": "vendor_3",
-                "name": "Picture Perfect Photography",
-                "categories": ["wedding", "sweet16", "quince", "mitzvah"],
-                "services": ["Photography"],
-                "culturalStyles": ["American", "Hispanic", "Jewish", "Indian"],
-                "cities": [city or "New York"],
-                "rating": 4.8,
-                "price_range": "$1,200-$4,000",
-                "image": "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=400&h=300&fit=crop",
-                "description": "Capturing precious moments with cultural sensitivity"
-            },
-            {
-                "id": "vendor_4",
-                "name": "Harmony Music & DJ Services",
-                "categories": ["wedding", "corporate", "birthday"],
-                "services": ["Music/DJ"],
-                "culturalStyles": ["American", "Hispanic", "African", "Asian"],
-                "cities": [city or "New York"],
-                "rating": 4.6,
-                "price_range": "$800-$2,500",
-                "image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop",
-                "description": "Diverse music selection for multicultural celebrations"
-            },
-            {
-                "id": "vendor_5",
-                "name": "Premier Lighting Solutions",
-                "categories": ["wedding", "corporate", "graduation"],
-                "services": ["Lighting"],
-                "culturalStyles": ["Modern", "American", "Asian"],
-                "cities": [city or "New York"],
-                "rating": 4.5,
-                "price_range": "$1,000-$5,000",
-                "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
-                "description": "Professional lighting design for memorable ambiance"
-            },
-            {
-                "id": "vendor_6",
-                "name": "Sparkle Entertainment Co.",
-                "categories": ["wedding", "birthday", "sweet16"],
-                "services": ["Photo Booths", "LED Dance Floor", "Cold Spark Machines"],
-                "culturalStyles": ["American", "Modern"],
-                "cities": [city or "New York"],
-                "rating": 4.4,
-                "price_range": "$1,500-$6,000",
-                "image": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop",
-                "description": "Interactive entertainment and special effects"
-            }
-        ]
+        # Parse new capability parameters
+        target_service = service
+        target_subcategories = []
+        if subcategories:
+            target_subcategories = [s.strip() for s in subcategories.split(',')]
+            
+        target_stations = []
+        if specialty_stations:
+            target_stations = [s.strip() for s in specialty_stations.split(',')]
         
-        # Filter vendors based on criteria
+        # Try to get vendors from database first
+        try:
+            query = {}
+            if city:
+                query["location"] = {"$regex": city, "$options": "i"}
+            
+            db_vendors = await db.vendors.find(query).to_list(1000)
+            
+            # Convert to compatible format
+            vendors = []
+            for vendor in db_vendors:
+                vendor_data = {
+                    "id": vendor.get("id"),
+                    "name": vendor.get("name"),
+                    "services": vendor.get("services", []),
+                    "categories": vendor.get("specialties", []),
+                    "culturalStyles": vendor.get("cultural_specializations", []),
+                    "rating": vendor.get("rating", 4.5),
+                    "price_range": vendor.get("price_range", "$$"),
+                    "image": f"https://images.unsplash.com/photo-{1500000000 + hash(vendor.get('name', '')) % 1000000000}?w=300",
+                    "capabilities": vendor.get("capabilities", {})
+                }
+                vendors.append(vendor_data)
+                
+        except Exception as e:
+            print(f"Database query failed, using mock data: {e}")
+            vendors = []
+        
+        # If no database vendors or for development, use enhanced mock data
+        if not vendors:
+            vendors = [
+                {
+                    "id": "vendor_1",
+                    "name": "Elite Catering Co.",
+                    "categories": ["wedding", "corporate", "celebration"],
+                    "services": ["Catering", "Full Service Catering"],
+                    "culturalStyles": ["American", "Italian"],
+                    "rating": 4.9,
+                    "price_range": "$50-$100 per person",
+                    "image": "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300",
+                    "capabilities": {
+                        "catering": ["Full-Service Catering", "Appetizers / Small Bites only"],
+                        "catering_stations": ["Charcuterie/Cheese Station", "Pasta Station", "Carving Station"]
+                    }
+                },
+                {
+                    "id": "vendor_2",
+                    "name": "Gourmet Stations & More",
+                    "categories": ["wedding", "celebration"],
+                    "services": ["Catering", "Specialty Food Stations"],
+                    "culturalStyles": ["Asian", "Fusion"],
+                    "rating": 4.8,
+                    "price_range": "$40-$80 per person",
+                    "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300",
+                    "capabilities": {
+                        "catering": ["Specialty Food Stations"],
+                        "catering_stations": ["Sushi Station", "Taco Station", "Seafood/Raw Bar", "Ceviche Station"]
+                    }
+                },
+                {
+                    "id": "vendor_3",
+                    "name": "Sweet Dreams Bakery",
+                    "categories": ["wedding", "birthday", "celebration"],
+                    "services": ["Cakes", "Wedding Cake", "Custom Designs"],
+                    "culturalStyles": ["American", "French"],
+                    "rating": 4.9,
+                    "price_range": "$300-$1,500",
+                    "image": "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300",
+                    "capabilities": {
+                        "cakes": ["Wedding Cake", "Custom Designs", "Cupcakes", "Macarons"]
+                    }
+                },
+                {
+                    "id": "vendor_4",
+                    "name": "Birthday Bliss Cakes",
+                    "categories": ["birthday", "celebration"],
+                    "services": ["Cakes", "Birthday Cake", "Cupcakes"],
+                    "culturalStyles": ["American", "Modern"],
+                    "rating": 4.7,
+                    "price_range": "$150-$800",
+                    "image": "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=300",
+                    "capabilities": {
+                        "cakes": ["Birthday Cake", "Custom Designs", "Cupcakes"]
+                    }
+                },
+                {
+                    "id": "vendor_5",
+                    "name": "Sugar Rush Dessert Co.",
+                    "categories": ["wedding", "birthday", "celebration"],
+                    "services": ["Dessert Stations", "Candy Bar", "Donut Wall"],
+                    "culturalStyles": ["American", "Modern"],
+                    "rating": 4.6,
+                    "price_range": "$500-$2,000",
+                    "image": "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=300",
+                    "capabilities": {
+                        "dessert_stations_and_sweets": ["Dessert Table", "Candy Bar", "Donut Wall", "Ice-cream Cart", "Chocolate Fountain"]
+                    }
+                },
+                {
+                    "id": "vendor_6",
+                    "name": "Professional DJ Services",
+                    "categories": ["wedding", "birthday", "corporate"],
+                    "services": ["DJ", "Music", "Entertainment"],
+                    "culturalStyles": ["American", "Latin", "Caribbean"],
+                    "rating": 4.8,
+                    "price_range": "$800-$2,500",
+                    "image": "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300",
+                    "capabilities": {
+                        "dj_band": ["DJ Services", "MC Services", "Sound Equipment", "Lighting"]
+                    }
+                },
+                {
+                    "id": "vendor_7",
+                    "name": "Elegant Event Photography",
+                    "categories": ["wedding", "birthday", "corporate"],
+                    "services": ["Photography", "Videography"],
+                    "culturalStyles": ["American", "Modern", "Traditional"],
+                    "rating": 4.9,
+                    "price_range": "$1,500-$5,000",
+                    "image": "https://images.unsplash.com/photo-1556103255-4443dbae8e5a?w=300",
+                    "capabilities": {
+                        "photography_videography": ["Wedding Photography", "Event Photography", "Videography", "Photo Albums"]
+                    }
+                },
+                {
+                    "id": "vendor_8",
+                    "name": "Premium Floor Rentals",
+                    "categories": ["wedding", "celebration"],
+                    "services": ["Dance Floor", "Flooring", "Rentals"],
+                    "culturalStyles": ["American", "Modern"],
+                    "rating": 4.7,
+                    "price_range": "$300-$1,200",
+                    "image": "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=300",
+                    "capabilities": {
+                        "dance_floor": ["White Dance Floor", "Black Dance Floor", "LED Dance Floor", "Outdoor Dance Floor"]
+                    }
+                },
+                {
+                    "id": "vendor_9",
+                    "name": "Elite Bar Services",
+                    "categories": ["wedding", "corporate", "celebration"],
+                    "services": ["Bar Service", "Bartending", "Beverage"],
+                    "culturalStyles": ["American", "Cocktail"],
+                    "rating": 4.8,
+                    "price_range": "$15-$35 per person",
+                    "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=300",
+                    "capabilities": {
+                        "bar_service": ["Full Bar Service", "Wine Service", "Cocktail Specialties", "Non-Alcoholic Options"]
+                    }
+                },
+                {
+                    "id": "vendor_10",
+                    "name": "Elegant Decorations",
+                    "categories": ["wedding", "celebration"],
+                    "services": ["Decoration", "Reception Lighting", "Uplighting"],
+                    "culturalStyles": ["American", "Modern"],
+                    "rating": 4.7,
+                    "price_range": "$2,000-$8,000",
+                    "image": "https://images.unsplash.com/photo-1464207687429-7505649dae38?w=300",
+                    "capabilities": {
+                        "reception_lighting": ["Uplighting", "String Lights", "Chandeliers", "Ambient Lighting"]
+                    }
+                }
+            ]
+        
+        # Enhanced filtering with capability matching
         filtered_vendors = []
-        for vendor in mock_vendors:
+        
+        for vendor in vendors:
             vendor_score = 0
             max_score = 0
             
-            # Check if vendor categories overlap with vendor tags
+            # Legacy matching (categories, services, cultural styles)
             if vendor_tags:
                 max_score += 1
-                category_match = any(tag in vendor["categories"] for tag in vendor_tags)
-                if category_match:
+                if any(tag in vendor["categories"] for tag in vendor_tags):
                     vendor_score += 1
                     
-            # Check if vendor provides needed core services
             if core_services:
                 max_score += 1
-                service_match = any(service in vendor["services"] for service in core_services)
-                if service_match:
+                if any(service in vendor["services"] for service in core_services):
                     vendor_score += 1
                     
-            # Check if vendor provides needed extra services
             if extra_services:
                 max_score += 1
-                extras_match = any(extra in vendor["services"] for extra in extra_services)
-                if extras_match:
+                if any(extra in vendor["services"] for extra in extra_services):
                     vendor_score += 1
                     
-            # Check cultural style support
             if cultural_styles:
                 max_score += 1
-                cultural_match = any(style in vendor.get("culturalStyles", []) for style in cultural_styles)
-                if cultural_match:
+                if any(style in vendor.get("culturalStyles", []) for style in cultural_styles):
                     vendor_score += 1
             
-            # Include vendor if they match at least one criteria (or if no criteria specified)
-            if max_score == 0 or vendor_score > 0:
+            # Enhanced capability-based matching
+            capability_match = False
+            
+            if target_service and vendor.get("capabilities"):
+                service_key = target_service.lower().replace(' ', '_').replace('&', 'and')
+                vendor_capabilities = vendor["capabilities"]
+                
+                # Check if vendor has capabilities for this service
+                if service_key in vendor_capabilities or any(key.startswith(service_key) for key in vendor_capabilities.keys()):
+                    max_score += 2  # Higher weight for capability matching
+                    vendor_score += 1
+                    capability_match = True
+                    
+                    # Check subcategory matching
+                    if target_subcategories:
+                        matching_caps = vendor_capabilities.get(service_key, [])
+                        if any(subcategory in matching_caps for subcategory in target_subcategories):
+                            vendor_score += 1
+                            
+                    # Check specialty station matching for catering
+                    if target_stations and 'catering_stations' in vendor_capabilities:
+                        station_caps = vendor_capabilities.get('catering_stations', [])
+                        if any(station in station_caps for station in target_stations):
+                            vendor_score += 1
+            
+            # Include vendor if they match criteria or have relevant capabilities
+            if max_score == 0 or vendor_score > 0 or capability_match:
                 vendor["match_score"] = vendor_score
+                vendor["capability_match"] = capability_match
                 filtered_vendors.append(vendor)
         
-        # Sort by match score first, then by rating (best first)
-        filtered_vendors.sort(key=lambda x: (x.get("match_score", 0), x["rating"]), reverse=True)
+        # Sort by capability match first, then by match score, then by rating
+        filtered_vendors.sort(key=lambda x: (x.get("capability_match", False), x.get("match_score", 0), x["rating"]), reverse=True)
         
         return {
             "vendors": filtered_vendors,
             "total": len(filtered_vendors),
             "filters_applied": {
-                "event_type": type,
                 "vendor_tags": vendor_tags,
                 "core_services": core_services,
                 "extra_services": extra_services,
                 "cultural_styles": cultural_styles,
-                "theme_formats": theme_formats
+                "theme_formats": theme_formats,
+                # New capability filters
+                "target_service": target_service,
+                "target_subcategories": target_subcategories,
+                "target_stations": target_stations
             }
         }
         
