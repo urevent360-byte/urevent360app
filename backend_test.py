@@ -401,9 +401,9 @@ class APITester:
         else:
             self.log_test("Short-Term Rental Data", False, f"API call failed: {response.status_code if response else 'No response'}")
     
-    def test_dietary_compliance_matching(self):
-        """Test dietary compliance matching"""
-        print("\n🥗 PRIORITY 1.3: Testing Dietary Compliance Matching...")
+    def test_venue_availability(self):
+        """Test venue availability API for restaurant bookings"""
+        print("\n📅 PRIORITY 2.1: Testing Venue Availability...")
         
         token = self.tokens.get("client")
         if not token:
