@@ -57,13 +57,12 @@ import EnhancedAccountSettings from './components/settings/EnhancedAccountSettin
 function App() {
   return (
     <ErrorBoundary>
-      <EnhancedAuthProvider>
-        <AuthProvider>
-          <Router>
-            <div className="App">
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
                 
                 {/* CEO Portal */}
                 <Route 
