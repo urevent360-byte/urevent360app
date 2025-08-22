@@ -22,24 +22,28 @@ const getCurrentBackendURL = () => {
   
   console.log('🔍 Current hostname:', currentHost);
   console.log('🔍 Current protocol:', currentProtocol);
+  console.log('🔍 Full URL:', window.location.href);
   
+  // Local development
   if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
     return "http://localhost:8001";
-  } else if (currentHost.includes('emergentagent.com')) {
-    // For production environment, use the /api endpoint which should be routed to backend
-    return window.location.origin;
-  } else {
-    // Fallback to environment variable
+  } 
+  // Production/preview environment - use relative /api path
+  else if (currentHost.includes('emergentagent.com')) {
+    console.log('🔍 Using production environment - relative API');
+    return ""; // Use relative path for production
+  } 
+  // Fallback to environment variable or localhost
+  else {
     return process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
   }
 };
 
 const BACKEND_URL = getCurrentBackendURL();
-const API = `${BACKEND_URL}/api`;
+const API = BACKEND_URL ? `${BACKEND_URL}/api` : "/api";
 
-console.log('🔍 BACKEND_URL:', BACKEND_URL);
-console.log('🔍 API:', API);
-console.log('🔍 Current window location:', window.location.href);
+console.log('🔍 Final BACKEND_URL:', BACKEND_URL);
+console.log('🔍 Final API endpoint:', API);
 
 const Login = () => {
   const { login } = useAuth();
