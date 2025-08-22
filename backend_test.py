@@ -1,25 +1,38 @@
 #!/usr/bin/env python3
 """
-VENUE EXPANSION SYSTEM TESTING (Airbnb & Restaurant Booking)
-Focus: Testing the newly implemented Venue Expansion System
+UREVENT 360 AUTHENTICATION SYSTEM TESTING
+Focus: Comprehensive testing of authentication system for URevent 360 platform
 
-PRIORITY 1 - Enhanced Venue Matching API:
-1. **Basic Venue Matching**: Test `/api/match/venues` to verify new venue types appear
-2. **Restaurant-Specific Data**: Test restaurant venue details
-3. **Short-Term Rental Data**: Test Airbnb/VRBO venue details
+PRIORITY 1 - User Authentication Testing:
+1. **Login Testing**: Test login with all user credentials
+   - carladbaquero@gmail.com / carla123 (client)
+   - admin@urevent360.com / admin123 (admin)  
+   - vendor@example.com / vendor123 (vendor)
+   - employee@example.com / employee123 (employee)
+   - sarah.johnson@email.com / SecurePass123 (client)
 
-PRIORITY 2 - Restaurant Booking API:
-4. **Venue Availability**: Test `/api/venues/{venue_id}/availability`
-5. **Restaurant Reservations**: Test `/api/restaurants/reserve` POST
+PRIORITY 2 - Registration Testing:
+2. **User Registration**: Test new account creation
+3. **Password Hashing**: Verify proper password security
+4. **JWT Token Generation**: Verify token creation
 
-EXPECTED BEHAVIOR:
-- Venue matching should return 8 venues including 2 restaurants and 3 short-term rentals
-- Restaurant venues should have detailed restaurant_details with cuisine, private rooms, time slots
-- Airbnb venues should have short_term_rental_details with event permissions and house rules
-- Restaurant availability API should return time slots with pricing
-- Reservation system should create pending reservations for restaurant confirmation
+PRIORITY 3 - API Endpoints Testing:
+5. **POST /api/login**: Test login endpoint
+6. **POST /api/register**: Test registration endpoint  
+7. **GET /api/users/profile**: Test profile access with authentication
+8. **GET /**: Test root endpoint
 
-AUTHENTICATION: Use the working client credentials: sarah.johnson@email.com / SecurePass123
+PRIORITY 4 - Database Verification:
+9. **User Existence**: Verify users exist in database
+10. **User Data Structure**: Check user data integrity
+11. **Password Hashing**: Verify bcrypt hashing
+
+PRIORITY 5 - Error Handling:
+12. **Invalid Credentials**: Test wrong passwords
+13. **Missing Fields**: Test incomplete requests
+14. **Duplicate Registration**: Test email uniqueness
+
+EXPECTED RESULTS: All authentication should work properly with no 404 or 401 errors for valid credentials.
 """
 
 import requests
