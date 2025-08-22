@@ -13,7 +13,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 # Database configuration
 DATABASE_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
-DATABASE_NAME = "urevent_db"
+DATABASE_NAME = os.environ.get("DB_NAME", "urevent360_db")
 
 def hash_password(password: str) -> str:
     """Hash password using bcrypt"""
