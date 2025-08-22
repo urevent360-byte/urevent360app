@@ -142,8 +142,12 @@ const Login = () => {
     setError('');
 
     try {
+      console.log('🔄 Attempting login with:', { email: formData.email, api: `${API}/login` });
       const response = await axios.post(`${API}/login`, formData);
+      console.log('✅ Login response received:', response.data);
+      
       const userData = response.data.user;
+      console.log('👤 User data:', userData);
       
       // Validate that the user role matches the selected role
       if (selectedRole !== 'client' && userData.role !== selectedRole && userData.role !== 'ROLE_ADMIN') {
@@ -157,7 +161,9 @@ const Login = () => {
       }
       
       // For regular users, allow login regardless of role in database
+      console.log('🔑 Calling login function with token and user data');
       login(response.data.access_token, userData);
+      console.log('✅ Login function called successfully');
       
       // Reset all sidebar states to collapsed after successful login
       if (typeof window !== "undefined") {
@@ -169,16 +175,22 @@ const Login = () => {
       }
       
       // Redirect based on user role after successful login
+      console.log('🔀 Determining navigation route for role:', userData.role);
       if (userData.role === 'admin' || userData.role === 'ROLE_ADMIN') {
+        console.log('🔀 Navigating to /admin');
         navigate('/admin');
       } else if (userData.role === 'vendor') {
+        console.log('🔀 Navigating to /vendor');
         navigate('/vendor');
       } else if (userData.role === 'employee') {
+        console.log('🔀 Navigating to /employee');
         navigate('/employee');
       } else if (userData.role === 'ROLE_CEO') {
+        console.log('🔀 Navigating to /ceo');
         navigate('/ceo');
       } else {
         // Default to main dashboard for clients and other roles
+        console.log('🔀 Navigating to / (client dashboard)');
         navigate('/');
       }
     } catch (err) {
