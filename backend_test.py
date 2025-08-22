@@ -9677,17 +9677,20 @@ def main():
     return success_rate >= 80
 
 if __name__ == "__main__":
-    print("🏛️ VENUE EXPANSION SYSTEM TESTING")
-    print("Testing the newly implemented Venue Expansion System (Airbnb & Restaurant Booking)...")
+    print("🔐 UREVENT 360 AUTHENTICATION SYSTEM TESTING")
+    print("Testing the authentication system for URevent 360 platform...")
     print(f"Backend URL: {BACKEND_URL}")
+    print("Testing user authentication, registration, API endpoints, database verification, and error handling")
     
     tester = APITester()
-    passed, total = tester.run_venue_expansion_tests()
+    passed, total = tester.run_authentication_tests()
     
     # Exit with appropriate code
     if passed == total:
-        print("\n✅ ALL TESTS PASSED!")
+        print("\n✅ ALL AUTHENTICATION TESTS PASSED!")
+        print("🎉 Authentication system is fully operational!")
         exit(0)
     else:
-        print(f"\n❌ {total - passed} TESTS FAILED!")
+        print(f"\n❌ {total - passed} AUTHENTICATION TESTS FAILED!")
+        print("⚠️ Authentication system needs attention!")
         exit(1)
