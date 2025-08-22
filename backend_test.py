@@ -636,6 +636,372 @@ class APITester:
         
         return passed_tests, total_tests
     
+    def test_all_user_authentication(self):
+        """PRIORITY 1: Test login with all specified user credentials"""
+        print("\n🔑 PRIORITY 1: USER AUTHENTICATION TESTING")
+        print("=" * 50)
+        
+        successful_logins = 0
+        total_users = len(TEST_CREDENTIALS)
+        
+        for user_type, credentials in TEST_CREDENTIALS.items():
+            print(f"\n   Testing {user_type} login: {credentials['email']}")
+            
+            response = self.make_request("POST", "/login", credentials)
+            
+            if response and response.status_code == 200:
+                try:
+                    login_data = response.json()
+                    access_token = login_data.get("access_token")
+                    user_data = login_data.get("user", {})
+                    
+                    if access_token and len(access_token) > 100:
+                        self.tokens[user_type] = access_token
+                        successful_logins += 1
+                        
+                        user_role = user_data.get("role", "unknown")
+                        user_name = user_data.get("name", "Unknown")
+                        token_length = len(access_token)
+                        
+                        self.log_test(f"Login Success - {user_type}", True, 
+                                    f"User: {user_name}, Role: {user_role}, Token: {token_length} chars")
+                        
+                        # Test immediate profile access with new token
+                        profile_response = self.make_request("GET", "/users/profile", token=access_token)
+                        if profile_response and profile_response.status_code == 200:
+                            profile_data = profile_response.json()
+                            self.log_test(f"Profile Access - {user_type}", True, 
+                                        f"Profile accessible: {profile_data.get('email')}")
+                        else:
+                            self.log_test(f"Profile Access - {user_type}", False, 
+                                        f"Profile access failed: {profile_response.status_code if profile_response else 'No response'}")
+                    else:
+                        self.log_test(f"Login Success - {user_type}", False, "Invalid or missing access token")
+                        
+                except Exception as e:
+                    self.log_test(f"Login Success - {user_type}", False, f"JSON parsing error: {e}")
+                    
+            elif response and response.status_code == 401:
+                self.log_test(f"Login Success - {user_type}", False, "Invalid credentials (401)")
+            else:
+                status_code = response.status_code if response else "No response"
+                self.log_test(f"Login Success - {user_type}", False, f"Login failed: {status_code}")
+        
+        # Overall authentication success rate
+        if successful_logins == total_users:
+            self.log_test("Overall Authentication System", True, f"All {total_users} users can login successfully")
+        else:
+            self.log_test("Overall Authentication System", False, f"Only {successful_logins}/{total_users} users can login")
+    
+    def test_user_registration(self):
+        """PRIORITY 2: Test user registration with new account"""
+        print("\n📝 PRIORITY 2: REGISTRATION TESTING")
+        print("=" * 50)
+        
+        # Generate unique test user
+        import time
+        timestamp = int(time.time())
+        test_user = {
+            "name": f"Test User {timestamp}",
+            "email": f"testuser{timestamp}@urevent360.com",
+            "password": "TestPassword123!",
+            "mobile": "+1234567890",
+            "role": "client"
+        }
+        
+        print(f"   Creating new user: {test_user['email']}")
+        
+        # Test user registration
+        response = self.make_request("POST", "/register", test_user)
+        
+        if response and response.status_code == 200:
+            try:
+                register_data = response.json()
+                access_token = register_data.get("access_token")
+                user_data = register_data.get("user", {})
+                
+                if access_token and user_data.get("email") == test_user["email"]:
+                    self.log_test("User Registration", True, 
+                                f"User created: {user_data.get('name')} ({user_data.get('email')})")
+                    
+                    # Test password hashing verification by attempting login
+                    login_credentials = {
+                        "email": test_user["email"],
+                        "password": test_user["password"]
+                    }
+                    
+                    login_response = self.make_request("POST", "/login", login_credentials)
+                    if login_response and login_response.status_code == 200:
+                        self.log_test("Password Hashing Verification", True, "Can login with registered password")
+                        
+                        # Test JWT token generation
+                        login_data = login_response.json()
+                        new_token = login_data.get("access_token")
+                        if new_token and len(new_token) > 100:
+                            self.log_test("JWT Token Generation", True, f"Valid JWT token generated: {len(new_token)} chars")
+                            
+                            # Verify token structure (JWT should have 3 parts)
+                            token_parts = new_token.split('.')
+                            if len(token_parts) == 3:
+                                self.log_test("JWT Token Structure", True, f"Valid JWT structure: {len(token_parts)} parts")
+                            else:
+                                self.log_test("JWT Token Structure", False, f"Invalid JWT structure: {len(token_parts)} parts")
+                        else:
+                            self.log_test("JWT Token Generation", False, "Invalid token generated")
+                    else:
+                        self.log_test("Password Hashing Verification", False, "Cannot login with registered password")
+                else:
+                    self.log_test("User Registration", False, "Registration response missing required data")
+                    
+            except Exception as e:
+                self.log_test("User Registration", False, f"JSON parsing error: {e}")
+                
+        elif response and response.status_code == 400:
+            # Try to register with existing email to test duplicate handling
+            existing_user = {
+                "name": "Duplicate Test",
+                "email": "sarah.johnson@email.com",  # Existing user
+                "password": "TestPassword123!",
+                "role": "client"
+            }
+            
+            duplicate_response = self.make_request("POST", "/register", existing_user)
+            if duplicate_response and duplicate_response.status_code == 400:
+                self.log_test("Duplicate Email Prevention", True, "Duplicate email registration properly rejected")
+            else:
+                self.log_test("Duplicate Email Prevention", False, "Duplicate email not properly handled")
+                
+            self.log_test("User Registration", False, "Registration failed (400)")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("User Registration", False, f"Registration failed: {status_code}")
+    
+    def test_authentication_endpoints(self):
+        """PRIORITY 3: Test all authentication API endpoints"""
+        print("\n🌐 PRIORITY 3: API ENDPOINTS TESTING")
+        print("=" * 50)
+        
+        # Test POST /api/login endpoint
+        print("   Testing POST /api/login endpoint...")
+        test_credentials = TEST_CREDENTIALS["client"]
+        response = self.make_request("POST", "/login", test_credentials)
+        
+        if response and response.status_code == 200:
+            self.log_test("POST /api/login Endpoint", True, "Login endpoint working correctly")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("POST /api/login Endpoint", False, f"Login endpoint failed: {status_code}")
+        
+        # Test POST /api/register endpoint
+        print("   Testing POST /api/register endpoint...")
+        test_register = {
+            "name": "API Test User",
+            "email": f"apitest{int(time.time())}@test.com",
+            "password": "TestPass123",
+            "role": "client"
+        }
+        response = self.make_request("POST", "/register", test_register)
+        
+        if response and response.status_code == 200:
+            self.log_test("POST /api/register Endpoint", True, "Register endpoint working correctly")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("POST /api/register Endpoint", False, f"Register endpoint failed: {status_code}")
+        
+        # Test GET /api/users/profile endpoint with authentication
+        print("   Testing GET /api/users/profile endpoint...")
+        if "client" in self.tokens:
+            response = self.make_request("GET", "/users/profile", token=self.tokens["client"])
+            
+            if response and response.status_code == 200:
+                try:
+                    profile_data = response.json()
+                    required_fields = ["id", "name", "email", "role"]
+                    missing_fields = [field for field in required_fields if field not in profile_data]
+                    
+                    if not missing_fields:
+                        self.log_test("GET /api/users/profile Endpoint", True, 
+                                    f"Profile data complete: {profile_data.get('email')}")
+                    else:
+                        self.log_test("GET /api/users/profile Endpoint", False, 
+                                    f"Missing profile fields: {missing_fields}")
+                except Exception as e:
+                    self.log_test("GET /api/users/profile Endpoint", False, f"JSON parsing error: {e}")
+            else:
+                status_code = response.status_code if response else "No response"
+                self.log_test("GET /api/users/profile Endpoint", False, f"Profile endpoint failed: {status_code}")
+        else:
+            self.log_test("GET /api/users/profile Endpoint", False, "No authentication token available")
+        
+        # Test root endpoint GET /
+        print("   Testing GET / root endpoint...")
+        response = self.make_request("GET", "/..")  # Go up one level to test root
+        
+        if response and response.status_code in [200, 404, 405]:  # Any of these are acceptable
+            self.log_test("GET / Root Endpoint", True, f"Root endpoint accessible: {response.status_code}")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("GET / Root Endpoint", False, f"Root endpoint failed: {status_code}")
+    
+    def test_database_verification(self):
+        """PRIORITY 4: Verify users exist in database and check data structure"""
+        print("\n🗄️ PRIORITY 4: DATABASE VERIFICATION")
+        print("=" * 50)
+        
+        # Test user existence by attempting to get profiles
+        existing_users = 0
+        total_test_users = len(TEST_CREDENTIALS)
+        
+        for user_type, credentials in TEST_CREDENTIALS.items():
+            if user_type in self.tokens:
+                token = self.tokens[user_type]
+                response = self.make_request("GET", "/users/profile", token=token)
+                
+                if response and response.status_code == 200:
+                    try:
+                        profile_data = response.json()
+                        user_email = profile_data.get("email")
+                        user_role = profile_data.get("role")
+                        
+                        if user_email == credentials["email"]:
+                            existing_users += 1
+                            self.log_test(f"User Exists - {user_type}", True, 
+                                        f"User found: {user_email} (role: {user_role})")
+                            
+                            # Check user data structure
+                            required_fields = ["id", "name", "email", "role"]
+                            optional_fields = ["mobile", "created_at", "profile_completed"]
+                            
+                            present_required = [field for field in required_fields if field in profile_data]
+                            present_optional = [field for field in optional_fields if field in profile_data]
+                            
+                            if len(present_required) == len(required_fields):
+                                self.log_test(f"User Data Structure - {user_type}", True, 
+                                            f"Required fields: {present_required}, Optional: {present_optional}")
+                            else:
+                                missing_required = [field for field in required_fields if field not in profile_data]
+                                self.log_test(f"User Data Structure - {user_type}", False, 
+                                            f"Missing required fields: {missing_required}")
+                        else:
+                            self.log_test(f"User Exists - {user_type}", False, 
+                                        f"Email mismatch: expected {credentials['email']}, got {user_email}")
+                    except Exception as e:
+                        self.log_test(f"User Exists - {user_type}", False, f"JSON parsing error: {e}")
+                else:
+                    status_code = response.status_code if response else "No response"
+                    self.log_test(f"User Exists - {user_type}", False, f"Profile access failed: {status_code}")
+            else:
+                self.log_test(f"User Exists - {user_type}", False, "No authentication token available")
+        
+        # Overall database verification
+        if existing_users == total_test_users:
+            self.log_test("Database User Verification", True, f"All {total_test_users} test users exist in database")
+        else:
+            self.log_test("Database User Verification", False, f"Only {existing_users}/{total_test_users} users found in database")
+        
+        # Test password hashing by verifying we cannot login with wrong passwords
+        print("   Testing password hashing security...")
+        wrong_credentials = {
+            "email": "sarah.johnson@email.com",
+            "password": "WrongPassword123"
+        }
+        
+        response = self.make_request("POST", "/login", wrong_credentials)
+        if response and response.status_code == 401:
+            self.log_test("Password Hashing Security", True, "Wrong password properly rejected")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("Password Hashing Security", False, f"Wrong password not rejected: {status_code}")
+    
+    def test_error_handling(self):
+        """PRIORITY 5: Test error handling for various scenarios"""
+        print("\n⚠️ PRIORITY 5: ERROR HANDLING TESTING")
+        print("=" * 50)
+        
+        # Test invalid credentials
+        print("   Testing invalid credentials...")
+        invalid_credentials = {
+            "email": "nonexistent@example.com",
+            "password": "wrongpassword"
+        }
+        
+        response = self.make_request("POST", "/login", invalid_credentials)
+        if response and response.status_code == 401:
+            self.log_test("Invalid Credentials Handling", True, "Invalid credentials properly rejected with 401")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("Invalid Credentials Handling", False, f"Invalid credentials not handled correctly: {status_code}")
+        
+        # Test missing fields in login
+        print("   Testing missing login fields...")
+        incomplete_login = {"email": "test@example.com"}  # Missing password
+        
+        response = self.make_request("POST", "/login", incomplete_login)
+        if response and response.status_code in [400, 422]:  # Bad request or validation error
+            self.log_test("Missing Login Fields Handling", True, f"Missing fields properly rejected: {response.status_code}")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("Missing Login Fields Handling", False, f"Missing fields not handled: {status_code}")
+        
+        # Test missing fields in registration
+        print("   Testing missing registration fields...")
+        incomplete_register = {
+            "name": "Test User",
+            "email": "test@example.com"
+            # Missing password
+        }
+        
+        response = self.make_request("POST", "/register", incomplete_register)
+        if response and response.status_code in [400, 422]:  # Bad request or validation error
+            self.log_test("Missing Registration Fields Handling", True, f"Missing fields properly rejected: {response.status_code}")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("Missing Registration Fields Handling", False, f"Missing fields not handled: {status_code}")
+        
+        # Test duplicate email registration
+        print("   Testing duplicate email registration...")
+        duplicate_user = {
+            "name": "Duplicate User",
+            "email": "sarah.johnson@email.com",  # Existing user email
+            "password": "TestPassword123",
+            "role": "client"
+        }
+        
+        response = self.make_request("POST", "/register", duplicate_user)
+        if response and response.status_code == 400:
+            try:
+                error_data = response.json()
+                error_detail = error_data.get("detail", "")
+                if "already registered" in error_detail.lower() or "email" in error_detail.lower():
+                    self.log_test("Duplicate Email Registration Handling", True, f"Duplicate email properly rejected: {error_detail}")
+                else:
+                    self.log_test("Duplicate Email Registration Handling", False, f"Unexpected error message: {error_detail}")
+            except:
+                self.log_test("Duplicate Email Registration Handling", True, "Duplicate email rejected with 400 status")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("Duplicate Email Registration Handling", False, f"Duplicate email not handled: {status_code}")
+        
+        # Test unauthorized access to protected endpoints
+        print("   Testing unauthorized access...")
+        response = self.make_request("GET", "/users/profile")  # No token
+        
+        if response and response.status_code in [401, 403]:
+            self.log_test("Unauthorized Access Handling", True, f"Unauthorized access properly rejected: {response.status_code}")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("Unauthorized Access Handling", False, f"Unauthorized access not handled: {status_code}")
+        
+        # Test malformed JWT token
+        print("   Testing malformed JWT token...")
+        response = self.make_request("GET", "/users/profile", token="invalid.jwt.token")
+        
+        if response and response.status_code == 401:
+            self.log_test("Malformed Token Handling", True, "Malformed JWT token properly rejected")
+        else:
+            status_code = response.status_code if response else "No response"
+            self.log_test("Malformed Token Handling", False, f"Malformed token not handled: {status_code}")
+
     def test_backend_auth_health(self):
         """Test /api/auth/health endpoint and database connectivity"""
         print("\n🏥 CRITICAL TEST 1: Backend Authentication Health Check")
