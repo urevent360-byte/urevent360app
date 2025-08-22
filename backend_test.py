@@ -41,6 +41,7 @@ import sys
 from datetime import datetime
 import uuid
 import time
+import os
 
 # Configuration - Use environment variable for backend URL
 import os
