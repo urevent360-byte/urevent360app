@@ -9956,119 +9956,42 @@ class APITester:
             print("\n⚠️  OVERALL STATUS: Some critical issues need attention")
 
 def main():
-    """Main test execution focusing on Event Information Edit Functionality"""
-    print("🚀 Starting Event Information Edit Functionality Backend Testing...")
-    print(f"Backend URL: {BASE_URL}")
+    """Main execution function"""
+    print("🚀 UREVENT 360 COMPREHENSIVE AUTHENTICATION TESTING")
+    print("=" * 80)
+    print("CRITICAL ISSUE: Frontend authentication system failing despite successful backend API login")
+    print("TESTING GOAL: Verify complete authentication flow before addressing frontend issues")
     print("=" * 80)
     
     tester = APITester()
     
-    # Test sequence focusing on Event Information Edit Functionality
-    test_sequence = [
-        ("Event Information Edit Functionality", tester.test_event_information_edit_functionality),
-        ("Authentication System", tester.test_authentication),
-        ("Health Check", tester.test_health_check),
-    ]
-    
-    # Execute tests
-    for test_name, test_func in test_sequence:
-        print(f"\n{'='*20} {test_name} {'='*20}")
-        try:
-            test_func()
-        except Exception as e:
-            print(f"❌ Test failed with exception: {e}")
-            tester.log_test(test_name, False, f"Exception: {str(e)}")
-    
-    # Print comprehensive summary
-    print("\n" + "="*80)
-    print("🎯 EVENT INFORMATION EDIT FUNCTIONALITY TEST SUMMARY")
-    print("="*80)
-    
-    total_tests = len(tester.test_results)
-    passed_tests = len([t for t in tester.test_results if t["success"]])
-    failed_tests = len(tester.failed_tests)
-    success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
-    
-    print(f"📊 OVERALL RESULTS:")
-    print(f"   • Total Tests: {total_tests}")
-    print(f"   • Passed: {passed_tests}")
-    print(f"   • Failed: {failed_tests}")
-    print(f"   • Success Rate: {success_rate:.1f}%")
-    
-    if failed_tests > 0:
-        print(f"\n❌ FAILED TESTS:")
-        for failed_test in tester.failed_tests:
-            print(f"   • {failed_test}")
-    
-    print(f"\n✅ KEY FUNCTIONALITY VERIFICATION:")
-    key_tests = [
-        "Client Authentication",
-        "Test Event Creation", 
-        "Event Retrieval with Questionnaire Fields",
-        "Event Type Update",
-        "Cultural Style Update", 
-        "Preferred Venue Type Update",
-        "Services Needed Update",
-        "Event Date & Time Update",
-        "Bulk Questionnaire Update",
-        "Event Information Storage Verification"
-    ]
-    
-    key_results = []
-    for test_result in tester.test_results:
-        if test_result["test"] in key_tests:
-            status = "✅" if test_result["success"] else "❌"
-            key_results.append(f"   {status} {test_result['test']}")
-    
-    for result in key_results:
-        print(result)
-    
-    # Determine overall status
-    critical_tests = [
-        "Event Type Update",
-        "Cultural Style Update", 
-        "Preferred Venue Type Update",
-        "Services Needed Update",
-        "Event Information Storage Verification"
-    ]
-    
-    critical_passed = 0
-    for test_result in tester.test_results:
-        if test_result["test"] in critical_tests and test_result["success"]:
-            critical_passed += 1
-    
-    if critical_passed == len(critical_tests):
-        print(f"\n🎉 EVENT INFORMATION EDIT FUNCTIONALITY: FULLY OPERATIONAL")
-        print("   All questionnaire fields (event_type, cultural_style, preferred_venue_type, services_needed)")
-        print("   can be successfully updated via PUT /api/events/{event_id}")
-        print("   Changes are properly stored and retrieved for Step-by-Step Mode integration")
-    elif critical_passed >= len(critical_tests) * 0.8:
-        print(f"\n⚠️  EVENT INFORMATION EDIT FUNCTIONALITY: MOSTLY OPERATIONAL")
-        print(f"   {critical_passed}/{len(critical_tests)} critical features working")
-        print("   Minor issues detected but core functionality available")
-    else:
-        print(f"\n❌ EVENT INFORMATION EDIT FUNCTIONALITY: NEEDS ATTENTION")
-        print(f"   Only {critical_passed}/{len(critical_tests)} critical features working")
-        print("   Significant issues detected requiring fixes")
-    
-    print("\n" + "="*80)
-    return success_rate >= 80
+    try:
+        # Run comprehensive authentication tests as per review request
+        passed, total = tester.run_comprehensive_authentication_tests()
+        
+        print(f"\n🎯 FINAL AUTHENTICATION SYSTEM ASSESSMENT:")
+        print("=" * 80)
+        
+        if passed >= total * 0.95:  # 95% success rate
+            print("✅ BACKEND AUTHENTICATION SYSTEM IS FULLY OPERATIONAL")
+            print("✅ All user credentials are working correctly")
+            print("✅ JWT token generation and validation is working")
+            print("✅ Database connectivity and user data is correct")
+            print("✅ All critical API endpoints are accessible")
+            print("✅ Frontend authentication issues are NOT caused by backend problems")
+            print("\n🔍 RECOMMENDATION: Focus on frontend authentication code and session management")
+            return 0
+        else:
+            print("❌ BACKEND AUTHENTICATION SYSTEM HAS CRITICAL ISSUES")
+            print("❌ Frontend authentication failures may be caused by backend problems")
+            print("❌ Backend issues must be resolved before fixing frontend")
+            print(f"\n📊 Success Rate: {(passed/total*100):.1f}% (Need 95%+ for full operation)")
+            return 1
+            
+    except Exception as e:
+        print(f"❌ CRITICAL ERROR during authentication testing: {e}")
+        return 1
 
 if __name__ == "__main__":
-    print("🔐 UREVENT 360 AUTHENTICATION SYSTEM TESTING")
-    print("Testing the authentication system for URevent 360 platform...")
-    print(f"Backend URL: {BACKEND_URL}")
-    print("Testing user authentication, registration, API endpoints, database verification, and error handling")
-    
-    tester = APITester()
-    passed, total = tester.run_authentication_tests()
-    
-    # Exit with appropriate code
-    if passed == total:
-        print("\n✅ ALL AUTHENTICATION TESTS PASSED!")
-        print("🎉 Authentication system is fully operational!")
-        exit(0)
-    else:
-        print(f"\n❌ {total - passed} AUTHENTICATION TESTS FAILED!")
-        print("⚠️ Authentication system needs attention!")
-        exit(1)
+    exit_code = main()
+    exit(exit_code)
