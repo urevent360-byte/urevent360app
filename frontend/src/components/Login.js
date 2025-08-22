@@ -15,7 +15,20 @@ import {
   Users
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
+// Determine the correct backend URL based on current environment
+const getCurrentBackendURL = () => {
+  const currentHost = window.location.hostname;
+  console.log('🔍 Current hostname:', currentHost);
+  
+  if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
+    return "http://localhost:8001";
+  } else {
+    // If accessing from production URL, use the same host but different port/path
+    return process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
+  }
+};
+
+const BACKEND_URL = getCurrentBackendURL();
 const API = `${BACKEND_URL}/api`;
 
 console.log('🔍 BACKEND_URL:', BACKEND_URL);
