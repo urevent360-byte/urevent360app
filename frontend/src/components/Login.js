@@ -15,11 +15,12 @@ import {
   Users
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
 const API = `${BACKEND_URL}/api`;
 
 console.log('🔍 BACKEND_URL:', BACKEND_URL);
 console.log('🔍 API:', API);
+console.log('🔍 Current window location:', window.location.href);
 
 const Login = () => {
   const { login } = useAuth();
