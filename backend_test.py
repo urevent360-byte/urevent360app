@@ -44,7 +44,7 @@ import time
 import os
 
 # Configuration - Use environment variable for backend URL
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://planperfect-3.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
