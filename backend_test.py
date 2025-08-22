@@ -594,15 +594,28 @@ class APITester:
     
 
     
-    def run_venue_expansion_tests(self):
-        """Run all Venue Expansion System tests"""
-        print("\n🏛️ STARTING VENUE EXPANSION SYSTEM TESTS")
+    def run_authentication_tests(self):
+        """Run comprehensive authentication system tests"""
+        print("\n🔐 STARTING UREVENT 360 AUTHENTICATION SYSTEM TESTS")
         print("=" * 70)
         
-        self.test_venue_expansion_system()
+        # PRIORITY 1 - User Authentication Testing
+        self.test_all_user_authentication()
+        
+        # PRIORITY 2 - Registration Testing  
+        self.test_user_registration()
+        
+        # PRIORITY 3 - API Endpoints Testing
+        self.test_authentication_endpoints()
+        
+        # PRIORITY 4 - Database Verification
+        self.test_database_verification()
+        
+        # PRIORITY 5 - Error Handling
+        self.test_error_handling()
         
         # Print summary
-        print("\n📊 VENUE EXPANSION SYSTEM TEST SUMMARY")
+        print("\n📊 AUTHENTICATION SYSTEM TEST SUMMARY")
         print("=" * 70)
         
         total_tests = len(self.test_results)
@@ -618,6 +631,8 @@ class APITester:
             print(f"\n❌ Failed Tests:")
             for test_name in self.failed_tests:
                 print(f"   - {test_name}")
+        else:
+            print(f"\n✅ All authentication tests passed successfully!")
         
         return passed_tests, total_tests
     
