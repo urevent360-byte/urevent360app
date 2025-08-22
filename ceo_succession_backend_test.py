@@ -33,7 +33,7 @@ import secrets
 
 # Configuration - Use environment variable for backend URL
 import os
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://planperfect-3.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://event-planner-24.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
@@ -217,7 +217,7 @@ class CEOSuccessionTester:
                 "clientDataJSON": base64.urlsafe_b64encode(json.dumps({
                     "type": "webauthn.create",
                     "challenge": "mock_challenge",
-                    "origin": "https://planperfect-3.preview.emergentagent.com"
+                    "origin": "https://event-planner-24.preview.emergentagent.com"
                 }).encode()).decode()
             },
             "type": "public-key"
@@ -285,7 +285,7 @@ class CEOSuccessionTester:
                 "clientDataJSON": base64.urlsafe_b64encode(json.dumps({
                     "type": "webauthn.get",
                     "challenge": "mock_challenge",
-                    "origin": "https://planperfect-3.preview.emergentagent.com"
+                    "origin": "https://event-planner-24.preview.emergentagent.com"
                 }).encode()).decode(),
                 "signature": base64.urlsafe_b64encode(secrets.token_bytes(64)).decode()
             },
