@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager
 
 # Environment variables
 DATABASE_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
-DATABASE_NAME = "urevent_db"
+DATABASE_NAME = os.environ.get("DB_NAME", "urevent360_db")
 SECRET_KEY = os.environ.get("SECRET_KEY", "your-secret-key-here")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 24
