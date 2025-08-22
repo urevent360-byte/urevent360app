@@ -18,12 +18,18 @@ import {
 // Determine the correct backend URL based on current environment
 const getCurrentBackendURL = () => {
   const currentHost = window.location.hostname;
+  const currentProtocol = window.location.protocol;
+  
   console.log('🔍 Current hostname:', currentHost);
+  console.log('🔍 Current protocol:', currentProtocol);
   
   if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
     return "http://localhost:8001";
+  } else if (currentHost.includes('emergentagent.com')) {
+    // For production environment, use the /api endpoint which should be routed to backend
+    return window.location.origin;
   } else {
-    // If accessing from production URL, use the same host but different port/path
+    // Fallback to environment variable
     return process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
   }
 };
