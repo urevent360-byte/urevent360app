@@ -501,7 +501,6 @@ function App() {
             </div>
           </Router>
         </AuthProvider>
-      </EnhancedAuthProvider>
     </ErrorBoundary>
   );
 }
