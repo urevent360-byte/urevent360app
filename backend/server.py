@@ -25,6 +25,7 @@ security = HTTPBearer()
 # Database connection
 client = AsyncIOMotorClient(DATABASE_URL)
 db = client[DATABASE_NAME]
+print(f"🔧 Connected to database: {DATABASE_URL} -> {DATABASE_NAME}")
 
 # User Models
 class UserLogin(BaseModel):
