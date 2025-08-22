@@ -48,8 +48,9 @@ BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://planperfect-3.pre
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
-# Test credentials
+# Test credentials from review request
 TEST_CREDENTIALS = {
+    "carla_client": {"email": "carladbaquero@gmail.com", "password": "carla123"},
     "admin": {"email": "admin@urevent360.com", "password": "admin123"},
     "vendor": {"email": "vendor@example.com", "password": "vendor123"},
     "employee": {"email": "employee@example.com", "password": "employee123"},
