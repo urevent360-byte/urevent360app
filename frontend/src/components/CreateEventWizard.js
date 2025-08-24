@@ -407,7 +407,7 @@ const CreateEventWizard = () => {
       // Log redirect telemetry
       console.log('📊 redirect_to_event_overview:', {
         eventId: response.data.id,
-        targetUrl: `/events/${response.data.id}/planning`,
+        targetUrl: redirectUrl,
         timestamp: new Date().toISOString()
       });
       
