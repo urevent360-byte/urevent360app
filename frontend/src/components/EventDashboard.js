@@ -20,9 +20,11 @@ const API = `${BACKEND_URL}/api`;
 const EventDashboard = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [editingField, setEditingField] = useState(null);
   const [editValues, setEditValues] = useState({});
   const [activeTab, setActiveTab] = useState('overview');
