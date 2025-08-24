@@ -410,9 +410,10 @@ const CreateEventWizard = () => {
       });
       
     } catch (err) {
-      console.log('📊 Event creation failed:', {
-        status: err.response?.status,
-        reason: err.response?.data?.detail || 'Unknown error'
+      console.log('📊 event_create_failed:', {
+        status: err.response?.status || 'network_error',
+        reason: err.response?.data?.detail || err.message || 'Unknown error',
+        timestamp: new Date().toISOString()
       });
       
       // Handle authentication errors
