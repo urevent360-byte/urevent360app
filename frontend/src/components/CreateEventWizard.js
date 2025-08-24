@@ -361,12 +361,23 @@ const CreateEventWizard = () => {
         category_specific: eventData.categorySpecific
       };
 
+      // Set up timeout warning for long requests
+      const timeoutWarning = setTimeout(() => {
+        if (loading) {
+          setError('Still working… this can take a moment.');
+        }
+      }, 8000);
+
       const response = await axios.post(`${API}/events`, submitData, {
         headers: {
           ...getAuthHeaders(),
           'Idempotency-Key': idempotencyKey
-        }
+        },
+        timeout: 30000 // 30 second timeout
       });
+      
+      // Clear the timeout warning if request completes
+      clearTimeout(timeoutWarning);
       
       // Log successful event creation
       console.log('📊 Event created:', {
