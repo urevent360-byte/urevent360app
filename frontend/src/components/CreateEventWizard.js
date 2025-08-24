@@ -379,13 +379,15 @@ const CreateEventWizard = () => {
       // Clear the timeout warning if request completes
       clearTimeout(timeoutWarning);
       
-      // Log successful event creation
-      console.log('📊 Event created:', {
+      // Log successful event creation telemetry
+      console.log('📊 event_created:', {
         id: response.data.id,
         date: eventData.date,
-        city: eventData.city,
+        city: eventData.city || eventData.location?.city,
         guests: eventData.guestCount,
-        targetBudget: eventData.budget?.target
+        targetBudget: eventData.budget?.target,
+        eventType: eventData.type,
+        timestamp: new Date().toISOString()
       });
       
       // Show success message during navigation
