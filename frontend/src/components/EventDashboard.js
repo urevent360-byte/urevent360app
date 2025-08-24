@@ -65,6 +65,18 @@ const EventDashboard = () => {
     }
   }, [event]);
 
+  // Handle success message from wizard redirect
+  useEffect(() => {
+    if (location.state?.fromWizard && location.state?.showMessage) {
+      setSuccessMessage(location.state.showMessage);
+      // Clear the message after 3 seconds
+      const timer = setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
+
   const fetchEvent = async () => {
     try {
       setLoading(true);
