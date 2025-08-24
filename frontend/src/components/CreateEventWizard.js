@@ -403,7 +403,11 @@ const CreateEventWizard = () => {
       });
       
       // Log redirect telemetry
-      console.log('📊 Redirecting to event overview:', `/events/${response.data.id}/planning`);
+      console.log('📊 redirect_to_event_overview:', {
+        eventId: response.data.id,
+        targetUrl: `/events/${response.data.id}/planning`,
+        timestamp: new Date().toISOString()
+      });
       
     } catch (err) {
       console.log('📊 Event creation failed:', {
