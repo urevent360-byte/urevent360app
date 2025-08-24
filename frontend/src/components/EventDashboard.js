@@ -77,6 +77,16 @@ const EventDashboard = () => {
     }
   }, [location.state]);
 
+  // Handle auto-opening Step-by-Step planner on first visit from wizard
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    if (urlParams.get('openPlanner') === '1' && event) {
+      // Auto-open Step-by-Step Mode and remove the parameter
+      console.log('📊 Auto-opening Step-by-Step planner from wizard');
+      navigate(`/events/${eventId}/plan`, { replace: true });
+    }
+  }, [event, location.search, eventId, navigate]);
+
   const fetchEvent = async () => {
     try {
       setLoading(true);
