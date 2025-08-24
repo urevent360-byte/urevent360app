@@ -638,14 +638,34 @@ async def get_current_user_profile(current_user: dict = Depends(get_current_user
 
 # Event Routes
 @api_router.post("/events", response_model=Event)
-async def create_event(event_data: EventCreate, current_user: dict = Depends(get_current_user)):
+async def create_event(
+    event_data: EventCreate, 
+    current_user: dict = Depends(get_current_user),
+    idempotency_key: str = Header(None, alias="Idempotency-Key")
+):
+    # Check for duplicate request using idempotency key
+    if idempotency_key:
+        existing_event = await db.events.find_one({
+            "user_id": current_user["id"],
+            "idempotency_key": idempotency_key
+        })
+        if existing_event:
+            print(f"📊 Idempotent request - returning existing event: {existing_event['id']}")
+            return Event(**existing_event)
+    
     event_dict = event_data.dict()
     event_dict["user_id"] = current_user["id"]
     event_dict["id"] = str(uuid.uuid4())
     
+    # Store idempotency key if provided
+    if idempotency_key:
+        event_dict["idempotency_key"] = idempotency_key
+    
     # Enhanced filtering fields are already in EventCreate model, no need to extract from requirements
     
     await db.events.insert_one(event_dict)
+    
+    print(f"📊 Event created successfully: {event_dict['id']}")
     return Event(**event_dict)
 
 @api_router.get("/events", response_model=List[Event])
