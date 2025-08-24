@@ -1624,20 +1624,34 @@ const CreateEventWizard = () => {
               <ChevronRight className="ml-2 h-4 w-4" />
             </button>
           ) : (
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              {loading ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Creating...
-                </>
-              ) : (
-                'Create Event & Start Planning'
-              )}
-            </button>
+            <div className="text-center">
+              {/* Microcopy helper text */}
+              <p className="text-sm text-gray-600 mb-3">
+                We'll create your event and take you to your planning workspace.
+              </p>
+              
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                title="Creates your event and opens its planning workspace"
+                aria-label="Creates your event and opens its planning workspace"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    Create Event → Go to Planner
+                    <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
           )}
         </div>
       </div>
