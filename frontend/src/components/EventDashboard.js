@@ -1132,6 +1132,16 @@ const EventDashboard = () => {
         </div>
       </div>
 
+      {/* Success Message */}
+      {successMessage && (
+        <div className="bg-green-50 border-l-4 border-green-400 p-4 mx-6 mt-4 mb-2">
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
+            <p className="text-sm text-green-700">{successMessage}</p>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
         {renderTabContent()}
