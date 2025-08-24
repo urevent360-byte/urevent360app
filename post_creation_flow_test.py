@@ -645,7 +645,7 @@ class PostCreationFlowTester:
         # Authenticate first
         if not self.authenticate():
             print("❌ Authentication failed - cannot proceed with tests")
-            return
+            return 0, 1
         
         try:
             # Test 1: Event Creation with Idempotency
@@ -668,7 +668,7 @@ class PostCreationFlowTester:
             self.cleanup_created_events()
         
         # Print comprehensive summary
-        self.print_test_summary()
+        return self.print_test_summary()
     
     def print_test_summary(self):
         """Print comprehensive test summary"""
