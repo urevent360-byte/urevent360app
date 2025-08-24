@@ -423,11 +423,19 @@ const CreateEventWizard = () => {
         return;
       }
       
+      // Handle timeout errors
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Request timed out. Please check your connection and try again.');
+        return;
+      }
+      
       // Handle other errors
       if (err.response?.status >= 500) {
         setError('Server error. Please try again in a moment.');
-      } else {
+      } else if (err.response?.status >= 400) {
         setError(err.response?.data?.detail || 'Could not create the event. Please try again.');
+      } else {
+        setError('Network error. Please check your connection and try again.');
       }
     } finally {
       setLoading(false);
