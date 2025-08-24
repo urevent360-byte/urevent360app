@@ -308,6 +308,9 @@ const CreateEventWizard = () => {
     try {
       const eventDateTime = new Date(`${eventData.date}T${eventData.time || '12:00'}`);
       
+      // Generate idempotency key based on wizard session to prevent duplicates
+      const idempotencyKey = `wizard-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       const submitData = {
         name: eventData.name,
         event_type: eventData.type,
@@ -359,14 +362,55 @@ const CreateEventWizard = () => {
       };
 
       const response = await axios.post(`${API}/events`, submitData, {
-        headers: getAuthHeaders()
+        headers: {
+          ...getAuthHeaders(),
+          'Idempotency-Key': idempotencyKey
+        }
       });
       
-      // Redirect to Step-by-Step Mode (planning workspace)
-      navigate(`/events/${response.data.id}/plan`);
+      // Log successful event creation
+      console.log('📊 Event created:', {
+        id: response.data.id,
+        date: eventData.date,
+        city: eventData.city,
+        guests: eventData.guestCount,
+        targetBudget: eventData.budget?.target
+      });
+      
+      // Show success message during navigation
+      setError(''); // Clear any existing errors
+      
+      // Redirect to Event Profile (Overview) - this is the EventDashboard at /planning route
+      navigate(`/events/${response.data.id}/planning`, { 
+        state: { 
+          fromWizard: true, 
+          showMessage: 'Event created. Taking you to the planner…',
+          eventData: response.data
+        } 
+      });
+      
+      // Log redirect telemetry
+      console.log('📊 Redirecting to event overview:', `/events/${response.data.id}/planning`);
       
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create event. Please try again.');
+      console.log('📊 Event creation failed:', {
+        status: err.response?.status,
+        reason: err.response?.data?.detail || 'Unknown error'
+      });
+      
+      // Handle authentication errors
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setError('Session expired. Please sign in again.');
+        // Could redirect to login here, but keeping user in wizard for now
+        return;
+      }
+      
+      // Handle other errors
+      if (err.response?.status >= 500) {
+        setError('Server error. Please try again in a moment.');
+      } else {
+        setError(err.response?.data?.detail || 'Could not create the event. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
