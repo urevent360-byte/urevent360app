@@ -394,7 +394,9 @@ const CreateEventWizard = () => {
       setError(''); // Clear any existing errors
       
       // Redirect to Event Profile (Overview) - this is the EventDashboard at /planning route
-      navigate(`/events/${response.data.id}/planning`, { 
+      // Add optional query parameter to auto-open Step-by-Step mode on first visit
+      const redirectUrl = `/events/${response.data.id}/planning?openPlanner=1`;
+      navigate(redirectUrl, { 
         state: { 
           fromWizard: true, 
           showMessage: 'Event created. Taking you to the planner…',
