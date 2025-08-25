@@ -1046,17 +1046,7 @@ const CreateEventWizard = () => {
                                     <input
                                       type="checkbox"
                                       checked={eventData.serviceSubcategories.catering.includes(type)}
-                                      onChange={() => {
-                                        setEventData(prev => ({
-                                          ...prev,
-                                          serviceSubcategories: {
-                                            ...prev.serviceSubcategories,
-                                            catering: prev.serviceSubcategories.catering.includes(type)
-                                              ? prev.serviceSubcategories.catering.filter(t => t !== type)
-                                              : [...prev.serviceSubcategories.catering, type]
-                                          }
-                                        }));
-                                      }}
+                                      onChange={() => handleServiceSubcategoryToggle('catering', type)}
                                       className="h-3 w-3 text-blue-600 focus:ring-blue-500 rounded"
                                     />
                                     <span className="ml-2 text-sm text-gray-700">{type}</span>
