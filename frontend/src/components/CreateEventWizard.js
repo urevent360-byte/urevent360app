@@ -244,6 +244,48 @@ const CreateEventWizard = () => {
         : [...prev[arrayName], value]
     }));
   }, []);
+  // Memoize specific handlers for complex nested structures
+  const handleSpacePreferenceChange = useCallback((field) => (e) => {
+    setEventData(prev => ({
+      ...prev,
+      spacePreferences: {
+        ...prev.spacePreferences,
+        [field]: e.target.checked
+      }
+    }));
+  }, []);
+
+  const handleCeremonyLocationChange = useCallback((field) => (e) => {
+    setEventData(prev => ({
+      ...prev,
+      ceremonyLocation: {
+        ...prev.ceremonyLocation,
+        [field]: e.target.value
+      }
+    }));
+  }, []);
+
+  const handleServiceSubcategoryToggle = useCallback((category, item) => {
+    setEventData(prev => ({
+      ...prev,
+      serviceSubcategories: {
+        ...prev.serviceSubcategories,
+        [category]: prev.serviceSubcategories[category].includes(item)
+          ? prev.serviceSubcategories[category].filter(i => i !== item)
+          : [...prev.serviceSubcategories[category], item]
+      }
+    }));
+  }, []);
+
+  const handleThemeOrFormatChange = useCallback((e) => {
+    setEventData(prev => ({
+      ...prev,
+      categorySpecific: {
+        ...prev.categorySpecific,
+        themeOrFormat: e.target.value ? [e.target.value] : []
+      }
+    }));
+  }, []);
 
   const handleCategorySpecificToggle = (type, value) => {
     setEventData(prev => ({
