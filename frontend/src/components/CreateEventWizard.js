@@ -920,15 +920,7 @@ const CreateEventWizard = () => {
                         <input
                           type="text"
                           value={eventData.ceremonyLocation.address}
-                          onChange={(e) => {
-                            setEventData(prev => ({
-                              ...prev,
-                              ceremonyLocation: {
-                                ...prev.ceremonyLocation,
-                                address: e.target.value
-                              }
-                            }));
-                          }}
+                          onChange={handleCeremonyLocationChange('address')}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                           placeholder="Street address or venue name"
                         />
