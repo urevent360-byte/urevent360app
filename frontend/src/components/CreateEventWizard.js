@@ -892,15 +892,7 @@ const CreateEventWizard = () => {
                         <input
                           type="text"
                           value={eventData.ceremonyLocation.city}
-                          onChange={(e) => {
-                            setEventData(prev => ({
-                              ...prev,
-                              ceremonyLocation: {
-                                ...prev.ceremonyLocation,
-                                city: e.target.value
-                              }
-                            }));
-                          }}
+                          onChange={handleCeremonyLocationChange('city')}
                           className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                           placeholder="Ceremony city or location"
                         />
