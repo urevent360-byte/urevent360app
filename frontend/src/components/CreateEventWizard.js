@@ -21,103 +21,35 @@ import LocationSection from './wizard/LocationSection';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const CreateEventWizard = () => {
-  const navigate = useNavigate();
-  const { getAuthHeaders } = useAuth();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  
-  const [eventData, setEventData] = useState({
-    name: '',
-    type: '',
-    date: '',
-    time: '',
-    city: '',
-    guestCount: '',
-    // Service subcategories (for Catering, Cakes, etc.)
-    serviceSubcategories: {
-      catering: [], // Will store: Full-Service, Appetizers, or Specialty Stations
-      cateringStations: [], // Will store specific stations if Specialty Stations selected
-      cakes: [] // Will store: Wedding Cake, Birthday Cake, etc.
-    },
-    
-    // Extended location preferences (legacy)
-    location: {
-      city: '',
-      zipcode: '',
-      zipOnly: false,
-      radiusMiles: 25
-    },
-    
-    // Unified location preferences (new)
-    location_preferences: {
-      city: '',
-      zipcode: '',
-      zipOnly: false,
-      radiusMiles: 25
-    },
-    
-    // Wedding-specific: Ceremony location (optional)
-    ceremonyLocation: {
-      city: '',
-      zipcode: '',
-      address: '',
-      sameAsReception: true // Default toggle ON
-    },
-    
-    // Wedding-specific: Space preferences
-    spacePreferences: {
-      needCeremonySpace: false,
-      needReceptionSpace: true, // Default ON for weddings
-      preferOneVenue: false // Prefer one venue for both
-    },
-    
-    // Budget preferences  
-    budget: {
-      target: undefined,
-      currency: 'USD'
-    },
-    
-    // Preferences captured in wizard to seed Step-by-Step Mode
-    preferredVenueTypes: [],
-    categorySpecific: {
-      culturalStyle: [],
-      themeOrFormat: [],
-      mitzvahType: '' // For Bar/Bat Mitzvah selection
-    },
-    neededCoreServices: [],
-    neededExtras: []
-  });
+// Move constant arrays outside component to prevent re-creation on every render
+const EVENT_TYPES = [
+  { id: 'wedding', name: 'Wedding', desc: 'Celebrate your special day', icon: '💍' },
+  { id: 'quinceanera', name: 'Quinceañera', desc: 'Celebrate the transition to womanhood', icon: '👑' },
+  { id: 'sweet_16', name: 'Sweet 16', desc: 'Celebrate the milestone birthday', icon: '🎂' },
+  { id: 'mitzvah', name: 'Bar/Bat Mitzvah', desc: 'Jewish coming of age ceremony', icon: '🕯️' },
+  { id: 'corporate', name: 'Corporate Event', desc: 'Business meetings and conferences', icon: '🏢' },
+  { id: 'birthday', name: 'Birthday Party', desc: 'Celebrate another year of life', icon: '🎉' },
+  { id: 'anniversary', name: 'Anniversary', desc: 'Commemorate special milestones', icon: '💕' },
+  { id: 'graduation', name: 'Graduation', desc: 'Academic achievement celebrations', icon: '🎓' },
+  { id: 'baby_shower', name: 'Baby Shower', desc: 'Welcome the new arrival', icon: '👶' },
+  { id: 'retirement', name: 'Retirement Party', desc: 'Celebrate career achievements', icon: '🏖️' },
+  { id: 'other', name: 'Other', desc: 'Custom event type', icon: '🎭' }
+];
 
-  const eventTypes = [
-    { id: 'wedding', name: 'Wedding', desc: 'Celebrate your special day', icon: '💍' },
-    { id: 'quinceanera', name: 'Quinceañera', desc: 'Celebrate the transition to womanhood', icon: '👑' },
-    { id: 'sweet_16', name: 'Sweet 16', desc: 'Celebrate the milestone birthday', icon: '🎂' },
-    { id: 'mitzvah', name: 'Bar/Bat Mitzvah', desc: 'Jewish coming of age ceremony', icon: '🕯️' },
-    { id: 'corporate', name: 'Corporate Event', desc: 'Business meetings and conferences', icon: '🏢' },
-    { id: 'birthday', name: 'Birthday Party', desc: 'Celebrate another year of life', icon: '🎉' },
-    { id: 'anniversary', name: 'Anniversary', desc: 'Commemorate special milestones', icon: '💕' },
-    { id: 'graduation', name: 'Graduation', desc: 'Academic achievement celebrations', icon: '🎓' },
-    { id: 'baby_shower', name: 'Baby Shower', desc: 'Welcome the new arrival', icon: '👶' },
-    { id: 'retirement', name: 'Retirement Party', desc: 'Celebrate career achievements', icon: '🏖️' },
-    { id: 'other', name: 'Other', desc: 'Custom event type', icon: '🎭' }
-  ];
+// Wedding-specific service groupings
+const CEREMONY_SERVICES = [
+  'Officiant',
+  'Ceremony Music/Sound',
+  'Ceremony Arch/Altar',
+  'Ceremony Seating/Chairs', 
+  'Ceremony Décor',
+  'Aisle Runner',
+  'Sound System for Vows'
+];
 
-  // Wedding-specific service groupings
-  const CEREMONY_SERVICES = [
-    'Officiant',
-    'Ceremony Music/Sound',
-    'Ceremony Arch/Altar',
-    'Ceremony Seating/Chairs', 
-    'Ceremony Décor',
-    'Aisle Runner',
-    'Sound System for Vows'
-  ];
-
-  const RECEPTION_SERVICES = [
-    'Catering', // Now with subcategories: Full-Service, Appetizers only, Specialty Stations
-    'Bar Service',
+const RECEPTION_SERVICES = [
+  'Catering', // Now with subcategories: Full-Service, Appetizers only, Specialty Stations
+  'Bar Service',
     'DJ/Band',
     'Photography/Videography',
     'Reception Lighting',
