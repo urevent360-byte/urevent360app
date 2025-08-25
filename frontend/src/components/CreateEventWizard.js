@@ -868,7 +868,7 @@ const CreateEventWizard = () => {
                     <input
                       type="checkbox"
                       checked={eventData.ceremonyLocation.sameAsReception}
-                      onChange={handleSpacePreferenceChange('sameAsReception')}
+                      onChange={handleSameAsReceptionChange}
                       className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
                     />
                     <span className="text-sm font-medium text-gray-700">
