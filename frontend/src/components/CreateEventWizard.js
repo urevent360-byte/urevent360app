@@ -265,6 +265,20 @@ const CreateEventWizard = () => {
     }));
   }, []);
 
+  const handleSameAsReceptionChange = useCallback((e) => {
+    setEventData(prev => ({
+      ...prev,
+      ceremonyLocation: {
+        ...prev.ceremonyLocation,
+        sameAsReception: e.target.checked,
+        // Clear ceremony location if toggling back to same
+        city: e.target.checked ? '' : prev.ceremonyLocation.city,
+        zipcode: e.target.checked ? '' : prev.ceremonyLocation.zipcode,
+        address: e.target.checked ? '' : prev.ceremonyLocation.address
+      }
+    }));
+  }, []);
+
   const handleServiceSubcategoryToggle = useCallback((category, item) => {
     setEventData(prev => ({
       ...prev,
