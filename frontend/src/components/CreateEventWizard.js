@@ -854,19 +854,7 @@ const CreateEventWizard = () => {
                     <input
                       type="checkbox"
                       checked={eventData.ceremonyLocation.sameAsReception}
-                      onChange={(e) => {
-                        setEventData(prev => ({
-                          ...prev,
-                          ceremonyLocation: {
-                            ...prev.ceremonyLocation,
-                            sameAsReception: e.target.checked,
-                            // Clear ceremony location if toggling back to same
-                            city: e.target.checked ? '' : prev.ceremonyLocation.city,
-                            zipcode: e.target.checked ? '' : prev.ceremonyLocation.zipcode,
-                            address: e.target.checked ? '' : prev.ceremonyLocation.address
-                          }
-                        }));
-                      }}
+                      onChange={handleSpacePreferenceChange('sameAsReception')}
                       className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
                     />
                     <span className="text-sm font-medium text-gray-700">
