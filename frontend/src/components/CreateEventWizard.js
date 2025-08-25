@@ -50,6 +50,81 @@ const CEREMONY_SERVICES = [
 const RECEPTION_SERVICES = [
   'Catering', // Now with subcategories: Full-Service, Appetizers only, Specialty Stations
   'Bar Service',
+  'DJ/Band',
+  'Photography/Videography',
+  'Reception Lighting',
+  'Day-of Coordination',
+  'Cakes' // Generalized for all event types (Wedding/Birthday/Quince)
+];
+
+const CreateEventWizard = () => {
+  const navigate = useNavigate();
+  const { getAuthHeaders } = useAuth();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  
+  const [eventData, setEventData] = useState({
+    name: '',
+    type: '',
+    date: '',
+    time: '',
+    city: '',
+    guestCount: '',
+    // Service subcategories (for Catering, Cakes, etc.)
+    serviceSubcategories: {
+      catering: [], // Will store: Full-Service, Appetizers, or Specialty Stations
+      cateringStations: [], // Will store specific stations if Specialty Stations selected
+      cakes: [] // Will store: Wedding Cake, Birthday Cake, etc.
+    },
+    
+    // Extended location preferences (legacy)
+    location: {
+      city: '',
+      zipcode: '',
+      zipOnly: false,
+      radiusMiles: 25
+    },
+    
+    // Unified location preferences (new)
+    location_preferences: {
+      city: '',
+      zipcode: '',
+      zipOnly: false,
+      radiusMiles: 25
+    },
+    
+    // Wedding-specific: Ceremony location (optional)
+    ceremonyLocation: {
+      city: '',
+      zipcode: '',
+      address: '',
+      sameAsReception: true // Default toggle ON
+    },
+    
+    // Wedding-specific: Space preferences
+    spacePreferences: {
+      needCeremonySpace: false,
+      needReceptionSpace: true, // Default ON for weddings
+      preferOneVenue: false // Prefer one venue for both
+    },
+    
+    // Budget preferences  
+    budget: {
+      target: undefined,
+      currency: 'USD'
+    },
+    
+    // Preferences captured in wizard to seed Step-by-Step Mode
+    preferredVenueTypes: [],
+    categorySpecific: {
+      culturalStyle: [],
+      themeOrFormat: [],
+      mitzvahType: '' // For Bar/Bat Mitzvah selection
+    },
+    neededCoreServices: [],
+    neededExtras: []
+  });
     'DJ/Band',
     'Photography/Videography',
     'Reception Lighting',
