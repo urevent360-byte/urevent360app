@@ -167,7 +167,7 @@ const CreateEventWizard = () => {
       : baseSteps;
     
     return allSteps.filter(step => !step.condition || step.condition());
-  }, [eventData.type]); // Only recalculate when eventData.type changes
+  }, [eventData.type, getCategoryStepName, getCategoryStepDesc, shouldShowCategoryStep]); // Include all dependencies
 
   // Memoize helper functions to prevent infinite re-renders
   const getCategoryStepName = useCallback(() => {
