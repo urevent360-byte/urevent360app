@@ -187,7 +187,8 @@ const CreateEventWizard = () => {
     return allSteps.filter(step => !step.condition || step.condition());
   }, [getCategoryStepName, getCategoryStepDesc, shouldShowCategoryStep]); // Simplified dependencies
 
-  const handleInputChange = (e) => {
+  // Memoize all event handlers to prevent unnecessary re-renders
+  const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     if (name.includes('.')) {
       const [parent, child] = name.split('.');
@@ -214,7 +215,7 @@ const CreateEventWizard = () => {
       }
     }
     setError('');
-  };
+  }, []);
 
   const handleLocationChange = (locationData) => {
     setEventData(prev => ({
