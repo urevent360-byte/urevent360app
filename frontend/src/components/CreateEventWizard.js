@@ -236,14 +236,14 @@ const CreateEventWizard = () => {
     setError('');
   }, []);
 
-  const handleArrayToggle = (arrayName, value) => {
+  const handleArrayToggle = useCallback((arrayName, value) => {
     setEventData(prev => ({
       ...prev,
       [arrayName]: prev[arrayName].includes(value)
         ? prev[arrayName].filter(item => item !== value)
         : [...prev[arrayName], value]
     }));
-  };
+  }, []);
 
   const handleCategorySpecificToggle = (type, value) => {
     setEventData(prev => ({
