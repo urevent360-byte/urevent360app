@@ -143,23 +143,6 @@ const CreateEventWizard = () => {
     neededExtras: []
   });
 
-  const CEREMONY_EXTRAS = [
-    'Flower Petals/Confetti',
-    'Unity Candle/Sand',
-    'Guest Book Station',
-    'Ring Bearer Pillow',
-    'Ceremony Programs'
-  ];
-
-  const RECEPTION_EXTRAS = [
-    'Dessert Stations & Sweets', // New comprehensive sweets category
-    'Dance Floor', // Moved from Reception Services to Extras
-    'Special Lighting Effects',
-    'Photo Booth',
-    'Lounge Areas',
-    'Late Night Snacks'
-  ];
-
   // Memoize helper functions to prevent infinite re-renders - MUST BE DEFINED BEFORE useMemo
   const getCategoryStepName = useCallback(() => {
     if (!eventData.type) return 'Category Style';
