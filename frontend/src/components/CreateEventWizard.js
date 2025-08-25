@@ -57,6 +57,23 @@ const RECEPTION_SERVICES = [
   'Cakes' // Generalized for all event types (Wedding/Birthday/Quince)
 ];
 
+const CEREMONY_EXTRAS = [
+  'Flower Petals/Confetti',
+  'Unity Candle/Sand',
+  'Guest Book Station',
+  'Ring Bearer Pillow',
+  'Ceremony Programs'
+];
+
+const RECEPTION_EXTRAS = [
+  'Dessert Stations & Sweets', // New comprehensive sweets category
+  'Dance Floor', // Moved from Reception Services to Extras
+  'Special Lighting Effects',
+  'Photo Booth',
+  'Lounge Areas',
+  'Late Night Snacks'
+];
+
 const CreateEventWizard = () => {
   const navigate = useNavigate();
   const { getAuthHeaders } = useAuth();
