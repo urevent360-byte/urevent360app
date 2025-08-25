@@ -169,22 +169,23 @@ const CreateEventWizard = () => {
     return allSteps.filter(step => !step.condition || step.condition());
   }, [eventData.type]); // Only recalculate when eventData.type changes
 
-  function getCategoryStepName() {
+  // Memoize helper functions to prevent infinite re-renders
+  const getCategoryStepName = useCallback(() => {
     if (!eventData.type) return 'Category Style';
     if (shouldShowCulturalStyles(eventData.type)) return 'Cultural Style';
     const replaceWith = getReplaceWith(eventData.type);
     return replaceWith || 'Category Style';
-  }
+  }, [eventData.type]);
 
-  function getCategoryStepDesc() {
+  const getCategoryStepDesc = useCallback(() => {
     if (!eventData.type) return 'Style preferences';
     if (shouldShowCulturalStyles(eventData.type)) return 'Cultural preferences';
     return 'Theme and format';
-  }
+  }, [eventData.type]);
 
-  function shouldShowCategoryStep() {
+  const shouldShowCategoryStep = useCallback(() => {
     return eventData.type !== '';
-  }
+  }, [eventData.type]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
