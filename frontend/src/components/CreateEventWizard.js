@@ -404,15 +404,22 @@ const CreateEventWizard = () => {
       
       console.log('🎯 Redirect URL:', redirectUrl);
       
-      navigate(redirectUrl, { 
-        state: { 
-          fromWizard: true, 
-          showMessage: 'Event created. Taking you to the planner…',
-          eventData: response.data
-        } 
-      });
-      
-      console.log('🎯 Navigate function called successfully');
+      try {
+        navigate(redirectUrl, { 
+          state: { 
+            fromWizard: true, 
+            showMessage: 'Event created. Taking you to the planner…',
+            eventData: response.data
+          } 
+        });
+        
+        console.log('🎯 Navigate function called successfully');
+      } catch (navError) {
+        console.error('❌ Navigation error:', navError);
+        // Fallback to window.location if navigate fails
+        console.log('🔄 Trying fallback navigation...');
+        window.location.href = redirectUrl;
+      }
       
       // Log redirect telemetry
       console.log('📊 redirect_to_event_overview:', {
