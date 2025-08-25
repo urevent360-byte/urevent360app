@@ -228,13 +228,13 @@ const CreateEventWizard = () => {
     setError('');
   }, []);
 
-  const handleBudgetChange = (budgetData) => {
+  const handleBudgetChange = useCallback((budgetData) => {
     setEventData(prev => ({
       ...prev,
       budget: budgetData
     }));
     setError('');
-  };
+  }, []);
 
   const handleArrayToggle = (arrayName, value) => {
     setEventData(prev => ({
