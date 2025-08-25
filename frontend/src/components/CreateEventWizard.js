@@ -1672,7 +1672,11 @@ const CreateEventWizard = () => {
               </p>
               
               <button
-                onClick={handleSubmit}
+                onClick={() => {
+                  console.log('🚨 BUTTON CLICKED DIRECTLY!');
+                  alert('BUTTON CLICKED! Direct onClick worked!');
+                  handleSubmit();
+                }}
                 disabled={loading}
                 title="Creates your event and opens its planning workspace"
                 aria-label="Creates your event and opens its planning workspace"
