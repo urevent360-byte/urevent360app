@@ -700,15 +700,7 @@ const CreateEventWizard = () => {
                         <input
                           type="checkbox"
                           checked={eventData.spacePreferences.needReceptionSpace}
-                          onChange={(e) => {
-                            setEventData(prev => ({
-                              ...prev,
-                              spacePreferences: {
-                                ...prev.spacePreferences,
-                                needReceptionSpace: e.target.checked
-                              }
-                            }));
-                          }}
+                          onChange={handleSpacePreferenceChange('needReceptionSpace')}
                           className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
                         />
                         <span className="text-sm text-gray-700">Need reception space</span>
