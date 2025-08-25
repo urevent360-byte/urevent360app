@@ -616,7 +616,7 @@ const CreateEventWizard = () => {
                 Event Type *
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {eventTypes.map((type) => {
+                {EVENT_TYPES.map((type) => {
                   const config = EVENT_FLOW_CONFIG[type.id];
                   const showCultural = config?.showCulturalStyles;
                   
