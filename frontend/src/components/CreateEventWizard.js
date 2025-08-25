@@ -484,12 +484,14 @@ const CreateEventWizard = () => {
       setError(''); // Clear any existing errors
       
       console.log('🎯 Initiating navigation to Event Profile...');
+      alert('🎯 API call successful! Attempting redirect...');
       
       // Redirect to Event Profile (Overview) - this is the EventDashboard at /planning route
       // Add optional query parameter to auto-open Step-by-Step mode on first visit
       const redirectUrl = `/events/${response.data.id}/planning?openPlanner=1`;
       
       console.log('🎯 Redirect URL:', redirectUrl);
+      alert(`🎯 Redirecting to: ${redirectUrl}`);
       
       try {
         navigate(redirectUrl, { 
@@ -501,10 +503,13 @@ const CreateEventWizard = () => {
         });
         
         console.log('🎯 Navigate function called successfully');
+        alert('🎯 Navigate function called!');
       } catch (navError) {
         console.error('❌ Navigation error:', navError);
+        alert(`❌ Navigation error: ${navError.message}`);
         // Fallback to window.location if navigate fails
         console.log('🔄 Trying fallback navigation...');
+        alert('🔄 Trying fallback navigation...');
         window.location.href = redirectUrl;
       }
       
