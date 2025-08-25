@@ -1274,7 +1274,7 @@ const CreateEventWizard = () => {
           <h4 className="font-medium text-purple-900 mb-4">Event Summary</h4>
           <div className="space-y-2 text-sm text-purple-700">
             <p><strong>Event:</strong> {eventData.name}</p>
-            <p><strong>Type:</strong> {eventTypes.find(t => t.id === eventData.type)?.name}
+            <p><strong>Type:</strong> {EVENT_TYPES.find(t => t.id === eventData.type)?.name}
               {eventData.type === 'mitzvah' && (eventData.mitzvahType || eventData.categorySpecific?.mitzvahType) && (
                 <span className="text-sm ml-1">
                   ({(eventData.mitzvahType || eventData.categorySpecific?.mitzvahType) === 'bar_mitzvah' ? 'Bar Mitzvah - Boy' : 'Bat Mitzvah - Girl'})
