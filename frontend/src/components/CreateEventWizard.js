@@ -142,27 +142,32 @@ const CreateEventWizard = () => {
     'Late Night Snacks'
   ];
 
-  const baseSteps = [
-    { id: 1, name: 'Basic Info', desc: 'Event details' },
-    { id: 2, name: 'Event Type', desc: 'What kind of event' },
-    { 
-      id: 3, 
-      name: getCategoryStepName(),
-      desc: getCategoryStepDesc(),
-      condition: () => shouldShowCategoryStep()
-    },
-    { id: 4, name: 'Venue Preferences', desc: 'Where you want to host' },
-    { id: 5, name: 'Services Needed', desc: 'What help you need' },
-    { id: 6, name: 'Guest Count', desc: 'Event size' }
-  ];
+  // Memoize the steps array to prevent infinite re-renders
+  const steps = useMemo(() => {
+    const baseSteps = [
+      { id: 1, name: 'Basic Info', desc: 'Event details' },
+      { id: 2, name: 'Event Type', desc: 'What kind of event' },
+      { 
+        id: 3, 
+        name: getCategoryStepName(),
+        desc: getCategoryStepDesc(),
+        condition: () => shouldShowCategoryStep()
+      },
+      { id: 4, name: 'Venue Preferences', desc: 'Where you want to host' },
+      { id: 5, name: 'Services Needed', desc: 'What help you need' },
+      { id: 6, name: 'Guest Count', desc: 'Event size' }
+    ];
 
-  // Add budget step conditionally
-  const budgetStepEnabled = process.env.REACT_APP_FEATURE_WIZARD_BUDGET === 'true';
-  const budgetStep = { id: 7, name: 'Budget', desc: 'Target budget' };
-  
-  const steps = budgetStepEnabled 
-    ? [...baseSteps, budgetStep].filter(step => !step.condition || step.condition())
-    : baseSteps.filter(step => !step.condition || step.condition());
+    // Add budget step conditionally
+    const budgetStepEnabled = process.env.REACT_APP_FEATURE_WIZARD_BUDGET === 'true';
+    const budgetStep = { id: 7, name: 'Budget', desc: 'Target budget' };
+    
+    const allSteps = budgetStepEnabled 
+      ? [...baseSteps, budgetStep]
+      : baseSteps;
+    
+    return allSteps.filter(step => !step.condition || step.condition());
+  }, [eventData.type]); // Only recalculate when eventData.type changes
 
   function getCategoryStepName() {
     if (!eventData.type) return 'Category Style';
