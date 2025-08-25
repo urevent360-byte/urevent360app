@@ -161,16 +161,16 @@ const CreateEventWizard = () => {
     return eventData.type !== '';
   }, [eventData.type]);
 
-  // Memoize the steps array to prevent infinite re-renders
+  // Memoize the steps array using computed values (not function calls) to prevent infinite re-renders
   const steps = useMemo(() => {
     const baseSteps = [
       { id: 1, name: 'Basic Info', desc: 'Event details' },
       { id: 2, name: 'Event Type', desc: 'What kind of event' },
       { 
         id: 3, 
-        name: getCategoryStepName(),
-        desc: getCategoryStepDesc(),
-        condition: shouldShowCategoryStep // Remove arrow function - just use the memoized function directly
+        name: categoryStepName,
+        desc: categoryStepDesc,
+        condition: shouldShowCategory
       },
       { id: 4, name: 'Venue Preferences', desc: 'Where you want to host' },
       { id: 5, name: 'Services Needed', desc: 'What help you need' },
@@ -185,8 +185,8 @@ const CreateEventWizard = () => {
       ? [...baseSteps, budgetStep]
       : baseSteps;
     
-    return allSteps.filter(step => !step.condition || step.condition());
-  }, [getCategoryStepName, getCategoryStepDesc, shouldShowCategoryStep]); // Simplified dependencies
+    return allSteps.filter(step => !step.condition || step.condition);
+  }, [categoryStepName, categoryStepDesc, shouldShowCategory]); // Use computed values as dependencies
 
   // Memoize all event handlers to prevent unnecessary re-renders
   const handleInputChange = useCallback((e) => {
