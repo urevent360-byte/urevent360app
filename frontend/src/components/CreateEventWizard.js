@@ -142,6 +142,24 @@ const CreateEventWizard = () => {
     'Late Night Snacks'
   ];
 
+  // Memoize helper functions to prevent infinite re-renders - MUST BE DEFINED BEFORE useMemo
+  const getCategoryStepName = useCallback(() => {
+    if (!eventData.type) return 'Category Style';
+    if (shouldShowCulturalStyles(eventData.type)) return 'Cultural Style';
+    const replaceWith = getReplaceWith(eventData.type);
+    return replaceWith || 'Category Style';
+  }, [eventData.type]);
+
+  const getCategoryStepDesc = useCallback(() => {
+    if (!eventData.type) return 'Style preferences';
+    if (shouldShowCulturalStyles(eventData.type)) return 'Cultural preferences';
+    return 'Theme and format';
+  }, [eventData.type]);
+
+  const shouldShowCategoryStep = useCallback(() => {
+    return eventData.type !== '';
+  }, [eventData.type]);
+
   // Memoize the steps array to prevent infinite re-renders
   const steps = useMemo(() => {
     const baseSteps = [
@@ -168,24 +186,6 @@ const CreateEventWizard = () => {
     
     return allSteps.filter(step => !step.condition || step.condition());
   }, [eventData.type, getCategoryStepName, getCategoryStepDesc, shouldShowCategoryStep]); // Include all dependencies
-
-  // Memoize helper functions to prevent infinite re-renders
-  const getCategoryStepName = useCallback(() => {
-    if (!eventData.type) return 'Category Style';
-    if (shouldShowCulturalStyles(eventData.type)) return 'Cultural Style';
-    const replaceWith = getReplaceWith(eventData.type);
-    return replaceWith || 'Category Style';
-  }, [eventData.type]);
-
-  const getCategoryStepDesc = useCallback(() => {
-    if (!eventData.type) return 'Style preferences';
-    if (shouldShowCulturalStyles(eventData.type)) return 'Cultural preferences';
-    return 'Theme and format';
-  }, [eventData.type]);
-
-  const shouldShowCategoryStep = useCallback(() => {
-    return eventData.type !== '';
-  }, [eventData.type]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
