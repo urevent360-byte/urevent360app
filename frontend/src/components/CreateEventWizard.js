@@ -199,17 +199,18 @@ const CreateEventWizard = () => {
         }
       }));
     } else {
-      setEventData(prev => ({ ...prev, [name]: value }));
-      
-      // Sync city with location.city for backward compatibility
+      // Handle city synchronization in a single state update
       if (name === 'city') {
         setEventData(prev => ({
           ...prev,
+          [name]: value,
           location: {
             ...prev.location,
             city: value
           }
         }));
+      } else {
+        setEventData(prev => ({ ...prev, [name]: value }));
       }
     }
     setError('');
