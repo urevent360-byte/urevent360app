@@ -217,7 +217,7 @@ const CreateEventWizard = () => {
     setError('');
   }, []);
 
-  const handleLocationChange = (locationData) => {
+  const handleLocationChange = useCallback((locationData) => {
     setEventData(prev => ({
       ...prev,
       location: {
@@ -226,7 +226,7 @@ const CreateEventWizard = () => {
       }
     }));
     setError('');
-  };
+  }, []);
 
   const handleBudgetChange = (budgetData) => {
     setEventData(prev => ({
