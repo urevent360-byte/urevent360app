@@ -143,21 +143,21 @@ const CreateEventWizard = () => {
     neededExtras: []
   });
 
-  // Memoize helper functions to prevent infinite re-renders - MUST BE DEFINED BEFORE useMemo
-  const getCategoryStepName = useCallback(() => {
+  // Memoize computed values (not functions) to prevent circular dependencies
+  const categoryStepName = useMemo(() => {
     if (!eventData.type) return 'Category Style';
     if (shouldShowCulturalStyles(eventData.type)) return 'Cultural Style';
     const replaceWith = getReplaceWith(eventData.type);
     return replaceWith || 'Category Style';
   }, [eventData.type]);
 
-  const getCategoryStepDesc = useCallback(() => {
+  const categoryStepDesc = useMemo(() => {
     if (!eventData.type) return 'Style preferences';
     if (shouldShowCulturalStyles(eventData.type)) return 'Cultural preferences';
     return 'Theme and format';
   }, [eventData.type]);
 
-  const shouldShowCategoryStep = useCallback(() => {
+  const shouldShowCategory = useMemo(() => {
     return eventData.type !== '';
   }, [eventData.type]);
 
