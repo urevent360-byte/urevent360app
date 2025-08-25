@@ -169,7 +169,7 @@ const CreateEventWizard = () => {
         id: 3, 
         name: getCategoryStepName(),
         desc: getCategoryStepDesc(),
-        condition: () => shouldShowCategoryStep()
+        condition: shouldShowCategoryStep // Remove arrow function - just use the memoized function directly
       },
       { id: 4, name: 'Venue Preferences', desc: 'Where you want to host' },
       { id: 5, name: 'Services Needed', desc: 'What help you need' },
@@ -185,7 +185,7 @@ const CreateEventWizard = () => {
       : baseSteps;
     
     return allSteps.filter(step => !step.condition || step.condition());
-  }, [eventData.type, getCategoryStepName, getCategoryStepDesc, shouldShowCategoryStep]); // Include all dependencies
+  }, [getCategoryStepName, getCategoryStepDesc, shouldShowCategoryStep]); // Simplified dependencies
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
