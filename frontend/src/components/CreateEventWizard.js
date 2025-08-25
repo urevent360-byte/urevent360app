@@ -125,12 +125,6 @@ const CreateEventWizard = () => {
     neededCoreServices: [],
     neededExtras: []
   });
-    'DJ/Band',
-    'Photography/Videography',
-    'Reception Lighting',
-    'Day-of Coordination',
-    'Cakes' // Generalized for all event types (Wedding/Birthday/Quince)
-  ];
 
   const CEREMONY_EXTRAS = [
     'Flower Petals/Confetti',
