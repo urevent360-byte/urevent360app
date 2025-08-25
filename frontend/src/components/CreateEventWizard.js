@@ -379,6 +379,9 @@ const CreateEventWizard = () => {
       // Clear the timeout warning if request completes
       clearTimeout(timeoutWarning);
       
+      console.log('🎯 Event creation successful, preparing redirect...');
+      console.log('📊 Response data:', response.data);
+      
       // Log successful event creation telemetry
       console.log('📊 event_created:', {
         id: response.data.id,
@@ -393,9 +396,14 @@ const CreateEventWizard = () => {
       // Show success message during navigation
       setError(''); // Clear any existing errors
       
+      console.log('🎯 Initiating navigation to Event Profile...');
+      
       // Redirect to Event Profile (Overview) - this is the EventDashboard at /planning route
       // Add optional query parameter to auto-open Step-by-Step mode on first visit
       const redirectUrl = `/events/${response.data.id}/planning?openPlanner=1`;
+      
+      console.log('🎯 Redirect URL:', redirectUrl);
+      
       navigate(redirectUrl, { 
         state: { 
           fromWizard: true, 
@@ -403,6 +411,8 @@ const CreateEventWizard = () => {
           eventData: response.data
         } 
       });
+      
+      console.log('🎯 Navigate function called successfully');
       
       // Log redirect telemetry
       console.log('📊 redirect_to_event_overview:', {
