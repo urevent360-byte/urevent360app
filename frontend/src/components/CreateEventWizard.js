@@ -297,10 +297,26 @@ const CreateEventWizard = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(steps.length)) {
+    console.log('🎯 handleSubmit called, validating final step...');
+    console.log('🎯 Steps length:', steps.length);
+    console.log('🎯 Current eventData:', eventData);
+    
+    const validationResult = validateStep(steps.length);
+    console.log('🎯 Validation result:', validationResult);
+    
+    if (!validationResult) {
+      console.log('❌ Validation failed - checking individual fields...');
+      console.log('🎯 Event name:', eventData.name);
+      console.log('🎯 Event type:', eventData.type);
+      console.log('🎯 Event date:', eventData.date);
+      console.log('🎯 Guest count:', eventData.guestCount);
+      console.log('🎯 Budget:', eventData.budget);
+      
       setError('Please fill in all required fields');
       return;
     }
+    
+    console.log('✅ Validation passed, proceeding with event creation...');
 
     setLoading(true);
     setError('');
