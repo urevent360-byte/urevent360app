@@ -715,15 +715,7 @@ const CreateEventWizard = () => {
                         <input
                           type="checkbox"
                           checked={eventData.spacePreferences.preferOneVenue}
-                          onChange={(e) => {
-                            setEventData(prev => ({
-                              ...prev,
-                              spacePreferences: {
-                                ...prev.spacePreferences,
-                                preferOneVenue: e.target.checked
-                              }
-                            }));
-                          }}
+                          onChange={handleSpacePreferenceChange('preferOneVenue')}
                           className="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
                         />
                         <span className="text-sm font-medium text-gray-700">Prefer one venue for both</span>
