@@ -302,7 +302,7 @@ const CreateEventWizard = () => {
     }));
   }, []);
 
-  const handleCategorySpecificToggle = (type, value) => {
+  const handleCategorySpecificToggle = useCallback((type, value) => {
     setEventData(prev => ({
       ...prev,
       categorySpecific: {
@@ -312,7 +312,47 @@ const CreateEventWizard = () => {
           : [...prev.categorySpecific[type], value]
       }
     }));
-  };
+  }, []);
+
+  // Memoized handler for unified location changes
+  const handleUnifiedLocationChange = useCallback((locationData) => {
+    // Update both city (for backward compatibility) and location_preferences (unified)
+    setEventData(prev => ({
+      ...prev,
+      city: locationData.city || prev.city,
+      location_preferences: {
+        ...prev.location_preferences,
+        ...locationData
+      }
+    }));
+    setError('');
+  }, []);
+
+  // Memoized handlers for specific array toggles to avoid inline functions
+  const handlePreferredVenueTypeToggle = useCallback((venue) => {
+    handleArrayToggle('preferredVenueTypes', venue);
+  }, [handleArrayToggle]);
+
+  const handleCoreServiceToggle = useCallback((service) => {
+    handleArrayToggle('neededCoreServices', service);
+  }, [handleArrayToggle]);
+
+  const handleExtraToggle = useCallback((extra) => {
+    handleArrayToggle('neededExtras', extra);
+  }, [handleArrayToggle]);
+
+  // Memoized handlers for service subcategory toggles
+  const handleCateringToggle = useCallback((type) => {
+    handleServiceSubcategoryToggle('catering', type);
+  }, [handleServiceSubcategoryToggle]);
+
+  const handleCateringStationToggle = useCallback((station) => {
+    handleServiceSubcategoryToggle('cateringStations', station);
+  }, [handleServiceSubcategoryToggle]);
+
+  const handleCakeToggle = useCallback((cakeType) => {
+    handleServiceSubcategoryToggle('cakes', cakeType);
+  }, [handleServiceSubcategoryToggle]);
 
   const validateStep = (step) => {
     switch (step) {
