@@ -351,28 +351,44 @@ const EventDashboard = () => {
                 
                 {/* Responsive grid that ensures boxes are always next to each other on larger screens */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                  {/* Left Box: Start New Planning - Demoted (no gradient, smaller) */}
-                  <div className="relative border border-gray-300 rounded-lg p-4 hover:border-gray-400 transition-all duration-300 hover:shadow-sm bg-white h-full group">
+                  {/* Left Box: Convert Draft Planning to Quote */}
+                  <div className="relative border border-amber-200 rounded-lg p-4 hover:border-amber-300 transition-all duration-300 hover:shadow-md bg-gradient-to-br from-amber-50 to-orange-50 h-full group">
                     <div className="text-center h-full flex flex-col justify-between">
                       <div>
-                        <div className="mx-auto h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                          <Wand2 className="h-6 w-6 text-gray-600" />
+                        <div className="mx-auto h-12 w-12 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center mb-3">
+                          <FileText className="h-6 w-6 text-white" />
                         </div>
                         <h5 className="text-base font-medium text-gray-900 mb-2">
-                          Start Planning
+                          Convert to Quote
                         </h5>
-                        <p className="text-gray-600 mb-3 text-sm">Create a new quote using interactive vendor selection</p>
-                        <div className="text-xs text-gray-600 bg-gray-100 rounded-full px-3 py-1 inline-block mb-3">
-                          💼 Interactive Planner
+                        <p className="text-gray-700 mb-3 text-sm">Turn your event planning draft into a professional quote</p>
+                        <div className="text-xs text-amber-700 bg-amber-100 rounded-full px-3 py-1 inline-block mb-3">
+                          📋 Draft → Quote
                         </div>
+                        
+                        {/* Show planning progress if available */}
+                        {planningProgress.selectedVendors.length > 0 && (
+                          <div className="text-xs text-gray-600 mb-2">
+                            {planningProgress.selectedVendors.length} vendor{planningProgress.selectedVendors.length !== 1 ? 's' : ''} selected
+                          </div>
+                        )}
                       </div>
                       
                       <button
-                        onClick={handleCreateNewQuote}
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                        onClick={() => {
+                          // Convert current planning progress to quote
+                          if (planningProgress.selectedVendors.length > 0) {
+                            setShowInteractivePlanner(true);
+                          } else {
+                            // If no progress, start fresh planning
+                            handleCreateNewQuote();
+                          }
+                        }}
+                        className="inline-flex items-center px-4 py-2 border border-amber-300 text-amber-800 font-medium rounded-lg hover:bg-amber-100 transition-colors group-hover:border-amber-400"
+                        disabled={planningProgress.selectedVendors.length === 0 && planningProgress.completedSteps === 0}
                       >
-                        <Wand2 className="h-4 w-4 mr-2" />
-                        Start Planning
+                        <FileText className="h-4 w-4 mr-2" />
+                        {planningProgress.selectedVendors.length > 0 ? 'Continue Draft' : 'Start Draft'}
                       </button>
                     </div>
                   </div>
