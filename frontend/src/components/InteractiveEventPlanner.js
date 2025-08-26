@@ -69,28 +69,57 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
   const [availableServices, setAvailableServices] = useState([]);
   const [activeQuoteId, setActiveQuoteId] = useState(null);
 
-  // Sync questionnaire data from event
+  // Sync questionnaire data from event (enhanced to use wizard_answers)
   const syncQuestionnaireFilters = (event) => {
     if (!event) return;
     
+    // Use wizard_answers if available (new format), otherwise fallback to legacy fields
+    const wizardAnswers = event.wizard_answers;
+    
     const filters = {
-      preferred_venue_type: event.preferred_venue_type || '',
-      services_needed: event.services_needed || [],
-      guest_count: event.guest_count || 0,
-      event_type: event.event_type || '',
-      cultural_style: event.cultural_style || '',
-      budget: event.budget || 0,
-      location: event.location || '',
-      date: event.date || ''
+      preferred_venue_type: wizardAnswers?.preferred_venue_types?.[0] || event.preferred_venue_type || '',
+      services_needed: [
+        ...(wizardAnswers?.needed_core_services || event.needed_core_services || []),
+        ...(wizardAnswers?.needed_extras || event.needed_extras || [])
+      ],
+      guest_count: wizardAnswers?.guest_count || event.guest_count || 0,
+      event_type: wizardAnswers?.event_type || event.event_type || '',
+      cultural_style: wizardAnswers?.cultural_style?.[0] || event.cultural_style || '',
+      budget: wizardAnswers?.budget_target || event.budget_preferences?.target || event.budget || 0,
+      location: wizardAnswers?.location_city || event.location || '',
+      date: wizardAnswers?.date || event.date || '',
+      
+      // Additional wizard data for enhanced matching
+      venue_types: wizardAnswers?.preferred_venue_types || [],
+      core_services: wizardAnswers?.needed_core_services || [],
+      extras: wizardAnswers?.needed_extras || [],
+      service_subcategories: wizardAnswers?.service_subcategories || {},
+      theme_format: wizardAnswers?.theme_or_format || [],
+      mitzvah_type: wizardAnswers?.mitzvah_type || null
     };
     
     setQuestionnaireFilters(filters);
     setIsAtHome(filters.preferred_venue_type === 'at_home' || filters.preferred_venue_type === 'my_own_private_space');
     setAvailableServices(filters.services_needed);
     
-    console.log('🔄 Synced questionnaire filters:', filters);
+    // Initialize budget tracker with target budget
+    if (filters.budget > 0) {
+      setBudgetData(prev => ({
+        ...prev,
+        set: filters.budget,
+        remaining: filters.budget - prev.selected
+      }));
+    }
+    
+    console.log('🔄 Synced questionnaire filters from wizard_answers:', filters);
     console.log('🏠 At-home event:', filters.preferred_venue_type === 'at_home');
     console.log('📋 Available services:', filters.services_needed);
+    console.log('💰 Target budget:', filters.budget);
+    
+    // Show success message if wizard answers were used
+    if (wizardAnswers) {
+      console.log('✅ Pre-filled from your questionnaire');
+    }
   };
 
   // Search vendors with questionnaire filters applied
