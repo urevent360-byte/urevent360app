@@ -1025,7 +1025,7 @@ const CreateEventWizard = () => {
                             <input
                               type="checkbox"
                               checked={eventData.neededCoreServices.includes(service)}
-                              onChange={() => handleArrayToggle('neededCoreServices', service)}
+                              onChange={() => handleCoreServiceToggle(service)}
                               className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
                             />
                             <div className="ml-3">
