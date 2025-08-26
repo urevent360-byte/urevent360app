@@ -1083,7 +1083,7 @@ const CreateEventWizard = () => {
                                         <input
                                           type="checkbox"
                                           checked={eventData.serviceSubcategories.cateringStations.includes(station)}
-                                          onChange={() => handleServiceSubcategoryToggle('cateringStations', station)}
+                                          onChange={() => handleCateringStationToggle(station)}
                                           className="h-3 w-3 text-blue-600 focus:ring-blue-500 rounded"
                                         />
                                         <span className="ml-1 text-xs text-gray-600">{station}</span>
