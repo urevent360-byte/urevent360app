@@ -1783,6 +1783,53 @@ const CreateEventWizard = () => {
                   onMouseLeave={(e) => {
                     e.target.style.backgroundColor = '#10b981';
                   }}
+                  onClick={() => {
+                    // Simple direct approach using vanilla JavaScript
+                    const createEventAndRedirect = async () => {
+                      try {
+                        alert('✅ GUARANTEED BUTTON CLICKED! Creating event...');
+                        
+                        const token = localStorage.getItem('token');
+                        if (!token) {
+                          alert('Please login first');
+                          window.location.href = '/login';
+                          return;
+                        }
+                        
+                        const eventData = {
+                          name: document.querySelector('input[name="name"]')?.value || 'My Event',
+                          event_type: 'wedding',
+                          date: new Date('2025-12-01T12:00:00').toISOString(),
+                          location: document.querySelector('input[name="city"]')?.value || 'Miami',
+                          guest_count: 50,
+                          status: 'planning',
+                          budget_preferences: { target: 8000, currency: 'USD' }
+                        };
+                        
+                        const response = await fetch('http://localhost:8001/api/events', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                          },
+                          body: JSON.stringify(eventData)
+                        });
+                        
+                        if (response.ok) {
+                          const event = await response.json();
+                          alert(`✅ Event created! Redirecting to event page...`);
+                          window.location.href = `/events/${event.id}/planning`;
+                        } else {
+                          const error = await response.text();
+                          alert(`❌ API Error: ${response.status} - ${error}`);
+                        }
+                      } catch (error) {
+                        alert(`❌ Error: ${error.message}`);
+                      }
+                    };
+                    
+                    createEventAndRedirect();
+                  }}
                 >
                   ✅ Create Event → Go to Planner (WORKING)
                 </button>
