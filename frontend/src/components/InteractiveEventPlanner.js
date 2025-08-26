@@ -122,58 +122,109 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     }
   };
 
-  // Search vendors with questionnaire filters applied
-  const searchVendorsWithFilters = async (serviceCategory) => {
-    console.log(`🔍 Searching ${serviceCategory} with filters:`, questionnaireFilters);
+  // Enhanced search vendors with questionnaire filters and fallback ladder
+  const searchVendorsWithFilters = async (serviceCategory, fallbackLevel = 0) => {
+    console.log(`🔍 Searching ${serviceCategory} with filters (fallback level: ${fallbackLevel}):`, questionnaireFilters);
     
     try {
       setLoading(true);
       
-      // Build filter object for API
+      // Build filter object for API with fallback adjustments
       const filterParams = {
         service_type: serviceCategory,
         guest_count: questionnaireFilters.guest_count,
         event_type: questionnaireFilters.event_type,
         location: questionnaireFilters.location,
-        budget_per_service: Math.floor((questionnaireFilters.budget || 0) / (availableServices.length + (isAtHome ? 0 : 1))),
+        date: questionnaireFilters.date,
+        budget_per_service: Math.floor((questionnaireFilters.budget || 0) / Math.max(plannerSteps.length - 2, 1)), // Exclude planning and review steps
         preferred_venue_type: serviceCategory === 'venue' ? questionnaireFilters.preferred_venue_type : undefined,
-        cultural_style: questionnaireFilters.cultural_style
+        
+        // Apply fallback ladder for cultural style
+        cultural_style: fallbackLevel === 0 ? questionnaireFilters.cultural_style : 
+                       fallbackLevel === 1 ? '' : // Remove cultural filter on first fallback
+                       undefined,
+        
+        // Apply fallback ladder for radius
+        radius: fallbackLevel === 0 ? 30 : 
+                fallbackLevel === 1 ? 60 : 
+                fallbackLevel === 2 ? 120 : 180,
+        
+        // Sort by best match with fallbacks
+        sort: fallbackLevel === 0 ? 'best_match' : 
+              fallbackLevel === 1 ? 'rating' : 
+              'popular', // Popular vendors as last resort
+              
+        // Limit results for performance
+        limit: 20
       };
 
-      // Remove undefined values
+      // Remove undefined/empty values
       Object.keys(filterParams).forEach(key => {
-        if (filterParams[key] === undefined || filterParams[key] === '') {
+        if (filterParams[key] === undefined || filterParams[key] === '' || filterParams[key] === null) {
           delete filterParams[key];
         }
       });
+
+      console.log(`🔎 API request params (level ${fallbackLevel}):`, filterParams);
 
       const response = await axios.get(`${API}/vendors/search`, {
         params: filterParams,
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      const vendorResults = response.data || [];
+      console.log(`📊 Found ${vendorResults.length} ${serviceCategory} vendors`);
+
+      // Check if we need to apply fallback ladder
+      if (vendorResults.length < 3 && fallbackLevel < 3) {
+        console.log(`⚠️ Only ${vendorResults.length} results found, trying fallback level ${fallbackLevel + 1}`);
+        
+        // Store partial results and try fallback
+        const fallbackResults = await searchVendorsWithFilters(serviceCategory, fallbackLevel + 1);
+        
+        // Combine results, prioritizing original matches
+        const combinedResults = [...vendorResults, ...fallbackResults].slice(0, 20);
+        
+        // Add fallback metadata
+        if (fallbackLevel === 0 && combinedResults.length > vendorResults.length) {
+          combinedResults.fallbackApplied = true;
+          combinedResults.originalCount = vendorResults.length;
+          combinedResults.fallbackLevel = fallbackLevel + 1;
+        }
+        
+        return combinedResults;
+      }
+
       // Set vendors for this category
       setVendors(prev => ({
         ...prev,
-        [serviceCategory]: response.data || []
+        [serviceCategory]: vendorResults
       }));
 
-      // Find the step for this service and navigate to it
+      // Navigate to the step for this service
       const stepIndex = plannerSteps.findIndex(step => step.id === serviceCategory);
       if (stepIndex !== -1) {
         setCurrentStep(stepIndex);
-        setCurrentMode('new'); // Switch to vendor selection mode
+        setCurrentMode('new');
       }
 
-      console.log(`✅ Found ${response.data?.length || 0} ${serviceCategory} vendors with filters`);
+      console.log(`✅ Search complete: ${vendorResults.length} ${serviceCategory} vendors loaded`);
+      return vendorResults;
       
     } catch (error) {
       console.error(`❌ Error searching ${serviceCategory} vendors:`, error);
-      // Show empty state or error message
+      
+      // Fallback to empty state with request vendor option
+      const emptyState = [];
+      emptyState.showRequestVendor = true;
+      emptyState.serviceType = serviceCategory;
+      
       setVendors(prev => ({
         ...prev,
-        [serviceCategory]: []
+        [serviceCategory]: emptyState
       }));
+      
+      return emptyState;
     } finally {
       setLoading(false);
     }
