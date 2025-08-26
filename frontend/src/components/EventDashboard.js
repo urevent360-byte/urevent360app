@@ -404,231 +404,106 @@ const EventDashboard = () => {
               )}
             </div>
 
-            {/* Event Information */}
+            {/* Quick Actions for Event Progress */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-medium text-gray-900">Event Information</h3>
-                <button
-                  onClick={() => {
-                    if (editingEventInfo) {
-                      setEditingEventInfo(false);
-                    } else {
-                      initializeEditValues();
-                      setEditingEventInfo(true);
-                    }
-                  }}
-                  className="inline-flex items-center px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  {editingEventInfo ? (
-                    <>
-                      <X className="h-4 w-4 mr-2" />
-                      Cancel
-                    </>
-                  ) : (
-                    <>
-                      <Edit3 className="h-4 w-4 mr-2" />
-                      Edit Info
-                    </>
-                  )}
-                </button>
+                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                  <Zap className="h-5 w-5 text-blue-600 mr-2" />
+                  Quick Actions
+                </h3>
               </div>
 
-              {editingEventInfo ? (
-                /* Edit Mode - Enhanced Event Information Form */
-                <div className="space-y-6">
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                      {error}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Find Venues Action */}
+                <div className="border border-blue-200 rounded-lg p-4 hover:border-blue-300 transition-all duration-200 hover:shadow-md bg-gradient-to-br from-blue-50 to-indigo-50">
+                  <div className="text-center">
+                    <div className="mx-auto h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center mb-3">
+                      <Building className="h-5 w-5 text-white" />
                     </div>
-                  )}
-
-                  {/* Event Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Event Type <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={editValues.event_type}
-                      onChange={(e) => setEditValues({ ...editValues, event_type: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="">Select Event Type</option>
-                      <option value="wedding">Wedding</option>
-                      <option value="birthday">Birthday Party</option>
-                      <option value="anniversary">Anniversary</option>
-                      <option value="corporate">Corporate Event</option>
-                      <option value="quinceañera">Quinceañera</option>
-                      <option value="graduation">Graduation</option>
-                      <option value="baby_shower">Baby Shower</option>
-                      <option value="retirement">Retirement Party</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  {/* Event Date */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Event Date
-                    </label>
-                    <input
-                      type="date"
-                      value={editValues.date}
-                      onChange={(e) => setEditValues({ ...editValues, date: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    />
-                  </div>
-
-                  {/* Cultural Style */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Cultural Style
-                    </label>
-                    <select
-                      value={editValues.cultural_style}
-                      onChange={(e) => setEditValues({ ...editValues, cultural_style: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="">Select Cultural Style</option>
-                      <option value="american">American</option>
-                      <option value="hispanic">Hispanic/Latino</option>
-                      <option value="indian">Indian</option>
-                      <option value="jewish">Jewish</option>
-                      <option value="african">African</option>
-                      <option value="asian">Asian</option>
-                      <option value="middle_eastern">Middle Eastern</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  {/* Preferred Venue Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Preferred Venue Type <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={editValues.preferred_venue_type}
-                      onChange={(e) => setEditValues({ ...editValues, preferred_venue_type: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    >
-                      <option value="">Select Venue Type</option>
-                      <option value="indoor">Indoor Venue</option>
-                      <option value="outdoor">Outdoor Venue</option>
-                      <option value="hotel">Hotel/Banquet Hall</option>
-                      <option value="restaurant">Restaurant</option>
-                      <option value="at_home">At-Home/Private Residence</option>
-                      <option value="my_own_private_space">My Own Private Space</option>
-                      <option value="i_already_have_a_venue">I Already Have a Venue</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  {/* Services Needed */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Services Needed <span className="text-red-500">*</span>
-                    </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {[
-                        'catering', 'decoration', 'photography', 'music_dj', 
-                        'transportation', 'lighting', 'security', 'videography',
-                        'flowers', 'entertainment'
-                      ].map((service) => (
-                        <label key={service} className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={editValues.services_needed?.includes(service) || false}
-                            onChange={(e) => {
-                              const currentServices = editValues.services_needed || [];
-                              if (e.target.checked) {
-                                setEditValues({
-                                  ...editValues,
-                                  services_needed: [...currentServices, service]
-                                });
-                              } else {
-                                setEditValues({
-                                  ...editValues,
-                                  services_needed: currentServices.filter(s => s !== service)
-                                });
-                              }
-                            }}
-                            className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
-                          />
-                          <span className="text-sm text-gray-700 capitalize">
-                            {service.replace('_', ' / ')}
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
-                    <button
-                      onClick={() => setEditingEventInfo(false)}
-                      className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveEventInfo}
-                      disabled={savingEventInfo}
-                      className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
-                    >
-                      {savingEventInfo ? (
-                        <div className="flex items-center space-x-2">
-                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                          <span>Saving...</span>
-                        </div>
-                      ) : (
-                        'Save Event Info'
-                      )}
+                    <h4 className="font-medium text-gray-900 mb-2">Find Venues</h4>
+                    <p className="text-sm text-gray-600 mb-3">Browse and book venues for your {event?.event_type?.replace('_', ' ') || 'event'}</p>
+                    <button className="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium">
+                      <MapPin className="h-4 w-4 mr-1" />
+                      Browse Venues
                     </button>
                   </div>
                 </div>
-              ) : (
-                /* Display Mode - Current Event Information */
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <div className="text-sm font-medium text-gray-500 mb-1">Event Type</div>
-                      <div className="text-lg text-gray-900 capitalize">
-                        {event.event_type?.replace('_', ' ') || 'Not specified'}
-                      </div>
+
+                {/* Vendor Directory Action */}
+                <div className="border border-green-200 rounded-lg p-4 hover:border-green-300 transition-all duration-200 hover:shadow-md bg-gradient-to-br from-green-50 to-emerald-50">
+                  <div className="text-center">
+                    <div className="mx-auto h-10 w-10 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center mb-3">
+                      <Users className="h-5 w-5 text-white" />
                     </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-500 mb-1">Cultural Style</div>
-                      <div className="text-lg text-gray-900 capitalize">
-                        {event.cultural_style?.replace('_', ' ') || 'Not specified'}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-gray-500 mb-1">Preferred Venue Type</div>
-                      <div className="text-lg text-gray-900 capitalize">
-                        {event.preferred_venue_type?.replace('_', ' ') || 'Not specified'}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="text-sm font-medium text-gray-500 mb-1">Services Needed</div>
-                      <div className="flex flex-wrap gap-2">
-                        {event.services_needed && event.services_needed.length > 0 ? (
-                          event.services_needed.map((service, index) => (
-                            <span
-                              key={index}
-                              className="inline-flex px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full capitalize"
-                            >
-                              {service.replace('_', ' / ')}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-gray-400 italic">No services specified</span>
-                        )}
-                      </div>
-                    </div>
+                    <h4 className="font-medium text-gray-900 mb-2">Find Vendors</h4>
+                    <p className="text-sm text-gray-600 mb-3">Discover caterers, photographers, DJs, and more</p>
+                    <button className="inline-flex items-center text-sm text-green-600 hover:text-green-700 font-medium">
+                      <Search className="h-4 w-4 mr-1" />
+                      Browse Vendors
+                    </button>
                   </div>
                 </div>
-              )}
+
+                {/* Budget Tracker Action */}
+                <div className="border border-purple-200 rounded-lg p-4 hover:border-purple-300 transition-all duration-200 hover:shadow-md bg-gradient-to-br from-purple-50 to-pink-50">
+                  <div className="text-center">
+                    <div className="mx-auto h-10 w-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center mb-3">
+                      <DollarSign className="h-5 w-5 text-white" />
+                    </div>
+                    <h4 className="font-medium text-gray-900 mb-2">Budget Tracker</h4>
+                    <p className="text-sm text-gray-600 mb-3">Track expenses and stay within budget</p>
+                    <button className="inline-flex items-center text-sm text-purple-600 hover:text-purple-700 font-medium">
+                      <Calculator className="h-4 w-4 mr-1" />
+                      View Budget
+                    </button>
+                  </div>
+                </div>
+
+                {/* Event Timeline Action */}
+                <div className="border border-orange-200 rounded-lg p-4 hover:border-orange-300 transition-all duration-200 hover:shadow-md bg-gradient-to-br from-orange-50 to-red-50">
+                  <div className="text-center">
+                    <div className="mx-auto h-10 w-10 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center mb-3">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <h4 className="font-medium text-gray-900 mb-2">Timeline</h4>
+                    <p className="text-sm text-gray-600 mb-3">Plan tasks and deadlines leading to your event</p>
+                    <button className="inline-flex items-center text-sm text-orange-600 hover:text-orange-700 font-medium">
+                      <Clock className="h-4 w-4 mr-1" />
+                      View Timeline
+                    </button>
+                  </div>
+                </div>
+
+                {/* Guest Management Action */}
+                <div className="border border-teal-200 rounded-lg p-4 hover:border-teal-300 transition-all duration-200 hover:shadow-md bg-gradient-to-br from-teal-50 to-cyan-50">
+                  <div className="text-center">
+                    <div className="mx-auto h-10 w-10 rounded-full bg-gradient-to-r from-teal-500 to-cyan-600 flex items-center justify-center mb-3">
+                      <UserPlus className="h-5 w-5 text-white" />
+                    </div>
+                    <h4 className="font-medium text-gray-900 mb-2">Guest List</h4>
+                    <p className="text-sm text-gray-600 mb-3">Manage RSVPs and guest information</p>
+                    <button className="inline-flex items-center text-sm text-teal-600 hover:text-teal-700 font-medium">
+                      <Users className="h-4 w-4 mr-1" />
+                      Manage Guests
+                    </button>
+                  </div>
+                </div>
+
+                {/* Event Checklist Action */}
+                <div className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-all duration-200 hover:shadow-md bg-gradient-to-br from-gray-50 to-slate-50">
+                  <div className="text-center">
+                    <div className="mx-auto h-10 w-10 rounded-full bg-gradient-to-r from-gray-500 to-slate-600 flex items-center justify-center mb-3">
+                      <CheckSquare className="h-5 w-5 text-white" />
+                    </div>
+                    <h4 className="font-medium text-gray-900 mb-2">Checklist</h4>
+                    <p className="text-sm text-gray-600 mb-3">Stay organized with planning milestones</p>
+                    <button className="inline-flex items-center text-sm text-gray-600 hover:text-gray-700 font-medium">
+                      <ClipboardList className="h-4 w-4 mr-1" />
+                      View Checklist
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Quotes Section - Event Profile Integration */}
