@@ -393,34 +393,40 @@ const EventDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Right Box: Resume Quote - Only show if quotes exist */}
+                  {/* Right Box: Resume Saved Quotes - Only show if quotes exist */}
                   {eventQuotes.length > 0 && (
-                    <div className="border border-gray-300 rounded-lg p-4 hover:border-gray-400 transition-all duration-300 hover:shadow-sm bg-white h-full relative">
+                    <div className="border border-purple-200 rounded-lg p-4 hover:border-purple-300 transition-all duration-300 hover:shadow-md bg-gradient-to-br from-purple-50 to-indigo-50 h-full relative">
                       {/* Quotes Count Badge */}
-                      <div className="absolute -top-2 -right-2 bg-gray-500 text-white text-xs font-bold rounded-full h-8 w-8 flex items-center justify-center">
+                      <div className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs font-bold rounded-full h-8 w-8 flex items-center justify-center">
                         {eventQuotes.length}
                       </div>
                       
                       <div className="h-full flex flex-col">
                         {/* Header */}
                         <div className="text-center mb-3">
-                          <div className="mx-auto h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-2">
-                            <Play className="h-6 w-6 text-gray-600" />
+                          <div className="mx-auto h-12 w-12 rounded-full bg-gradient-to-r from-purple-400 to-indigo-500 flex items-center justify-center mb-2">
+                            <History className="h-6 w-6 text-white" />
                           </div>
-                          <h5 className="text-base font-medium text-gray-900 mb-1">Resume Quote</h5>
-                          <p className="text-gray-600 text-sm">Continue saved quotes</p>
-                          <div className="text-xs text-gray-600 bg-gray-100 rounded-full px-3 py-1 inline-block mt-2">
-                            📋 {eventQuotes.length} Quote{eventQuotes.length !== 1 ? 's' : ''}
+                          <h5 className="text-base font-medium text-gray-900 mb-1">Resume Saved Quote</h5>
+                          <p className="text-gray-700 text-sm">Continue where you left off</p>
+                          <div className="text-xs text-purple-700 bg-purple-100 rounded-full px-3 py-1 inline-block mt-2">
+                            📋 {eventQuotes.length} Saved Quote{eventQuotes.length !== 1 ? 's' : ''}
                           </div>
                         </div>
 
-                        {/* Latest Quote Preview - Simplified */}
+                        {/* Latest Quote Preview - Enhanced */}
                         {eventQuotes.length > 0 && (
-                          <div className="bg-gray-50 rounded-lg p-3 mb-3 border">
+                          <div className="bg-white rounded-lg p-3 mb-3 border border-purple-100 shadow-sm">
                             <div className="text-center mb-2">
-                              <h6 className="font-medium text-gray-900 text-sm">{eventQuotes[eventQuotes.length - 1]?.name || 'Latest Quote'}</h6>
-                              <div className="text-xs text-gray-600 mt-1">
-                                {eventQuotes[eventQuotes.length - 1]?.status === 'in_progress' ? 'In Progress' : 'Completed'}
+                              <h6 className="font-semibold text-gray-900 text-sm">{eventQuotes[eventQuotes.length - 1]?.name || 'Latest Quote'}</h6>
+                              <div className="flex items-center justify-center gap-2 mt-1">
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  eventQuotes[eventQuotes.length - 1]?.status === 'in_progress' 
+                                    ? 'bg-yellow-100 text-yellow-700' 
+                                    : 'bg-green-100 text-green-700'
+                                }`}>
+                                  {eventQuotes[eventQuotes.length - 1]?.status === 'in_progress' ? '🔄 In Progress' : '✅ Complete'}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -428,9 +434,9 @@ const EventDashboard = () => {
 
                         <button
                           onClick={() => handleResumeQuote(eventQuotes[eventQuotes.length - 1])}
-                          className="mt-auto inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                          className="mt-auto inline-flex items-center px-4 py-2 border border-purple-300 text-purple-800 font-medium rounded-lg hover:bg-purple-100 transition-colors"
                         >
-                          <Play className="h-4 w-4 mr-2" />
+                          <History className="h-4 w-4 mr-2" />
                           Resume Quote
                         </button>
                       </div>
