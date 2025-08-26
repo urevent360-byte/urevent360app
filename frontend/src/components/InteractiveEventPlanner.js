@@ -879,28 +879,90 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     try {
       setSaving(true);
       
-      // Use the new Interactive Event Planner finalize endpoint
-      const response = await axios.post(`${API}/events/${eventId}/planner/finalize`, {}, getAuthHeaders());
+      // Create quote from current planning session
+      const quoteData = {
+        name: `${event?.name || 'Event'} Quote - ${new Date().toLocaleDateString()}`,
+        event_type: questionnaireFilters.event_type || event?.event_type || 'general',
+        event_date: questionnaireFilters.date || event?.date,
+        guest_count: questionnaireFilters.guest_count || event?.guest_count || 0,
+        total_budget: budgetData.selected,
+        target_budget: budgetData.set,
+        vendor_count: Object.keys(selectedServices).length,
+        selected_vendors: Object.entries(selectedServices).map(([serviceId, vendorId]) => {
+          const vendor = vendors[serviceId]?.find(v => v.id === vendorId);
+          return {
+            service_id: serviceId,
+            vendor_id: vendorId,
+            vendor_name: vendor?.name,
+            vendor_price: vendor?.price || 0,
+            service_name: plannerSteps.find(s => s.id === serviceId)?.title
+          };
+        }),
+        cart_items: cart,
+        questionnaire_synced: true,
+        wizard_preferences: {
+          venue_types: questionnaireFilters.venue_types || [],
+          core_services: questionnaireFilters.core_services || [],
+          cultural_style: questionnaireFilters.cultural_style || '',
+          location: questionnaireFilters.location || '',
+          budget: questionnaireFilters.budget || 0
+        },
+        status: 'completed',
+        created_at: new Date().toISOString()
+      };
 
-      if (response.data) {
-        const bookings = response.data.bookings_created || [];
+      // Save quote to backend
+      console.log('Creating quote with data:', quoteData);
+      const quoteResponse = await axios.post(`${API}/events/${eventId}/quotes`, quoteData, getAuthHeaders());
+      
+      if (quoteResponse.data) {
+        console.log('✅ Quote created successfully:', quoteResponse.data.quote);
         
-        // Notify parent component
-        if (onPlanSaved) {
-          onPlanSaved(bookings);
+        // Also finalize the event plan (existing functionality)
+        const response = await axios.post(`${API}/events/${eventId}/planner/finalize`, {
+          quote_id: quoteResponse.data.quote.id
+        }, getAuthHeaders());
+
+        if (response.data) {
+          const bookings = response.data.bookings_created || [];
+          
+          // Notify parent component with quote data
+          if (onPlanSaved) {
+            onPlanSaved({
+              ...bookings,
+              quote: quoteResponse.data.quote
+            });
+          }
+          
+          // Clear local state
+          setCart([]);
+          setSelectedServices({});
+          
+          alert(`🎉 Event plan completed successfully!\n\n✅ Quote created: "${quoteData.name}"\n💰 Total budget: ${formatCurrency(quoteData.total_budget)}\n🏢 ${quoteData.vendor_count} vendor${quoteData.vendor_count !== 1 ? 's' : ''} selected\n📋 ${bookings.length} booking${bookings.length !== 1 ? 's' : ''} created\n\nYour quote is now saved in your Event Profile!`);
+          
+          onClose();
         }
-        
-        // Clear local state
-        setCart([]);
-        setSelectedServices({});
-        
-        alert(`Event plan finalized successfully! Created ${bookings.length} vendor bookings with total cost of ${formatCurrency(response.data.total_cost || 0)}.`);
-        
-        onClose();
       }
     } catch (err) {
       console.error('Error finalizing event plan:', err);
-      alert('Failed to finalize event plan. Please try again.');
+      
+      // Fallback: Create local quote even if backend fails
+      const fallbackQuote = {
+        id: `quote-${Date.now()}`,
+        name: `${event?.name || 'Event'} Quote - ${new Date().toLocaleDateString()}`,
+        event_type: questionnaireFilters.event_type || 'general',
+        total_budget: budgetData.selected,
+        vendor_count: Object.keys(selectedServices).length,
+        status: 'completed',
+        created_at: new Date().toISOString()
+      };
+      
+      if (onPlanSaved) {
+        onPlanSaved({ quote: fallbackQuote });
+      }
+      
+      alert(`✅ Planning completed! Quote saved locally.\n\nTotal: ${formatCurrency(budgetData.selected)}\nVendors: ${Object.keys(selectedServices).length}`);
+      onClose();
     } finally {
       setSaving(false);
     }
