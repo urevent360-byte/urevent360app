@@ -13,6 +13,7 @@ import VenueSelection from './VenueSelection';
 import InteractiveEventPlanner from './InteractiveEventPlanner';
 import StepByStepCTA from './StepByStepCTA';
 import StickyPlanBar from './StickyPlanBar';
+import EventSummaryCard from './EventSummaryCard';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
