@@ -345,6 +345,7 @@ const EventDashboard = () => {
                 </span>
               </div>
               
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-lg font-medium text-gray-900">Additional Planning Tools</h4>
               </div>
@@ -394,6 +395,16 @@ const EventDashboard = () => {
                     >
                       <History className="h-4 w-4 mr-2" />
                       Resume Quote
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* No additional tools when no quotes exist */
+                <div className="text-center py-6 text-gray-500">
+                  <p className="text-sm">Additional planning tools will appear here once you create your first quote.</p>
+                </div>
+              )}
+            </div>e
                     </button>
                   </div>
                 </div>
