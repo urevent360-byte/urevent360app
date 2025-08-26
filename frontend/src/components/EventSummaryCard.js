@@ -8,11 +8,31 @@ import {
 const EventSummaryCard = ({ event, onEditAnswers, onResyncPlanner }) => {
   const [syncStatus, setSyncStatus] = useState('synced'); // 'synced', 'not_synced', 'syncing'
   
-  if (!event?.wizard_answers) {
-    return null; // Don't show card if no wizard answers available
+  // Don't show card if no event data at all
+  if (!event) {
+    return null;
   }
 
-  const answers = event.wizard_answers;
+  // Use wizard_answers if available, otherwise create fallback from existing event data
+  const answers = event.wizard_answers || {
+    // Fallback data from existing event structure
+    event_name: event.name,
+    event_type: event.event_type || event.type,
+    date: event.date,
+    time: null,
+    location_city: event.location,
+    guest_count: event.guest_count,
+    preferred_venue_types: event.preferred_venue_types || [],
+    needed_core_services: event.needed_core_services || [],
+    needed_extras: event.needed_extras || [],
+    cultural_style: event.cultural_style ? [event.cultural_style] : [],
+    budget_target: event.budget_preferences?.target || event.budget,
+    budget_currency: event.budget_preferences?.currency || 'USD',
+    service_subcategories: event.service_subcategories || {},
+    
+    // Indicate this is fallback data
+    _is_fallback: true
+  };
   
   // Format date nicely
   const formatEventDate = (date, time) => {
