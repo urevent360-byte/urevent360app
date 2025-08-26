@@ -331,6 +331,7 @@ const EventDashboard = () => {
             <div className="bg-white rounded-lg shadow-sm">
               <StepByStepCTA 
                 eventId={eventId} 
+                event={event}
                 onOpenPlanner={() => setShowInteractivePlanner(true)}
               />
             </div>
