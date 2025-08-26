@@ -362,32 +362,10 @@ const CreateEventWizard = () => {
   };
 
   const handleSubmit = async () => {
-    // Add very visible debugging
-    console.log('🚨 BUTTON CLICKED - handleSubmit called!');
-    alert('DEBUG: Button was clicked! Check console for details.');
-    
-    console.log('🎯 handleSubmit called, validating final step...');
-    console.log('🎯 Steps length:', steps.length);
-    console.log('🎯 Current eventData:', eventData);
-    
-    const validationResult = validateStep(steps.length);
-    console.log('🎯 Validation result:', validationResult);
-    
-    if (!validationResult) {
-      console.log('❌ Validation failed - checking individual fields...');
-      console.log('🎯 Event name:', eventData.name);
-      console.log('🎯 Event type:', eventData.type);
-      console.log('🎯 Event date:', eventData.date);
-      console.log('🎯 Guest count:', eventData.guestCount);
-      console.log('🎯 Budget:', eventData.budget);
-      
-      alert('❌ Validation failed! Check console for details.');
+    if (!validateStep(steps.length)) {
       setError('Please fill in all required fields');
       return;
     }
-    
-    console.log('✅ Validation passed, proceeding with event creation...');
-    alert('✅ Validation passed! Proceeding with API call...');
 
     setLoading(true);
     setError('');
