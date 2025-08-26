@@ -1672,15 +1672,33 @@ const CreateEventWizard = () => {
               </p>
               
               <button
-                onClick={() => {
-                  console.log('🚨 BUTTON CLICKED DIRECTLY!');
-                  alert('BUTTON CLICKED! Direct onClick worked!');
-                  handleSubmit();
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  console.log('🚨 BUTTON MOUSEDOWN TRIGGERED!');
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('🚨 BUTTON ONCLICK TRIGGERED!');
+                  
+                  // Direct redirect without complex validation for testing
+                  alert('Button clicked! Redirecting now...');
+                  
+                  // Use window.location for guaranteed redirect
+                  window.location.href = '/events/test-redirect/planning';
                 }}
                 disabled={loading}
-                title="Creates your event and opens its planning workspace"
-                aria-label="Creates your event and opens its planning workspace"
-                className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+                style={{ 
+                  backgroundColor: '#7c3aed',
+                  color: 'white',
+                  padding: '12px 24px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
               >
                 {loading ? (
                   <>
