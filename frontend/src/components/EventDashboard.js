@@ -345,105 +345,64 @@ const EventDashboard = () => {
                 </span>
               </div>
               
-              {/* Secondary Planning Options - Demoted */}
-              <div className="mb-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Planning Tools</h4>
-                
-                {/* Responsive grid that ensures boxes are always next to each other on larger screens */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                  {/* Left Box: Convert Draft Planning to Quote */}
-                  <div className="relative border border-amber-200 rounded-lg p-4 hover:border-amber-300 transition-all duration-300 hover:shadow-md bg-gradient-to-br from-amber-50 to-orange-50 h-full group">
-                    <div className="text-center h-full flex flex-col justify-between">
-                      <div>
-                        <div className="mx-auto h-12 w-12 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 flex items-center justify-center mb-3">
-                          <FileText className="h-6 w-6 text-white" />
-                        </div>
-                        <h5 className="text-base font-medium text-gray-900 mb-2">
-                          Convert to Quote
-                        </h5>
-                        <p className="text-gray-700 mb-3 text-sm">Turn your event planning draft into a professional quote</p>
-                        <div className="text-xs text-amber-700 bg-amber-100 rounded-full px-3 py-1 inline-block mb-3">
-                          📋 Draft → Quote
-                        </div>
-                        
-                        {/* Show planning progress if available */}
-                        {planningProgress.selectedVendors.length > 0 && (
-                          <div className="text-xs text-gray-600 mb-2">
-                            {planningProgress.selectedVendors.length} vendor{planningProgress.selectedVendors.length !== 1 ? 's' : ''} selected
-                          </div>
-                        )}
-                      </div>
-                      
-                      <button
-                        onClick={() => {
-                          // Convert current planning progress to quote
-                          if (planningProgress.selectedVendors.length > 0) {
-                            setShowInteractivePlanner(true);
-                          } else {
-                            // If no progress, start fresh planning
-                            handleCreateNewQuote();
-                          }
-                        }}
-                        className="inline-flex items-center px-4 py-2 border border-amber-300 text-amber-800 font-medium rounded-lg hover:bg-amber-100 transition-colors group-hover:border-amber-400"
-                        disabled={planningProgress.selectedVendors.length === 0 && planningProgress.completedSteps === 0}
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        {planningProgress.selectedVendors.length > 0 ? 'Continue Draft' : 'Start Draft'}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Right Box: Resume Saved Quotes - Only show if quotes exist */}
-                  {eventQuotes.length > 0 && (
-                    <div className="border border-purple-200 rounded-lg p-4 hover:border-purple-300 transition-all duration-300 hover:shadow-md bg-gradient-to-br from-purple-50 to-indigo-50 h-full relative">
-                      {/* Quotes Count Badge */}
-                      <div className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs font-bold rounded-full h-8 w-8 flex items-center justify-center">
-                        {eventQuotes.length}
-                      </div>
-                      
-                      <div className="h-full flex flex-col">
-                        {/* Header */}
-                        <div className="text-center mb-3">
-                          <div className="mx-auto h-12 w-12 rounded-full bg-gradient-to-r from-purple-400 to-indigo-500 flex items-center justify-center mb-2">
-                            <History className="h-6 w-6 text-white" />
-                          </div>
-                          <h5 className="text-base font-medium text-gray-900 mb-1">Resume Saved Quote</h5>
-                          <p className="text-gray-700 text-sm">Continue where you left off</p>
-                          <div className="text-xs text-purple-700 bg-purple-100 rounded-full px-3 py-1 inline-block mt-2">
-                            📋 {eventQuotes.length} Saved Quote{eventQuotes.length !== 1 ? 's' : ''}
-                          </div>
-                        </div>
-
-                        {/* Latest Quote Preview - Enhanced */}
-                        {eventQuotes.length > 0 && (
-                          <div className="bg-white rounded-lg p-3 mb-3 border border-purple-100 shadow-sm">
-                            <div className="text-center mb-2">
-                              <h6 className="font-semibold text-gray-900 text-sm">{eventQuotes[eventQuotes.length - 1]?.name || 'Latest Quote'}</h6>
-                              <div className="flex items-center justify-center gap-2 mt-1">
-                                <span className={`text-xs px-2 py-1 rounded-full ${
-                                  eventQuotes[eventQuotes.length - 1]?.status === 'in_progress' 
-                                    ? 'bg-yellow-100 text-yellow-700' 
-                                    : 'bg-green-100 text-green-700'
-                                }`}>
-                                  {eventQuotes[eventQuotes.length - 1]?.status === 'in_progress' ? '🔄 In Progress' : '✅ Complete'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        <button
-                          onClick={() => handleResumeQuote(eventQuotes[eventQuotes.length - 1])}
-                          className="mt-auto inline-flex items-center px-4 py-2 border border-purple-300 text-purple-800 font-medium rounded-lg hover:bg-purple-100 transition-colors"
-                        >
-                          <History className="h-4 w-4 mr-2" />
-                          Resume Quote
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-medium text-gray-900">Additional Planning Tools</h4>
               </div>
+              
+              {/* Only show Resume Saved Quote section if quotes exist */}
+              {eventQuotes.length > 0 ? (
+                <div className="border border-purple-200 rounded-lg p-4 hover:border-purple-300 transition-all duration-300 hover:shadow-md bg-gradient-to-br from-purple-50 to-indigo-50 relative max-w-md mx-auto">
+                  {/* Quotes Count Badge */}
+                  <div className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs font-bold rounded-full h-8 w-8 flex items-center justify-center">
+                    {eventQuotes.length}
+                  </div>
+                  
+                  <div className="flex flex-col">
+                    {/* Header */}
+                    <div className="text-center mb-3">
+                      <div className="mx-auto h-12 w-12 rounded-full bg-gradient-to-r from-purple-400 to-indigo-500 flex items-center justify-center mb-2">
+                        <History className="h-6 w-6 text-white" />
+                      </div>
+                      <h5 className="text-base font-medium text-gray-900 mb-1">Resume Saved Quote</h5>
+                      <p className="text-gray-700 text-sm">Continue where you left off</p>
+                      <div className="text-xs text-purple-700 bg-purple-100 rounded-full px-3 py-1 inline-block mt-2">
+                        📋 {eventQuotes.length} Saved Quote{eventQuotes.length !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+
+                    {/* Latest Quote Preview - Enhanced */}
+                    {eventQuotes.length > 0 && (
+                      <div className="bg-white rounded-lg p-3 mb-3 border border-purple-100 shadow-sm">
+                        <div className="text-center mb-2">
+                          <h6 className="font-semibold text-gray-900 text-sm">{eventQuotes[eventQuotes.length - 1]?.name || 'Latest Quote'}</h6>
+                          <div className="flex items-center justify-center gap-2 mt-1">
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              eventQuotes[eventQuotes.length - 1]?.status === 'in_progress' 
+                                ? 'bg-yellow-100 text-yellow-700' 
+                                : 'bg-green-100 text-green-700'
+                            }`}>
+                              {eventQuotes[eventQuotes.length - 1]?.status === 'in_progress' ? '🔄 In Progress' : '✅ Complete'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => handleResumeQuote(eventQuotes[eventQuotes.length - 1])}
+                      className="inline-flex items-center justify-center px-4 py-2 border border-purple-300 text-purple-800 font-medium rounded-lg hover:bg-purple-100 transition-colors w-full"
+                    >
+                      <History className="h-4 w-4 mr-2" />
+                      Resume Quote
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* No additional tools when no quotes exist */
+                <div className="text-center py-6 text-gray-500">
+                  <p className="text-sm">Additional planning tools will appear here once you create your first quote.</p>
+                </div>
+              )}
             </div>
 
             {/* Event Information */}
