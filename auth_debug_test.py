@@ -25,7 +25,7 @@ import time
 import os
 
 # Configuration - Use environment variable for backend URL
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://event-planner-24.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://event-portal-6.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
@@ -506,7 +506,7 @@ class AuthenticationDebugger:
         try:
             import requests
             response = requests.options(f"{BASE_URL}/login", headers={
-                "Origin": "https://event-planner-24.preview.emergentagent.com",
+                "Origin": "https://event-portal-6.preview.emergentagent.com",
                 "Access-Control-Request-Method": "POST",
                 "Access-Control-Request-Headers": "Content-Type"
             })
@@ -621,7 +621,7 @@ import json
 import os
 
 # Configuration
-BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://event-planner-24.preview.emergentagent.com')
+BACKEND_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://event-portal-6.preview.emergentagent.com')
 BASE_URL = f"{BACKEND_URL}/api"
 HEADERS = {"Content-Type": "application/json"}
 
