@@ -1578,45 +1578,93 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           </div>
         )}
 
-        {/* Vendor Grid */}
-        {stepVendors.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {stepVendors.map((vendor) => renderVendorCard(vendor, step.id))}
+        {/* Applied Filters Display */}
+        {step.autoFilters && (
+          <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="h-6 w-6 bg-blue-500 rounded-full flex items-center justify-center mr-2">
+                  <Zap className="h-3 w-3 text-white" />
+                </div>
+                <span className="text-sm font-medium text-blue-900">Auto-applied filters:</span>
+              </div>
+              <span className="text-sm text-blue-700">{step.autoFilters}</span>
+            </div>
           </div>
         )}
 
-        {/* No Results / Extra Services Suggestion */}
-        {!loading && stepVendors.length === 0 && vendors[step.id] !== undefined && (
-          <div className="text-center py-8">
-            {checkIfServiceNeeded(step.id, currentEvent?.services_needed || []) ? (
-              // Standard no results message for needed services
-              <div className="text-gray-500">
-                <Search className="mx-auto h-8 w-8 mb-2" />
-                <p>No {step.title.toLowerCase()} found matching your criteria</p>
+        {/* Fallback Message */}
+        {stepVendors?.fallbackApplied && (
+          <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <AlertTriangle className="h-5 w-5 text-amber-600 mr-2" />
+              <div>
+                <p className="text-amber-800 font-medium">No exact cultural matches found</p>
+                <p className="text-amber-700 text-sm">
+                  Showing {stepVendors.length - (stepVendors.originalCount || 0)} highly rated alternatives near you
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Vendor Grid */}
+        {stepVendors.length > 0 && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {stepVendors.map((vendor) => renderVendorCard(vendor, step.id))}
+            </div>
+            
+            {/* Request Vendor Option */}
+            <div className="text-center pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  // TODO: Implement request vendor lead form
+                  alert(`Request a ${step.title} vendor - This will connect you with our vendor specialists`);
+                }}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-purple-600 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Don't see what you need? Request a {step.title} vendor
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* No Results / Request Vendor */}
+        {!loading && (stepVendors.length === 0 || stepVendors?.showRequestVendor) && vendors[step.id] !== undefined && (
+          <div className="text-center py-12">
+            <div className="bg-gradient-to-r from-gray-50 to-purple-50 p-8 rounded-xl border border-gray-200">
+              <Search className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No {step.title} vendors found
+              </h3>
+              <p className="text-gray-600 mb-6">
+                We couldn't find any {step.title.toLowerCase()} vendors matching your specific requirements. 
+                Let us help you find the perfect match!
+              </p>
+              
+              <div className="space-y-3">
                 <button
-                  onClick={() => searchVendors(step.id, '')}
-                  className="mt-2 text-purple-600 hover:text-purple-800"
+                  onClick={() => searchVendorsWithFilters(step.id, 0)}
+                  className="w-full px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors"
                 >
-                  View all options
+                  Search Again with Expanded Criteria
+                </button>
+                
+                <button
+                  onClick={() => {
+                    // TODO: Implement request vendor lead form
+                    alert(`Request a ${step.title} vendor - Our specialists will help you find the perfect match for your ${questionnaireFilters.event_type} in ${questionnaireFilters.location}`);
+                  }}
+                  className="w-full px-6 py-3 bg-white text-purple-600 font-medium border-2 border-purple-600 rounded-lg hover:bg-purple-50 transition-colors"
+                >
+                  Request a {step.title} Vendor
                 </button>
               </div>
-            ) : (
-              // "Sparkle Your Event" suggestion for extra services
-              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-8 rounded-xl border border-purple-200">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="relative">
-                    <div className="h-16 w-16 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full flex items-center justify-center">
-                      <Sparkles className="h-8 w-8 text-white" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 h-6 w-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                      <span className="text-xs">✨</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-semibold text-purple-900 mb-2">
-                  ✨ Sparkle Your Event with {step.title}!
-                </h3>
+            </div>
+          </div>
+        )}
                 
                 <p className="text-purple-700 mb-6 max-w-md mx-auto">
                   You didn't originally select {step.title.toLowerCase()}, but adding this service could make your event even more special! 
