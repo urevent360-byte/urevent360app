@@ -346,7 +346,7 @@ const EventDashboard = () => {
               </div>
               
               {/* Only show Resume Saved Quote section if quotes exist */}
-              {eventQuotes.length > 0 && (
+              {eventQuotes.length > 0 ? (
                 <div className="mt-6">
                   <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Planning Tools</h4>
                   <div className="border border-purple-200 rounded-lg p-4 hover:border-purple-300 transition-all duration-300 hover:shadow-md bg-gradient-to-br from-purple-50 to-indigo-50 relative max-w-md mx-auto">
@@ -396,8 +396,6 @@ const EventDashboard = () => {
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
               ) : (
                 /* No additional tools when no quotes exist */
                 <div className="text-center py-6 text-gray-500">
