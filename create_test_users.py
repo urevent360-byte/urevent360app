@@ -24,6 +24,12 @@ async def create_test_users():
     # Test users to create
     test_users = [
         {
+            "name": "Carla Baquero",
+            "email": "carladbaquero@gmail.com",
+            "password": "carla123",
+            "role": "client"
+        },
+        {
             "name": "Sarah Johnson",
             "email": "sarah.johnson@email.com",
             "password": "SecurePass123",
