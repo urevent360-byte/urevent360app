@@ -1677,17 +1677,28 @@ const CreateEventWizard = () => {
                   e.preventDefault();
                   e.stopPropagation();
                   
-                  console.log('🚨 Creating event and redirecting...');
-                  alert('Creating your event now...');
+                  alert('Step 1: Button clicked! Starting process...');
                   
                   try {
-                    // Create the event via API
-                    const eventDateTime = new Date(`${eventData.date}T${eventData.time || '12:00'}`);
+                    // Check if we have auth token
+                    const token = localStorage.getItem('token');
+                    alert(`Step 2: Auth token exists: ${!!token}`);
+                    
+                    if (!token) {
+                      alert('ERROR: No auth token found! Please login again.');
+                      window.location.href = '/login';
+                      return;
+                    }
+                    
+                    alert('Step 3: Preparing event data...');
+                    
+                    // Create the event via API with minimal data
+                    const eventDateTime = new Date(`${eventData.date || '2025-12-01'}T12:00:00`);
                     const submitData = {
-                      name: eventData.name || 'My Event',
+                      name: eventData.name || 'My New Event',
                       event_type: eventData.type || 'wedding',
                       date: eventDateTime.toISOString(),
-                      location: eventData.city || 'Default City',
+                      location: eventData.city || 'Miami',
                       guest_count: parseInt(eventData.guestCount) || 50,
                       status: 'planning',
                       budget_preferences: {
@@ -1696,43 +1707,40 @@ const CreateEventWizard = () => {
                       }
                     };
 
-                    console.log('📤 Submitting event data:', submitData);
-
-                    // Get auth headers
-                    const authHeaders = {};
-                    const token = localStorage.getItem('token');
-                    if (token) {
-                      authHeaders['Authorization'] = `Bearer ${token}`;
-                    }
-
-                    // Make API call to create event
-                    const response = await fetch(`${API}/events`, {
+                    alert(`Step 4: Event data prepared. Name: ${submitData.name}`);
+                    
+                    // Make API call
+                    alert('Step 5: Making API call to create event...');
+                    
+                    const response = await fetch('http://localhost:8001/api/events', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
-                        ...authHeaders
+                        'Authorization': `Bearer ${token}`
                       },
                       body: JSON.stringify(submitData)
                     });
 
+                    alert(`Step 6: API response status: ${response.status}`);
+                    
                     if (!response.ok) {
-                      throw new Error(`API call failed: ${response.status}`);
+                      const errorText = await response.text();
+                      alert(`API Error: ${response.status} - ${errorText}`);
+                      return;
                     }
 
-                    const eventData = await response.json();
-                    console.log('✅ Event created:', eventData);
+                    const newEvent = await response.json();
+                    alert(`Step 7: Event created! ID: ${newEvent.id}`);
                     
-                    alert(`Event created successfully! ID: ${eventData.id}`);
-                    
-                    // Now redirect to the real event page
-                    const eventUrl = `/events/${eventData.id}/planning`;
-                    console.log('🔀 Redirecting to:', eventUrl);
+                    // Now redirect
+                    const eventUrl = `/events/${newEvent.id}/planning`;
+                    alert(`Step 8: Redirecting to: ${eventUrl}`);
                     
                     window.location.href = eventUrl;
                     
                   } catch (error) {
-                    console.error('❌ Error creating event:', error);
-                    alert(`Error creating event: ${error.message}`);
+                    alert(`COMPLETE ERROR: ${error.message}`);
+                    console.error('Full error:', error);
                   }
                 }}
                 disabled={loading}
