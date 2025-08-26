@@ -5,7 +5,7 @@ import {
   Calendar, MapPin, Users, DollarSign, Edit3, Save, X, Plus, 
   CheckCircle, AlertCircle, Clock, Building, Phone, Mail, Globe,
   ArrowRight, Settings, CreditCard, Receipt, History, Wand2, Play, ChevronRight, ShoppingCart,
-  Info, AlertTriangle, Target, Eye, User, FileText
+  Info, AlertTriangle, Target, Eye, User, FileText, Zap, Search, Calculator, UserPlus, CheckSquare, ClipboardList
 } from 'lucide-react';
 import BudgetTracker from './BudgetTracker';
 import PaymentHistory from './PaymentHistory';
