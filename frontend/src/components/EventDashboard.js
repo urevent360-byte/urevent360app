@@ -312,8 +312,11 @@ const EventDashboard = () => {
         return (
           <div className="space-y-6">
             {/* Step-by-Step Mode Primary CTA */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <StepByStepCTA eventId={eventId} />
+            <div className="bg-white rounded-lg shadow-sm">
+              <StepByStepCTA 
+                eventId={eventId} 
+                onOpenPlanner={() => setShowInteractivePlanner(true)}
+              />
             </div>
 
             {/* Event Status */}
