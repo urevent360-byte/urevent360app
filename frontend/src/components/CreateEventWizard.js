@@ -898,7 +898,7 @@ const CreateEventWizard = () => {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setCurrentStep(1)}
+                      onClick={handleGoToStep1}
                       className="text-purple-600 hover:text-purple-700 text-sm underline"
                     >
                       Edit in Step 1
