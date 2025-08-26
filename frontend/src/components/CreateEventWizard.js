@@ -1192,7 +1192,7 @@ const CreateEventWizard = () => {
                         <input
                           type="checkbox"
                           checked={eventData.neededCoreServices.includes(service)}
-                          onChange={() => handleArrayToggle('neededCoreServices', service)}
+                          onChange={() => handleCoreServiceToggle(service)}
                           className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
                         />
                         <span className="ml-3 text-sm text-gray-700">{service}</span>
