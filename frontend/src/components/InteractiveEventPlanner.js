@@ -364,9 +364,12 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     return !skipVenueTypes.includes(venueType);
   };
 
-  // Define all possible steps
-  const allPlannerSteps = [
-    {
+  // Generate dynamic planner steps based on questionnaire answers
+  const generateDynamicPlannerSteps = (questionnaireFilters) => {
+    const steps = [];
+    
+    // Always include planning step
+    steps.push({
       id: 'planning',
       title: 'Start Planning',
       subtitle: 'Review your event details and begin the planning process',
@@ -374,89 +377,166 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       color: 'bg-purple-500',
       searchable: false,
       required: false
-    },
-    {
-      id: 'venue',
-      title: 'Venue',
-      subtitle: 'Find the perfect location for your event',
-      icon: MapPin,
-      color: 'bg-blue-500',
-      searchable: true,
-      required: true
-    },
-    {
-      id: 'decoration',
-      title: 'Decoration',
-      subtitle: 'Transform your space with beautiful decorations',
-      icon: Sparkles,
-      color: 'bg-pink-500',
-      searchable: true,
-      required: false
-    },
-    {
-      id: 'catering',
-      title: 'Catering',
-      subtitle: 'Delicious food and beverages for your guests',
-      icon: Utensils,
-      color: 'bg-green-500',
-      searchable: true,
-      required: false
-    },
-    {
-      id: 'bar',
-      title: 'Bar Service',
-      subtitle: 'Professional bartending and drink service',
-      icon: Wine,
-      color: 'bg-red-500',
-      searchable: true,
-      required: false
-    },
-    {
-      id: 'planner',
-      title: 'Event Planner',
-      subtitle: 'Professional coordination and management',
-      icon: UserCheck,
-      color: 'bg-indigo-500',
-      searchable: true,
-      required: false
-    },
-    {
-      id: 'photography',
-      title: 'Photography',
-      subtitle: 'Capture every precious moment',
-      icon: Camera,
-      color: 'bg-yellow-500',
-      searchable: true,
-      required: false
-    },
-    {
-      id: 'dj',
-      title: 'DJ & Music',
-      subtitle: 'Keep the party going with great music',
-      icon: Music,
-      color: 'bg-purple-500',
-      searchable: true,
-      required: false
-    },
-    {
-      id: 'staffing',
-      title: 'Waitstaff',
-      subtitle: 'Professional service staff for your event',
-      icon: User,
-      color: 'bg-teal-500',
-      searchable: true,
-      required: false
-    },
-    {
-      id: 'entertainment',
-      title: 'Entertainment',
-      subtitle: 'Special performances and activities',
-      icon: Zap,
-      color: 'bg-orange-500',
-      searchable: true,
-      required: false
-    },
-    {
+    });
+
+    // Add venue step if needed (unless at home or already have venue)
+    const skipVenueTypes = ['My Own Private Space', 'I Already Have a Venue', 'at_home', 'my_own_private_space'];
+    if (!skipVenueTypes.includes(questionnaireFilters.preferred_venue_type)) {
+      steps.push({
+        id: 'venue',
+        title: 'Venue',
+        subtitle: 'Find the perfect location for your event',
+        icon: MapPin,
+        color: 'bg-blue-500',
+        searchable: true,
+        required: true,
+        autoFilters: formatAutoFilters(questionnaireFilters, 'venue')
+      });
+    }
+
+    // Add service steps based on questionnaire selections
+    const serviceMapping = {
+      'Catering': {
+        id: 'catering',
+        title: 'Catering',
+        subtitle: 'Food and beverage services',
+        icon: Utensils,
+        color: 'bg-green-500'
+      },
+      'Decoration': {
+        id: 'decoration',
+        title: 'Decoration',
+        subtitle: 'Transform your space with beautiful decorations',
+        icon: Sparkles,
+        color: 'bg-pink-500'
+      },
+      'Photography': {
+        id: 'photography',
+        title: 'Photography',
+        subtitle: 'Capture every moment professionally',
+        icon: Camera,
+        color: 'bg-indigo-500'
+      },
+      'Videography': {
+        id: 'videography',
+        title: 'Videography',
+        subtitle: 'Professional video recording',
+        icon: Camera,
+        color: 'bg-purple-500'
+      },
+      'Music/DJ': {
+        id: 'music_dj',
+        title: 'DJ/Music',
+        subtitle: 'Keep the party going with great music',
+        icon: Music,
+        color: 'bg-red-500'
+      },
+      'Lighting': {
+        id: 'lighting',
+        title: 'Lighting',
+        subtitle: 'Create the perfect ambiance',
+        icon: Zap,
+        color: 'bg-yellow-500'
+      },
+      'Security': {
+        id: 'security',
+        title: 'Security',
+        subtitle: 'Professional security services',
+        icon: UserCheck,
+        color: 'bg-gray-500'
+      },
+      'Cleaning': {
+        id: 'cleaning',
+        title: 'Cleaning',
+        subtitle: 'Post-event cleanup services',
+        icon: Sparkles,
+        color: 'bg-teal-500'
+      },
+      'Transportation': {
+        id: 'transportation',
+        title: 'Transportation',
+        subtitle: 'Reliable transport services',
+        icon: MapPin,
+        color: 'bg-blue-600'
+      }
+    };
+
+    // Add services from questionnaire
+    const allServices = [...(questionnaireFilters.core_services || []), ...(questionnaireFilters.extras || [])];
+    allServices.forEach(serviceName => {
+      const mapping = serviceMapping[serviceName];
+      if (mapping) {
+        steps.push({
+          ...mapping,
+          searchable: true,
+          required: false,
+          autoFilters: formatAutoFilters(questionnaireFilters, mapping.id)
+        });
+      }
+    });
+
+    // Add-on services (extras) with special mapping
+    const addonMapping = {
+      'Photo Booths': {
+        id: 'photo_booth',
+        title: 'Photo Booths',
+        subtitle: 'Interactive photo experiences',
+        icon: Camera,
+        color: 'bg-purple-600'
+      },
+      'Cold Spark Machines': {
+        id: 'cold_sparks',
+        title: 'Cold Spark Machines',
+        subtitle: 'Spectacular visual effects',
+        icon: Sparkles,
+        color: 'bg-blue-400'
+      },
+      'LED Dance Floor': {
+        id: 'led_floor',
+        title: 'LED Dance Floor',
+        subtitle: 'Interactive illuminated dance floor',
+        icon: Zap,
+        color: 'bg-purple-400'
+      },
+      'LED Screens': {
+        id: 'led_screens',
+        title: 'LED Screens',
+        subtitle: 'Large format displays',
+        icon: Eye,
+        color: 'bg-indigo-400'
+      },
+      'Live Shows': {
+        id: 'live_shows',
+        title: 'Live Shows',
+        subtitle: 'Professional entertainment acts',
+        icon: User,
+        color: 'bg-orange-500'
+      },
+      'Dance in the Clouds': {
+        id: 'dance_clouds',
+        title: 'Dance in the Clouds',
+        subtitle: 'Low-lying fog effects for dancing',
+        icon: Sparkles,
+        color: 'bg-cyan-500'
+      }
+    };
+
+    // Add addon services
+    const extras = questionnaireFilters.extras || [];
+    extras.forEach(extraName => {
+      const mapping = addonMapping[extraName];
+      if (mapping) {
+        steps.push({
+          ...mapping,
+          searchable: true,
+          required: false,
+          autoFilters: formatAutoFilters(questionnaireFilters, mapping.id)
+        });
+      }
+    });
+
+    // Always include review step
+    steps.push({
       id: 'review',
       title: 'Review',
       subtitle: 'Review and finalize your event plan',
@@ -464,24 +544,41 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       color: 'bg-green-600',
       searchable: false,
       required: true
-    }
-  ];
+    });
 
-  // Filter steps based on venue type and services needed
-  const plannerSteps = allPlannerSteps.filter(step => {
-    // Always include planning and review steps
-    if (step.id === 'planning' || step.id === 'review') {
-      return true;
+    return steps;
+  };
+
+  // Format auto-filters display for each service tile
+  const formatAutoFilters = (filters, serviceType) => {
+    const parts = [];
+    
+    // Location info
+    if (filters.location) {
+      parts.push(`${filters.location} • 30 mi`);
     }
     
-    // Conditionally include venue step
-    if (step.id === 'venue') {
-      return shouldIncludeVenueStep();
+    // Date
+    if (filters.date) {
+      const eventDate = new Date(filters.date);
+      parts.push(eventDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
     }
     
-    // For service steps, check if they're needed
-    return true; // We'll handle filtering in the step content instead
-  });
+    // Guest count
+    if (filters.guest_count) {
+      parts.push(`${filters.guest_count} guests`);
+    }
+    
+    // Cultural style
+    if (filters.cultural_style && filters.cultural_style !== 'American') {
+      parts.push(filters.cultural_style);
+    }
+    
+    return parts.join(' • ');
+  };
+
+  // Use dynamic steps based on questionnaire
+  const plannerSteps = generateDynamicPlannerSteps(questionnaireFilters);
 
   useEffect(() => {
     // Load saved plan and cart from backend when component mounts
