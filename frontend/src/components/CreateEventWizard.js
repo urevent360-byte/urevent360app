@@ -1443,16 +1443,7 @@ const CreateEventWizard = () => {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div
-                onClick={() => {
-                  setEventData(prev => ({
-                    ...prev,
-                    mitzvahType: 'bar_mitzvah',
-                    categorySpecific: {
-                      ...prev.categorySpecific,
-                      mitzvahType: 'bar_mitzvah'
-                    }
-                  }));
-                }}
+                onClick={handleBarMitzvahSelect}
                 className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
                   eventData.mitzvahType === 'bar_mitzvah' || eventData.categorySpecific?.mitzvahType === 'bar_mitzvah'
                     ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500'
