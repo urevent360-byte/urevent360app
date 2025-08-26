@@ -298,6 +298,13 @@ const EventSummaryCard = ({ event, onEditAnswers, onResyncPlanner }) => {
             )}
           </div>
         </div>
+        
+        {/* Show note for fallback data */}
+        {answers._is_fallback && (
+          <div className="mt-4 text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 border border-amber-200">
+            💡 Event details shown from your saved information. Complete our questionnaire for enhanced planning recommendations.
+          </div>
+        )}
       </div>
     </div>
   );
