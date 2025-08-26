@@ -822,7 +822,10 @@ const EventDashboard = () => {
             </div>
 
             {/* Sticky Plan Bar for Mobile */}
-            <StickyPlanBar eventId={eventId} />
+            <StickyPlanBar 
+              eventId={eventId} 
+              onOpenPlanner={() => setShowInteractivePlanner(true)}
+            />
           </div>
         );
 
