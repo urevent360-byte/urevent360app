@@ -354,6 +354,52 @@ const CreateEventWizard = () => {
     handleServiceSubcategoryToggle('cakes', cakeType);
   }, [handleServiceSubcategoryToggle]);
 
+  // Memoized handlers for step navigation
+  const handleGoToStep1 = useCallback(() => {
+    setCurrentStep(1);
+  }, []);
+
+  const handleGoToStep4 = useCallback(() => {
+    setCurrentStep(4);
+  }, []);
+
+  // Memoized handlers for event type selection
+  const handleEventTypeChange = useCallback((typeId) => {
+    handleInputChange({ target: { name: 'type', value: typeId } });
+  }, [handleInputChange]);
+
+  // Memoized handlers for Mitzvah type selection
+  const handleBarMitzvahSelect = useCallback(() => {
+    setEventData(prev => ({
+      ...prev,
+      mitzvahType: 'bar_mitzvah',
+      categorySpecific: {
+        ...prev.categorySpecific,
+        mitzvahType: 'bar_mitzvah'
+      }
+    }));
+  }, []);
+
+  const handleBatMitzvahSelect = useCallback(() => {
+    setEventData(prev => ({
+      ...prev,
+      mitzvahType: 'bat_mitzvah',
+      categorySpecific: {
+        ...prev.categorySpecific,
+        mitzvahType: 'bat_mitzvah'
+      }
+    }));
+  }, []);
+
+  // Memoized handlers for category specific toggles
+  const handleCulturalStyleToggle = useCallback((styleId) => {
+    handleCategorySpecificToggle('culturalStyle', styleId);
+  }, [handleCategorySpecificToggle]);
+
+  const handleThemeOrFormatToggle = useCallback((formatId) => {
+    handleCategorySpecificToggle('themeOrFormat', formatId);
+  }, [handleCategorySpecificToggle]);
+
   const validateStep = (step) => {
     switch (step) {
       case 1:
