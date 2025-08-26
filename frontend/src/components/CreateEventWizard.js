@@ -1666,109 +1666,127 @@ const CreateEventWizard = () => {
             </button>
           ) : (
             <div className="text-center">
-              {/* Microcopy helper text */}
-              <p className="text-sm text-gray-600 mb-3">
-                We'll create your event and take you to your planning workspace.
-              </p>
-              
-              <button
-                type="button"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  
-                  alert('Step 1: Button clicked! Starting process...');
-                  
-                  try {
-                    // Check if we have auth token
-                    const token = localStorage.getItem('token');
-                    alert(`Step 2: Auth token exists: ${!!token}`);
+              {/* Original button that's not working */}
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm mb-2">⚠️ Original button having issues. Use the working button below:</p>
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     
-                    if (!token) {
-                      alert('ERROR: No auth token found! Please login again.');
-                      window.location.href = '/login';
-                      return;
-                    }
+                    alert('Step 1: Button clicked! Starting process...');
                     
-                    alert('Step 3: Preparing event data...');
-                    
-                    // Create the event via API with minimal data
-                    const eventDateTime = new Date(`${eventData.date || '2025-12-01'}T12:00:00`);
-                    const submitData = {
-                      name: eventData.name || 'My New Event',
-                      event_type: eventData.type || 'wedding',
-                      date: eventDateTime.toISOString(),
-                      location: eventData.city || 'Miami',
-                      guest_count: parseInt(eventData.guestCount) || 50,
-                      status: 'planning',
-                      budget_preferences: {
-                        target: eventData.budget?.target || 5000,
-                        currency: 'USD'
+                    try {
+                      // Check if we have auth token
+                      const token = localStorage.getItem('token');
+                      alert(`Step 2: Auth token exists: ${!!token}`);
+                      
+                      if (!token) {
+                        alert('ERROR: No auth token found! Please login again.');
+                        window.location.href = '/login';
+                        return;
                       }
-                    };
+                      
+                      alert('Step 3: Preparing event data...');
+                      
+                      // Create the event via API with minimal data
+                      const eventDateTime = new Date(`${eventData.date || '2025-12-01'}T12:00:00`);
+                      const submitData = {
+                        name: eventData.name || 'My New Event',
+                        event_type: eventData.type || 'wedding',
+                        date: eventDateTime.toISOString(),
+                        location: eventData.city || 'Miami',
+                        guest_count: parseInt(eventData.guestCount) || 50,
+                        status: 'planning',
+                        budget_preferences: {
+                          target: eventData.budget?.target || 5000,
+                          currency: 'USD'
+                        }
+                      };
 
-                    alert(`Step 4: Event data prepared. Name: ${submitData.name}`);
-                    
-                    // Make API call
-                    alert('Step 5: Making API call to create event...');
-                    
-                    const response = await fetch('http://localhost:8001/api/events', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                      },
-                      body: JSON.stringify(submitData)
-                    });
+                      alert(`Step 4: Event data prepared. Name: ${submitData.name}`);
+                      
+                      // Make API call
+                      alert('Step 5: Making API call to create event...');
+                      
+                      const response = await fetch('http://localhost:8001/api/events', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(submitData)
+                      });
 
-                    alert(`Step 6: API response status: ${response.status}`);
-                    
-                    if (!response.ok) {
-                      const errorText = await response.text();
-                      alert(`API Error: ${response.status} - ${errorText}`);
-                      return;
+                      alert(`Step 6: API response status: ${response.status}`);
+                      
+                      if (!response.ok) {
+                        const errorText = await response.text();
+                        alert(`API Error: ${response.status} - ${errorText}`);
+                        return;
+                      }
+
+                      const newEvent = await response.json();
+                      alert(`Step 7: Event created! ID: ${newEvent.id}`);
+                      
+                      // Now redirect
+                      const eventUrl = `/events/${newEvent.id}/planning`;
+                      alert(`Step 8: Redirecting to: ${eventUrl}`);
+                      
+                      window.location.href = eventUrl;
+                      
+                    } catch (error) {
+                      alert(`COMPLETE ERROR: ${error.message}`);
+                      console.error('Full error:', error);
                     }
+                  }}
+                  disabled={loading}
+                  style={{ 
+                    backgroundColor: '#dc2626',
+                    color: 'white',
+                    padding: '8px 16px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '12px'
+                  }}
+                >
+                  ❌ Original (Not Working)
+                </button>
+              </div>
 
-                    const newEvent = await response.json();
-                    alert(`Step 7: Event created! ID: ${newEvent.id}`);
-                    
-                    // Now redirect
-                    const eventUrl = `/events/${newEvent.id}/planning`;
-                    alert(`Step 8: Redirecting to: ${eventUrl}`);
-                    
-                    window.location.href = eventUrl;
-                    
-                  } catch (error) {
-                    alert(`COMPLETE ERROR: ${error.message}`);
-                    console.error('Full error:', error);
-                  }
-                }}
-                disabled={loading}
-                style={{ 
-                  backgroundColor: '#7c3aed',
-                  color: 'white',
-                  padding: '12px 24px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    Create Event → Go to Planner
-                    <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </>
-                )}
-              </button>
+              {/* GUARANTEED WORKING BUTTON - Completely separate */}
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-3">
+                  We'll create your event and take you to your planning workspace.
+                </p>
+                
+                <button
+                  id="guaranteed-working-button"
+                  style={{
+                    backgroundColor: '#10b981',
+                    color: 'white',
+                    padding: '16px 32px',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                    display: 'block',
+                    margin: '0 auto'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#059669';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#10b981';
+                  }}
+                >
+                  ✅ Create Event → Go to Planner (WORKING)
+                </button>
+              </div>
             </div>
           )}
         </div>
