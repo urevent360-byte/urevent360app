@@ -601,18 +601,7 @@ const CreateEventWizard = () => {
                     zipOnly: eventData.location_preferences?.zipOnly,
                     radiusMiles: eventData.location_preferences?.radiusMiles,
                   }}
-                  onChange={(locationData) => {
-                    // Update both city (for backward compatibility) and location_preferences (unified)
-                    setEventData(prev => ({
-                      ...prev,
-                      city: locationData.city || prev.city,
-                      location_preferences: {
-                        ...prev.location_preferences,
-                        ...locationData
-                      }
-                    }));
-                    setError('');
-                  }}
+                  onChange={handleUnifiedLocationChange}
                 />
               </div>
             ) : (
