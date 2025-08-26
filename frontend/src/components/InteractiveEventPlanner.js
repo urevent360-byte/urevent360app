@@ -1706,7 +1706,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
         )}
       </div>
     );
-  };
+  }
 
   // Render different interfaces based on current mode
   if (currentMode === 'continue') {
