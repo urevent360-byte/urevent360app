@@ -1,7 +1,9 @@
 import React from 'react';
 import { PlayCircle, ArrowRight, Sparkles } from 'lucide-react';
 
-const StepByStepCTA = ({ eventId, onOpenPlanner }) => {
+const StepByStepCTA = ({ eventId, event, onOpenPlanner }) => {
+  const hasWizardAnswers = event?.wizard_answers;
+  
   return (
     <div className="flex items-center justify-between gap-4 p-6 bg-gradient-to-r from-violet-50 to-purple-50 border border-violet-200 rounded-xl">
       <div className="flex-1">
@@ -10,10 +12,16 @@ const StepByStepCTA = ({ eventId, onOpenPlanner }) => {
           Ready to Start Planning?
         </h3>
         <p className="text-gray-700 mb-1">
-          Find vendors, compare prices, and build your perfect event with our interactive planner
+          {hasWizardAnswers 
+            ? "Continue planning with your saved questionnaire answers - we'll pre-fill everything for you!"
+            : "Find vendors, compare prices, and build your perfect event with our interactive planner"
+          }
         </p>
         <p className="text-sm text-violet-600 font-medium">
-          ✨ Smart recommendations • 🛒 Live budget tracking • 📋 Questionnaire-synced matching
+          {hasWizardAnswers 
+            ? "🎯 Pre-filled from questionnaire • 🛒 Live budget tracking • 📋 Smart recommendations"
+            : "✨ Smart recommendations • 🛒 Live budget tracking • 📋 Questionnaire-synced matching"
+          }
         </p>
       </div>
 
@@ -27,6 +35,7 @@ const StepByStepCTA = ({ eventId, onOpenPlanner }) => {
                    focus:outline-none focus:ring-4 focus:ring-violet-300 focus:ring-offset-2
                    active:scale-95 group relative overflow-hidden"
         data-analytics="OpenInteractivePlanner"
+        title={hasWizardAnswers ? "Creates a draft quote pre-filled from your questionnaire" : "Open interactive event planner"}
       >
         {/* Animated background shine effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -36,10 +45,12 @@ const StepByStepCTA = ({ eventId, onOpenPlanner }) => {
         
         <div className="relative z-10">
           <div className="flex items-center gap-2">
-            <span>Start Planning</span>
+            <span>{hasWizardAnswers ? "Continue Planning" : "Start Planning"}</span>
             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
           </div>
-          <div className="text-sm font-medium opacity-90">Interactive Mode</div>
+          <div className="text-sm font-medium opacity-90">
+            {hasWizardAnswers ? "Use Saved Answers" : "Interactive Mode"}
+          </div>
         </div>
       </button>
     </div>
