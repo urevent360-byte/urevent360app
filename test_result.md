@@ -93,7 +93,7 @@ frontend:
     implemented: true
     working: true
     file: "CreateEventWizard.js, EventPlanning.js, EventDashboard.js"
-    stuck_count: 7
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
