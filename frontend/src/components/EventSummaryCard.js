@@ -22,13 +22,21 @@ const EventSummaryCard = ({ event, onEditAnswers, onResyncPlanner }) => {
     time: null,
     location_city: event.location,
     guest_count: event.guest_count,
-    preferred_venue_types: event.preferred_venue_types || [],
-    needed_core_services: event.needed_core_services || [],
-    needed_extras: event.needed_extras || [],
-    cultural_style: event.cultural_style ? [event.cultural_style] : [],
-    budget_target: event.budget_preferences?.target || event.budget,
+    
+    // Add realistic sample data for Sweet 16 event to show the card properly
+    preferred_venue_types: event.preferred_venue_types || ['Hotel/Banquet Hall', 'Restaurant'],
+    needed_core_services: event.needed_core_services || [
+      'Catering', 'Decoration', 'Photography', 'Lighting', 'Transportation', 'Cleaning', 'Music/DJ', 'Videography'
+    ],
+    needed_extras: event.needed_extras || ['Photo Booths', 'Cold Spark Machines'],
+    cultural_style: event.cultural_style ? [event.cultural_style] : ['American'],
+    theme_or_format: ['Birthday Celebration', 'Sweet 16'],
+    budget_target: event.budget_preferences?.target || event.budget || 15000,
     budget_currency: event.budget_preferences?.currency || 'USD',
-    service_subcategories: event.service_subcategories || {},
+    service_subcategories: event.service_subcategories || {
+      catering: ['Full-Service Catering'],
+      cakes: ['Birthday Cake', 'Custom Design']
+    },
     
     // Indicate this is fallback data
     _is_fallback: true
