@@ -1548,7 +1548,7 @@ const CreateEventWizard = () => {
               {EVENT_FORMATS.map((format) => (
                 <div
                   key={format.id}
-                  onClick={() => handleCategorySpecificToggle('themeOrFormat', format.id)}
+                  onClick={() => handleThemeOrFormatToggle(format.id)}
                   className={`p-4 border rounded-lg cursor-pointer transition-all ${
                     eventData.categorySpecific.themeOrFormat.includes(format.id)
                       ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
