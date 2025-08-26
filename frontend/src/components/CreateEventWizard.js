@@ -1217,7 +1217,7 @@ const CreateEventWizard = () => {
                     </p>
                     <button
                       type="button"
-                      onClick={() => setCurrentStep(4)}
+                      onClick={handleGoToStep4}
                       className="mt-2 text-purple-600 hover:text-purple-700 underline"
                     >
                       Go back to Step 4
