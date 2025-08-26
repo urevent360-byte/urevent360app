@@ -509,7 +509,49 @@ const CreateEventWizard = () => {
         // Service subcategories for enhanced vendor matching
         service_subcategories: eventData.serviceSubcategories,
         
-        category_specific: eventData.categorySpecific
+        category_specific: eventData.categorySpecific,
+        
+        // Complete wizard answers for Event Summary Card (single source of truth)
+        wizard_answers: {
+          // Basic Info (Step 1)
+          event_name: eventData.name,
+          location_city: eventData.city,
+          location_preferences: {
+            city: eventData.location.city || eventData.city,
+            zipcode: eventData.location.zipcode,
+            zip_only: !!eventData.location.zipOnly,
+            radius_miles: eventData.location.radiusMiles || 25
+          },
+          
+          // Event Type & Category (Steps 2-3)
+          event_type: eventData.type,
+          date: eventData.date,
+          time: eventData.time,
+          mitzvah_type: eventData.mitzvahType || eventData.categorySpecific?.mitzvahType,
+          cultural_style: eventData.categorySpecific?.culturalStyle || [],
+          theme_or_format: eventData.categorySpecific?.themeOrFormat || [],
+          
+          // Venue Preferences (Step 4)
+          preferred_venue_types: eventData.preferredVenueTypes,
+          ceremony_location: eventData.ceremonyLocation,
+          space_preferences: eventData.spacePreferences,
+          
+          // Services (Step 5)
+          needed_core_services: eventData.neededCoreServices,
+          needed_extras: eventData.neededExtras,
+          service_subcategories: eventData.serviceSubcategories,
+          
+          // Guest Count (Step 6)
+          guest_count: parseInt(eventData.guestCount),
+          
+          // Budget (Step 7)
+          budget_target: eventData.budget?.target,
+          budget_currency: eventData.budget?.currency || 'USD',
+          
+          // Wizard completion metadata
+          wizard_completed_at: new Date().toISOString(),
+          wizard_version: '2.0'
+        }
       };
 
       // Set up timeout warning for long requests
