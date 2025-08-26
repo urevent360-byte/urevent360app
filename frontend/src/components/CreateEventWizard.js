@@ -1510,7 +1510,7 @@ const CreateEventWizard = () => {
               {CULTURAL_STYLES.map((style) => (
                 <div
                   key={style.id}
-                  onClick={() => handleCategorySpecificToggle('culturalStyle', style.id)}
+                  onClick={() => handleCulturalStyleToggle(style.id)}
                   className={`p-4 border rounded-lg cursor-pointer transition-all ${
                     eventData.categorySpecific.culturalStyle.includes(style.id)
                       ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
