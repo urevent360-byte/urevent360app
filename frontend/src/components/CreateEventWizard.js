@@ -687,7 +687,7 @@ const CreateEventWizard = () => {
                   return (
                     <div
                       key={type.id}
-                      onClick={() => handleInputChange({ target: { name: 'type', value: type.id } })}
+                      onClick={() => handleEventTypeChange(type.id)}
                       className={`p-4 border rounded-lg cursor-pointer transition-all ${
                         eventData.type === type.id
                           ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500'
