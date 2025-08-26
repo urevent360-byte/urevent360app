@@ -1649,65 +1649,26 @@ const CreateEventWizard = () => {
                 We'll create your event and take you to your planning workspace.
               </p>
               
-              {/* Simple working redirect button - completely separate */}
-              <div className="space-y-4">
-                <button
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
-                >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      Create Event → Go to Planner
-                      <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </>
-                  )}
-                </button>
-                
-                {/* Emergency working button */}
-                <button
-                  onClick={() => {
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                      alert('Please login first');
-                      return;
-                    }
-                    
-                    // Create minimal event and redirect immediately
-                    fetch('http://localhost:8001/api/events', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                      },
-                      body: JSON.stringify({
-                        name: 'Quick Event',
-                        event_type: 'wedding',
-                        date: new Date('2025-12-01T12:00:00').toISOString(),
-                        location: 'Miami',
-                        guest_count: 50,
-                        status: 'planning',
-                        budget_preferences: { target: 8000, currency: 'USD' }
-                      })
-                    })
-                    .then(res => res.json())
-                    .then(event => {
-                      window.location.href = `/events/${event.id}/planning`;
-                    })
-                    .catch(err => alert('Error: ' + err.message));
-                  }}
-                  className="block w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  🚀 QUICK CREATE & GO (Emergency Button)
-                </button>
-              </div>
+              {/* Working purple button - keep exactly as is */}
+              <button
+                onClick={handleSubmit}
+                disabled={loading}
+                className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    Create Event → Go to Planner
+                    <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </>
+                )}
+              </button>
             </div>
           )}
         </div>
