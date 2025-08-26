@@ -1218,13 +1218,23 @@ const EventDashboard = () => {
       {/* Interactive Event Planner */}
       {showInteractivePlanner && (
         <InteractiveEventPlanner
-          eventId={eventId}
           event={event}
+          eventId={eventId}
           onClose={() => setShowInteractivePlanner(false)}
-          onEventUpdate={(updatedEvent) => {
-            setEvent(updatedEvent);
-            fetchPlanningProgress();
+          onPlanSaved={(result) => {
+            console.log('Plan saved with result:', result);
+            
+            // If a quote was created, add it to the quotes list
+            if (result?.quote) {
+              setEventQuotes(prev => [...prev, result.quote]);
+              console.log('✅ Quote added to event profile:', result.quote);
+            }
+            
+            // Refresh quotes from backend
             fetchEventQuotes();
+            
+            // Close the planner
+            setShowInteractivePlanner(false);
           }}
         />
       )}
