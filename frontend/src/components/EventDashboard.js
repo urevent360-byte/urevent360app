@@ -312,6 +312,21 @@ const EventDashboard = () => {
       case 'overview':
         return (
           <div className="space-y-6">
+            {/* Event Setup Summary Card */}
+            <EventSummaryCard 
+              event={event} 
+              onEditAnswers={() => {
+                // TODO: Implement quick edit modal or redirect to wizard edit mode
+                console.log('Edit answers clicked');
+                setShowQuickEdit(true);
+              }}
+              onResyncPlanner={() => {
+                // TODO: Implement planner resync functionality
+                console.log('Resync planner clicked');
+                return Promise.resolve();
+              }}
+            />
+
             {/* Step-by-Step Mode Primary CTA */}
             <div className="bg-white rounded-lg shadow-sm">
               <StepByStepCTA 
