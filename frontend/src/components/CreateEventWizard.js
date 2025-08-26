@@ -1461,16 +1461,7 @@ const CreateEventWizard = () => {
               </div>
               
               <div
-                onClick={() => {
-                  setEventData(prev => ({
-                    ...prev,
-                    mitzvahType: 'bat_mitzvah',
-                    categorySpecific: {
-                      ...prev.categorySpecific,
-                      mitzvahType: 'bat_mitzvah'
-                    }
-                  }));
-                }}
+                onClick={handleBatMitzvahSelect}
                 className={`p-6 border-2 rounded-lg cursor-pointer transition-all ${
                   eventData.mitzvahType === 'bat_mitzvah' || eventData.categorySpecific?.mitzvahType === 'bat_mitzvah'
                     ? 'border-pink-500 bg-pink-50 ring-2 ring-pink-500'
