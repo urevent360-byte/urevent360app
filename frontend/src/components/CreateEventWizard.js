@@ -1673,20 +1673,67 @@ const CreateEventWizard = () => {
               
               <button
                 type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  console.log('🚨 BUTTON MOUSEDOWN TRIGGERED!');
-                }}
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  console.log('🚨 BUTTON ONCLICK TRIGGERED!');
                   
-                  // Direct redirect without complex validation for testing
-                  alert('Button clicked! Redirecting now...');
+                  console.log('🚨 Creating event and redirecting...');
+                  alert('Creating your event now...');
                   
-                  // Use window.location for guaranteed redirect
-                  window.location.href = '/events/test-redirect/planning';
+                  try {
+                    // Create the event via API
+                    const eventDateTime = new Date(`${eventData.date}T${eventData.time || '12:00'}`);
+                    const submitData = {
+                      name: eventData.name || 'My Event',
+                      event_type: eventData.type || 'wedding',
+                      date: eventDateTime.toISOString(),
+                      location: eventData.city || 'Default City',
+                      guest_count: parseInt(eventData.guestCount) || 50,
+                      status: 'planning',
+                      budget_preferences: {
+                        target: eventData.budget?.target || 5000,
+                        currency: 'USD'
+                      }
+                    };
+
+                    console.log('📤 Submitting event data:', submitData);
+
+                    // Get auth headers
+                    const authHeaders = {};
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                      authHeaders['Authorization'] = `Bearer ${token}`;
+                    }
+
+                    // Make API call to create event
+                    const response = await fetch(`${API}/events`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        ...authHeaders
+                      },
+                      body: JSON.stringify(submitData)
+                    });
+
+                    if (!response.ok) {
+                      throw new Error(`API call failed: ${response.status}`);
+                    }
+
+                    const eventData = await response.json();
+                    console.log('✅ Event created:', eventData);
+                    
+                    alert(`Event created successfully! ID: ${eventData.id}`);
+                    
+                    // Now redirect to the real event page
+                    const eventUrl = `/events/${eventData.id}/planning`;
+                    console.log('🔀 Redirecting to:', eventUrl);
+                    
+                    window.location.href = eventUrl;
+                    
+                  } catch (error) {
+                    console.error('❌ Error creating event:', error);
+                    alert(`Error creating event: ${error.message}`);
+                  }
                 }}
                 disabled={loading}
                 style={{ 
