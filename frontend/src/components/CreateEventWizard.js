@@ -819,7 +819,7 @@ const CreateEventWizard = () => {
                       <input
                         type="checkbox"
                         checked={eventData.preferredVenueTypes.includes(venue)}
-                        onChange={() => handleArrayToggle('preferredVenueTypes', venue)}
+                        onChange={() => handlePreferredVenueTypeToggle(venue)}
                         className="h-4 w-4 text-purple-600 focus:ring-purple-500 rounded"
                       />
                       <span className="ml-3 text-sm text-gray-700">{venue}</span>
