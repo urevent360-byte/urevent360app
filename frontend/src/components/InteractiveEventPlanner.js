@@ -2113,11 +2113,11 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                 </div>
               )}
               
-              {/* Progress Indicator */}
+              {/* Progress Indicator - Dynamic based on questionnaire */}
               <div className="mt-4 bg-purple-50 rounded-lg p-3 border border-purple-200">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-purple-700 font-medium">
-                    Progress: {cart.length} of {availableServices.length + (isAtHome ? 0 : 1)} services selected
+                    Progress: {cart.length} of {plannerSteps.length - 2} services selected
                   </span>
                   <span className="text-purple-600">
                     ${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()} committed
@@ -2126,167 +2126,102 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                 <div className="w-full bg-purple-200 rounded-full h-2 mt-2">
                   <div 
                     className="bg-gradient-to-r from-purple-500 to-green-500 h-2 rounded-full transition-all duration-500" 
-                    style={{width: `${(cart.length / (availableServices.length + (isAtHome ? 0 : 1))) * 100}%`}}
+                    style={{width: `${Math.max(0, (cart.length / Math.max(1, plannerSteps.length - 2)) * 100)}%`}}
                   ></div>
                 </div>
               </div>
             </div>
 
-            {/* Questionnaire-Synced Vendor Selection Grid */}
+            {/* Dynamic Service Tiles - Generated from Questionnaire */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {(() => {
-                // Define all possible services with mapping
-                const allServices = [
-                  { id: 'venue', name: 'Venue', icon: '🏛️', category: 'venue', color: 'from-blue-500 to-blue-600' },
-                  { id: 'catering', name: 'Catering', icon: '🍽️', category: 'catering', color: 'from-green-500 to-green-600' },
-                  { id: 'photography', name: 'Photography', icon: '📸', category: 'photography', color: 'from-yellow-500 to-yellow-600' },
-                  { id: 'videography', name: 'Videography', icon: '🎥', category: 'videography', color: 'from-indigo-500 to-indigo-600' },
-                  { id: 'decoration', name: 'Decoration', icon: '🎨', category: 'decoration', color: 'from-pink-500 to-pink-600' },
-                  { id: 'dj', name: 'DJ/Music', icon: '🎵', category: 'dj', color: 'from-purple-500 to-purple-600' },
-                  { id: 'bar', name: 'Bar Service', icon: '🍸', category: 'bar', color: 'from-red-500 to-red-600' },
-                  { id: 'planner', name: 'Coordinator', icon: '📋', category: 'planner', color: 'from-indigo-500 to-indigo-600' },
-                  { id: 'staffing', name: 'Staff', icon: '👥', category: 'staffing', color: 'from-teal-500 to-teal-600' },
-                  { id: 'entertainment', name: 'Entertainment', icon: '🎭', category: 'entertainment', color: 'from-orange-500 to-orange-600' },
-                  { id: 'transportation', name: 'Transportation', icon: '🚗', category: 'transportation', color: 'from-gray-500 to-gray-600' },
-                  { id: 'security', name: 'Security', icon: '🛡️', category: 'security', color: 'from-slate-500 to-slate-600' }
-                ];
-
-                // Filter services based on questionnaire
-                let servicesToShow = [];
-                
-                // Add venue if not at-home
-                if (!isAtHome) {
-                  const venueService = allServices.find(s => s.category === 'venue');
-                  if (venueService) servicesToShow.push(venueService);
-                }
-
-                // Add services from questionnaire
-                availableServices.forEach(serviceName => {
-                  const service = allServices.find(s => 
-                    s.category === serviceName || 
-                    s.id === serviceName ||
-                    s.name.toLowerCase().includes(serviceName.toLowerCase())
-                  );
-                  if (service && !servicesToShow.find(s => s.id === service.id)) {
-                    servicesToShow.push(service);
-                  }
-                });
-
-                // If no services found, show default set
-                if (servicesToShow.length === 0) {
-                  servicesToShow = allServices.slice(0, 6); // Show first 6 as fallback
-                }
-
-                return servicesToShow.map((service, index) => {
-                  // Find if this service has a selected vendor
-                  const selectedVendor = cart.find(item => item.service_type === service.category);
-                  const isSelected = !!selectedVendor;
-                  
-                  // Determine if this is the next step to take (first unselected)
-                  const completedServices = cart.map(item => item.service_type);
-                  const unselectedServices = servicesToShow.filter(s => !completedServices.includes(s.category));
-                  const isNextStep = !isSelected && unselectedServices[0]?.id === service.id;
+              {plannerSteps
+                .filter(step => step.id !== 'planning' && step.id !== 'review') // Exclude planning and review steps
+                .map((step) => {
+                  const Icon = step.icon;
+                  const isSelected = selectedServices[step.id];
+                  const selectedVendor = isSelected ? cart.find(item => item.service_type === step.id) : null;
                   
                   return (
                     <div 
-                      key={service.id} 
-                      className={`relative rounded-xl p-5 transition-all duration-300 cursor-pointer transform hover:scale-105 ${
+                      key={step.id} 
+                      className={`relative border-2 rounded-xl p-4 transition-all duration-200 cursor-pointer hover:shadow-lg ${
                         isSelected 
-                          ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-400 shadow-lg' 
-                          : isNextStep 
-                            ? 'bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-400 shadow-lg ring-2 ring-yellow-300 animate-pulse'
-                            : `bg-gradient-to-br ${service.color} text-white shadow-md hover:shadow-xl border-2 border-transparent`
+                          ? 'border-green-300 bg-gradient-to-br from-green-50 to-emerald-50' 
+                          : `border-gray-200 bg-gradient-to-br ${step.color.replace('bg-', 'from-').replace('-500', '-50')} to-gray-50 hover:border-gray-300`
                       }`}
                       onClick={() => {
                         if (isSelected) {
-                          // Show vendor details modal for editing
+                          // Show vendor details modal
                           setSelectedVendorForDetails(selectedVendor);
                         } else {
-                          // ONE CLICK FLOW - Open filtered catalog
-                          searchVendorsWithFilters(service.category);
+                          // Start vendor search with questionnaire filters
+                          searchVendorsWithFilters(step.id);
                         }
                       }}
                     >
                       {/* Status Badge */}
-                      <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${
+                      <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                         isSelected 
                           ? 'bg-green-500 text-white' 
-                          : isNextStep 
-                            ? 'bg-yellow-500 text-white animate-bounce'
-                            : 'bg-white text-gray-700 border-2 border-gray-300'
+                          : step.color + ' text-white'
                       }`}>
-                        {isSelected ? '✓' : index + 1}
+                        {isSelected ? '✓' : '○'}
                       </div>
                       
-                      {/* Next Step Indicator */}
-                      {isNextStep && (
-                        <div className="absolute -top-2 -left-2 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
-                          NEXT
+                      {/* Service Icon */}
+                      <div className={`mx-auto h-12 w-12 rounded-full ${step.color} flex items-center justify-center mb-3`}>
+                        <Icon className="h-6 w-6 text-white" />
+                      </div>
+                      
+                      {/* Service Title */}
+                      <h4 className="font-medium text-center text-gray-900 text-sm mb-2">
+                        {step.title}
+                      </h4>
+                      
+                      {/* Auto-filters display */}
+                      {step.autoFilters && (
+                        <div className="text-xs text-gray-600 text-center mb-2 px-1">
+                          <div className="bg-white/80 rounded-full px-2 py-1 text-xs">
+                            {step.autoFilters}
+                          </div>
                         </div>
                       )}
-                      
-                      {/* Vendor Image or Service Icon */}
-                      <div className="text-center mb-3">
-                        {isSelected && selectedVendor.image ? (
-                          <div className="relative">
-                            <img 
-                              src={selectedVendor.image} 
-                              alt={selectedVendor.vendor_name}
-                              className="w-14 h-14 rounded-full mx-auto object-cover border-3 border-green-300 shadow-lg"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'block';
-                              }}
-                            />
-                            <div className="text-3xl hidden">{service.icon}</div>
-                          </div>
-                        ) : (
-                          <div className="text-3xl mb-1">{service.icon}</div>
-                        )}
-                      </div>
-                      
-                      {/* Service Name */}
-                      <h4 className={`font-semibold text-center mb-2 text-sm ${
-                        isSelected 
-                          ? 'text-green-900' 
-                          : isNextStep 
-                            ? 'text-orange-800'
-                            : 'text-white'
-                      }`}>
-                        {service.name}
-                      </h4>
                       
                       {/* Status/Action */}
                       <div className="text-center">
                         {isSelected ? (
                           <div>
-                            <p className="text-xs font-medium text-green-700 mb-1 truncate">
-                              {selectedVendor.vendor_name}
+                            <p className="text-xs font-medium text-green-700 mb-1">
+                              {selectedVendor?.service_name || 'Selected'}
                             </p>
-                            <p className="text-xs text-green-600 font-semibold mb-2">
-                              ${selectedVendor.price?.toLocaleString()}
+                            <p className="text-xs text-green-600 mb-2">
+                              ${selectedVendor?.price?.toLocaleString() || '0'}
                             </p>
-                            <button className="w-full px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
-                              ✓ Selected · Click for Details
-                            </button>
-                          </div>
-                        ) : isNextStep ? (
-                          <div>
-                            <button className="w-full px-3 py-2 bg-yellow-500 text-white font-medium rounded-lg hover:bg-yellow-600 transition-colors shadow-md text-sm">
-                              Select Now
-                            </button>
-                            <p className="text-xs text-orange-700 mt-1 font-medium">Next Step</p>
+                            <div className="flex space-x-1">
+                              <button className="flex-1 px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
+                                View
+                              </button>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Re-search to replace current selection
+                                  searchVendorsWithFilters(step.id);
+                                }}
+                                className="flex-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                              >
+                                Change
+                              </button>
+                            </div>
                           </div>
                         ) : (
-                          <button className="w-full px-3 py-2 bg-white bg-opacity-20 text-white font-medium rounded-lg hover:bg-opacity-30 transition-colors backdrop-blur-sm text-sm">
-                            Click to Choose
+                          <button className="w-full px-3 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-medium rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors">
+                            Select Now
                           </button>
                         )}
                       </div>
                     </div>
                   );
-                });
-              })()}
+                })}
             </div>
 
             {/* Sparkle Your Event - Optional Upsells */}
