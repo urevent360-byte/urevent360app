@@ -1851,6 +1851,21 @@ Status: Pending restaurant confirmation`);
           </button>
         </div>
       </div>
+      
+      {/* Interactive Event Planner Modal */}
+      {showInteractivePlanner && (
+        <InteractiveEventPlanner
+          event={event}
+          eventId={eventId}
+          onClose={() => setShowInteractivePlanner(false)}
+          onPlanSaved={(result) => {
+            console.log('Plan saved with result:', result);
+            setShowInteractivePlanner(false);
+            // Optionally navigate to Event Profile to show the results
+            // navigate(`/events/${eventId}/planning`);
+          }}
+        />
+      )}
     </div>
   );
 };
