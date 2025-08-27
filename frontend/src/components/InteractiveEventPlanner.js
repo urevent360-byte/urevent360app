@@ -502,6 +502,8 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
 
   // Generate dynamic planner steps based on questionnaire answers
   const generateDynamicPlannerSteps = (questionnaireFilters) => {
+    console.log('🎯 Generating dynamic planner steps with filters:', questionnaireFilters);
+    
     const steps = [];
     
     // Always include planning step
@@ -528,6 +530,9 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
         required: true,
         autoFilters: formatAutoFilters(questionnaireFilters, 'venue')
       });
+      console.log('✅ Added venue step');
+    } else {
+      console.log('❌ Skipped venue step - venue type:', questionnaireFilters.preferred_venue_type);
     }
 
     // Add service steps based on questionnaire selections
@@ -597,9 +602,14 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       }
     };
 
-    // Add services from questionnaire
+    // Add services from questionnaire with enhanced debugging
     const allServices = [...(questionnaireFilters.core_services || []), ...(questionnaireFilters.extras || [])];
+    console.log('📋 All services to process:', allServices);
+    console.log('📋 Core services:', questionnaireFilters.core_services);
+    console.log('📋 Extra services:', questionnaireFilters.extras);
+    
     allServices.forEach(serviceName => {
+      console.log(`🔍 Processing service: "${serviceName}"`);
       const mapping = serviceMapping[serviceName];
       if (mapping) {
         steps.push({
@@ -608,6 +618,10 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           required: false,
           autoFilters: formatAutoFilters(questionnaireFilters, mapping.id)
         });
+        console.log(`✅ Added service step: ${serviceName} → ${mapping.title}`);
+      } else {
+        console.log(`❌ No mapping found for service: "${serviceName}"`);
+        console.log('Available mappings:', Object.keys(serviceMapping));
       }
     });
 
