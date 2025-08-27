@@ -76,12 +76,19 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     // Use wizard_answers if available (new format), otherwise fallback to legacy fields
     const wizardAnswers = event.wizard_answers;
     
+    // Enhanced service extraction with debugging
+    const coreServices = wizardAnswers?.needed_core_services || event.needed_core_services || [];
+    const extraServices = wizardAnswers?.needed_extras || event.needed_extras || [];
+    
+    // Debug logging
+    console.log('🔍 Event data received:', event);
+    console.log('🔍 Wizard answers:', wizardAnswers);
+    console.log('🔍 Core services:', coreServices);
+    console.log('🔍 Extra services:', extraServices);
+    
     const filters = {
       preferred_venue_type: wizardAnswers?.preferred_venue_types?.[0] || event.preferred_venue_type || '',
-      services_needed: [
-        ...(wizardAnswers?.needed_core_services || event.needed_core_services || []),
-        ...(wizardAnswers?.needed_extras || event.needed_extras || [])
-      ],
+      services_needed: [...coreServices, ...extraServices],
       guest_count: wizardAnswers?.guest_count || event.guest_count || 0,
       event_type: wizardAnswers?.event_type || event.event_type || '',
       cultural_style: wizardAnswers?.cultural_style?.[0] || event.cultural_style || '',
@@ -91,12 +98,15 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       
       // Additional wizard data for enhanced matching
       venue_types: wizardAnswers?.preferred_venue_types || [],
-      core_services: wizardAnswers?.needed_core_services || [],
-      extras: wizardAnswers?.needed_extras || [],
+      core_services: coreServices,
+      extras: extraServices,
       service_subcategories: wizardAnswers?.service_subcategories || {},
       theme_format: wizardAnswers?.theme_or_format || [],
       mitzvah_type: wizardAnswers?.mitzvah_type || null
     };
+    
+    console.log('🎯 Final questionnaire filters:', filters);
+    console.log('📋 Total services to display:', filters.services_needed.length);
     
     setQuestionnaireFilters(filters);
     setIsAtHome(filters.preferred_venue_type === 'at_home' || filters.preferred_venue_type === 'my_own_private_space');
@@ -111,15 +121,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       }));
     }
     
-    console.log('🔄 Synced questionnaire filters from wizard_answers:', filters);
-    console.log('🏠 At-home event:', filters.preferred_venue_type === 'at_home');
-    console.log('📋 Available services:', filters.services_needed);
-    console.log('💰 Target budget:', filters.budget);
-    
-    // Show success message if wizard answers were used
-    if (wizardAnswers) {
-      console.log('✅ Pre-filled from your questionnaire');
-    }
+    console.log('✅ Questionnaire sync complete - Available services:', filters.services_needed);
   };
 
   // Enhanced search vendors with questionnaire filters and fallback ladder
