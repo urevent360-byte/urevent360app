@@ -14,7 +14,9 @@ import {
   Filter,
   Search,
   ArrowLeft,
-  Sparkles
+  Sparkles,
+  Play,
+  ChevronRight
 } from 'lucide-react';
 import { EVENT_FLOW_CONFIG, shouldShowCulturalStyles, getVendorTags } from '../config/eventFlowConfig';
 import { SERVICE_MAPPING, getServicesBySection, getServicesByContext, getBudgetBuckets } from '../config/serviceMapping';
