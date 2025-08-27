@@ -682,6 +682,74 @@ Status: Pending restaurant confirmation`);
           </div>
         </div>
       )}
+
+      {/* Ready to Start Planning Section - Synchronized with Questionnaire */}
+      {event && (
+        <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <Sparkles className="h-6 w-6 text-violet-600" />
+                Ready to Start Planning?
+              </h3>
+              <p className="text-gray-700 mb-1">
+                {event.wizard_answers || (event.needed_core_services?.length > 0) 
+                  ? "Continue planning with your saved questionnaire answers - we'll pre-fill everything for you!"
+                  : "Find vendors, compare prices, and build your perfect event with our interactive planner"
+                }
+              </p>
+              <div className="flex flex-wrap gap-2 text-sm text-violet-600 font-medium">
+                <span className="flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  Smart recommendations
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <DollarSign className="h-3 w-3" />
+                  Live budget tracking
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <FileText className="h-3 w-3" />
+                  Questionnaire-synced matching
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                // TODO: Open Interactive Event Planner modal with questionnaire sync
+                console.log('Opening Interactive Event Planner for event:', eventId);
+                // This should open the InteractiveEventPlanner modal with event data
+                alert('Interactive Event Planner would open here with your questionnaire data pre-filled!');
+              }}
+              className="flex items-center gap-3 rounded-2xl px-8 py-5 text-lg font-bold
+                         text-white shadow-lg transition-all duration-300 transform
+                         bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600
+                         hover:-translate-y-1 hover:shadow-2xl hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700
+                         focus:outline-none focus:ring-4 focus:ring-violet-300 focus:ring-offset-2
+                         active:scale-95 group relative overflow-hidden"
+              title={event.wizard_answers ? "Creates a draft quote pre-filled from your questionnaire" : "Open interactive event planner"}
+            >
+              {/* Animated background shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              
+              {/* Play icon */}
+              <Play className="h-8 w-8 drop-shadow-sm relative z-10" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-2">
+                  <span>{event.wizard_answers || (event.needed_core_services?.length > 0) ? "Continue Planning" : "Start Planning"}</span>
+                  <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
+                <div className="text-sm font-medium opacity-90">
+                  {event.wizard_answers || (event.needed_core_services?.length > 0) ? "Use Saved Answers" : "Interactive Mode"}
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
