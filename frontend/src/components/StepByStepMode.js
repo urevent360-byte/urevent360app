@@ -722,10 +722,8 @@ Status: Pending restaurant confirmation`);
 
             <button
               onClick={() => {
-                // TODO: Open Interactive Event Planner modal with questionnaire sync
                 console.log('Opening Interactive Event Planner for event:', eventId);
-                // This should open the InteractiveEventPlanner modal with event data
-                alert('Interactive Event Planner would open here with your questionnaire data pre-filled!');
+                setShowInteractivePlanner(true);
               }}
               className="flex items-center gap-3 rounded-2xl px-8 py-5 text-lg font-bold
                          text-white shadow-lg transition-all duration-300 transform
