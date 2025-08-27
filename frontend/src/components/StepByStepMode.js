@@ -696,10 +696,7 @@ Status: Pending restaurant confirmation`);
                 Ready to Start Planning?
               </h3>
               <p className="text-gray-700 mb-1">
-                {event.wizard_answers || (event.needed_core_services?.length > 0) 
-                  ? "Continue planning with your saved questionnaire answers - we'll pre-fill everything for you!"
-                  : "Find vendors, compare prices, and build your perfect event with our interactive planner"
-                }
+                Find vendors, compare prices, and build your perfect event with our interactive planner
               </p>
               <div className="flex flex-wrap gap-2 text-sm text-violet-600 font-medium">
                 <span className="flex items-center gap-1">
@@ -732,7 +729,7 @@ Status: Pending restaurant confirmation`);
                          hover:-translate-y-1 hover:shadow-2xl hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700
                          focus:outline-none focus:ring-4 focus:ring-violet-300 focus:ring-offset-2
                          active:scale-95 group relative overflow-hidden"
-              title={event.wizard_answers ? "Creates a draft quote pre-filled from your questionnaire" : "Open interactive event planner"}
+              title="Open interactive event planner to start your planning session"
             >
               {/* Animated background shine effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -742,11 +739,11 @@ Status: Pending restaurant confirmation`);
               
               <div className="relative z-10">
                 <div className="flex items-center gap-2">
-                  <span>{event.wizard_answers || (event.needed_core_services?.length > 0) ? "Continue Planning" : "Start Planning"}</span>
+                  <span>Start Planning</span>
                   <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
                 </div>
                 <div className="text-sm font-medium opacity-90">
-                  {event.wizard_answers || (event.needed_core_services?.length > 0) ? "Use Saved Answers" : "Interactive Mode"}
+                  Interactive Mode
                 </div>
               </div>
             </button>
