@@ -389,50 +389,86 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           return;
         }
 
-        // If eventId is provided, fetch that specific event
-        if (eventId) {
-          const response = await axios.get(`${API}/events/${eventId}`, {
-            headers
-          });
-          setEventData(response.data);
-          syncQuestionnaireFilters(response.data); // Sync questionnaire filters
+      // Determine which event data to use
+      let eventToUse = null;
+      
+      if (event) {
+        // Event passed as prop (when opened as modal)
+        console.log('📥 Using event data passed as prop:', event);
+        eventToUse = event;
+        setEventData(event);
+        syncQuestionnaireFilters(event);
+        setBudgetData({
+          set: event.budget_preferences?.target || event.budget || 0,
+          selected: 0,
+          remaining: event.budget_preferences?.target || event.budget || 0
+        });
+      } else if (eventId) {
+        // Fetch specific event by ID
+        console.log('🔍 Fetching event by ID:', eventId);
+        const response = await axios.get(`${API}/events/${eventId}`, {
+          headers
+        });
+        eventToUse = response.data;
+        setEventData(response.data);
+        syncQuestionnaireFilters(response.data);
+        setBudgetData({
+          set: response.data.budget || 0,
+          selected: 0,
+          remaining: response.data.budget || 0
+        });
+      } else {
+        // No specific event, get user's events and use the first one
+        console.log('📋 No specific event, fetching user events');
+        const response = await axios.get(`${API}/events`, {
+          headers
+        });
+        
+        if (response.data.events && response.data.events.length > 0) {
+          const recentEvent = response.data.events[0];
+          eventToUse = recentEvent;
+          setEventData(recentEvent);
+          syncQuestionnaireFilters(recentEvent);
           setBudgetData({
-            set: response.data.budget || 0,
+            set: recentEvent.budget || 0,
             selected: 0,
-            remaining: response.data.budget || 0
+            remaining: recentEvent.budget || 0
           });
         } else {
-          // No specific eventId, get user's events and use the first one
-          const response = await axios.get(`${API}/events`, {
-            headers
-          });
-          
-          if (response.data.events && response.data.events.length > 0) {
-            // Get the most recent event
-            const recentEvent = response.data.events[0];
-            setEventData(recentEvent);
-            setBudgetData({
-              set: recentEvent.budget || 0,
-              selected: 0,
-              remaining: recentEvent.budget || 0
-            });
-          } else {
-            // No events found, set nice default data for demonstration
-            setEventData({
-              name: 'My Event',
-              event_type: 'Wedding',
+          // No events found, create sample data with multiple services for demo
+          const sampleEvent = {
+            name: 'Sample Event',
+            event_type: 'Wedding',
+            guest_count: 150,
+            budget: 25000,
+            location: 'Los Angeles',
+            zipcode: '90210',
+            needed_core_services: ['Catering', 'Photography', 'Music/DJ', 'Decoration'],
+            needed_extras: ['Photo Booths', 'Lighting'],
+            wizard_answers: {
+              needed_core_services: ['Catering', 'Photography', 'Music/DJ', 'Decoration'],
+              needed_extras: ['Photo Booths', 'Lighting'],
+              preferred_venue_types: ['Hotel/Banquet Hall'],
               guest_count: 150,
-              budget: 25000,
-              location: 'Los Angeles',
-              zipcode: '90210'
-            });
-            setBudgetData({
-              set: 25000,
-              selected: 0,
-              remaining: 25000
-            });
-          }
+              location_city: 'Los Angeles',
+              cultural_style: ['American'],
+              budget_target: 25000
+            }
+          };
+          
+          console.log('📋 Using sample event with multiple services:', sampleEvent);
+          eventToUse = sampleEvent;
+          setEventData(sampleEvent);
+          syncQuestionnaireFilters(sampleEvent);
+          setBudgetData({
+            set: 25000,
+            selected: 0,
+            remaining: 25000
+          });
         }
+      }
+      
+      console.log('✅ Event initialization complete. Final event data:', eventToUse);
       } catch (error) {
         console.error('Failed to fetch event data:', error);
         // Set attractive sample data even on error
