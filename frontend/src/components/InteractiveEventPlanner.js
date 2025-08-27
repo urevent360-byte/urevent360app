@@ -737,8 +737,17 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     return parts.join(' • ');
   };
 
-  // Use dynamic steps based on questionnaire
-  const plannerSteps = generateDynamicPlannerSteps(questionnaireFilters);
+  // Use dynamic steps based on questionnaire - make reactive to questionnaire changes
+  const [plannerSteps, setPlannerSteps] = useState([]);
+  
+  // Update planner steps when questionnaire filters change
+  useEffect(() => {
+    if (questionnaireFilters && Object.keys(questionnaireFilters).length > 0) {
+      console.log('🔄 Regenerating planner steps due to questionnaire filter changes');
+      const newSteps = generateDynamicPlannerSteps(questionnaireFilters);
+      setPlannerSteps(newSteps);
+    }
+  }, [questionnaireFilters]);
 
   useEffect(() => {
     // Load saved plan and cart from backend when component mounts
