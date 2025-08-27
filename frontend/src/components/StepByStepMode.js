@@ -35,6 +35,9 @@ const StepByStepMode = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
+  // Interactive Event Planner modal state
+  const [showInteractivePlanner, setShowInteractivePlanner] = useState(false);
+  
   // Data for each section
   const [venues, setVenues] = useState([]);
   const [vendors, setVendors] = useState([]);
