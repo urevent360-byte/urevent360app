@@ -671,9 +671,12 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       }
     };
 
-    // Add addon services
+    // Add addon services with debugging
     const extras = questionnaireFilters.extras || [];
+    console.log('🎁 Processing extras/addon services:', extras);
+    
     extras.forEach(extraName => {
+      console.log(`🔍 Processing addon: "${extraName}"`);
       const mapping = addonMapping[extraName];
       if (mapping) {
         steps.push({
@@ -682,6 +685,10 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           required: false,
           autoFilters: formatAutoFilters(questionnaireFilters, mapping.id)
         });
+        console.log(`✅ Added addon step: ${extraName} → ${mapping.title}`);
+      } else {
+        console.log(`❌ No addon mapping found for: "${extraName}"`);
+        console.log('Available addon mappings:', Object.keys(addonMapping));
       }
     });
 
@@ -696,6 +703,9 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       required: true
     });
 
+    console.log(`🎯 Generated ${steps.length} total planner steps:`, steps.map(s => s.title));
+    console.log('📊 Service tiles (excluding planning/review):', steps.filter(s => s.id !== 'planning' && s.id !== 'review').length);
+    
     return steps;
   };
 
