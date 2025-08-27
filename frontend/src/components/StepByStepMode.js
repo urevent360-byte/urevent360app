@@ -1831,8 +1831,27 @@ Status: Pending restaurant confirmation`);
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {renderEventHeader()}
-      {renderSectionTabs()}
-      {renderSectionContent()}
+      
+      {/* Simple message about using the planning tools */}
+      <div className="mt-6 bg-blue-50 rounded-xl p-6 border border-blue-200 text-center">
+        <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+          <Calendar className="h-8 w-8 text-blue-600" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">All Set to Plan!</h3>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Your event details are ready. Use the "Ready to Start Planning?" section above to begin your interactive planning experience, 
+          or return to your Event Profile to access budget tracking, timelines, vendor management, and more planning tools.
+        </p>
+        <div className="mt-4 space-x-4">
+          <button
+            onClick={() => navigate(`/events/${eventId}/planning`)}
+            className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Go to Event Profile
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
