@@ -131,34 +131,81 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     try {
       setLoading(true);
       
-      // Build filter object for API with fallback adjustments
-      const filterParams = {
-        service_type: serviceCategory,
-        guest_count: questionnaireFilters.guest_count,
-        event_type: questionnaireFilters.event_type,
-        location: questionnaireFilters.location,
-        date: questionnaireFilters.date,
-        budget_per_service: Math.floor((questionnaireFilters.budget || 0) / Math.max(plannerSteps.length - 2, 1)), // Exclude planning and review steps
-        preferred_venue_type: serviceCategory === 'venue' ? questionnaireFilters.preferred_venue_type : undefined,
+      // Use different endpoints for venues vs vendors
+      let apiEndpoint = `${API}/vendors/search`;
+      let filterParams = {};
+      
+      if (serviceCategory === 'venue') {
+        // Use venue-specific search endpoint with venue-specific parameters
+        apiEndpoint = `${API}/venues/search`;
         
-        // Apply fallback ladder for cultural style
-        cultural_style: fallbackLevel === 0 ? questionnaireFilters.cultural_style : 
-                       fallbackLevel === 1 ? '' : // Remove cultural filter on first fallback
-                       undefined,
+        // Extract location data from questionnaire
+        const locationData = questionnaireFilters.location_preferences || {};
         
-        // Apply fallback ladder for radius
-        radius: fallbackLevel === 0 ? 30 : 
-                fallbackLevel === 1 ? 60 : 
-                fallbackLevel === 2 ? 120 : 180,
+        filterParams = {
+          // Location parameters for venue search
+          zip_code: locationData.zipcode || null,
+          city: questionnaireFilters.location || locationData.city,
+          radius: fallbackLevel === 0 ? (locationData.radius_miles || 30) : 
+                  fallbackLevel === 1 ? 60 : 
+                  fallbackLevel === 2 ? 120 : 180,
+          
+          // Venue-specific parameters
+          venue_type: questionnaireFilters.preferred_venue_type,
+          preferred_venue_type: questionnaireFilters.preferred_venue_type,
+          capacity_min: Math.floor((questionnaireFilters.guest_count || 0) * 0.8), // 80% of guest count as minimum
+          capacity_max: Math.ceil((questionnaireFilters.guest_count || 0) * 1.2), // 120% of guest count as maximum
+          
+          // Event details
+          date: questionnaireFilters.date,
+          event_type: questionnaireFilters.event_type,
+          
+          // Budget (venue search uses different budget structure)
+          max_price_per_person: questionnaireFilters.budget ? 
+            Math.floor(questionnaireFilters.budget / Math.max(questionnaireFilters.guest_count || 1, 1)) : 
+            undefined,
+            
+          // Cultural style (venues might have cultural preferences)
+          cultural_style: fallbackLevel === 0 ? questionnaireFilters.cultural_style : 
+                         fallbackLevel === 1 ? '' : undefined,
+          
+          // Sort and limit
+          sort: fallbackLevel === 0 ? 'best_match' : 
+                fallbackLevel === 1 ? 'rating' : 'popular',
+          limit: 20
+        };
         
-        // Sort by best match with fallbacks
-        sort: fallbackLevel === 0 ? 'best_match' : 
-              fallbackLevel === 1 ? 'rating' : 
-              'popular', // Popular vendors as last resort
-              
-        // Limit results for performance
-        limit: 20
-      };
+        console.log('🏛️ Using venue search endpoint with params:', filterParams);
+        
+      } else {
+        // Use vendor search endpoint for all other services
+        filterParams = {
+          service_type: serviceCategory,
+          guest_count: questionnaireFilters.guest_count,
+          event_type: questionnaireFilters.event_type,
+          location: questionnaireFilters.location,
+          date: questionnaireFilters.date,
+          budget_per_service: Math.floor((questionnaireFilters.budget || 0) / Math.max(plannerSteps.length - 2, 1)),
+          
+          // Apply fallback ladder for cultural style
+          cultural_style: fallbackLevel === 0 ? questionnaireFilters.cultural_style : 
+                         fallbackLevel === 1 ? '' : undefined,
+          
+          // Apply fallback ladder for radius
+          radius: fallbackLevel === 0 ? 30 : 
+                  fallbackLevel === 1 ? 60 : 
+                  fallbackLevel === 2 ? 120 : 180,
+          
+          // Sort by best match with fallbacks
+          sort: fallbackLevel === 0 ? 'best_match' : 
+                fallbackLevel === 1 ? 'rating' : 'popular',
+                
+          // Limit results for performance
+          limit: 20
+        };
+        
+        console.log('🛍️ Using vendor search endpoint with params:', filterParams);
+      }
 
       // Remove undefined/empty values
       Object.keys(filterParams).forEach(key => {
@@ -167,15 +214,15 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
         }
       });
 
-      console.log(`🔎 API request params (level ${fallbackLevel}):`, filterParams);
+      console.log(`🔎 Final API request to ${apiEndpoint} (level ${fallbackLevel}):`, filterParams);
 
-      const response = await axios.get(`${API}/vendors/search`, {
+      const response = await axios.get(apiEndpoint, {
         params: filterParams,
         headers: { Authorization: `Bearer ${token}` }
       });
 
       const vendorResults = response.data || [];
-      console.log(`📊 Found ${vendorResults.length} ${serviceCategory} vendors`);
+      console.log(`📊 Found ${vendorResults.length} ${serviceCategory} results from ${apiEndpoint}`);
 
       // Check if we need to apply fallback ladder
       if (vendorResults.length < 3 && fallbackLevel < 3) {
@@ -210,11 +257,11 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
         setCurrentMode('new');
       }
 
-      console.log(`✅ Search complete: ${vendorResults.length} ${serviceCategory} vendors loaded`);
+      console.log(`✅ Search complete: ${vendorResults.length} ${serviceCategory} results loaded`);
       return vendorResults;
       
     } catch (error) {
-      console.error(`❌ Error searching ${serviceCategory} vendors:`, error);
+      console.error(`❌ Error searching ${serviceCategory}:`, error);
       
       // Fallback to empty state with request vendor option
       const emptyState = [];
