@@ -27,14 +27,14 @@ async def create_sample_event():
         "id": event_id,
         "user_id": carla_user["id"],
         "name": "Carla Pacheco",
-        "type": "Sweet 16",
-        "date": (datetime.utcnow() + timedelta(days=30)).isoformat(),
+        "event_type": "Sweet 16",
+        "date": datetime.utcnow() + timedelta(days=30),  # datetime object, not string
         "time": "18:00",
         "location": "Orlando",
-        "guestCount": 90,
+        "guest_count": 90,
         "budget": 9000.0,
-        "created_at": datetime.utcnow().isoformat(),
-        "updated_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
         "wizard_answers": {
             "basic_info": {
                 "name": "Carla Pacheco",
