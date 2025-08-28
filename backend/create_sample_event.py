@@ -44,7 +44,8 @@ async def create_sample_event():
             },
             "event_type": "Sweet 16",
             "venue_preferences": ["Hotel/Banquet Hall"],
-            "core_services": ["Catering", "Decoration", "Photography", "Lighting", "Music/DJ", "Videography"],
+            "core_services": ["Catering", "Decoration", "Photography", "Lighting", "Music/DJ", "Videography", "Cleaning", "Transportation"],
+            "extras": ["Photo Booths", "Cold Spark Machines"],
             "cultural_style": ["American"],
             "guest_count": 90,
             "budget_target": 9000.0
