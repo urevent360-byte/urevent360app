@@ -764,10 +764,14 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
   useEffect(() => {
     if (eventData && eventData.wizard_answers) {
       console.log('🎯 Event has wizard_answers, switching to vendor selection mode');
+      console.log('Current mode:', currentMode, 'Event data:', eventData);
       // Only switch to 'new' mode if we're currently in 'continue' mode showing overview
       if (currentMode === 'continue') {
+        console.log('🔄 Switching from continue to new mode');
         setCurrentMode('new');
       }
+    } else {
+      console.log('❌ Event has no wizard_answers:', eventData);
     }
   }, [eventData, currentMode]);
 
