@@ -855,7 +855,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
         }
         
         // Use the new Interactive Event Planner vendor endpoint
-        response = await axios.get(`${API}/events/${eventId}/planner/vendors/${stepId}?${params}`);
+        response = await axios.get(`${API}/events/${eventId}/planner/vendors/${stepId}?${params}`, getAuthHeaders());
       }
 
       setVendors(prev => ({
