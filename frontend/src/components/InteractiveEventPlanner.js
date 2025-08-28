@@ -1796,520 +1796,51 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     );
   }
 
-  // Render different interfaces based on current mode
-  if (currentMode === 'continue') {
-    return (
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div className="relative top-4 mx-auto p-0 border w-full max-w-7xl shadow-lg rounded-lg bg-white mb-8">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-green-50 to-emerald-50">
-            <div className="flex items-center space-x-6">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-                  <Play className="h-6 w-6 text-green-600 mr-2" />
-                  Continue Event Planning
-                </h2>
-                <p className="text-sm text-gray-600">{eventData?.name || 'My Event'}</p>
-              </div>
-              
-              {/* Step-by-Step Mode Button - Moved to Header */}
-              <button
-                onClick={() => {
-                  // Switch to step-by-step mode for detailed planning with shopping cart
-                  setCurrentMode('new');
-                  setCurrentStep(planningProgress.completedSteps || 0);
-                  // Load vendors for the current step
-                  const stepToLoad = plannerSteps[planningProgress.completedSteps || 0];
-                  if (stepToLoad && stepToLoad.id !== 'review') {
-                    searchVendors(stepToLoad.id);
-                  }
-                }}
-                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors shadow-sm"
-                title="Switch to detailed step-by-step planning with shopping cart"
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Step-by-Step Mode
-              </button>
-            </div>
-            
-            <button 
-              onClick={handleClose} 
-              className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
-              title="Close planner"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          </div>
-
-          {/* Continue Planning Content */}
-          <div className="p-6">
-            {/* Progress Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              {/* Progress Summary */}
-              <div className="lg:col-span-1">
-                <div className="bg-green-50 rounded-lg p-6 border border-green-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Progress</h3>
-                  
-                  <div className="space-y-4">
-                    {/* Progress Bar */}
-                    <div>
-                      <div className="flex justify-between text-sm text-gray-600 mb-2">
-                        <span>Completed Services</span>
-                        <span>{planningProgress.completedSteps}/{planningProgress.totalServices || 9}</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div 
-                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-300" 
-                          style={{width: `${((planningProgress.completedSteps || 0) / (planningProgress.totalServices || 9)) * 100}%`}}
-                        ></div>
-                      </div>
-                    </div>
-
-                    {/* Detailed Budget Overview - Moved from Step-by-Step Mode */}
-                    <div className="border-t pt-4">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                        <DollarSign className="h-5 w-5 text-green-600 mr-2" />
-                        Budget Overview
-                      </h4>
-                      
-                      <div className="space-y-4">
-                        {/* Budget Summary */}
-                        <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                          <div className="grid grid-cols-3 gap-4 text-center">
-                            <div>
-                              <p className="text-sm text-gray-600">Target Budget</p>
-                              <p className="text-lg font-semibold text-gray-900">${eventData?.budget?.toLocaleString() || '0'}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-600">Committed</p>
-                              <p className="text-lg font-semibold text-green-600">${budgetData.selected?.toLocaleString() || '0'}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-600">Remaining</p>
-                              <p className={`text-lg font-semibold ${budgetData.remaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                ${budgetData.remaining?.toLocaleString() || '0'}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {/* Progress Bar */}
-                          <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
-                            <div 
-                              className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-300" 
-                              style={{width: `${budgetData.set > 0 ? Math.min((budgetData.selected / budgetData.set) * 100, 100) : 0}%`}}
-                            ></div>
-                          </div>
-                        </div>
-
-                        {/* Category Breakdown */}
-                        <div>
-                          <h5 className="font-medium text-gray-900 mb-3">Category Breakdown</h5>
-                          <div className="space-y-2">
-                            {[
-                              { name: 'Venue', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'venue')?.price || 0, color: 'bg-blue-500' },
-                              { name: 'Catering', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'catering')?.price || 0, color: 'bg-green-500' },
-                              { name: 'Photography', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'photography')?.price || 0, color: 'bg-purple-500' },
-                              { name: 'Decoration', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'decoration')?.price || 0, color: 'bg-pink-500' },
-                              { name: 'DJ/Music', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'dj')?.price || 0, color: 'bg-indigo-500' },
-                              { name: 'Bar Service', committed: planningProgress.selectedVendors?.find(v => v.service_type === 'bar')?.price || 0, color: 'bg-red-500' }
-                            ].map(category => (
-                              <div key={category.name} className="flex items-center justify-between text-sm">
-                                <div className="flex items-center">
-                                  <div className={`w-3 h-3 rounded ${category.color} mr-2`}></div>
-                                  <span className="text-gray-700">{category.name}</span>
-                                </div>
-                                <span className="font-medium text-gray-900">${category.committed.toLocaleString()}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Edit Budget Settings Button */}
-                        <button className="w-full px-4 py-2 border-2 border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition-colors text-sm font-medium">
-                          Edit Budget Settings
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Selected Vendors */}
-              <div className="lg:col-span-2">
-                <div className="bg-white rounded-lg border border-gray-200">
-                  <div className="p-4 border-b">
-                    <h3 className="text-lg font-semibold text-gray-900">Selected Vendors</h3>
-                  </div>
-                  <div className="p-4">
-                    {planningProgress.selectedVendors && planningProgress.selectedVendors.length > 0 ? (
-                      <div className="space-y-3">
-                        {planningProgress.selectedVendors.map((vendor, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                              <div>
-                                <p className="font-medium text-gray-900">
-                                  {vendor.service_type === 'venue' && '🏛️'}
-                                  {vendor.service_type === 'catering' && '🍽️'}
-                                  {vendor.service_type === 'photography' && '📸'}
-                                  {vendor.service_type === 'decoration' && '🎨'}
-                                  {vendor.service_type === 'dj' && '🎵'}
-                                  {vendor.service_type === 'bar' && '🍸'}
-                                  {vendor.service_type === 'planner' && '📋'}
-                                  {vendor.service_type === 'staffing' && '👥'}
-                                  {vendor.service_type === 'entertainment' && '🎭'}
-                                  {!['venue', 'catering', 'photography', 'decoration', 'dj', 'bar', 'planner', 'staffing', 'entertainment'].includes(vendor.service_type) && '🔧'}
-                                  {' '}{vendor.vendor_name}
-                                </p>
-                                <p className="text-sm text-gray-600 capitalize">{vendor.service_type}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <span className="font-semibold text-green-600">${vendor.price?.toLocaleString()}</span>
-                              <button 
-                                onClick={() => removeFromCart(vendor.id || index)}
-                                className="text-red-500 hover:text-red-700 p-1"
-                                title="Remove vendor"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <div className="text-gray-400 mb-2">
-                          <Users className="h-12 w-12 mx-auto" />
-                        </div>
-                        <p className="text-gray-600">No vendors selected yet</p>
-                        <p className="text-sm text-gray-500">Start by selecting services below</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Enhanced Service Selection Icons */}
-            <div className="bg-white rounded-lg border border-gray-200 mb-6">
-              <div className="p-4 border-b">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Users className="h-5 w-5 text-purple-600 mr-2" />
-                  Vendor Selection Status
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">Track your progress and select vendors for each service category</p>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {[
-                    { id: 'venue', name: 'Venue', icon: '🏛️', category: 'venue' },
-                    { id: 'decoration', name: 'Decoration', icon: '🎨', category: 'decoration' },
-                    { id: 'catering', name: 'Catering', icon: '🍽️', category: 'catering' },
-                    { id: 'bar', name: 'Bar Service', icon: '🍸', category: 'bar' },
-                    { id: 'planner', name: 'Coordinator', icon: '📋', category: 'planner' },
-                    { id: 'photography', name: 'Photography', icon: '📸', category: 'photography' },
-                    { id: 'dj', name: 'DJ/Music', icon: '🎵', category: 'dj' },
-                    { id: 'staffing', name: 'Staff', icon: '👥', category: 'staffing' },
-                    { id: 'entertainment', name: 'Entertainment', icon: '🎭', category: 'entertainment' }
-                  ].map((service) => {
-                    // Find if this service has a selected vendor
-                    const selectedVendor = planningProgress.selectedVendors?.find(
-                      vendor => vendor.service_type === service.category
-                    );
-                    
-                    const isSelected = !!selectedVendor;
-                    const isPending = planningProgress.pendingServices?.some(
-                      pending => pending.id === service.id
-                    );
-                    
-                    return (
-                      <div 
-                        key={service.id} 
-                        className={`relative border-2 rounded-xl p-4 transition-all duration-200 cursor-pointer hover:shadow-lg ${
-                          isSelected 
-                            ? 'border-green-300 bg-gradient-to-br from-green-50 to-emerald-50' 
-                            : isPending 
-                              ? 'border-purple-300 bg-gradient-to-br from-purple-50 to-indigo-50 hover:border-purple-400' 
-                              : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                        }`}
-                        onClick={() => {
-                          if (isSelected) {
-                            // Show vendor details modal
-                            setSelectedVendorForDetails(selectedVendor);
-                          } else {
-                            // Navigate to vendor selection for this category
-                            const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
-                            if (stepIndex !== -1) {
-                              setCurrentStep(stepIndex);
-                              setCurrentMode('new'); // Switch to step-by-step mode
-                              searchVendors(service.category);
-                            }
-                          }
-                        }}
-                      >
-                        {/* Status Badge */}
-                        <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                          isSelected 
-                            ? 'bg-green-500 text-white' 
-                            : isPending 
-                              ? 'bg-purple-500 text-white' 
-                              : 'bg-gray-300 text-gray-600'
-                        }`}>
-                          {isSelected ? '✓' : isPending ? '!' : '○'}
-                        </div>
-                        
-                        {/* Vendor Image or Icon */}
-                        <div className="text-center mb-3">
-                          {isSelected && selectedVendor.image ? (
-                            <div className="relative">
-                              <img 
-                                src={selectedVendor.image} 
-                                alt={selectedVendor.vendor_name}
-                                className="w-12 h-12 rounded-full mx-auto object-cover border-2 border-green-300"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.nextSibling.style.display = 'block';
-                                }}
-                              />
-                              <div className="text-3xl hidden">{service.icon}</div>
-                            </div>
-                          ) : (
-                            <div className="text-3xl">{service.icon}</div>
-                          )}
-                        </div>
-                        
-                        {/* Service Name */}
-                        <h4 className={`font-medium text-center mb-2 ${
-                          isSelected ? 'text-green-900' : isPending ? 'text-purple-900' : 'text-gray-700'
-                        }`}>
-                          {service.name}
-                        </h4>
-                        
-                        {/* Status/Action */}
-                        <div className="text-center">
-                          {isSelected ? (
-                            <div>
-                              <p className="text-xs font-medium text-green-700 mb-1">
-                                {selectedVendor.vendor_name}
-                              </p>
-                              <p className="text-xs text-green-600 mb-2">
-                                ${selectedVendor.price?.toLocaleString()}
-                              </p>
-                              <div className="flex space-x-1">
-                                <button className="flex-1 px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
-                                  View
-                                </button>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    // Navigate to vendor selection to replace
-                                    const stepIndex = plannerSteps.findIndex(step => step.id === service.id);
-                                    if (stepIndex !== -1) {
-                                      setCurrentStep(stepIndex);
-                                      setCurrentMode('new');
-                                      searchVendors(service.category);
-                                    }
-                                  }}
-                                  className="flex-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
-                                >
-                                  Change
-                                </button>
-                              </div>
-                            </div>
-                          ) : isPending ? (
-                            <button className="w-full px-3 py-2 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 transition-colors">
-                              Select Now
-                            </button>
-                          ) : (
-                            <button className="w-full px-3 py-2 bg-gray-400 text-white text-xs font-medium rounded-lg cursor-not-allowed">
-                              Complete Previous
-                            </button>
-                          )}
-                        </div>
-                        
-                        {/* Priority Indicator for Next Step */}
-                        {isPending && planningProgress.pendingServices?.findIndex(pending => pending.id === service.id) === 0 && (
-                          <div className="absolute -top-1 -left-1 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-pulse">
-                            NEXT
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                
-                {/* Progress Indicator */}
-                <div className="mt-6 bg-gray-100 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Vendor Selection Progress</span>
-                    <span className="text-sm text-gray-600">
-                      {planningProgress.selectedVendors?.length || 0} of 9 selected
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-purple-500 to-green-500 h-2 rounded-full transition-all duration-300" 
-                      style={{width: `${((planningProgress.selectedVendors?.length || 0) / 9) * 100}%`}}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>Just Started</span>
-                    <span>Ready to Book</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-between">
-              <button
-                onClick={handleClose}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                Close
-              </button>
-              <div className="space-x-3">
-                {planningProgress.selectedVendors && planningProgress.selectedVendors.length > 0 && (
-                  <button
-                    onClick={finalizeEventPlan}
-                    disabled={saving}
-                    className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                  >
-                    {saving ? 'Finalizing...' : 'Finalize Plan'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  // Step-by-step vendor selection interface (when currentMode is 'new')
-  if (currentMode === 'new' && currentStep >= 0 && currentStep < plannerSteps.length && plannerSteps[currentStep]) {
-    const step = plannerSteps[currentStep];
-    return (
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div className="relative top-4 mx-auto p-0 border w-full max-w-6xl shadow-lg rounded-lg bg-white mb-8">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-50 to-indigo-50">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => {
-                  setCurrentMode('overview');
-                  setCurrentStep(-1);
-                }}
-                className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 text-purple-600" />
-              </button>
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  Select {step.title} for Your Event
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Browse and compare {step.title.toLowerCase()} options filtered by your preferences
-                </p>
-              </div>
-            </div>
-            
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="h-5 w-5 text-gray-600" />
-            </button>
-          </div>
-
-          {/* Step Content - Vendor List */}
-          <div className="p-6">
-            {renderStepContent()}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Main overview interface (default)
+  // SIMPLIFIED: Always use 'new' mode for direct vendor selection
+  // Remove the confusing overview/continue modes entirely
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      {/* Debug Component */}
-      {process.env.REACT_APP_DEBUG_MATCHING === 'true' && <DebugPlanner event={eventData} />}
-      
       <div className="relative top-4 mx-auto p-0 border w-full max-w-7xl shadow-lg rounded-lg bg-white mb-8">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-50 to-indigo-50">
           <div className="flex items-center space-x-4">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Interactive Event Planner</h2>
               <p className="text-sm text-gray-600">{eventData?.name || 'My Event'}</p>
             </div>
-            
-            {/* Back to Progress View Button - Only show if we started from continue mode */}
-            {mode === 'continue' && (
-              <button
-                onClick={() => {
-                  setCurrentMode('continue');
-                  loadPlanningProgress();
-                }}
-                className="inline-flex items-center px-3 py-2 text-sm border border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors"
-                title="Back to progress overview"
-              >
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Progress View
-              </button>
-            )}
           </div>
           
-          <button 
-            onClick={handleClose} 
-            className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-lg hover:bg-gray-100"
-            title="Close planner"
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5 text-gray-600" />
           </button>
         </div>
 
-        {/* Step-by-Step Mode: Vendor Selection Focus */}
-        <div className="flex h-full">
-          {/* Main Content - Vendor Selection */}
-          <div className="flex-1 p-6 pr-3">
-            <div className="mb-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center">
-                <Wand2 className="h-6 w-6 text-purple-600 mr-2" />
-                Questionnaire-Synced Vendor Selection
-              </h3>
-              <p className="text-gray-600">Services from your questionnaire. Click to select vendors with auto-applied filters.</p>
-              
-              {/* At-Home Event Banner */}
-              {isAtHome && (
-                <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center">
-                  <div className="text-amber-600 mr-3">🏠</div>
-                  <div>
-                    <p className="text-amber-800 font-medium">At-home event selected — venue disabled</p>
-                    <p className="text-amber-700 text-sm">Your event will be hosted at your own location</p>
-                  </div>
-                </div>
-              )}
-              
-              {/* Progress Indicator - Dynamic based on questionnaire */}
-              <div className="mt-4 bg-purple-50 rounded-lg p-3 border border-purple-200">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-purple-700 font-medium">
-                    Progress: {cart.length} of {plannerSteps.length - 2} services selected
-                  </span>
-                  <span className="text-purple-600">
-                    ${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()} committed
-                  </span>
-                </div>
-                <div className="w-full bg-purple-200 rounded-full h-2 mt-2">
-                  <div 
-                    className="bg-gradient-to-r from-purple-500 to-green-500 h-2 rounded-full transition-all duration-500" 
-                    style={{width: `${Math.max(0, (cart.length / Math.max(1, plannerSteps.length - 2)) * 100)}%`}}
-                  ></div>
-                </div>
+        <div className="flex h-[calc(100vh-200px)]">
+          {/* Main Content Area */}
+          <div className="flex-1 p-6 overflow-y-auto">
+            {/* Questionnaire-Synced Vendor Selection Header */}
+            <div className="flex items-center space-x-3 mb-6">
+              <Wand2 className="h-6 w-6 text-purple-600" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Questionnaire-Synced Vendor Selection</h2>
+                <p className="text-sm text-gray-600">Services from your questionnaire. Click to select vendors with auto-applied filters.</p>
+              </div>
+            </div>
+
+            {/* Progress Indicator */}
+            <div className="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-purple-700">Progress: {cart.length} of {plannerSteps.filter(s => s.id !== 'planning' && s.id !== 'review').length} services selected</span>
+                <span className="text-sm font-medium text-purple-700">${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()} committed</span>
+              </div>
+              <div className="w-full bg-purple-200 rounded-full h-2">
+                <div 
+                  className="bg-gradient-to-r from-purple-500 to-green-500 h-2 rounded-full transition-all duration-500" 
+                  style={{width: `${Math.max(0, (cart.length / Math.max(1, plannerSteps.length - 2)) * 100)}%`}}
+                ></div>
               </div>
             </div>
 
@@ -2405,387 +1936,82 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                   );
                 })}
             </div>
+          </div>
 
-            {/* Sparkle Your Event - Optional Upsells */}
-            {(() => {
-              // Define services NOT selected in questionnaire
-              const allOptionalServices = [
-                { id: 'flowers', name: 'Floral Arrangements', icon: '💐', category: 'flowers', color: 'from-rose-400 to-pink-500' },
-                { id: 'lighting', name: 'Special Lighting', icon: '💡', category: 'lighting', color: 'from-yellow-400 to-amber-500' },
-                { id: 'photo_booth', name: 'Photo Booth', icon: '📷', category: 'photo_booth', color: 'from-blue-400 to-indigo-500' },
-                { id: 'live_music', name: 'Live Music', icon: '🎼', category: 'live_music', color: 'from-purple-400 to-violet-500' },
-                { id: 'dessert_bar', name: 'Dessert Bar', icon: '🍰', category: 'dessert_bar', color: 'from-pink-400 to-rose-500' },
-                { id: 'cocktail_hour', name: 'Cocktail Hour', icon: '🍸', category: 'cocktail_hour', color: 'from-emerald-400 to-teal-500' }
-              ];
-
-              // Filter out services already selected in questionnaire
-              const upsellServices = allOptionalServices.filter(service => 
-                !availableServices.includes(service.category) && 
-                !availableServices.includes(service.id) &&
-                !cart.some(item => item.service_type === service.category)
-              );
-
-              if (upsellServices.length === 0) return null;
-
-              return (
-                <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center justify-center">
-                      <Sparkles className="h-6 w-6 text-purple-600 mr-2" />
-                      ✨ Sparkle Your Event
-                    </h3>
-                    <p className="text-gray-600">Popular add-ons to make your event extra special</p>
-                    <div className="text-xs text-purple-700 bg-purple-100 rounded-full px-3 py-1 inline-block mt-2">
-                      Optional Enhancements
-                    </div>
+          {/* Right Sidebar - Live Shopping Cart */}
+          <div className="w-80 bg-gray-50 border-l p-6 flex flex-col">
+            <div className="flex items-center space-x-2 mb-4">
+              <ShoppingCart className="h-5 w-5 text-purple-600" />
+              <h3 className="font-semibold text-gray-900">Live Shopping Cart</h3>
+              <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full">
+                {cart.length}/{plannerSteps.filter(s => s.id !== 'planning' && s.id !== 'review').length}
+              </span>
+            </div>
+            
+            {cart.length === 0 ? (
+              <div className="text-center py-8">
+                <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 font-medium">Ready to Start</p>
+                <p className="text-sm text-gray-500 mt-1">Click on service categories to add vendors</p>
+                <div className="mt-4 px-4 py-2 bg-yellow-50 rounded border border-yellow-200">
+                  <div className="flex items-center text-yellow-700">
+                    <Sparkles className="h-4 w-4 mr-1" />
+                    <span className="text-xs font-medium">Real-time updates</span>
                   </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                    {upsellServices.slice(0, 6).map((service) => (
-                      <div 
-                        key={service.id} 
-                        className={`relative rounded-lg p-4 transition-all duration-300 cursor-pointer transform hover:scale-105 bg-gradient-to-br ${service.color} text-white shadow-md hover:shadow-lg border-2 border-transparent hover:border-white`}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2 flex-1 overflow-y-auto">
+                {cart.map((item, index) => (
+                  <div key={index} className="p-3 bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className="font-medium text-sm text-gray-900 truncate flex-1 mr-2">
+                        {item.service_name}
+                      </h4>
+                      <button
                         onClick={() => {
-                          // Add this service to available services and search vendors
-                          setAvailableServices(prev => [...prev, service.category]);
-                          searchVendorsWithFilters(service.category);
+                          setCart(prev => prev.filter((_, i) => i !== index));
+                          updateBudgetCalculations();
                         }}
+                        className="text-red-500 hover:text-red-700 text-xs"
                       >
-                        {/* Popular Badge */}
-                        <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-xs font-bold px-1 py-0.5 rounded-full shadow-sm">
-                          HOT
-                        </div>
-                        
-                        {/* Service Icon */}
-                        <div className="text-center mb-2">
-                          <div className="text-2xl mb-1">{service.icon}</div>
-                        </div>
-                        
-                        {/* Service Name */}
-                        <h5 className="font-medium text-center text-xs text-white leading-tight">
-                          {service.name}
-                        </h5>
-                        
-                        {/* Add Button */}
-                        <button className="w-full mt-2 px-2 py-1 bg-white bg-opacity-20 text-white text-xs font-medium rounded hover:bg-opacity-30 transition-colors backdrop-blur-sm">
-                          + Add
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Sparkle Footer */}
-                  <div className="text-center mt-4">
-                    <p className="text-xs text-purple-600">
-                      💫 These suggestions are based on popular trends and similar events
-                    </p>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Progress Indicator */}
-            <div className="mt-8 bg-white rounded-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-semibold text-gray-900">Selection Progress</h4>
-                <span className="text-sm text-gray-600">
-                  {cart.length} of 9 services selected
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-purple-500 to-green-500 h-3 rounded-full transition-all duration-300" 
-                  style={{width: `${(cart.length / 9) * 100}%`}}
-                ></div>
-              </div>
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
-                <span>Getting Started</span>
-                <span>Ready to Book</span>
-              </div>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex justify-between items-center pt-6 border-t mt-8">
-              <button
-                onClick={() => setCurrentMode('continue')}
-                className="inline-flex items-center px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Back to Progress View
-              </button>
-              
-              <div className="flex space-x-3">
-                <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                  Export Summary
-                </button>
-                <button 
-                  onClick={handleClose}
-                  className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-                >
-                  Close Dashboard
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Side Panel - Live Shopping Cart */}
-          <div className="w-80 bg-gradient-to-b from-purple-50 to-indigo-50 border-l-2 border-purple-200 p-6">
-            <div className="sticky top-0">
-              {/* Cart Header with Progress */}
-              <div className="mb-4">
-                <h4 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
-                  <ShoppingCart className="h-5 w-5 text-purple-600 mr-2" />
-                  Live Shopping Cart
-                  <span className="ml-2 text-sm bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                    {cart.length}/9
-                  </span>
-                </h4>
-                
-                {/* Real-time Progress Bar */}
-                <div className="bg-white rounded-lg p-3 border border-purple-200 shadow-sm">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-gray-600">Selection Progress</span>
-                    <span className="font-medium text-purple-600">
-                      {Math.round((cart.length / 9) * 100)}% Complete
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-purple-500 to-green-500 h-2 rounded-full transition-all duration-500" 
-                      style={{width: `${(cart.length / 9) * 100}%`}}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-              
-              {cart.length === 0 ? (
-                /* Enhanced Empty State */
-                <div className="text-center py-8 bg-white rounded-lg border border-purple-200 shadow-sm">
-                  <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-purple-400" />
-                  <p className="text-gray-700 font-medium mb-1">Ready to Start</p>
-                  <p className="text-sm text-gray-500 mb-4">Click on service categories to add vendors</p>
-                  <div className="text-xs text-purple-600 bg-purple-100 px-3 py-1 rounded-full inline-block">
-                    ✨ Real-time updates
-                  </div>
-                </div>
-              ) : (
-                /* Enhanced Cart Items */
-                <div className="space-y-3">
-                  <div className="max-h-80 overflow-y-auto space-y-3">
-                    {cart.map((item, index) => (
-                      <div key={index} className="bg-white rounded-lg p-4 border border-purple-200 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-3 flex-1">
-                            {/* Service Icon */}
-                            <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-sm">
-                              {item.service_type === 'venue' && '🏛️'}
-                              {item.service_type === 'catering' && '🍽️'}
-                              {item.service_type === 'photography' && '📸'}
-                              {item.service_type === 'decoration' && '🎨'}
-                              {item.service_type === 'dj' && '🎵'}
-                              {item.service_type === 'bar' && '🍸'}
-                              {item.service_type === 'planner' && '📋'}
-                              {item.service_type === 'staffing' && '👥'}
-                              {item.service_type === 'entertainment' && '🎭'}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 text-sm leading-tight truncate">{item.vendor_name}</p>
-                              <p className="text-xs text-gray-600 capitalize mt-1">{item.service_type}</p>
-                            </div>
-                          </div>
-                          <button 
-                            onClick={() => {
-                              removeFromCart(item.id || index);
-                              // Show feedback
-                              const serviceName = item.service_type.charAt(0).toUpperCase() + item.service_type.slice(1);
-                              // You could add a toast notification here
-                            }}
-                            className="text-red-500 hover:text-red-700 p-1 ml-2 hover:bg-red-50 rounded transition-colors"
-                            title="Remove vendor"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                        <div className="mt-3 flex items-center justify-between">
-                          <span className="text-sm font-semibold text-purple-600">${item.price?.toLocaleString()}</span>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                              ✓ Added
-                            </span>
-                            <button 
-                              onClick={() => setSelectedVendorForDetails(item)}
-                              className="text-xs text-purple-600 hover:text-purple-800"
-                            >
-                              Details
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Enhanced Cart Summary */}
-                  <div className="bg-white rounded-lg p-4 border-2 border-purple-200 shadow-sm">
-                    <h5 className="font-semibold text-gray-900 mb-3 flex items-center">
-                      <DollarSign className="h-4 w-4 text-green-600 mr-1" />
-                      Budget Impact
-                    </h5>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Subtotal ({cart.length} items):</span>
-                        <span className="font-medium">${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Tax & Fees (10%):</span>
-                        <span className="font-medium">${Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 0.1).toLocaleString()}</span>
-                      </div>
-                      <div className="border-t pt-2">
-                        <div className="flex justify-between">
-                          <span className="font-semibold text-gray-900">Total:</span>
-                          <span className="font-bold text-lg text-purple-600">
-                            ${Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 1.1).toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Budget Status */}
-                      {eventData?.budget && (
-                        <div className="mt-3 p-2 bg-gray-50 rounded">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-gray-600">Budget Remaining:</span>
-                            <span className={`font-medium ${
-                              (eventData.budget - Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 1.1)) >= 0 
-                                ? 'text-green-600' 
-                                : 'text-red-600'
-                            }`}>
-                              ${(eventData.budget - Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 1.1)).toLocaleString()}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Enhanced Cart Actions */}
-                    <div className="space-y-2 mt-4">
-                      {cart.length < 9 && (
-                        <div className="text-center p-2 bg-yellow-50 rounded border border-yellow-200">
-                          <p className="text-xs text-yellow-700 font-medium">
-                            {9 - cart.length} more services to complete your event
-                          </p>
-                        </div>
-                      )}
-                      
-                      <button 
-                        onClick={finalizeEventPlan}
-                        disabled={saving || cart.length === 0}
-                        className={`w-full px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-                          cart.length === 9 
-                            ? 'bg-green-600 hover:bg-green-700 text-white shadow-lg transform hover:scale-105' 
-                            : 'bg-purple-600 hover:bg-purple-700 text-white'
-                        } disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none`}
-                      >
-                        {saving 
-                          ? 'Processing...' 
-                          : cart.length === 9 
-                            ? '🎉 Complete & Book All Services' 
-                            : `Book ${cart.length} Selected Services`
-                        }
+                        <Trash2 className="h-3 w-3" />
                       </button>
-                      
-                      {cart.length > 0 && (
-                        <button 
-                          onClick={() => {
-                            if (window.confirm('Clear all selected vendors from cart?')) {
-                              setCart([]);
-                            }
-                          }}
-                          className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm transition-colors"
-                        >
-                          Clear Cart ({cart.length} items)
-                        </button>
-                      )}
                     </div>
+                    <p className="text-xs text-gray-600 mb-2">{item.service_type}</p>
+                    <p className="text-sm font-semibold text-green-600">${item.price?.toLocaleString()}</p>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-          {/* Appointments & Deadlines */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Upcoming Appointments */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <Calendar className="h-5 w-5 text-blue-600 mr-2" />
-                Upcoming Appointments
-              </h4>
-              
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900 text-sm">Venue Walkthrough</p>
-                    <p className="text-sm text-gray-600">Grand Palace Hall</p>
-                    <p className="text-xs text-blue-600 mt-1">Aug 20, 2025 - 3:00 PM</p>
-                  </div>
-                  <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded">Confirmed</span>
-                </div>
-                
-                <div className="text-center py-4">
-                  <button className="text-blue-600 hover:text-blue-800 text-sm">
-                    View Full Calendar
-                  </button>
-                </div>
+                ))}
               </div>
-            </div>
+            )}
 
-            {/* Critical Tasks & Alerts */}
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <AlertTriangle className="h-5 w-5 text-amber-600 mr-2" />
-                Tasks & Alerts
-              </h4>
-              
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900 text-sm">Insurance Certificate Required</p>
-                    <p className="text-sm text-gray-600">Upload COI for venue booking</p>
-                    <p className="text-xs text-amber-600 mt-1">Due: Aug 25, 2025</p>
+            {/* Cart Summary */}
+            {cart.length > 0 && (
+              <div className="border-t pt-4 mt-4 space-y-3">
+                <div className="text-sm">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span className="font-medium">${cart.reduce((sum, item) => sum + (item.price || 0), 0).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Est. Taxes & Fees:</span>
+                    <span>${Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 0.1).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between font-semibold border-t pt-2">
+                    <span>Total:</span>
+                    <span>${Math.round(cart.reduce((sum, item) => sum + (item.price || 0), 0) * 1.1).toLocaleString()}</span>
                   </div>
                 </div>
                 
-                <div className="text-center py-4">
-                  <button className="text-amber-600 hover:text-amber-800 text-sm">
-                    View All Tasks
-                  </button>
-                </div>
+                <button 
+                  onClick={finalizeEventPlan}
+                  disabled={saving || cart.length === 0}
+                  className="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+                >
+                  {saving ? 'Processing...' : `Book ${cart.length} Services`}
+                </button>
               </div>
-            </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-between items-center pt-6 border-t">
-            <button
-              onClick={() => setCurrentMode('continue')}
-              className="inline-flex items-center px-4 py-2 border border-green-600 text-green-600 rounded-lg hover:bg-green-50"
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Back to Progress View
-            </button>
-            
-            <div className="flex space-x-3">
-              <button className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                Export Summary
-              </button>
-              <button 
-                onClick={handleClose}
-                className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-              >
-                Close Dashboard
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>
