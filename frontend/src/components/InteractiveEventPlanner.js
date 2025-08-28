@@ -88,7 +88,8 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     
     const filters = {
       preferred_venue_type: wizardAnswers?.preferred_venue_types?.[0] || event.preferred_venue_type || '',
-      services_needed: [...coreServices, ...extraServices],
+      core_services: coreServices,
+      extras: extraServices,
       guest_count: wizardAnswers?.guest_count || event.guest_count || 0,
       event_type: wizardAnswers?.event_type || event.event_type || '',
       cultural_style: wizardAnswers?.cultural_style?.[0] || event.cultural_style || '',
