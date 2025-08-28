@@ -573,7 +573,7 @@ async def register_user(user_data: UserRegister):
     # Create new user
     user_dict = user_data.dict()
     user_dict["id"] = str(uuid.uuid4())
-    user_dict["password_hash"] = hash_password(user_data.password)
+    user_dict["hashed_password"] = hash_password(user_data.password)
     del user_dict["password"]
     
     await db.users.insert_one(user_dict)
