@@ -693,6 +693,11 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       console.log('🔄 Regenerating planner steps due to questionnaire filter changes');
       const newSteps = generateDynamicPlannerSteps(questionnaireFilters);
       setPlannerSteps(newSteps);
+    } else {
+      // Fallback: Generate default steps if no questionnaire data
+      console.log('🔄 No questionnaire data, generating default steps');
+      const defaultSteps = generateDynamicPlannerSteps({});
+      setPlannerSteps(defaultSteps);
     }
   }, [questionnaireFilters]);
 
