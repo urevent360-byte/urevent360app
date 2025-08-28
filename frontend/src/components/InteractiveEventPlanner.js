@@ -185,7 +185,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           event_type: questionnaireFilters.event_type,
           location: questionnaireFilters.location,
           date: questionnaireFilters.date,
-          budget_per_service: Math.floor((questionnaireFilters.budget || 0) / Math.max(plannerSteps.length - 2, 1)),
+          budget_per_service: Math.floor((questionnaireFilters.budget || 0) / Math.max((plannerSteps?.length || 3) - 2, 1)),
           
           // Apply fallback ladder for cultural style
           cultural_style: fallbackLevel === 0 ? questionnaireFilters.cultural_style : 
