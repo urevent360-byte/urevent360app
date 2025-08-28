@@ -7,7 +7,7 @@ import {
   DollarSign, Users, MapPin, Camera, Music, Utensils, 
   Sparkles, UserCheck, Calendar, ShoppingCart, AlertTriangle,
   CheckCircle, Eye, FastForward, RotateCcw, Wine, Zap, User, Edit3, Play,
-  Phone, Mail, Wand2
+  Phone, Mail, Wand2, ArrowLeft
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
