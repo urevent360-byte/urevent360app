@@ -57,7 +57,7 @@ async def create_sample_event():
     await db.events.insert_one(sample_event)
     
     print(f"✅ Created sample event: {event_id}")
-    print(f"Event: {sample_event['name']} ({sample_event['type']})")
+    print(f"Event: {sample_event['name']} ({sample_event['event_type']})")
     print(f"Date: {sample_event['date']}")
     print(f"Location: {sample_event['location']}")
 
