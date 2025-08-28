@@ -1857,6 +1857,7 @@ Status: Pending restaurant confirmation`);
         <InteractiveEventPlanner
           event={event}
           eventId={eventId}
+          mode={event?.wizard_answers ? 'new' : 'continue'}
           onClose={() => setShowInteractivePlanner(false)}
           onPlanSaved={(result) => {
             console.log('Plan saved with result:', result);
