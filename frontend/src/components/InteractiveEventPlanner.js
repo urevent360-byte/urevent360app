@@ -760,20 +760,14 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     }
   }, [eventId, currentMode]);
 
-  // Auto-detect if event has wizard_answers and should skip overview
+  // For events with wizard_answers, ALWAYS start in vendor selection mode ('new')
+  // Skip all overview/continue pages entirely
   useEffect(() => {
     if (eventData && eventData.wizard_answers) {
-      console.log('🎯 Event has wizard_answers, switching to vendor selection mode');
-      console.log('Current mode:', currentMode, 'Event data:', eventData);
-      // Only switch to 'new' mode if we're currently in 'continue' mode showing overview
-      if (currentMode === 'continue') {
-        console.log('🔄 Switching from continue to new mode');
-        setCurrentMode('new');
-      }
-    } else {
-      console.log('❌ Event has no wizard_answers:', eventData);
+      console.log('🎯 Event has wizard_answers, forcing vendor selection mode');
+      setCurrentMode('new');
     }
-  }, [eventData, currentMode]);
+  }, [eventData]);
 
   useEffect(() => {
     // Update budget calculations when cart changes
