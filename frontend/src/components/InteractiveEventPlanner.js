@@ -503,6 +503,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
   // Generate dynamic planner steps based on questionnaire answers
   const generateDynamicPlannerSteps = (questionnaireFilters) => {
     console.log('🎯 Generating dynamic planner steps with filters:', questionnaireFilters);
+    console.log('🎯 Event wizard_answers:', eventData?.wizard_answers);
     
     const steps = [];
 
@@ -522,77 +523,72 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       console.log('✅ Added venue step');
     }
 
-    // Core service definitions
-    const coreServices = [
-      {
-        id: 'catering',
-        title: 'Catering',
-        subtitle: 'Food and beverage services',
-        icon: Utensils,
-        color: 'bg-green-500'
-      },
-      {
-        id: 'decoration',
-        title: 'Decoration',
-        subtitle: 'Transform your space with beautiful decorations',
-        icon: Sparkles,
-        color: 'bg-pink-500'
-      },
-      {
-        id: 'photography',
-        title: 'Photography',
-        subtitle: 'Capture every moment professionally',
-        icon: Camera,
-        color: 'bg-indigo-500'
-      },
-      {
-        id: 'lighting',
-        title: 'Lighting',
-        subtitle: 'Create the perfect ambiance',
-        icon: Zap,
-        color: 'bg-yellow-500'
-      },
-      {
-        id: 'music_dj',
-        title: 'DJ/Music',
-        subtitle: 'Keep the party going with great music',
-        icon: Music,
-        color: 'bg-red-500'
-      },
-      {
-        id: 'videography',
-        title: 'Videography',
-        subtitle: 'Professional video recording',
-        icon: Camera,
-        color: 'bg-purple-500'
-      },
-      {
-        id: 'transportation',
-        title: 'Transportation',
-        subtitle: 'Reliable transport services',
-        icon: MapPin,
-        color: 'bg-blue-600'
-      },
-      {
-        id: 'cleaning',
-        title: 'Cleaning',
-        subtitle: 'Post-event cleanup services',
-        icon: Sparkles,
-        color: 'bg-teal-500'
-      }
-    ];
+    // Get services from wizard_answers (this is the key synchronization)
+    const wizardAnswers = eventData?.wizard_answers || {};
+    const selectedCoreServices = wizardAnswers.core_services || wizardAnswers.needed_core_services || [];
+    const selectedExtras = wizardAnswers.extras || wizardAnswers.needed_extras || [];
+    
+    console.log('📋 Selected Core Services from wizard:', selectedCoreServices);
+    console.log('📋 Selected Extras from wizard:', selectedExtras);
 
-    // Add all core services to match the previous interface
-    coreServices.forEach(service => {
-      steps.push({
-        ...service,
-        searchable: true,
-        required: false,
-        autoFilters: formatAutoFilters(questionnaireFilters, service.id)
-      });
+    // Core service mapping - only create tiles for selected services
+    const serviceMapping = {
+      'Catering': { id: 'catering', title: 'Catering', subtitle: 'Food and beverage services', icon: Utensils, color: 'bg-green-500' },
+      'Decoration': { id: 'decoration', title: 'Decoration', subtitle: 'Transform your space', icon: Sparkles, color: 'bg-pink-500' },
+      'Photography': { id: 'photography', title: 'Photography', subtitle: 'Capture every moment', icon: Camera, color: 'bg-indigo-500' },
+      'Videography': { id: 'videography', title: 'Videography', subtitle: 'Professional video recording', icon: Camera, color: 'bg-purple-500' },
+      'Music/DJ': { id: 'music_dj', title: 'DJ/Music', subtitle: 'Keep the party going', icon: Music, color: 'bg-red-500' },
+      'Lighting': { id: 'lighting', title: 'Lighting', subtitle: 'Create perfect ambiance', icon: Zap, color: 'bg-yellow-500' },
+      'Transportation': { id: 'transportation', title: 'Transportation', subtitle: 'Reliable transport services', icon: MapPin, color: 'bg-blue-600' },
+      'Cleaning': { id: 'cleaning', title: 'Cleaning', subtitle: 'Post-event cleanup', icon: Sparkles, color: 'bg-teal-500' },
+      'Security': { id: 'security', title: 'Security', subtitle: 'Professional security', icon: UserCheck, color: 'bg-gray-500' }
+    };
+
+    // Add only the services they actually selected in the wizard
+    selectedCoreServices.forEach(serviceName => {
+      const mapping = serviceMapping[serviceName];
+      if (mapping) {
+        steps.push({
+          ...mapping,
+          searchable: true,
+          required: false,
+          autoFilters: formatAutoFilters(questionnaireFilters, mapping.id)
+        });
+        console.log(`✅ Added selected service: ${serviceName}`);
+      } else {
+        console.log(`❌ No mapping for selected service: ${serviceName}`);
+      }
     });
 
-    console.log(`✅ Generated ${steps.length} planner steps total`);
+    // Add-on/Extras mapping - show selected extras as additional tiles
+    const extrasMapping = {
+      'Photo Booths': { id: 'photo_booth', title: 'Photo Booths', subtitle: 'Interactive photo experiences', icon: Camera, color: 'bg-purple-600' },
+      'Cold Spark Machines': { id: 'cold_sparks', title: 'Cold Spark Machines', subtitle: 'Spectacular visual effects', icon: Sparkles, color: 'bg-blue-400' },
+      'LED Dance Floor': { id: 'led_floor', title: 'LED Dance Floor', subtitle: 'Interactive illuminated floor', icon: Zap, color: 'bg-purple-400' },
+      'LED Screens': { id: 'led_screens', title: 'LED Screens', subtitle: 'Large format displays', icon: Eye, color: 'bg-indigo-400' },
+      'Live Shows (Salsa, Samba, Hora Loca with dancers)': { id: 'live_shows', title: 'Live Shows', subtitle: 'Professional entertainment', icon: User, color: 'bg-orange-500' },
+      'Dance in the Clouds': { id: 'dance_clouds', title: 'Dance in the Clouds', subtitle: 'Low-lying fog effects', icon: Sparkles, color: 'bg-cyan-500' },
+      'Specialty Entertainers': { id: 'specialty_entertainers', title: 'Specialty Entertainers', subtitle: 'Unique entertainment acts', icon: User, color: 'bg-rose-500' }
+    };
+
+    // Add only the extras/add-ons they selected in the wizard
+    selectedExtras.forEach(extraName => {
+      const mapping = extrasMapping[extraName];
+      if (mapping) {
+        steps.push({
+          ...mapping,
+          searchable: true,
+          required: false,
+          autoFilters: formatAutoFilters(questionnaireFilters, mapping.id),
+          isExtra: true // Mark as extra for styling purposes
+        });
+        console.log(`✅ Added selected extra: ${extraName}`);
+      } else {
+        console.log(`❌ No mapping for selected extra: ${extraName}`);
+      }
+    });
+
+    console.log(`✅ Generated ${steps.length} synchronized planner steps based on questionnaire selections`);
     return steps;
   };
 
