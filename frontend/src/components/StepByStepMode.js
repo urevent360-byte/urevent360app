@@ -1855,7 +1855,7 @@ Status: Pending restaurant confirmation`);
       {/* Interactive Event Planner Modal */}
       {showInteractivePlanner && (
         <InteractiveEventPlanner
-          event={event}
+          currentEvent={event}
           eventId={eventId}
           mode="new"
           onClose={() => setShowInteractivePlanner(false)}
