@@ -43,7 +43,7 @@ class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     email: str
-    password_hash: str
+    hashed_password: str
     mobile: Optional[str] = None
     role: str = "client"
     
