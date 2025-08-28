@@ -821,9 +821,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       if (stepId === 'venue') {
         // Use enhanced venue matching API with location preferences
         if (eventId) {
-          response = await axios.get(`${API}/match/venues/event/${eventId}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          response = await axios.get(`${API}/match/venues/event/${eventId}`, getAuthHeaders());
         } else {
           // Fallback to search API for events without ID
           if (currentEvent?.location) {
