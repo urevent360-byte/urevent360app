@@ -2177,8 +2177,53 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       </div>
     );
   }
+  
+  // Step-by-step vendor selection interface (when currentMode is 'new')
+  if (currentMode === 'new' && currentStep >= 0 && currentStep < plannerSteps.length) {
+    const step = plannerSteps[currentStep];
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div className="relative top-4 mx-auto p-0 border w-full max-w-6xl shadow-lg rounded-lg bg-white mb-8">
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-50 to-indigo-50">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => {
+                  setCurrentMode('overview');
+                  setCurrentStep(-1);
+                }}
+                className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5 text-purple-600" />
+              </button>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Select {step.title} for Your Event
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Browse and compare {step.title.toLowerCase()} options filtered by your preferences
+                </p>
+              </div>
+            </div>
+            
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <X className="h-5 w-5 text-gray-600" />
+            </button>
+          </div>
 
-  // Default mode (new planning) - original interface
+          {/* Step Content - Vendor List */}
+          <div className="p-6">
+            {renderStepContent(step)}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main overview interface (default)
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       {/* Debug Component */}
