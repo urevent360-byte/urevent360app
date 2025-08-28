@@ -420,9 +420,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       } else {
         // No specific event, get user's events and use the first one
         console.log('📋 No specific event, fetching user events');
-        const response = await axios.get(`${API}/events`, {
-          headers
-        });
+        const response = await axios.get(`${API}/events`, getAuthHeaders());
         
         if (response.data.events && response.data.events.length > 0) {
           const recentEvent = response.data.events[0];
