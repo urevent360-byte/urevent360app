@@ -2327,6 +2327,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
                           setSelectedVendorForDetails(selectedVendor);
                         } else {
                           // Start vendor search with questionnaire filters
+                          console.log(`🎯 Clicked service tile: ${step.id}`);
                           searchVendorsWithFilters(step.id);
                         }
                       }}
