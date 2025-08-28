@@ -595,66 +595,6 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     console.log(`✅ Generated ${steps.length} planner steps total`);
     return steps;
   };
-      'LED Screens': {
-        id: 'led_screens',
-        title: 'LED Screens',
-        subtitle: 'Large format displays',
-        icon: Eye,
-        color: 'bg-indigo-400'
-      },
-      'Live Shows': {
-        id: 'live_shows',
-        title: 'Live Shows',
-        subtitle: 'Professional entertainment acts',
-        icon: User,
-        color: 'bg-orange-500'
-      },
-      'Dance in the Clouds': {
-        id: 'dance_clouds',
-        title: 'Dance in the Clouds',
-        subtitle: 'Low-lying fog effects for dancing',
-        icon: Sparkles,
-        color: 'bg-cyan-500'
-      }
-    };
-
-    // Add addon services with debugging
-    const extras = questionnaireFilters.extras || [];
-    console.log('🎁 Processing extras/addon services:', extras);
-    
-    extras.forEach(extraName => {
-      console.log(`🔍 Processing addon: "${extraName}"`);
-      const mapping = addonMapping[extraName];
-      if (mapping) {
-        steps.push({
-          ...mapping,
-          searchable: true,
-          required: false,
-          autoFilters: formatAutoFilters(questionnaireFilters, mapping.id)
-        });
-        console.log(`✅ Added addon step: ${extraName} → ${mapping.title}`);
-      } else {
-        console.log(`❌ No addon mapping found for: "${extraName}"`);
-        console.log('Available addon mappings:', Object.keys(addonMapping));
-      }
-    });
-
-    // Always include review step
-    steps.push({
-      id: 'review',
-      title: 'Review',
-      subtitle: 'Review and finalize your event plan',
-      icon: CheckCircle,
-      color: 'bg-green-600',
-      searchable: false,
-      required: true
-    });
-
-    console.log(`🎯 Generated ${steps.length} total planner steps:`, steps.map(s => s.title));
-    console.log('📊 Service tiles (excluding planning/review):', steps.filter(s => s.id !== 'planning' && s.id !== 'review').length);
-    
-    return steps;
-  };
 
   // Format auto-filters display for each service tile
   const formatAutoFilters = (filters, serviceType) => {
