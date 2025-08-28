@@ -525,13 +525,12 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       console.log('✅ Added venue step');
     }
 
-    // Get services from wizard_answers (this is the key synchronization)
-    const wizardAnswers = eventData?.wizard_answers || {};
-    const selectedCoreServices = wizardAnswers.core_services || wizardAnswers.needed_core_services || [];
-    const selectedExtras = wizardAnswers.extras || wizardAnswers.needed_extras || [];
+    // Get services from wizard_answers via questionnaireFilters (not eventData)
+    const selectedCoreServices = questionnaireFilters?.core_services || [];
+    const selectedExtras = questionnaireFilters?.extras || [];
     
-    console.log('📋 Selected Core Services from wizard:', selectedCoreServices);
-    console.log('📋 Selected Extras from wizard:', selectedExtras);
+    console.log('📋 Selected Core Services from filters:', selectedCoreServices);
+    console.log('📋 Selected Extras from filters:', selectedExtras);
 
     // Core service mapping - only create tiles for selected services
     const serviceMapping = {
