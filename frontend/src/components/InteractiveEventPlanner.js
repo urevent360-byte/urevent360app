@@ -408,9 +408,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       } else if (eventId) {
         // Fetch specific event by ID
         console.log('🔍 Fetching event by ID:', eventId);
-        const response = await axios.get(`${API}/events/${eventId}`, {
-          headers
-        });
+        const response = await axios.get(`${API}/events/${eventId}`, getAuthHeaders());
         eventToUse = response.data;
         setEventData(response.data);
         syncQuestionnaireFilters(response.data);
