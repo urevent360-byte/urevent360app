@@ -2179,7 +2179,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
   }
   
   // Step-by-step vendor selection interface (when currentMode is 'new')
-  if (currentMode === 'new' && currentStep >= 0 && currentStep < plannerSteps.length) {
+  if (currentMode === 'new' && currentStep >= 0 && currentStep < plannerSteps.length && plannerSteps[currentStep]) {
     const step = plannerSteps[currentStep];
     return (
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
