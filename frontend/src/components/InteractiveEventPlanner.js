@@ -145,35 +145,17 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
         const locationData = questionnaireFilters.location_preferences || {};
         
         filterParams = {
-          // Location parameters for venue search
-          zip_code: locationData.zipcode || null,
-          city: questionnaireFilters.location || locationData.city,
-          radius: fallbackLevel === 0 ? (locationData.radius_miles || 30) : 
-                  fallbackLevel === 1 ? 60 : 
-                  fallbackLevel === 2 ? 120 : 180,
-          
-          // Venue-specific parameters
-          venue_type: questionnaireFilters.preferred_venue_type,
-          preferred_venue_type: questionnaireFilters.preferred_venue_type,
-          capacity_min: Math.floor((questionnaireFilters.guest_count || 0) * 0.8), // 80% of guest count as minimum
-          capacity_max: Math.ceil((questionnaireFilters.guest_count || 0) * 1.2), // 120% of guest count as maximum
-          
-          // Event details
-          date: questionnaireFilters.date,
+          capacity_min: Math.floor((questionnaireFilters.guest_count || 100) * 0.8),
+          capacity_max: Math.ceil((questionnaireFilters.guest_count || 100) * 1.5),
           event_type: questionnaireFilters.event_type,
           
-          // Budget (venue search uses different budget structure)
-          max_price_per_person: questionnaireFilters.budget ? 
-            Math.floor(questionnaireFilters.budget / Math.max(questionnaireFilters.guest_count || 1, 1)) : 
-            undefined,
-            
-          // Cultural style (venues might have cultural preferences)
-          cultural_style: fallbackLevel === 0 ? questionnaireFilters.cultural_style : 
-                         fallbackLevel === 1 ? '' : undefined,
+          // Progressive location fallback - start broader for better results
+          location: fallbackLevel === 0 ? undefined : questionnaireFilters.location,  // No location filter at level 0
           
-          // Sort and limit
-          sort: fallbackLevel === 0 ? 'best_match' : 
-                fallbackLevel === 1 ? 'rating' : 'popular',
+          // Budget filtering
+          max_price_per_person: Math.floor((questionnaireFilters.budget || 0) / Math.max((questionnaireFilters.guest_count || 100), 1)) || undefined,
+          
+          // Limit results
           limit: 20
         };
         
