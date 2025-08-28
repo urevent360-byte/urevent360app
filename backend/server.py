@@ -604,7 +604,7 @@ async def login_user(user_data: UserLogin):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     # Verify password
-    if not verify_password(user_data.password, user["password_hash"]):
+    if not verify_password(user_data.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     
     # Create JWT token
