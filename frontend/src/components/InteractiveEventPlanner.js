@@ -138,22 +138,17 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       let filterParams = {};
       
       if (serviceCategory === 'venue') {
-        // Use venue-specific search endpoint with venue-specific parameters
-        apiEndpoint = `${API}/venues/search`;
-        
-        // Extract location data from questionnaire
-        const locationData = questionnaireFilters.location_preferences || {};
-        
+        // Use venue search endpoint with progressive fallback
         filterParams = {
-          capacity_min: Math.floor((questionnaireFilters.guest_count || 100) * 0.8),
-          capacity_max: Math.ceil((questionnaireFilters.guest_count || 100) * 1.5),
-          event_type: questionnaireFilters.event_type,
+          // Start with minimal filters for better results
+          event_type: fallbackLevel === 0 ? undefined : questionnaireFilters.event_type,
           
-          // Progressive location fallback - start broader for better results
-          location: fallbackLevel === 0 ? undefined : questionnaireFilters.location,  // No location filter at level 0
+          // Only apply capacity filters if we have guest count
+          capacity_min: questionnaireFilters.guest_count ? Math.floor(questionnaireFilters.guest_count * 0.5) : undefined,
+          capacity_max: questionnaireFilters.guest_count ? Math.ceil(questionnaireFilters.guest_count * 2) : undefined,
           
-          // Budget filtering
-          max_price_per_person: Math.floor((questionnaireFilters.budget || 0) / Math.max((questionnaireFilters.guest_count || 100), 1)) || undefined,
+          // Progressive location fallback 
+          location: fallbackLevel <= 1 ? undefined : questionnaireFilters.location,
           
           // Limit results
           limit: 20
