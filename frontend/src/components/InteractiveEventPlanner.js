@@ -88,6 +88,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     
     const filters = {
       preferred_venue_type: wizardAnswers?.preferred_venue_types?.[0] || event.preferred_venue_type || '',
+      services_needed: [...coreServices, ...extraServices],
       core_services: coreServices,
       extras: extraServices,
       guest_count: wizardAnswers?.guest_count || event.guest_count || 0,
@@ -99,8 +100,6 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
       
       // Additional wizard data for enhanced matching
       venue_types: wizardAnswers?.preferred_venue_types || [],
-      core_services: coreServices,
-      extras: extraServices,
       service_subcategories: wizardAnswers?.service_subcategories || {},
       theme_format: wizardAnswers?.theme_or_format || [],
       mitzvah_type: wizardAnswers?.mitzvah_type || null
@@ -108,6 +107,8 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     
     console.log('🎯 Final questionnaire filters:', filters);
     console.log('📋 Total services to display:', filters.services_needed.length);
+    console.log('📋 Core services array:', filters.core_services);
+    console.log('📋 Extras array:', filters.extras);
     
     setQuestionnaireFilters(filters);
     setIsAtHome(filters.preferred_venue_type === 'at_home' || filters.preferred_venue_type === 'my_own_private_space');
