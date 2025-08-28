@@ -77,8 +77,8 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
     const wizardAnswers = event.wizard_answers;
     
     // Enhanced service extraction with debugging
-    const coreServices = wizardAnswers?.needed_core_services || event.needed_core_services || [];
-    const extraServices = wizardAnswers?.needed_extras || event.needed_extras || [];
+    const coreServices = wizardAnswers?.core_services || wizardAnswers?.needed_core_services || event.needed_core_services || [];
+    const extraServices = wizardAnswers?.extras || wizardAnswers?.needed_extras || event.needed_extras || [];
     
     // Debug logging
     console.log('🔍 Event data received:', event);
