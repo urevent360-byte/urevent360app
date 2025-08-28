@@ -1051,7 +1051,7 @@ const EventDashboard = () => {
       {/* Interactive Event Planner */}
       {showInteractivePlanner && (
         <InteractiveEventPlanner
-          event={event}
+          currentEvent={event}
           eventId={eventId}
           mode="new"
           onClose={() => setShowInteractivePlanner(false)}
