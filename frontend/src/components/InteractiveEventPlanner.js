@@ -220,7 +220,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
 
       const response = await axios.get(apiEndpoint, {
         params: filterParams,
-        headers: { Authorization: `Bearer ${token}` }
+        ...getAuthHeaders()
       });
 
       const vendorResults = response.data || [];
