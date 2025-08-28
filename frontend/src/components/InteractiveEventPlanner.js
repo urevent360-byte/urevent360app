@@ -2216,7 +2216,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
 
           {/* Step Content - Vendor List */}
           <div className="p-6">
-            {renderStepContent()}
+            {renderStepContent(step)}
           </div>
         </div>
       </div>
