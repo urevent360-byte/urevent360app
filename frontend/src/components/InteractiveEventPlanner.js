@@ -834,7 +834,7 @@ const InteractiveEventPlanner = ({ eventId, currentEvent, onClose, onPlanSaved, 
           if (currentEvent?.preferred_venue_type) {
             params.append('preferred_venue_type', currentEvent.preferred_venue_type);
           }
-          response = await axios.get(`${API}/venues/search?${params}`);
+          response = await axios.get(`${API}/venues/search?${params}`, getAuthHeaders());
         }
       } else {
         // Enhanced service filtering based on event's services needed
